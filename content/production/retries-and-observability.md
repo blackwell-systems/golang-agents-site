@@ -152,6 +152,14 @@ The chapter's live runs made 209 model calls and none of them needed a retry.
 The companion code therefore has a transport that causes failures deliberately: a 429, a 503, a dropped connection, or a stream reset after a chosen number of bytes.
 Every behavior on this page is tested against it, and many of the tests use the fake clock from `testing/synctest`.
 
+## When to use it
+
+```fit
+reach: Runs are long enough that one dropped connection is expensive. A TLS error ended a run at turn 41 after $0.077 of work, and left three groups of a fan-out unresolved (chapter 12).
+leave: Retrying permanent errors. A 402 means the account is out of credit, as happened partway through the book's own runs; retrying adds requests until someone adds funds (chapters 5 and 12).
+leave: Retrying a tool that isn't safe to repeat. In the crash sweep, sending a filing again after an unknown outcome is what produced every duplicate; retry only tools marked safe (chapters 12 and 15).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set:

@@ -140,6 +140,15 @@ Pick a judge from another model family than the agent, because models tend to pr
 Calibrate it against human ratings on enough examples.
 Thirty cases is about the minimum: with 27 matches out of 30, the judge's agreement could still be anywhere from 74 to 97 percent.
 
+## When to use it
+
+```fit
+reach: You are about to change the prompt, the model, or a tool, and need to know whether the change helped. Two identical runs of the same agent scored 15 points apart, so one run of each version can't tell you (chapter 13).
+reach: Answers can be checked by code. Hidden tests caught all nine `m2` runs that fixed the wrong function, which a gate that checks the test against the fix would have passed (chapter 13).
+leave: A model judge as the only grade where code can grade. A reviewer with an uncapped reasoning budget failed 10 of 25 reviews and rejected three right answers (chapter 13).
+leave: Reading small differences on small sets. With ten hard tasks, a one-task gain was within what two identical runs produced (chapter 13).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):

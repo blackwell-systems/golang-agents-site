@@ -87,6 +87,17 @@ The router's accuracy is a number a program can compute against tickets someone 
 Whether a given refund should have been issued is a business decision, so it takes a human reviewer or a model acting as judge.
 And because `issue_refund` moves money, a person approves each call before it runs, and the call carries an idempotency key so a refund that went out just before a crash isn't paid twice.
 
+## When to use it
+
+For this page, "it" is an agent; leaving it out means writing a workflow.
+
+```fit
+reach: Each step depends on what the previous one turned up. On `m2`, a crash whose cause was stored long before it, the book's agent passed three of its six hard-tier runs (chapter 13).
+reach: A model reply can fail in ways you can't list in advance. The workflow's only failure in 40 runs was a reply it couldn't decode, which an agent's loop would have sent back to the model (chapter 1).
+leave: You can write the steps down. As a three-step workflow, the bug fix passed 39 of 40 runs for a quarter to a sixth of the agent's cost (chapters 1 and 5).
+leave: Waiting matters. The workflow's single call took at most 2.5 seconds; each agent run took 7.5 to 13.5 (chapter 1).
+```
+
 ## A checklist
 
 - **Can you write the steps down?** Use a fixed chain. Wrap each model step in a retry; the workflow's single failure above was a decoding error that one more attempt, with the error shown to the model, might have fixed.

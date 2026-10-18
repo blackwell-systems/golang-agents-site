@@ -17,6 +17,8 @@ The build replaces `dist/`, copies `static/`, renders every page, writes `sitema
 
 A page with `draft: true` is left out entirely: no HTML, no sitemap or feed entry, and no place in the nav or its section's list. Drafts stay on disk for review.
 
+To review drafts, build them into a separate directory with `go run ./cmd/build -drafts -out /tmp/site-drafts` (add `-book ""` to skip the copy check, which several drafts don't pass yet). Never deploy a `-drafts` build.
+
 The build also runs a copy check: no published page may share a run of 10 or more consecutive words with the book's chapters, since there is no free web edition of the book. It reads the chapters from `../go-agents-book/book/chapters` (set `-book` to another path; `-book ""` skips the check with a warning). Code blocks, inline code, table rows, HTML tags, and link targets are left out, and so are the author's bio and copyright page. The threshold is `copyRun` in `cmd/build/copycheck.go`.
 
 `go test ./...` tests the generator.

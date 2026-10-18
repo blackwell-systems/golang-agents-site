@@ -94,6 +94,15 @@ Others use the same shape.
 The OpenAI Agents SDK lets a tool declare that it needs approval, returns from a run with pending interruptions, and serializes the run's state so it can resume later.
 What the companion code adds is binding each yes to a hash of exactly what the person saw, and remembering denials by the file they target.
 
+## When to use it
+
+```fit
+reach: The agent sends text to people or changes something you protect. Replayed over the book's 30 recorded runs, the default policy would have stopped 78 filings and comments and 26 protected writes for a person (chapter 14).
+reach: A model may try another route after a refusal. One model asked for a file it had been denied under three other spellings, and a gate that remembers denials by file refused each (chapter 14).
+leave: Read-only tools. A call that waits for approval runs alone, so gating reads would give up parallel reads for nothing; the book's policy leaves them ungated (chapters 9 and 14).
+leave: Input you trust, in volume. The recorded 99-report batch run would have asked 22 times under the default policy, which is why approval can be switched off and chapter 17 adds a review queue (chapters 14 and 17).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):

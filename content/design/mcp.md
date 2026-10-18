@@ -100,6 +100,13 @@ The book's client and the SDK's server talk to each other, and so do the SDK's c
 The chapter's advice: for a server anyone else will run, use the SDK almost always, since it speaks both eras and changes when the protocol does.
 For a client inside an agent, a hand-built one, about 490 lines without comments plus 190 shared with the server, does what an agent needs and keeps the dependency out until you choose to take it.
 
+## When to use it
+
+```fit
+reach: Tools live in another program or team. A call to a server process took 141 microseconds, under a ten-thousandth of a model call, and three triage runs through the tracker's server passed every check, as did three with the agent's own tools (chapter 10).
+leave: Servers whose tool definitions nobody has read. One sentence in a description steered 79 of 80 first moves, and a label cut that only to 57 (chapter 10).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set:

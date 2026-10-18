@@ -18,7 +18,7 @@ runs: ten per model for each version; costs are medians
 date: October 2026
 source: Chapter 1, and chapter 5’s table of shapes
 
-Written as a fixed three-step workflow, the bug fix cost a quarter to a sixth as much as the agent on each of four models, and its one model call finished in under a second to two and a half seconds, against seven and a half to thirteen and a half for the agent’s runs.
+Written as a fixed three-step workflow, the bug fix cost a quarter to a sixth as much as the agent on each of four models, and its one model call took between under a second and 2.5 seconds, while each agent run took 7.5 to 13.5 seconds.
 ```
 
 In an agent, the model picks every next step.

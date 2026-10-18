@@ -111,6 +111,15 @@ Ordering is left to the tools, except that its shell and patch tools each run on
 For independent lookups that works well.
 For a reply that edits a file and then runs tests, the ordering would have to come from the tools themselves.
 
+## When to use it
+
+```fit
+reach: Your model asks for several calls at once. In the book's saved runs, a quarter to all of the replies with tool calls asked for more than one, depending on the model and the task (chapter 9).
+reach: Tools wait on something slow, such as a network service; then the time saved is all but the slowest call's. On the book's local tools, the time went elsewhere (chapter 9).
+leave: Expecting it to speed up a coding agent. Replaying 87 recorded triage calls, the 60 read-only ones took a seventh of a second in all, so running them side by side saved milliseconds per turn (chapter 9).
+leave: Calls that change files or run tests. An edit and a test run in the same reply must run in order, alone, or the test can read the file from before the edit (chapters 1 and 9).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):

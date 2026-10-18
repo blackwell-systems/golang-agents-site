@@ -27,6 +27,8 @@ func main() {
 		"the companion code's code/ directory, for excerpts")
 	flag.StringVar(&cfg.book, "book", "../go-agents-book/book/chapters",
 		"the book's chapters, for the copy check; empty skips the check")
+	flag.BoolVar(&cfg.drafts, "drafts", false,
+		"build draft pages too, for review; never deploy such a build")
 	flag.Parse()
 	if err := build(cfg); err != nil {
 		fmt.Fprintln(os.Stderr, "build:", err)
@@ -37,6 +39,7 @@ func main() {
 // config holds the build's directories.
 type config struct {
 	content, templates, static, out, code, book string
+	drafts                                      bool // build pages marked draft
 }
 
 // The site's fixed values.
@@ -82,7 +85,7 @@ func build(cfg config) error {
 	if err != nil {
 		return err
 	}
-	pages, err := loadPages(cfg.content)
+	pages, err := loadPages(cfg.content, cfg.drafts)
 	if err != nil {
 		return err
 	}

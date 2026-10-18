@@ -125,6 +125,15 @@ The checks-passed column, which ranges from 81 to 87, is within the spread you c
 - **Check summaries in code** for the identifiers the agent relies on.
 - **Measure on your own task**, and run each policy more than once.
 
+## When to use it
+
+```fit
+reach: Requests grow toward a price tier. Past 100,000 tokens, the default model bills every token of the request at five times the base rate, and every single-agent batch run came within 4 percent of that line, one crossing it (chapters 8, 9, and 11).
+reach: The provider caches only what you mark. Cache markers cut one batch run on the default model from $1.33 to $0.23 for the same work (chapter 8).
+leave: Clearing old results early in a run. Cleared from the start, the agent reread the same things 47 times and took 132 turns where the others took about 35 (chapter 8).
+leave: Runs that stay short. On chapter 9's longest single task, no request passed 38,000 tokens, well under where the default policy starts clearing (chapter 9).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set:

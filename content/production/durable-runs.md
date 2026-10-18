@@ -110,6 +110,15 @@ Saving once per turn duplicated an issue or comment at 8 of its 18 crash points.
 On the agent's own loop with keys and markers, 910 scenarios made no duplicates, lost nothing, and asked nobody.
 [910 crash scenarios, no duplicate issues](/findings/crash-sweep/) has the method and its limits.
 
+## When to use it
+
+```fit
+reach: Tools change the world outside the run. With one save per turn, a crash led to a duplicate issue or comment at 8 of 18 crash points; keys and markers left no duplicate in any scenario (chapter 15).
+reach: The platform stops processes on its own schedule. Kubernetes allows 30 seconds and `docker stop` 10, and one model call in chapter 12's runs took 27.5 seconds (chapters 12 and 15).
+leave: Markers without keys, where a person must answer. Against a tracker that ignored keys, markers turned every crash inside a call into a question: 624 over 892 scenarios of the agent's loop (chapter 15).
+leave: Short runs with no side effects. No design in the sweep lost an issue or comment; what a crash costs such a run is the model calls since the last save (chapter 15).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set (it replays a recorded run):

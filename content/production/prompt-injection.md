@@ -133,6 +133,15 @@ The defenses did change the agent's ordinary work.
 The protected-path check held back edits to the authorization code that were outside the task's scope.
 With the defenses on, `anthropic/claude-haiku-5.5` passed every check in 30 of 32 runs; without them, it passed in 24 of 32.
 
+## When to use it
+
+```fit
+reach: The agent reads text someone else wrote: crash reports, web pages, tool descriptions. One sentence in a tool description steered 79 of 80 first moves (chapters 10 and 14).
+reach: The agent runs code it didn't write, such as tests. Test code could read the harness's starting environment, key included, until keys moved into files (chapter 14).
+leave: Relying on a label or a warning in the prompt. Marking a poisoned description as the server's text cut obeying replies only from 79 to 57 of 80 (chapter 10).
+leave: Defenses that guess intent. With no attacker present, a model tried three other spellings of a refused file, so checks have to hold whoever is asking (chapter 14).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):

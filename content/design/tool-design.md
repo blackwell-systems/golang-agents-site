@@ -123,6 +123,17 @@ Not every lost point was a wrong choice.
 Some came from the system prompt overriding the request: given a request to file an issue, the models looked in the tracker before filing, which is what the prompt instructs.
 A test this small finds big problems, like a vague description or a pair of overlapping tool names, and is too coarse to show a small improvement.
 
+## When to use it
+
+These are the measured reasons to spend time on tool design, rather than a list of when to skip it.
+
+```fit
+reach: Error messages. Told a file was "locked", three of four models used a median of 18 to 20 turns; told it was read-only, every model finished in four or five (chapter 4).
+reach: A cheap tool-choice test. With thirty decoy tools added, two models chose a look-alike name in all six tries, which exposed a missing tool (chapter 7).
+leave: Piling on tools without a test. The thirty extras moved scores by a point or two, within the noise, but the one systematic change pointed at a gap you only see by testing (chapter 7).
+leave: Tool descriptions that assume trust. A description is prompt text; one sentence in another server's tool decided 79 of 80 first moves (chapter 10).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set:

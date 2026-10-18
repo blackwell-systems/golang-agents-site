@@ -65,9 +65,10 @@ func (p *Page) Modified() string { return cmp.Or(p.Updated, p.Date) }
 // the feed and carries Article metadata.
 func (p *Page) Guide() bool { return p.Layout == "article" }
 
-// loadPages reads every page under dir that isn't a draft. PLAN.md and
-// README.md at the top of dir describe the content and are not pages.
-func loadPages(dir string) ([]*Page, error) {
+// loadPages reads every page under dir that isn't a draft, or every
+// page if drafts is set. PLAN.md and README.md at the top of dir
+// describe the content and are not pages.
+func loadPages(dir string, drafts bool) ([]*Page, error) {
 	var pages []*Page
 	err := filepath.WalkDir(dir, func(file string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -88,7 +89,7 @@ func loadPages(dir string) ([]*Page, error) {
 		if err != nil {
 			return fmt.Errorf("%s: %w", rel, err)
 		}
-		if p.Draft {
+		if p.Draft && !drafts {
 			return nil // on disk for later; not built
 		}
 		pages = append(pages, p)

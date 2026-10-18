@@ -104,7 +104,7 @@ func TestBlocks(t *testing.T) {
 		{strings.Replace(result, "One sentence decided it.\n", "", 1), nil, true},
 		{fit, []string{`<p class="fit-title">Reach for it</p><ul><li>many groups (chapter 9)</li></ul>`, "Leave it out"}, false},
 		{"```fit\nreach: many groups\nleave: a batch (chapter 9)\n```\n", nil, true}, // cites nothing
-		{"```fit\nreach: x (chapter 9)\n```\n", nil, true},                         // no leave
+		{"```fit\nreach: x (chapter 9)\n```\n", nil, true},                           // no leave
 	}
 	for _, tt := range tests {
 		out, err := convert(md, code, []byte(tt.src))
