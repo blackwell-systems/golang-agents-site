@@ -57,7 +57,7 @@
         <li class="nav-extra"><a href="#contents">Contents</a></li>
         <li class="nav-extra"><a href="#sample">Sample</a></li>
         <li class="nav-extra"><a href="#faq">FAQ</a></li>
-        <li><a class="nav-buy" href="#buy">Buy the book</a></li>
+        <li><a class="nav-buy buy-link" href="#buy">Buy the book</a></li>
       </ul>
     </nav>
   </div>
@@ -75,8 +75,8 @@
       <p class="hook">An agent is a model in a loop. This book has you build the loop.</p>
       <p class="lede">For Go developers new to language models. Go basics are enough: no machine learning, no math, no framework required.</p>
       <div class="actions">
-        <a class="button primary" href="#buy">Buy the book</a>
-        <a class="button secondary" href="#sample">Read a free sample</a>
+        <a class="button primary buy-link" href="#buy">Buy the book</a>
+        <a class="button secondary" href="sample/building-ai-agents-in-go-sample-light.pdf">Read a free sample (PDF)</a>
       </div>
       <ul class="facts">
         <li>17 chapters in three parts</li>
@@ -260,11 +260,11 @@
     <div class="buy-box">
       <p class="buy-title">Building AI Agents in Go</p>
       <p class="buy-formats">All four formats and the companion code</p>
-      <!-- TODO: set the price once the author chooses it. -->
-      <p class="price"><span class="todo">TODO: price</span></p>
-      <!-- TODO: replace href with the store link once the storefront is chosen. -->
-      <a class="button primary block" href="#buy" data-todo="store-link">Buy the book</a>
-      <p class="small"><span class="todo">TODO: store and payment details</span></p>
+      <p class="price">$29</p>
+      <a class="button primary block buy-link" href="#buy">Buy the book</a>
+      <p class="small">One price, permanent. Buyers get every update of this edition free, and the store sends each update by email.</p>
+      <p class="small">Early access: chapters 1 to 17 are complete; the remaining chapter art arrives as free updates.</p>
+      <p class="small">The companion code is free and open source (Apache 2.0) at <a href="https://github.com/blackwell-systems/go-agents-book-code">github.com/blackwell-systems/go-agents-book-code</a>.</p>
     </div>
   </div>
 </section>
@@ -281,25 +281,9 @@
       <!-- The excerpt is chapter 15's section "One crash, step by step" (ch15-k1). -->
       <li><h3>From chapter 15: One crash, step by step</h3><p>A live run killed in the middle of filing an issue, followed from the checkpoint on disk to the question its restart asks a person.</p></li>
     </ul>
-    <!-- TODO: replace href with the sample download once it is built. -->
-    <a class="button secondary" href="#sample" data-todo="sample-link">Download the sample (PDF)</a>
-  </div>
-</section>
-
-<section class="section" id="notify" aria-labelledby="notify-title">
-  <div class="wrap narrow">
-    <div class="signup">
-      <h2 id="notify-title">Get notified when it launches</h2>
-      <p>Leave your email address and you’ll get one message when the book goes on sale.</p>
-      <!-- TODO: point action at the mailing list provider, and state its privacy terms in .form-note. -->
-      <form action="#" method="post">
-        <label for="email">Email address</label>
-        <div class="field-row">
-          <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
-          <button class="button primary" type="submit">Notify me</button>
-        </div>
-      </form>
-      <p class="form-note small"><span class="todo">TODO: mailing list provider and privacy note</span></p>
+    <div class="actions">
+      <a class="button secondary" href="sample/building-ai-agents-in-go-sample-light.pdf">Read a free sample (PDF)</a>
+      <a class="button secondary" href="sample/building-ai-agents-in-go-sample-dark.pdf">Dark edition (PDF)</a>
     </div>
   </div>
 </section>
@@ -344,8 +328,7 @@
       <details>
         <summary>Will the book be updated?</summary>
         <p>Each edition gets a yearly refresh of the text, the code, the recorded runs, and chapter 17’s table of results across models, with errata in the repository between editions.</p>
-        <!-- TODO: decide whether buyers get new editions free, and say so here. -->
-        <p><span class="todo">TODO: whether buyers get new editions free</span></p>
+        <p>Buyers get every update of this edition free, and updates arrive by email through the store.</p>
       </details>
     </div>
   </div>
@@ -369,5 +352,14 @@
     </div>
   </div>
 </footer>
+
+<script>
+// Set STORE_URL to the Gumroad product URL. Every buy button uses it;
+// while it is empty they jump to the #buy section.
+var STORE_URL = "";
+if (STORE_URL) {
+  document.querySelectorAll("a.buy-link").forEach(function (a) { a.href = STORE_URL; });
+}
+</script>
 </body>
 </html>

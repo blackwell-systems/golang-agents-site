@@ -573,24 +573,18 @@ cite { font-style: italic; }
   margin-bottom: 0.3rem;
 }
 .buy-formats { color: var(--soft); font-size: 0.95rem; }
-.price { margin: 1.25rem 0; }
+.price {
+  margin: 1.25rem 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--ivory);
+}
 .buy-box .small { margin: 1rem 0 0; }
 @media (min-width: 60rem) {
   .get-grid { grid-template-columns: minmax(0, 1fr) 20rem; }
   .buy-box { position: sticky; top: 1.5rem; }
-}
-
-/* Placeholders the author still has to fill in. */
-.todo {
-  display: inline-block;
-  font-family: var(--label);
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-  color: var(--amber);
-  border: 1px dashed var(--amber);
-  border-radius: 3px;
-  padding: 0.15rem 0.5rem;
 }
 
 /* Sample */
@@ -609,41 +603,6 @@ cite { font-style: italic; }
 }
 .sample-list h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
 .sample-list p { margin: 0; font-size: 0.97rem; }
-
-/* Signup */
-.signup {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-}
-.signup h2 { font-size: clamp(1.45rem, 3.6vw, 2rem); }
-.signup label {
-  display: block;
-  font-family: var(--label);
-  font-weight: 600;
-  color: var(--ivory);
-  margin-bottom: 0.5rem;
-}
-.field-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-.field-row input {
-  flex: 1 1 16rem;
-  min-width: 0;
-  min-height: 3rem;
-  padding: 0.6rem 0.9rem;
-  font: inherit;
-  color: var(--ivory);
-  background: var(--page);
-  border: 1px solid #4a6585;
-  border-radius: 4px;
-}
-.field-row input::placeholder { color: #8994a0; }
-.field-row input:focus-visible { border-color: var(--ivory); }
-.field-row .button { flex: 0 0 auto; }
-@media (max-width: 29.99rem) {
-  .field-row .button { flex: 1 1 100%; }
-}
-.form-note { margin: 1rem 0 0; }
 
 /* Author */
 .author .ornament { margin: 0 0 1.5rem; }

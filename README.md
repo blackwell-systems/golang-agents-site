@@ -2,7 +2,7 @@
 
 The website for *Building AI Agents in Go: From the agent loop to production*, by Dayna Blackwell.
 
-One static page: plain HTML and CSS, with no JavaScript, no build step, no analytics, and no external requests. The fonts, images, and icons are all served from this repository.
+One static page: plain HTML and CSS, with one small inline script (the store link), no build step, no analytics, and no external requests. The fonts, images, and icons are all served from this repository.
 
 | Path | What |
 | --- | --- |
@@ -10,6 +10,7 @@ One static page: plain HTML and CSS, with no JavaScript, no build step, no analy
 | `style.css` | The cover's palette and type |
 | `fonts/` | Cinzel, Inter, and Space Grotesk (WOFF2), with their SIL Open Font Licenses |
 | `img/` | The cover at 360, 540, 720, and 1080 px wide, in AVIF and WebP, with a 720 px JPEG fallback |
+| `sample/` | The free sample PDFs (`building-ai-agents-in-go-sample-light.pdf` and `-dark.pdf`), copied in before launch |
 | `og.jpg` | The 1200 × 630 social card (Open Graph and Twitter) |
 | `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | The icons: the cover's amber ring on night navy |
 | `CNAME` | The custom domain for GitHub Pages |
@@ -73,16 +74,11 @@ Replace `<owner>` with the GitHub user or organization that owns this repository
 
 These are GitHub's published addresses as of October 2026; check them against GitHub's "Managing a custom domain for your GitHub Pages site" page if anything fails.
 
-## Placeholders still to decide
+## Before launch
 
-Each one is marked `TODO` in `index.html`. The visible ones show as dashed amber labels on the page.
-
-- **Price:** the buy box shows `TODO: price`.
-- **Store link:** the buy box's "Buy the book" button (`data-todo="store-link"`) points at `#buy`. The hero and header buttons jump to that section and can stay as they are.
-- **Store and payment details:** the line under the buy button.
-- **Sample download:** "Download the sample (PDF)" (`data-todo="sample-link"`) points at `#sample`. The sample holds the introduction, chapters 1 and 4, and chapter 15's section "One crash, step by step".
-- **Email signup:** the form posts to `#`. Point `action` at the mailing list provider and replace the TODO line with its privacy note.
-- **Updates:** the FAQ says each edition gets a yearly refresh; whether buyers get new editions free is still to decide.
+- **Store link:** set `STORE_URL` in the inline script at the bottom of `index.html` to the Gumroad product URL. Every buy button (header, hero, buy box) has the class `buy-link` and picks it up. While it is empty they jump to `#buy`.
+- **Sample:** copy `building-ai-agents-in-go-sample-light.pdf` and `building-ai-agents-in-go-sample-dark.pdf` into `sample/`. The sample holds the introduction, chapters 1 and 4, and chapter 15's section "One crash, step by step".
+- **Price and updates:** $29, one price, permanent; buyers get every update of this edition free, by email through the store. There is no mailing list signup.
 - **Author photo:** optional; the About section has none.
 
 ## Rules for changes
