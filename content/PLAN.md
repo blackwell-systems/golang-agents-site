@@ -90,7 +90,7 @@ The frameworks page follows chapter 16's standard: the five frameworks mapped on
 
 ## Findings
 
-Each finding states the result, the method (task, models, runs per cell, date, cost), what it can and can't show, and what to do with it. The `evidence/` programs that produced them are not in the public repository, so a finding links to the code under test and cites the chapter, and never tells readers to run `go run ./evidence`.
+Each finding states the result, the method (task, models, runs per cell, date, cost), what it can and can't show, and what to do with it. The recorded runs behind them are in the public repository's `code/evidence/` (checked on GitHub on 2026-10-18), and `go run ./evidence` with no key prints every table again offline; with `-run` it makes live calls and spends money, so a finding names only the offline command. A finding also links to the code under test and cites the chapter.
 
 | URL | Title | Chapters | Code | Status |
 | --- | --- | --- | --- | --- |

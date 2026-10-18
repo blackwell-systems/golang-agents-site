@@ -9,7 +9,17 @@ date: 2026-10-18
 weight: 50
 ---
 
-<div class="result"><p class="figure">+15 <span>points, from chance</span></p><p>Run twice on each of 20 tasks, the same agent’s second run beat its first by 15 points: better on 5 tasks, worse on 2, tied on 13. Nothing changed between the runs. The 95 percent range, −10 to +40 points, holds zero, and says so.</p></div>
+```result
+figure: +15
+unit: points, from chance
+task: the confirmation set of the crash-triage eval, the same agent run twice and compared as two versions
+models: `anthropic/claude-haiku-5.5`
+runs: two per task, 20 tasks
+date: October 2026
+source: Chapter 13
+
+Run twice on each of 20 tasks, the same agent’s second run beat its first by 15 points: better on 5 tasks, worse on 2, tied on 13. Nothing changed between the runs. The 95 percent range, −10 to +40 points, holds zero, and says so.
+```
 
 An agent's answers vary from run to run.
 Part of that is sampling: each token is drawn from a distribution.

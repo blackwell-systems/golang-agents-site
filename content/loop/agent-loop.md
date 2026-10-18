@@ -108,7 +108,7 @@ Without a turn limit, nothing guarantees the loop ends, and a real model bills y
 So `MaxTurns` is the loop's first setting, and leaving it at zero permits no turns at all, so every caller has to set it.
 
 There's no correct number you can know ahead of time.
-In chapter 1, all 40 bug-fix runs (ten on each of four models) finished in four to six turns, so the program sets the limit to ten.
+In chapter 1, all 40 bug-fix runs (ten on each of four models, October 2026) finished in four to six turns, so the program sets the limit to ten.
 Agent frameworks ship defaults that range from 10 turns to thousands of steps to no limit at all; chapter 1 lists them.
 A default can't know what your task needs, so choose the limit yourself and report hitting it to the caller as a failure.
 

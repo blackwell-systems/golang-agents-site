@@ -9,7 +9,17 @@ date: 2026-10-18
 weight: 30
 ---
 
-<div class="result"><p class="figure">¼ to ⅙ <span>of the agent’s cost</span></p><p>Written as a fixed three-step workflow, the bug fix cost a quarter to a sixth as much as the agent on each of four models, and its one model call finished in under a second to two and a half seconds, against seven and a half to thirteen and a half for the agent’s runs.</p></div>
+```result
+figure: ¼ to ⅙
+unit: of the agent’s cost
+task: the `duration` bug fix, as a three-step workflow and as an agent with four tools
+models: `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, `deepseek/deepseek-v4.1-flash`
+runs: ten per model for each version; costs are medians
+date: October 2026
+source: Chapter 1, and chapter 5’s table of shapes
+
+Written as a fixed three-step workflow, the bug fix cost a quarter to a sixth as much as the agent on each of four models, and its one model call finished in under a second to two and a half seconds, against seven and a half to thirteen and a half for the agent’s runs.
+```
 
 In an agent, the model picks every next step.
 In a [workflow](/glossary/#workflow), your code has already picked the steps, and the model is called at the places the code chose.
@@ -81,7 +91,7 @@ To compare models, or to learn whether a change to an agent helped, you need tas
 
 ## Try it
 
-The workflow runs aren't in the public repository, but the agent is.
+The workflow and agent runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them. The agent itself is chapter 4's program.
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):
 
 ```console

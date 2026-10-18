@@ -12,7 +12,7 @@ A model never runs a tool.
 It writes a request to run one, and your program decides what that request means.
 The request travels as JSON, and getting the JSON right in both directions is most of what "tool calling" means for the program that does it.
 
-This page shows the real JSON from one recorded run of chapter 4's agent: the request that offers tools, the reply that asks for them, and the messages that answer.
+This page shows the real JSON from one recorded run of chapter 4's agent, on `anthropic/claude-haiku-5.5` in October 2026: the request that offers tools, the reply that asks for them, and the messages that answer.
 Then it shows the Go types that carry them, from the companion code's [`openrouter` package](code:ch04/openrouter).
 The API is OpenRouter's chat completions endpoint, `POST https://openrouter.ai/api/v1/chat/completions`, which uses the OpenAI-compatible format that many providers and local servers share.
 
@@ -38,7 +38,7 @@ The model reads the name and the description to decide when to call the tool, an
 
 The definitions go out with every request, and they are not free.
 In this run the first request was 583 tokens, although the task is one sentence: the four definitions came to about 270 tokens, and the provider added about 290 more of its own instructions for using tools, text you never see but pay for.
-How much a provider adds varies; chapter 1 measured the same first request at 126 tokens on `gpt-5.6-luna`, whose provider encodes tool definitions in a compact format of its own, and at 441 on `deepseek-v4.1-flash`.
+How much a provider adds varies; across chapter 1's 40 runs (ten on each of four models, October 2026), the same first request came to 126 tokens on `gpt-5.6-luna`, whose provider encodes tool definitions in a compact format of its own, and at 441 on `deepseek-v4.1-flash`.
 
 ## The reply
 

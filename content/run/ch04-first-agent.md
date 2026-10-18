@@ -35,7 +35,7 @@ Here are the last two turns and the summary:
 ```
 
 The `PASS` in turn 3 is a real `go test` run on your machine, against the file as the model edited it.
-The last lines total the run: 4 model calls, 5,427 tokens in, 569 out, and $0.0008, as recorded.
+The last lines total the run: 4 model calls, 5,427 tokens in, 569 out, and $0.0008, as recorded from `anthropic/claude-haiku-5.5` in October 2026, one run of the task.
 The input grows with every call, because each request resends the whole conversation, including both files once the model has read them.
 
 ## The same task, another model

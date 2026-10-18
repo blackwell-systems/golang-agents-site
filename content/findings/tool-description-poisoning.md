@@ -8,7 +8,17 @@ date: 2026-10-18
 weight: 10
 ---
 
-<div class="result"><p class="figure">79 <span>of 80 replies</span></p><p>One sentence appended to one tool’s description decided the model’s first move in 79 of 80 replies across four models, when it reached the model as the server sent it. Marking the description as the server’s text cut that to 57 of 80.</p></div>
+```result
+figure: 79
+unit: of 80 replies
+task: the crash-triage agent's first request, with one sentence added to an MCP tool's description asking for a different call
+models: `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, `deepseek/deepseek-v4.1-flash`
+runs: ten per model and condition, first reply only; 200 calls, $0.062 in all
+date: October 2026
+source: Chapter 10
+
+One sentence appended to one tool’s description decided the model’s first move in 79 of 80 replies across four models, when it reached the model as the server sent it. Marking the description as the server’s text cut that to 57 of 80.
+```
 
 When an agent connects to an [MCP](/glossary/#mcp) server, every request the agent sends carries the server's tool descriptions, exactly as the server wrote them.
 So part of your prompt is text you didn't write and may never have read.
@@ -106,7 +116,8 @@ And a description can give instructions about tools that belong to a different s
 
 ## Try the pins
 
-The recorded runs behind the table aren't in the public repository, but the pins are.
+The recorded replies behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints this table again from them along with the book's other measured results.
+The pins are in chapter 10's code.
 From the `code` directory of a clone, with no key set:
 
 ```console

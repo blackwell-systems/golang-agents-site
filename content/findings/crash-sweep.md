@@ -9,7 +9,17 @@ date: 2026-10-18
 weight: 60
 ---
 
-<div class="result"><p class="figure">910 <span>crashes, 0 duplicates</span></p><p>On the agent’s own loop, with a file checkpoint and a tracker that honors idempotency keys, 910 crash-and-restart scenarios made no duplicate issues or comments, lost nothing, and asked nobody.</p></div>
+```result
+figure: 910
+unit: crashes, 0 duplicates
+task: the agent's own loop, crashed at each of its 38 crash points and resumed, then crashed again at every point each restart reaches
+models: a scripted model, against a tracker that honors idempotency keys
+runs: 910 crash-and-resume scenarios
+date: deterministic; `go test ./ch15/durable/` repeats it
+source: Chapter 15
+
+On the agent’s own loop, with a file checkpoint and a tracker that honors idempotency keys, 910 crash-and-restart scenarios made no duplicate issues or comments, lost nothing, and asked nobody.
+```
 
 Once an agent's tools act on the world (filing issues, sending mail, deploying), a crash in the middle of a run stops being a private matter.
 The restarted process can go wrong in two directions.

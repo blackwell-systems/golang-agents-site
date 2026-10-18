@@ -9,7 +9,17 @@ date: 2026-10-18
 weight: 20
 ---
 
-<div class="result"><p class="figure">18 → 4 <span>median turns</span></p><p>A tool that always failed with “the file is locked” cost three of four models a median of 18 to 20 turns. The same failure, worded to say retrying couldn’t help and what to do instead, cost every model four or five turns.</p></div>
+```result
+figure: 18 → 4
+unit: median turns
+task: the `duration` bug fix with an `edit_file` that failed on every call, under two wordings of its error
+models: `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, `deepseek/deepseek-v4.1-flash`
+runs: three per model and wording, with a 20-turn limit
+date: October 2026
+source: Chapter 4
+
+A tool that always failed with “the file is locked” cost three of four models a median of 18 to 20 turns. The same failure, worded to say retrying couldn’t help and what to do instead, cost every model four or five turns.
+```
 
 When a tool call fails, the harness returns the error text to the model in a tool message, and whatever the model does next is a reaction to that text.
 That makes the wording of every tool error part of how the agent behaves.
@@ -90,7 +100,7 @@ Good errors save turns, and only the limit guarantees that the loop ends.
 
 ## Try it
 
-The recorded runs in the table aren't in the public repository, but a replay of a run that recovers from three bad calls is.
+The recorded runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them. A replay of a run that recovers from three bad calls is in chapter 4's code.
 From the `code` directory of a clone:
 
 ```console

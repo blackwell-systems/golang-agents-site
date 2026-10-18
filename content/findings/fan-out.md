@@ -9,7 +9,17 @@ date: 2026-10-18
 weight: 40
 ---
 
-<div class="result"><p class="figure">25 to 60% <span>more cost, no faster</span></p><p>Twenty-three agents, four at a time, took about as long as one agent working through the same 99 crash reports, and cost $0.124 per run against the single agent’s $0.077 to $0.100.</p></div>
+```result
+figure: 25 to 60%
+unit: more cost, no faster
+task: triage a batch of 99 crash reports from 23 causes, as one agent and as one agent per cause
+models: `anthropic/claude-haiku-5.5`
+runs: two or three per design, on a shared machine
+date: October 2026
+source: Chapter 9
+
+Twenty-three agents, four at a time, took about as long as one agent working through the same 99 crash reports, and cost $0.124 per run against the single agent’s $0.077 to $0.100.
+```
 
 Splitting a batch across several agents that run at the same time, called [fan-out](/glossary/#fan-out), sounds like the obvious way to get through it sooner.
 In Go it is also little code: start a goroutine for each agent, give them one budget to share, and collect their events on a channel.
