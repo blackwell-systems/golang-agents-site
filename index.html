@@ -102,7 +102,6 @@
     <p class="eyebrow">The book</p>
     <h2 id="book-title">One agent, built one tested piece at a time</h2>
     <p class="big">Write an AI agent in Go one tested piece at a time: the request, the model call, the tools, and the decision to go around again. You start with 30 lines and finish with an agent that triages crash reports for a real Go web service: it reproduces each bug, fixes it, and files one issue per cause, as a command and as a service.</p>
-    <p class="big">Then you find out whether it works. Every result in the book comes from a recorded run, every example runs offline, and several results went against expectations.</p>
   </div>
   <div class="wrap">
     <h3 class="stages-title">Every turn of the loop has four stages</h3>
@@ -141,52 +140,39 @@
         <p>Other providers, retries and tracing, evals, sandboxing and approval, runs that survive a crash, frameworks compared, and the complete agent as a command and as a service.</p>
       </li>
     </ol>
-    <h3 class="checklist-title">Along the way</h3>
+    <h3 class="checklist-title">You’ll learn how to</h3>
     <ul class="checklist">
-      <li>A tested agent loop, then a real model fixing a failing test</li>
-      <li>Tools, streaming, context management, concurrency, and MCP</li>
-      <li>Evals graded by hidden tests on a 32-task crash catalog</li>
-      <li>Retries, tracing, and cost tracking</li>
-      <li>Sandboxing, injection defenses, and human approval</li>
-      <li>Runs that survive a crash without filing anything twice</li>
+      <li>Give a model tools it uses well, and see why one sentence in a tool description can decide its next move</li>
+      <li>Keep long runs focused and affordable as the context fills up</li>
+      <li>Test an agent whose answers vary, and tell a real improvement from chance</li>
+      <li>Sandbox what it can touch, resist prompt injection, and ask a person before risky actions</li>
+      <li>Survive a crash mid-run without filing anything twice</li>
+      <li>Judge any agent framework against the parts you built yourself</li>
     </ul>
   </div>
 </section>
 
 <section class="section" id="results" aria-labelledby="results-title">
   <div class="wrap narrow">
-    <p class="eyebrow">Measured, with the runs saved</p>
-    <h2 id="results-title">What the measurements showed</h2>
-    <p>Every table of results comes from runs saved in the companion repository, and each chapter names the command that prints it again. Several results went against expectations.</p>
+    <p class="eyebrow">Recorded runs, saved in the repository</p>
+    <h2 id="results-title">Every result is measured</h2>
+    <p>The examples run offline from recorded runs, and the book reports what worked, what didn’t, and what each run cost, including the times the obvious design lost. Each chapter names the command that prints its results again.</p>
   </div>
   <div class="wrap">
     <ul class="findings">
       <li>
         <p class="figure">79 <span>of 80</span></p>
         <h3>One sentence in a tool description decided the first move in 79 of 80 replies.</h3>
-        <p>Chapter 10 added one sentence to the description of a tool from another program and sent the agent’s first request to four models, ten times each. Marking the description as the other program’s text cut that only to 57 of 80.</p>
+        <p>Chapter 10 added one sentence to the description of a tool from another program and sent the agent’s first request to four models, ten times each. You learn how to write that sentence for your own tools, and how to defend against one written by someone else.</p>
         <p class="cite">Chapter 10, MCP</p>
       </li>
       <li>
-        <p class="figure">+25 <span>to 65%</span></p>
-        <h3>Splitting the batch across parallel agents was no faster than one agent, and cost 25 to 65 percent more.</h3>
-        <p>On 99 crash reports from 23 causes, one agent per group, four at a time, took 7m39s to 9m20s; one agent took 6m20s to 8m45s. Each group agent started from nothing and read the shared code again. The chapter also shows what fan-out did buy: a steady cost and small requests.</p>
-        <p class="cite">Chapter 9, Concurrency</p>
-      </li>
-      <li>
-        <p class="figure">15 <span>points</span></p>
-        <h3>The same agent, run twice, scored 15 points apart, and the gap was chance.</h3>
-        <p>Nothing changed between the two runs over 20 tasks. The range around the difference, &minus;10 to +40 points, holds zero, so a prompt change that scores 15 points higher on one run per task has shown nothing yet. Chapter 13 shows how to tell when one has.</p>
-        <p class="cite">Chapter 13, Testing and evals</p>
-      </li>
-      <li>
         <p class="figure">910 <span>crashes, 0 duplicates</span></p>
-        <h3>With idempotency keys, 910 crash scenarios produced no duplicates and lost nothing.</h3>
-        <p>The crash sweep crashes a run at each point where a crash could land, then resumes it. Saving once per turn duplicated an issue or comment at 8 of its 18 crash points; the agent’s own loop with idempotency keys made no duplicates, lost nothing, and asked nobody.</p>
+        <h3>An agent that survives a crash without filing anything twice.</h3>
+        <p>Chapter 15 crashes a run at every point where a crash could land, then resumes it: 910 scenarios. With idempotency keys, the agent made no duplicates and lost nothing.</p>
         <p class="cite">Chapter 15, Durable, deployed agents</p>
       </li>
     </ul>
-    <p class="note">Each result also says what it can’t show: how many runs it rests on, on which models, on what date, and what a different sample might have given.</p>
   </div>
 </section>
 
