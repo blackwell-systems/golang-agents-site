@@ -1,5 +1,5 @@
 ---
-title: Chat completions and the Messages API, difference by difference
+title: How chat completions and the Messages API differ
 short: How two provider APIs differ
 description: The same agent request, sent as OpenAI-style chat completions through OpenRouter and as Anthropic's Messages API, differs in twelve places, from where the system prompt goes to how a stream ends. A table of each difference, with the chapter and the code that handles it.
 chapters: 2, 4, 6, 8, 11

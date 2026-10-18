@@ -9,7 +9,7 @@ weight: 90
 
 Very little of an agent is machine learning.
 The model lives behind an HTTP API; the program you write sends requests, waits, runs tools, keeps a budget, and decides when to stop.
-That is the kind of program Go was built for, and the case for Go here is best made from what the book's code did, with its measurements, rather than from a list of language features.
+That is the kind of program Go was built for, and the book's code, with its measurements, makes the case better than a list of language features would.
 
 Below are four places where Go's own tools carried the weight, and then the costs of choosing Go, since a fair comparison names both.
 
@@ -53,7 +53,7 @@ Every byte the agent sends is something you wrote and can print.
 
 Chapter 11 put that to a check by encoding the same request, the last one of a run recorded in chapter 10, with the hand-written client and with OpenRouter's Go SDK.
 The two came to 55,162 and 55,227 bytes, the same content spelled almost the same way.
-The hand-written client isn't smaller; the point is that you can see what it sends, so when a provider's behavior changes you can tell whether your request did.
+What writing the client yourself buys is sight of every byte it sends, so when a provider's behavior changes you can tell whether your request did.
 
 ## One static binary
 

@@ -1,5 +1,5 @@
 ---
-title: "Measured mistakes: twelve ways the book's agents went wrong"
+title: Twelve measured mistakes from the book's agent runs
 short: Measured mistakes
 description: Every failure on this page happened in a recorded run of the book's code, and each comes with its task, its models, how many runs it rests on, the date, and the chapter. What went wrong, how often, and what the code changed because of it.
 chapters: 1, 4, 7, 9, 10, 12, 13, 14, 15
@@ -186,7 +186,7 @@ In all nine, the agent's reproducer test failed on the original code and passed 
 
 The same blind spot showed on the book's own agent.
 On the hard tier, 40 runs of `anthropic/claude-haiku-5.5` with a reviewer, six got a root cause wrong; five of those filed a reproducer, and the gate let every one through.
-A reproducer that exercises the crash site proves the crash site changed, not that the cause was found.
+A reproducer that exercises the crash site shows only that the crash site changed; whether the cause was found is a separate question.
 
 **What to change:** keep checks the agent never sees (hidden tests) in the eval, and don't read a passing gate as a correct diagnosis.
 

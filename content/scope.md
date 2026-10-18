@@ -1,5 +1,5 @@
 ---
-title: What this guide and the book cover, and what they leave out
+title: What this guide and the book leave out, and why
 short: Scope
 description: The ground this site and Building AI Agents in Go cover, the topics both leave out on purpose, such as retrieval, memory across runs, and multi-agent planning, and why, so you can tell before reading whether they answer your question.
 layout: page
@@ -43,7 +43,7 @@ Chapter 6 streams its work as events in Go; showing them in a browser, or wiring
 
 **Fine-tuning and training.**
 The book works with models as they come from a provider's API.
-Chapter 3 builds a tiny language model to explain how one picks its next token, as background, not as a way to train your own.
+Chapter 3 builds a tiny language model to explain how one picks its next token; it is there to explain the agent's behavior, and training your own model is out of scope.
 
 **Deployment beyond a container.**
 Chapter 15 ships the agent as a static binary in a container and handles a platform's stop signal and grace period; serverless platforms and managed agent runtimes aren't covered.

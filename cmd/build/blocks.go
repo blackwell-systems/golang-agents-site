@@ -202,7 +202,7 @@ func (r *codeBlocks) fit(body string) (string, error) {
 // page on this site. The counts come from the code itself.
 func (r *codeBlocks) catalog(body string) (string, error) {
 	var b strings.Builder
-	b.WriteString(`<div class="table-scroll" role="region" aria-label="The examples" tabindex="0"><table class="catalog"><thead><tr>` +
+	b.WriteString(`<section class="table-scroll" aria-label="The examples" tabindex="0"><table class="catalog"><thead><tr>` +
 		`<th scope="col">Code</th><th scope="col">What it shows</th>` +
 		`<th scope="col" class="num">Go files</th><th scope="col" class="num">Lines of Go</th>` +
 		`<th scope="col" class="num">Tests</th><th scope="col">Run it</th><th scope="col">Guide</th>` +
@@ -241,6 +241,6 @@ func (r *codeBlocks) catalog(body string) (string, error) {
 			html.EscapeString(u), html.EscapeString(dir), w,
 			thousands(st.files), thousands(st.lines), thousands(st.tests), c, g)
 	}
-	b.WriteString("</tbody></table></div>\n")
+	b.WriteString("</tbody></table></section>\n")
 	return b.String(), nil
 }

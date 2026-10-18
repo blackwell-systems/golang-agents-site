@@ -1,5 +1,5 @@
 ---
-title: "Beyond the book's two APIs: Gemini, Ollama, Bedrock, and Cohere"
+title: Gemini, Ollama, Bedrock, and Cohere for Go agents
 short: More providers
 description: A reference for writing a third adapter. How the native APIs of Google's Gemini, Ollama, Amazon Bedrock, and Cohere carry the system prompt, tool calls, tool results, stop reasons, and usage, whether each offers an OpenAI-compatible endpoint, and its official Go library, from each provider's documentation as of October 18, 2026.
 chapters: 2, 11

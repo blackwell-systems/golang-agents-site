@@ -45,7 +45,7 @@ With only one method to satisfy, a canned stand-in and a real HTTP client look i
 Chapter 1 plugs in `Fake`, which hands back replies from a prepared list.
 Chapter 4 plugs in a client that talks to a real model, and the loop itself is untouched.
 
-## The loop itself
+## The loop resends the whole conversation each turn
 
 Here is `Run`:
 
@@ -112,7 +112,7 @@ In chapter 1, all 40 bug-fix runs (ten on each of four models, October 2026) fin
 Agent frameworks ship defaults that range from 10 turns to thousands of steps to no limit at all; chapter 1 lists them.
 A default can't know what your task needs, so choose the limit yourself and report hitting it to the caller as a failure.
 
-## From 30 lines to a real agent
+## A real model fits behind the same interface
 
 Chapter 4 runs this same `Run` against a real model.
 On the way in, the program wraps the client in another `Model` that totals the cost of the run:

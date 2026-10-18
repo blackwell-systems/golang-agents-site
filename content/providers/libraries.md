@@ -8,7 +8,7 @@ weight: 30
 ---
 
 The book's agent is built on the standard library through chapter 10, and every part it builds by hand has a library that does the same job.
-That is a choice about teaching, not a claim that the libraries are worse: you can only judge what a library decides for you once you have seen the decisions written out.
+That is a choice made for teaching: you can only judge what a library decides for you once you have seen the decisions written out, and the libraries below make many of them well.
 This page lists every library the companion code imports, and every one the book compares against, with the version that was checked and what the book found.
 
 Versions and counts were checked in October 2026, from the modules' source and the companion code's `go.mod` files.

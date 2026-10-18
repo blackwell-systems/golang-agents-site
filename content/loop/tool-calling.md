@@ -25,7 +25,7 @@ Tool calling extends that JSON in three places:
 - a `tool_calls` array in assistant messages, where the model asks for tools;
 - a `tool_call_id` in tool messages, naming the call each result answers.
 
-## The request
+## Every request carries the tool definitions
 
 Here is the first request of the run, cut to one of its four tools:
 
@@ -40,7 +40,7 @@ The definitions go out with every request, and they are not free.
 In this run the first request was 583 tokens, although the task is one sentence: the four definitions came to about 270 tokens, and the provider added about 290 more of its own instructions for using tools, text you never see but pay for.
 How much a provider adds varies; across chapter 1's 40 runs (ten on each of four models, October 2026), the same first request came to 126 tokens on `gpt-5.6-luna`, whose provider encodes tool definitions in a compact format of its own, and at 441 on `deepseek-v4.1-flash`.
 
-## The reply
+## One reply can ask for several tools
 
 The model answered the first request like this (the part of the response that matters):
 
@@ -69,7 +69,7 @@ Don't lean on it.
 Chapter 2 found the translation right in all 194 replies of the 40 runs, but other servers that accept the same requests don't all translate as carefully, and some report `stop` for a reply that holds tool calls.
 The loop in the companion code decides from the reply itself: a reply with tool calls is a request for tools, whatever its finish reason says.
 
-## The answer
+## Each result answers one call, by its ID
 
 After running the tools, the harness appends one message per call, each with the role `tool` and the ID it answers, and sends the whole conversation again.
 Here are three messages from the fourth request of the run, with the file contents cut short:
@@ -81,7 +81,7 @@ The rule the API enforces: each call needs exactly one tool message, and that me
 Drop a result, or send one without its call, and the next request is rejected.
 If your loop adds the reply to the history first and then writes one result per call, in the order the calls appear, the rule holds by construction; [the agent loop in Go](/loop/agent-loop/) shows one.
 
-## The Go types
+## The wire types stay inside the client
 
 The client keeps the API's JSON in its own unexported types, separate from the agent's `Message`, which keeps everything specific to this API inside one file of the client:
 
@@ -101,7 +101,7 @@ The API has no field for a failed tool.
 The agent's `Message` has an `IsError` flag, and when the client converts a tool message, it turns that flag into a prefix, so the model reads `Error: old text appears 0 times in duration.go, want exactly once` and knows the call failed.
 An empty result becomes `(no output)`, since an empty message can trip up some providers and the text tells the model the tool ran and printed nothing.
 
-## When the call is wrong
+## A wrong call gets an error the model can fix
 
 Because the arguments are text the model wrote, the harness checks every call before running it: is the tool name real, do the arguments decode into the tool's argument struct, and are there fields the struct doesn't have?
 Chapter 4's decoder rejects unknown fields, because models guess names (`old_str` for `old`), and ignoring a guess would leave the real field empty, which can turn an edit into a deletion that reports no error.
