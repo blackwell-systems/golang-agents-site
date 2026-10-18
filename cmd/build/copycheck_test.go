@@ -23,3 +23,17 @@ func TestCheckCopy(t *testing.T) {
 		t.Errorf("checkCopy flagged original text or a code block: %v", err)
 	}
 }
+
+func TestCheckCopyReadsBlocks(t *testing.T) {
+	book := "The harness runs the tools the model asks for and decides when the work is done."
+	runs := bookRuns{}
+	w := copyWords(book)
+	for i := 0; i+copyRun <= len(w); i++ {
+		runs[strings.Join(w[i:i+copyRun], " ")] = true
+	}
+	p := &Page{Source: "c.md", Meta: Meta{Title: "C", Description: "A page."},
+		Body: "```fit\nreach: the harness runs the tools the model asks for and decides when (chapter 1)\nleave: x (chapter 1)\n```\n"}
+	if err := checkCopy(runs, []*Page{p}); err == nil {
+		t.Error("checkCopy missed a copied run inside a fit block")
+	}
+}

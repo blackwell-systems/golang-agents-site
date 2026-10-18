@@ -87,3 +87,104 @@ func TestConvertRejectsEmDash(t *testing.T) {
 		t.Errorf("convert with an em dash: err = %v", err)
 	}
 }
+
+func TestBlocks(t *testing.T) {
+	code := &codeRoot{dir: t.TempDir()}
+	md := newMarkdown(code)
+	result := "```result\nfigure: 79\nunit: of 80\ntask: a *first* request\nmodels: four\nruns: ten each\ndate: October 2026\nsource: Chapter 10\nlink: /findings/x/\n\nOne sentence decided it.\n```\n"
+	fit := "```fit\nreach: many groups (chapter 9)\nleave: a small batch (chapters 8 and 9)\n```\n"
+	tests := []struct {
+		src  string
+		want []string // substrings of the output
+		bad  bool
+	}{
+		{result, []string{`<p class="figure">79 <span>of 80</span></p>`, "<dt>Task</dt><dd>a <em>first</em> request</dd>",
+			"<dt>Date</dt><dd>October 2026</dd>", `<a href="/findings/x/">Read more</a>`}, false},
+		{strings.Replace(result, "date: October 2026\n", "", 1), nil, true}, // no method date
+		{strings.Replace(result, "One sentence decided it.\n", "", 1), nil, true},
+		{fit, []string{`<p class="fit-title">Reach for it</p><ul><li>many groups (chapter 9)</li></ul>`, "Leave it out"}, false},
+		{"```fit\nreach: many groups\nleave: a batch (chapter 9)\n```\n", nil, true}, // cites nothing
+		{"```fit\nreach: x (chapter 9)\n```\n", nil, true},                         // no leave
+	}
+	for _, tt := range tests {
+		out, err := convert(md, code, []byte(tt.src))
+		if tt.bad {
+			if err == nil {
+				t.Errorf("convert(%q): no error", tt.src)
+			}
+			continue
+		}
+		if err != nil {
+			t.Fatalf("convert(%q): %v", tt.src, err)
+		}
+		for _, w := range tt.want {
+			if !strings.Contains(string(out), w) {
+				t.Errorf("convert(%q) = %s\nwant it to contain %s", tt.src, out, w)
+			}
+		}
+	}
+}
+
+func TestCounts(t *testing.T) {
+	dir := t.TempDir()
+	files := map[string]string{
+		"go.mod":                 "module x\n\ngo 1.27.0\n",
+		"ch01/a.go":              "package a\n\nfunc A() {}\n",
+		"ch01/a_test.go":         "package a\n\nimport \"testing\"\n\nfunc TestA(t *testing.T) {}\nfunc TestB(t *testing.T) {}\nfunc helper(t *testing.T) {}\n",
+		"ch01/testdata/fix.go":   "package fixture\n",
+		"ch02/b/b.go":            "package b\n",
+		"ch02/b/.hidden/skip.go": "package skip\n",
+	}
+	for name, src := range files {
+		f := filepath.Join(dir, filepath.FromSlash(name))
+		if err := os.MkdirAll(filepath.Dir(f), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(f, []byte(src), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	c := &codeRoot{dir: dir}
+	got, err := c.fillCounts([]byte("{{code files}} files, {{code lines ch01}} lines, {{code tests}} tests, {{code packages}} packages, Go {{code go-version}}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "3 files, 10 lines, 2 tests, 2 packages, Go 1.27"; string(got) != want {
+		t.Errorf("fillCounts = %q, want %q", got, want)
+	}
+	for _, bad := range []string{"{{code bytes}}", "{{code files nowhere}}", "{{ code files }}"} {
+		if _, err := c.fillCounts([]byte(bad)); err == nil {
+			t.Errorf("fillCounts(%q): no error", bad)
+		}
+	}
+	if s := thousands(1644); s != "1,644" {
+		t.Errorf("thousands(1644) = %q", s)
+	}
+}
+
+func TestRedirects(t *testing.T) {
+	out := t.TempDir()
+	if err := writeRedirects(out); err == nil {
+		t.Error("writeRedirects with no new sections built: no error")
+	}
+	for _, m := range moved {
+		if err := os.MkdirAll(filepath.Join(out, m.To), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(out, m.To, "index.html"), nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := writeRedirects(out); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(out, "_redirects"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, line := range []string{"/foundations /loop/ 301\n", "/foundations/* /loop/:splat 301\n", "/ecosystem/ /providers/ 301\n"} {
+		if !strings.Contains(string(b), line) {
+			t.Errorf("_redirects lacks %q:\n%s", line, b)
+		}
+	}
+}

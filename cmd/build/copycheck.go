@@ -24,6 +24,7 @@ var (
 	adocListing = regexp.MustCompile(`(?ms)^----\n.*?^----\n`)
 	adocInclude = regexp.MustCompile(`(?m)^include::.*$`)
 	mdFence     = regexp.MustCompile("(?s)```.*?```")
+	proseFence  = regexp.MustCompile("(?s)```(?:result|fit|catalog)\n(.*?)```")
 	mdTableRow  = regexp.MustCompile(`(?m)^\|.*$`)
 	mdTag       = regexp.MustCompile(`<[^>]+>`)
 	mdCodeSpan  = regexp.MustCompile("`[^`\n]*`")
@@ -70,13 +71,15 @@ func loadBook(dir string) (bookRuns, error) {
 }
 
 // checkCopy reports every run of copyRun or more words that a page's
-// title, description, or prose shares with the book. Code blocks, inline
+// title, description, or prose shares with the book. The prose inside
+// layout blocks (blocks.go) is checked too. Code blocks, inline
 // code (identifiers and program output), table rows (data), HTML tags,
 // and link targets are left out.
 func checkCopy(runs bookRuns, pages []*Page) error {
 	var errs []error
 	for _, p := range pages {
 		src := p.Title + "\n" + p.Description + "\n" + string(p.Body)
+		src = proseFence.ReplaceAllString(src, "$1") // blocks hold prose
 		for _, re := range []*regexp.Regexp{mdFence, mdCodeSpan, mdTableRow, mdTag} {
 			src = re.ReplaceAllString(src, " ")
 		}

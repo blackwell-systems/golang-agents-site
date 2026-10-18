@@ -279,6 +279,10 @@ func convert(md goldmark.Markdown, code *codeRoot, src []byte) (template.HTML, e
 	if bytes.ContainsRune(src, '—') || bytes.Contains(src, []byte("&mdash;")) {
 		return "", fmt.Errorf("an em dash: the prose rules ban them")
 	}
+	src, err := code.fillCounts(src)
+	if err != nil {
+		return "", err
+	}
 	var buf bytes.Buffer
 	if err := md.Convert(src, &buf); err != nil {
 		return "", err

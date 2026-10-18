@@ -27,7 +27,8 @@ import (
 // highlighted by chroma, excerpts included from the companion code, and
 // code: links turned into links to the repository.
 func newMarkdown(code *codeRoot) goldmark.Markdown {
-	return goldmark.New(
+	blocks := &codeBlocks{code: code}
+	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,
 			extension.DefinitionList,
@@ -44,9 +45,11 @@ func newMarkdown(code *codeRoot) goldmark.Markdown {
 		),
 		goldmark.WithRendererOptions(
 			gmhtml.WithUnsafe(), // pages may hold HTML blocks, such as figures
-			renderer.WithNodeRenderers(util.Prioritized(codeBlocks{code}, 100)),
+			renderer.WithNodeRenderers(util.Prioritized(blocks, 100)),
 		),
 	)
+	blocks.md = md // blocks hold Markdown of their own
+	return md
 }
 
 // codeLinks rewrites links of the form code:ch01/agent/loop.go into
@@ -82,14 +85,18 @@ func (t codeLinks) Transform(doc *ast.Document, _ text.Reader, _ parser.Context)
 //
 // tag= picks the lines between "// tag::run[]" and "// end::run[]";
 // lines=2..-1 picks a range of a whole file. title= names the listing
-// in its caption; without it, the caption is the file's path.
-type codeBlocks struct{ code *codeRoot }
+// in its caption; without it, the caption is the file's path. A block
+// whose language is in blockLangs is a layout instead (blocks.go).
+type codeBlocks struct {
+	code *codeRoot
+	md   goldmark.Markdown // the converter, for the Markdown inside blocks
+}
 
-func (r codeBlocks) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
+func (r *codeBlocks) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 	reg.Register(ast.KindFencedCodeBlock, r.render)
 }
 
-func (r codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
+func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if !entering {
 		return ast.WalkContinue, nil
 	}
@@ -106,6 +113,15 @@ func (r codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering bo
 	for i := range block.Lines().Len() {
 		seg := block.Lines().At(i)
 		body.Write(seg.Value(src))
+	}
+	if blockLangs[lang] {
+		if len(attrs) > 0 {
+			return ast.WalkStop, fmt.Errorf("%s block: takes no attributes", lang)
+		}
+		if err := r.renderBlock(w, lang, body.String()); err != nil {
+			return ast.WalkStop, err
+		}
+		return ast.WalkSkipChildren, nil
 	}
 	caption, href := attrs["title"], ""
 	if file := attrs["include"]; file != "" {

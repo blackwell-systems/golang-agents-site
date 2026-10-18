@@ -13,8 +13,9 @@ import (
 // codeRoot is a local copy of the companion code's code/ directory,
 // which excerpts are read from and code links are checked against.
 type codeRoot struct {
-	dir  string
-	errs []error // errors from code: links, collected during a conversion
+	dir     string
+	errs    []error              // errors from code: links, collected during a conversion
+	counted map[string]codeStats // stats by directory, counted once
 }
 
 // openCode checks that dir looks like the companion code.

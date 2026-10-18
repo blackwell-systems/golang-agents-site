@@ -993,6 +993,80 @@ cite { font-style: italic; }
   color: var(--stone);
 }
 .result p:last-child { margin-bottom: 0; }
+.result .method {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 0.9rem;
+  margin: 0.9rem 0 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.result .method div { display: contents; }
+.result .method dt {
+  font-family: var(--label);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+  padding-top: 0.15rem;
+}
+.result .method dd { margin: 0; color: var(--stone); }
+.result-source {
+  font-family: var(--label);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--soft);
+}
+.result-cards {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+.result-cards .result { margin: 0; display: flex; flex-direction: column; }
+.result-cards .result-source { margin-top: auto; }
+@media (min-width: 60rem) {
+  /* Wider than the prose column, as wide as the page's grid. */
+  .home-body .result-cards {
+    grid-template-columns: repeat(3, 1fr);
+    width: min(calc(100vw - 2 * var(--gutter) - 1rem), calc(72rem - 2 * var(--gutter)));
+  }
+}
+
+/* When to use a design, and when not to. */
+.fit {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  margin: 1.75rem 0;
+}
+.fit > div {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--amber);
+  border-radius: 4px;
+  padding: 1rem 1.2rem 0.4rem;
+}
+.fit > .fit-leave { border-top-color: var(--soft); }
+.fit-title {
+  font-family: var(--label);
+  font-weight: 600;
+  color: var(--ivory);
+  margin-bottom: 0.5rem;
+}
+.fit ul { padding-left: 1.1rem; font-size: 0.95rem; line-height: 1.5; }
+.fit li { margin-bottom: 0.5rem; }
+
+/* The examples catalog. */
+.table-scroll { max-width: 100%; overflow-x: auto; margin: 1.5rem 0; }
+.table-scroll:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.prose .table-scroll table { display: table; margin: 0; overflow: visible; }
+.catalog .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.catalog th[scope="row"] { font-weight: 400; white-space: nowrap; }
+.catalog td code { white-space: nowrap; }
+.catalog .none { color: var(--soft); }
 
 /* The end of a guide */
 .guide-foot { max-width: 46rem; margin-top: 3rem; }

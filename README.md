@@ -76,6 +76,41 @@ Code comes from the companion code, never pasted. An empty fenced block with `in
 
 A link to `code:ch04/agent/gotest.go` becomes a link to that file in the repository, after the build checks that it exists. Glossary terms link as `/glossary/#term`.
 
+### Results, fit lists, and counts
+
+A measured number never appears without its method. A `result` block states one result with its task, models, runs, and date, all required, and the build fails without them:
+
+````
+```result
+figure: 79
+unit: of 80 replies
+task: the crash-triage agent's first request, with a poisoned tool description
+models: four (claude-haiku-5.5, gpt-5.6-luna, glm-5.3-flash, deepseek-v4.1-flash)
+runs: ten per model and condition
+date: October 2026
+source: Chapter 10
+link: /findings/tool-description-poisoning/
+more: The finding
+
+What the number means, in a sentence or two of Markdown.
+```
+````
+
+`unit`, `link`, and `more` (the link's text) are optional. Wrap several in `<div class="result-cards">` for a row of cards.
+
+Design and production pages say when to use what they describe with a `fit` block. Every reason has to cite the chapter whose result backs it, or the build fails:
+
+````
+```fit
+reach: The batch has many groups that each need many turns (chapter 9).
+leave: One agent can hold the batch with a context policy; fan-out cost 25 to 60 percent more there (chapter 9).
+```
+````
+
+Counts about the code are computed from the local copy, never typed: `{{code files}}`, `{{code lines}}`, `{{code tests}}`, `{{code test-files}}`, and `{{code packages}}`, optionally followed by a directory under `code/` (`{{code tests ch04}}`), and `{{code go-version}}` from `code/go.mod`. Counts skip `testdata` directories, as the `go` command does. A `catalog` block renders the examples table on `/run/`, one line per directory (`dir | what it shows | command | guide`), with the counts filled in.
+
+The copy check reads the prose inside all three blocks.
+
 Code links point at the `main` branch (`codeRef` in `cmd/build/main.go`, the one setting for it), with line ranges computed from the local copy, so build from a copy that matches what is published. At release, `codeRef` becomes `v1.0`, the tag on the code repository, so line links stay stable.
 
 ## Images and fonts
