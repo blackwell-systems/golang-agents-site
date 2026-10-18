@@ -69,6 +69,8 @@
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --gutter: clamp(1rem, 4vw, 2.5rem);
+  --page-max: 80rem; /* the widest the page grows */
+  --measure: 46rem; /* body text: about 90 characters a line */
   color-scheme: dark;
 }
 
@@ -132,7 +134,7 @@ cite { font-style: italic; }
 
 .wrap {
   width: 100%;
-  max-width: 72rem;
+  max-width: var(--page-max);
   margin: 0 auto;
   padding: 0 var(--gutter);
 }
@@ -817,7 +819,8 @@ cite { font-style: italic; }
 
 /* Guides, section pages, and the glossary */
 .guide, .section-page { padding: clamp(2.25rem, 6vw, 4rem) 0 clamp(3rem, 7vw, 5rem); }
-.guide-head { max-width: 46rem; margin-bottom: 2.25rem; }
+.guide-head { max-width: var(--measure); margin-bottom: 2.25rem; }
+.guide-head .lede { max-width: none; }
 .guide-head .eyebrow a { color: inherit; text-decoration: none; }
 .guide-head .eyebrow a:hover { text-decoration: underline; }
 .guide-head h1 {
@@ -832,7 +835,14 @@ cite { font-style: italic; }
 }
 .meta { font-family: var(--label); font-size: 0.88rem; color: var(--soft); margin: 0; }
 
-.prose { max-width: 46rem; }
+/* Text keeps to the measure, about 90 characters a line; code, tables,
+   rows of result cards, and the when-to-use blocks may run wider, up to
+   the column's width. A single result card keeps to the measure, since
+   it is mostly text. */
+.prose { max-width: 60rem; }
+.prose > * { max-width: var(--measure); }
+.prose > .listing, .prose > table, .prose > .table-scroll,
+.prose > .result-cards, .prose > .fit, .prose > .loop-stages { max-width: 100%; }
 .prose > * + * { margin-top: 0; }
 .prose h2 {
   font-size: clamp(1.4rem, 3.4vw, 1.75rem);
@@ -1032,8 +1042,9 @@ cite { font-style: italic; }
 @media (min-width: 60rem) {
   /* Wider than the prose column, as wide as the page's grid. */
   .home-body .result-cards {
+    max-width: none;
     grid-template-columns: repeat(3, 1fr);
-    width: min(calc(100vw - 2 * var(--gutter) - 1rem), calc(72rem - 2 * var(--gutter)));
+    width: min(calc(100vw - 2 * var(--gutter) - 1rem), calc(var(--page-max) - 2 * var(--gutter)));
   }
 }
 
@@ -1071,7 +1082,7 @@ cite { font-style: italic; }
 .catalog .none { color: var(--soft); }
 
 /* The end of a guide */
-.guide-foot { max-width: 46rem; margin-top: 3rem; }
+.guide-foot { max-width: var(--measure); margin-top: 3rem; }
 .book-line {
   padding: 1rem 1.25rem;
   border: 1px solid var(--amber-dim);
@@ -1296,7 +1307,7 @@ cite { font-style: italic; }
 /* "On this page", beside a guide on wide screens. */
 .toc { display: none; }
 @media (min-width: 72rem) {
-  .guide-body { display: grid; grid-template-columns: minmax(0, 46rem) 15rem; gap: 4rem; align-items: start; }
+  .guide-body { display: grid; grid-template-columns: minmax(0, 1fr) 14rem; gap: 3rem; align-items: start; }
   .toc {
     display: block;
     position: sticky;
