@@ -36,7 +36,7 @@ It accepts any value with a `Do` method as its HTTP client, so the replay transp
 The cost is churn.
 The SDK is below 1.0 and generated from an API description, so its types can change in a minor release.
 Pin it, and read what changed before moving the pin.
-The finished adapter is 327 lines of Go, about half of them conversions between the SDK's types and the agent's (chapter 16 counts them).
+The finished adapter is 327 lines of Go, leaving out comments and blank lines, and about half of them convert between the SDK's types and the agent's (chapter 16 counts them).
 
 ### The MCP Go SDK
 
