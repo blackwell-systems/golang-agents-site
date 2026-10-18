@@ -104,7 +104,7 @@ When a model chooses how many agents to start and merges their results, the prog
 ## When to use it
 
 ```fit
-reach: A side question needs reading the parent will never use again. On chapter 9's digest task, the sub-agent answered its question in three or four model calls for $0.0020 to $0.0032 (chapter 9).
+reach: A side question needs reading the parent will never use again. On chapter 9's digest task, the sub-agent answered its question in three or four calls for $0.0020 to $0.0032 (chapter 9).
 reach: You want a steady bill and small requests across a batch. One agent per crash group cost $0.124 to $0.126 in four runs and never sent a request over 28,275 tokens (chapter 9).
 leave: The answer leads to an edit in the files the sub-agent read. On the digest task, the parent reread those files anyway, and runs with the sub-agent took one to seven more turns and cost slightly more (chapter 9).
 leave: One agent with a context policy can hold the batch. Four agents at a time finished no sooner and cost 25 to 60 percent more (chapter 9).

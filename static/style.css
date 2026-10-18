@@ -1066,7 +1066,7 @@ cite { font-style: italic; }
 .table-scroll:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .prose .table-scroll table { display: table; margin: 0; overflow: visible; }
 .catalog .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.catalog th[scope="row"] { font-weight: 400; white-space: nowrap; }
+.catalog th[scope="row"] { font-family: inherit; font-weight: 400; white-space: nowrap; border-bottom-color: var(--line); }
 .catalog td code { white-space: nowrap; }
 .catalog .none { color: var(--soft); }
 
