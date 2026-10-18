@@ -32,7 +32,7 @@ The book takes this route by default.
 
 ## The answer as a Go type
 
-The answer is declared as a Go struct, tagged the same way as the argument structs on the [tool design](/patterns/tool-design/) page, so its schema is generated:
+The answer is declared as a Go struct, tagged the same way as the argument structs on the [tool design](/design/tool-design/) page, so its schema is generated:
 
 ```go include=ch07/triage/diagnosis.go tag=diagnosis
 ```

@@ -20,7 +20,7 @@ Chapter 1 of the book checked that rule on a task small enough to build both way
 
 The task: a small Go package, `duration`, has failing tests because its unit table maps `'m'` to `time.Second`.
 
-**The agent** is the roughly 30-line loop from [the agent loop in Go](/foundations/agent-loop/), given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
+**The agent** is the roughly 30-line loop from [the agent loop in Go](/loop/agent-loop/), given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
 
 **The workflow** is three steps written into the program:
 

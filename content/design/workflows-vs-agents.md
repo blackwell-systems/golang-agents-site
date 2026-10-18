@@ -104,4 +104,4 @@ $ go run ./ch04
 ```
 
 This replays the agent version of the bug fix, runs the real `go test`, and prints the cost: $0.0008 across four model calls.
-The [ch04 example](/examples/ch04-first-agent/) goes through it step by step.
+The [ch04 example](/run/ch04-first-agent/) goes through it step by step.

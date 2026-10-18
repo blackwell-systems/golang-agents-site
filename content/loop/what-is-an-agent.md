@@ -96,7 +96,7 @@ An agent in Go comes down to a handful of plain pieces:
 - **A model interface** with one method, `Generate(ctx, req)`, so a scripted fake and a real HTTP client are interchangeable.
 - **Messages**: the conversation as a slice, each with a role (`system`, `user`, `assistant`, or `tool`).
 - **Tools**: a definition the model reads and a function the harness calls.
-- **The loop**: assemble a request, send it, act on any tool calls in the reply, then either finish or take another turn. [The agent loop in Go](/foundations/agent-loop/) shows it in about 30 lines.
+- **The loop**: assemble a request, send it, act on any tool calls in the reply, then either finish or take another turn. [The agent loop in Go](/loop/agent-loop/) shows it in about 30 lines.
 - **Limits**: a cap on turns from the very first version, and later a cap on spending, since nothing else stops a loop that never gets an answer.
 
 You don't need a framework for any of this, and you don't need a model to test it.
@@ -120,4 +120,4 @@ $ go run ./ch01
 ```
 
 This plays back the run from the table through a loop short enough to read in one sitting, with no API key and no network.
-The [ch01 example](/examples/ch01-scripted-loop/) explains the output line by line.
+The [ch01 example](/run/ch01-scripted-loop/) explains the output line by line.

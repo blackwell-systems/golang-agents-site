@@ -74,7 +74,7 @@ Real tokenizers do much better on code, but the pattern holds: text unlike a tok
 Measured on five models in October 2026, a 1,008-byte Go file took from 336 to 502 tokens, and a page of English from 450 to 598.
 Four of the five agreed within 7 percent; the default model's tokenizer used a third more tokens for the English and half again as many for the Go.
 So compare models by what a task costs, not by their price per token.
-[Tokens, cost, and the context window](/foundations/tokens-and-cost/) follows that through an agent's bill.
+[Tokens, cost, and the context window](/loop/tokens-and-cost/) follows that through an agent's bill.
 
 ## Attention, briefly
 

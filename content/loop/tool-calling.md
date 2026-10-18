@@ -79,7 +79,7 @@ Here are three messages from the fourth request of the run, with the file conten
 
 The rule the API enforces: each call needs exactly one tool message, and that message has to come later in the list than the assistant message holding the call.
 Drop a result, or send one without its call, and the next request is rejected.
-If your loop adds the reply to the history first and then writes one result per call, in the order the calls appear, the rule holds by construction; [the agent loop in Go](/foundations/agent-loop/) shows one.
+If your loop adds the reply to the history first and then writes one result per call, in the order the calls appear, the rule holds by construction; [the agent loop in Go](/loop/agent-loop/) shows one.
 
 ## The Go types
 
@@ -125,4 +125,4 @@ $ go run ./ch04 -replay recover
 
 The first replays the recorded run this page quotes; only the model's replies are saved, and the tools, `go test` included, run for real.
 The second replays the hand-written run with three bad calls.
-The [ch04 example](/examples/ch04-first-agent/) has more to try.
+The [ch04 example](/run/ch04-first-agent/) has more to try.

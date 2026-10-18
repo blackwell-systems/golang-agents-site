@@ -1,5 +1,5 @@
 ---
-title: Examples
+title: Run it
 description: Programs from the companion repository that run offline, from recorded model replies, with the commands to run them and the files to read.
 ---
 
@@ -13,4 +13,3 @@ $ cd go-agents-book-code/code
 ```
 
 Each example page starts from that directory.
-

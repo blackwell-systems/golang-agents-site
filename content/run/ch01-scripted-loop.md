@@ -14,7 +14,7 @@ It is the smallest complete agent in the companion code, and every later example
 
 ## What it shows
 
-- The loop's four stages in about 30 lines of Go: assemble a request, send it to the model, execute any tool calls, and choose whether to go around again. [The agent loop in Go](/foundations/agent-loop/) walks through them.
+- The loop's four stages in about 30 lines of Go: assemble a request, send it to the model, execute any tool calls, and choose whether to go around again. [The agent loop in Go](/loop/agent-loop/) walks through them.
 - A `Model` interface with one method, which a script satisfies as well as a real client does.
 - Tools as a definition the model sees plus a Go function it never sees.
 - Errors from tools going back to the model as messages, so they never stop the run.
@@ -37,7 +37,7 @@ In turns 1 to 3 the model asks for two things at once, and the loop runs them in
 Turn 4 has no tool calls, so the loop stops.
 
 Nothing touched your disk.
-The project lives in an in-memory file system, a map from names to contents, and `run_tests` is a stand-in that checks for the fixed line; the [ch04 example](/examples/ch04-first-agent/) swaps in a real `go test`.
+The project lives in an in-memory file system, a map from names to contents, and `run_tests` is a stand-in that checks for the fixed line; the [ch04 example](/run/ch04-first-agent/) swaps in a real `go test`.
 
 ## The script
 
@@ -90,4 +90,4 @@ The run prints three turns, then ends with `run agent: agent: max turns reached`
 
 ## Next
 
-[A real agent that fixes a failing test](/examples/ch04-first-agent/) runs the same `Run` against a real model's recorded replies, with a real `go test` behind `run_tests`.
+[A real agent that fixes a failing test](/run/ch04-first-agent/) runs the same `Run` against a real model's recorded replies, with a real `go test` behind `run_tests`.

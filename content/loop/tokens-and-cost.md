@@ -115,7 +115,7 @@ A file the agent opened many turns back and doesn't need any more is still bille
 
 ## What to do about it
 
-- **Count from the first call.** Record the usage that comes back with each reply and total it for the run; the [ch04 example](/examples/ch04-first-agent/) does it by wrapping the model.
+- **Count from the first call.** Record the usage that comes back with each reply and total it for the run; the [ch04 example](/run/ch04-first-agent/) does it by wrapping the model.
 - **Bound the spend.** A turn limit catches a loop that won't stop, and a dollar budget checked before every call limits the cost itself.
 - **Keep tool output small.** Whatever a tool returns is resent on every call after it. Chapter 4's `go test` tool reduces 1,767 bytes of JSON events to a 158-byte report.
 - **Keep the start of the request stable.** The cache discount only applies to an identical prefix, so put instructions and tool definitions first and leave them alone during a run.

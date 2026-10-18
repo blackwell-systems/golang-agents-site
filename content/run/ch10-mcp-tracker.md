@@ -15,7 +15,7 @@ The model's replies are recorded; the server, the protocol, and every tool run f
 
 ## What it shows
 
-- A hand-written MCP client and server in Go, newline-delimited JSON-RPC over standard input and output. [MCP in Go](/patterns/mcp/) explains both sides.
+- A hand-written MCP client and server in Go, newline-delimited JSON-RPC over standard input and output. [MCP in Go](/design/mcp/) explains both sides.
 - Server tools adapted into agent tools, with names prefixed by the server's name, descriptions labeled as the server's, and untrusted hints ignored.
 - A server whose tool definitions can be pinned by hash, so a change stops the run before it starts.
 
@@ -27,7 +27,7 @@ From the `code` directory of a clone of [go-agents-book-code](https://github.com
 $ go run ./ch10
 ```
 
-It replays a 13-turn run of the same task as the [ch07 example](/examples/ch07-crash-triage/), four crash reports with two already filed.
+It replays a 13-turn run of the same task as the [ch07 example](/run/ch07-crash-triage/), four crash reports with two already filed.
 Notice the tool names in the second turn:
 
 ```text include=ch10/testdata/out/m1-mcp.txt lines=8..18 title="go run ./ch10, turn 2"

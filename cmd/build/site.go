@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -24,9 +25,9 @@ type Site struct {
 
 // Section is a section with its own page and the pages in it.
 type Section struct {
-	Dir, Title string
-	Index      *Page   // the section's own page, content/<dir>/_index.md
-	Pages      []*Page // the rest, by weight
+	Dir, Title, Nav string
+	Index           *Page   // the section's own page, content/<dir>/_index.md
+	Pages           []*Page // the rest, by weight
 }
 
 // newSite groups pages into sections and versions the stylesheet, so a
@@ -44,7 +45,7 @@ func newSite(pages []*Page, static string) (*Site, error) {
 		Pages: pages,
 	}
 	for _, sec := range sections {
-		sv := &Section{Dir: sec.Dir, Title: sec.Title}
+		sv := &Section{Dir: sec.Dir, Title: sec.Title, Nav: cmp.Or(sec.Nav, sec.Title)}
 		for _, p := range pages {
 			switch {
 			case p.Section != sec.Dir:
@@ -141,7 +142,7 @@ func loadTemplates(dir string) (map[string]*template.Template, error) {
 func writePage(out string, tmpl map[string]*template.Template, s *Site, p *Page) error {
 	v := view{Site: s, Page: p, Section: s.section(p)}
 	for _, sec := range s.Sections {
-		v.Nav = append(v.Nav, navItem{sec.Title, "/" + sec.Dir + "/", sec.Dir == p.Section})
+		v.Nav = append(v.Nav, navItem{sec.Nav, "/" + sec.Dir + "/", sec.Dir == p.Section})
 	}
 	v.Nav = append(v.Nav,
 		navItem{"Glossary", "/glossary/", p.URL == "/glossary/"},

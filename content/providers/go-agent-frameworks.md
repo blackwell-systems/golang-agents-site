@@ -153,4 +153,4 @@ $ go run ./compare -cancel
 ```
 
 The first command runs the three versions on the scripted replies and prints the comparison table; the second measures how long each takes to return when cancelled during a retry.
-See the [ch16 example](/examples/ch16-framework-ports/) for more.
+See the [ch16 example](/run/ch16-framework-ports/) for more.

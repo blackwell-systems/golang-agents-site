@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -117,6 +118,26 @@ func writeXML(file string, v any) error {
 	b = append([]byte(xml.Header), append(b, '\n')...)
 	if err := os.WriteFile(file, b, 0o644); err != nil {
 		return fmt.Errorf("%s: %w", filepath.Base(file), err)
+	}
+	return nil
+}
+
+// writeRedirects writes _redirects, which Cloudflare reads from the
+// assets directory: a permanent redirect from each moved section, with
+// and without its trailing slash, and from every page under it. It
+// checks that each new section exists in out.
+func writeRedirects(out string) error {
+	var b strings.Builder
+	b.WriteString("# Written by cmd/build from the moved list in main.go.\n")
+	for _, m := range moved {
+		if _, err := os.Stat(filepath.Join(out, m.To, "index.html")); err != nil {
+			return fmt.Errorf("redirect /%s/ to /%s/: %w", m.From, m.To, err)
+		}
+		fmt.Fprintf(&b, "/%[1]s /%[2]s/ 301\n/%[1]s/ /%[2]s/ 301\n/%[1]s/* /%[2]s/:splat 301\n",
+			m.From, m.To)
+	}
+	if err := os.WriteFile(filepath.Join(out, "_redirects"), []byte(b.String()), 0o644); err != nil {
+		return fmt.Errorf("_redirects: %w", err)
 	}
 	return nil
 }

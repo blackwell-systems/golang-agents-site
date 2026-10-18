@@ -47,7 +47,7 @@ Here is the loop, as the first chapter of the companion code writes it:
 It sends the whole conversation on every call, because the model keeps nothing between calls.
 It appends the reply before running its tools, so each tool result answers a call the conversation already holds.
 It stops on an answer, at the turn limit, or when `ctx` is cancelled.
-[The agent loop in Go](/foundations/agent-loop/) explains each line.
+[The agent loop in Go](/loop/agent-loop/) explains each line.
 
 Run it with no model at all, from a scripted list of replies:
 

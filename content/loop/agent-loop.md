@@ -56,7 +56,7 @@ Read it stage by stage.
 
 **Build the request.** Every call sends `msgs` in full.
 A model carries no state from one call to the next, so the only thing it knows on a given call is what that request contains.
-That means the requests keep getting bigger as the run goes on; [tool calling on the wire](/foundations/tool-calling/) shows how many tokens the first request already takes before the task is read.
+That means the requests keep getting bigger as the run goes on; [tool calling on the wire](/loop/tool-calling/) shows how many tokens the first request already takes before the task is read.
 `Run` calls `slices.Clone` before it appends anything, so the caller's slice and its backing array stay as they were.
 
 **Call the model.** `m.Generate(ctx, req)` receives the run's `ctx`, which lets a real client drop the HTTP request if the run is cancelled.
@@ -97,7 +97,7 @@ Picking the nearest tool name and running it executes a call the model never mad
 Reporting the error costs a single turn.
 Chapter 4 replays a hand-written run in the API's format where the model makes three mistakes in a row: it calls a tool that isn't defined, passes a path as an array, and asks to replace text the file doesn't contain.
 Every error message explains the problem, and every following call is correct.
-The [ch04 example](/examples/ch04-first-agent/) replays that run.
+The [ch04 example](/run/ch04-first-agent/) replays that run.
 
 How quickly the model recovers depends on how the error is worded.
 A message like `old text appears 0 times in duration.go, want exactly once` tells it what to change, while a bare "please try again" tells it nothing.
@@ -135,12 +135,12 @@ $ go run ./ch01
 $ go test ./ch01/...
 ```
 
-The first command plays the bug fix through the loop and prints every turn; the [ch01 example](/examples/ch01-scripted-loop/) explains what you see.
+The first command plays the bug fix through the loop and prints every turn; the [ch01 example](/run/ch01-scripted-loop/) explains what you see.
 The tests cover each rule separately: an answer ends the run, the turn limit ends the run, each tool call receives its own tool message, failing tools come back flagged as errors, and a made-up tool name is answered with the real list.
 None of them uses the network or an API key.
 
 ## Where this goes next
 
-- [Tool calling in Go, on the wire](/foundations/tool-calling/): what the request and reply look like as JSON once a real model is attached.
-- [A real agent that fixes a failing test](/examples/ch04-first-agent/): the same loop with a real model's recorded replies.
+- [Tool calling in Go, on the wire](/loop/tool-calling/): what the request and reply look like as JSON once a real model is attached.
+- [A real agent that fixes a failing test](/run/ch04-first-agent/): the same loop with a real model's recorded replies.
 - [Glossary](/glossary/): agent, harness, turn, tool call, and the rest of the vocabulary.

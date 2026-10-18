@@ -14,8 +14,8 @@ This program runs one task from the crash catalog, replayed from a run recorded 
 
 ## What it shows
 
-- An agent with fourteen tools grouped by prefix: `crash_*` to read reports, `code_*` to read and patch code, `issue_*` for the tracker, `run_tests`, and a final tool, `submit_diagnosis`. [Designing tools a model uses well](/patterns/tool-design/) explains the choices.
-- A final answer as typed data, one `Diagnosis` per crash group, checked before it is accepted: [structured output](/patterns/structured-output/).
+- An agent with fourteen tools grouped by prefix: `crash_*` to read reports, `code_*` to read and patch code, `issue_*` for the tracker, `run_tests`, and a final tool, `submit_diagnosis`. [Designing tools a model uses well](/design/tool-design/) explains the choices.
+- A final answer as typed data, one `Diagnosis` per crash group, checked before it is accepted: [structured output](/design/structured-output/).
 - A reproducer test that must fail on the original code and pass on the fix.
 - A grade from the crash catalog's grader, check by check.
 
@@ -54,7 +54,7 @@ The first system prompt never tells the model how to handle a report the tracker
 A typed answer is what made the mistake a failed check instead of a paragraph to read.
 
 **The cost.** 17 turns, $0.034, and every request is bigger than the one before, growing from roughly 3,800 tokens to roughly 29,600.
-[Context management](/patterns/context-management/) is what brings that down.
+[Context management](/design/context-management/) is what brings that down.
 
 ## Things to try
 

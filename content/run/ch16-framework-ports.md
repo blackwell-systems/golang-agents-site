@@ -12,7 +12,7 @@ weight: 50
 Chapter 16's ports put one piece of the triage agent on two Go frameworks and on the book's own agent package: a crash group's diagnosis with three tools, `run_tests`, `issue_file`, and `submit_diagnosis`, where `issue_file` needs a person's approval.
 All three versions reach the model through an `*http.Client` you supply, so all three run against the same scripted replies, with no key and no network, and a recorder keeps every request each one sends.
 
-This page is the hands-on companion to [Go agent frameworks compared](/ecosystem/go-agent-frameworks/), which covers what the comparison found and how to read it.
+This page is the hands-on companion to [Go agent frameworks compared](/providers/go-agent-frameworks/), which covers what the comparison found and how to read it.
 
 ## What it shows
 

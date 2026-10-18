@@ -27,7 +27,7 @@ The build also runs a copy check: no published page may share a run of 10 or mor
 go run ./cmd/build && npx wrangler deploy
 ```
 
-`wrangler.jsonc` serves `dist/` as a Worker's static assets on golang-agents.com and www.golang-agents.com, with trailing-slash URLs (`/foundations/agent-loop/` is `dist/foundations/agent-loop/index.html`) and `404.html` for unknown paths. `static/.assetsignore` is copied into `dist/` and keeps stray files off the site.
+`wrangler.jsonc` serves `dist/` as a Worker's static assets on golang-agents.com and www.golang-agents.com, with trailing-slash URLs (`/loop/agent-loop/` is `dist/loop/agent-loop/index.html`) and `404.html` for unknown paths. `static/.assetsignore` is copied into `dist/` and keeps stray files off the site.
 
 ## Layout
 
@@ -40,7 +40,7 @@ go run ./cmd/build && npx wrangler deploy
 | `cmd/build/` | The generator: goldmark for Markdown, chroma for highlighting, `html/template` for layouts |
 | `dist/` | The built site (not committed) |
 
-The sections are fixed in `cmd/build/main.go`: Foundations, Patterns, Production, Examples, Ecosystem, and Findings.
+The sections are fixed in `cmd/build/main.go`: The loop (`/loop/`), Design (`/design/`), Production, Run it (`/run/`), Providers and frameworks (`/providers/`), and Findings. Four of them were renamed on 2026-10-18 from Foundations, Patterns, Examples, and Ecosystem; `moved` in the same file lists the old directories, and the build writes `dist/_redirects`, which Cloudflare reads to send every old URL to its new one with a 301.
 
 ## Writing a page
 

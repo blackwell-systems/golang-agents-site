@@ -52,18 +52,29 @@ const (
 )
 
 // section is one part of the site, with a directory under content/.
+// Nav is the shorter name the header uses, when Title is too long.
 type section struct {
-	Dir, Title string
+	Dir, Title, Nav string
 }
 
 // sections are the site's sections, in the order the nav lists them.
 var sections = []section{
-	{"foundations", "Foundations"},
-	{"patterns", "Patterns"},
-	{"production", "Production"},
-	{"examples", "Examples"},
-	{"ecosystem", "Ecosystem"},
-	{"findings", "Findings"},
+	{"loop", "The loop", ""},
+	{"design", "Design", ""},
+	{"production", "Production", ""},
+	{"run", "Run it", ""},
+	{"providers", "Providers and frameworks", "Providers"},
+	{"findings", "Findings", ""},
+}
+
+// moved maps a section's old directory to its new one. The build writes
+// a permanent redirect from every URL under the old one, so links and
+// search results that predate a rename keep working.
+var moved = []struct{ From, To string }{
+	{"foundations", "loop"},
+	{"patterns", "design"},
+	{"examples", "run"},
+	{"ecosystem", "providers"},
 }
 
 func build(cfg config) error {
@@ -112,6 +123,9 @@ func build(cfg config) error {
 		}
 	}
 	if err := writeFeeds(cfg.out, site); err != nil {
+		return err
+	}
+	if err := writeRedirects(cfg.out); err != nil {
 		return err
 	}
 	n, err := checkLinks(cfg.out, code)
