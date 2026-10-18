@@ -113,7 +113,7 @@ Counts about the code are computed from the local copy, never typed: `{{code fil
 
 The copy check reads the prose inside all three blocks.
 
-Code links point at the `main` branch (`codeRef` in `cmd/build/main.go`, the one setting for it), with line ranges computed from the local copy, so build from a copy that matches what is published. At release, `codeRef` becomes `v1.0`, the tag on the code repository, so line links stay stable.
+Code links point at the `v1.0` tag of the code repository (`codeRef` in `cmd/build/main.go`, the one setting for it), with line ranges computed from the local copy, so build from a copy that matches that tag. Move it to a new tag with each edition.
 
 ## Images and fonts
 
