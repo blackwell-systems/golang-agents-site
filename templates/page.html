@@ -1,0 +1,13 @@
+{{define "main" -}}
+<div class="section-page">
+  <div class="wrap">
+    <header class="guide-head">
+      <h1>{{.Page.Title}}</h1>
+      <p class="lede">{{.Page.Description}}</p>
+    </header>
+    <div class="prose">
+{{.Page.Body}}
+    </div>
+  </div>
+</div>
+{{- end}}

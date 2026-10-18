@@ -1,0 +1,64 @@
+{{define "main" -}}
+<section class="hero home-hero" aria-labelledby="title">
+  <div class="wrap home-hero-grid">
+    <div>
+    <p class="eyebrow">A field guide with runnable code</p>
+    <h1 id="title">{{.Site.Name}}</h1>
+    <div class="ornament" aria-hidden="true"><span></span></div>
+    <p class="hook">{{.Page.Description}}</p>
+    <div class="actions">
+      <a class="button primary" href="/foundations/agent-loop/">Start with the loop</a>
+      <a class="button secondary" href="/examples/">Run the examples</a>
+    </div>
+    </div>
+    <svg class="loop-figure" viewBox="-80 10 560 380" role="img" aria-labelledby="loop-figure-title">
+      <title id="loop-figure-title">The agent loop: build the request, call the model, run the tools, decide, and back to building the request</title>
+      <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="lf-head"/></marker></defs>
+      <circle cx="200" cy="200" r="120" class="lf-ring"/>
+      <path d="M232 84 A120 120 0 0 1 316 168" class="lf-arc" marker-end="url(#arrow)"/>
+      <path d="M316 232 A120 120 0 0 1 232 316" class="lf-arc" marker-end="url(#arrow)"/>
+      <path d="M168 316 A120 120 0 0 1 84 232" class="lf-arc" marker-end="url(#arrow)"/>
+      <path d="M84 168 A120 120 0 0 1 168 84" class="lf-arc" marker-end="url(#arrow)"/>
+      <g class="lf-node"><circle cx="200" cy="80" r="17"/><text x="200" y="86">1</text></g>
+      <g class="lf-node"><circle cx="320" cy="200" r="17"/><text x="320" y="206">2</text></g>
+      <g class="lf-node"><circle cx="200" cy="320" r="17"/><text x="200" y="326">3</text></g>
+      <g class="lf-node"><circle cx="80" cy="200" r="17"/><text x="80" y="206">4</text></g>
+      <text x="200" y="44" class="lf-label">Build the request</text>
+      <text x="347" y="206" class="lf-label lf-start">Call the model</text>
+      <text x="200" y="366" class="lf-label">Run the tools</text>
+      <text x="53" y="206" class="lf-label lf-end">Decide</text>
+      <text x="200" y="196" class="lf-center">one turn</text>
+      <text x="200" y="218" class="lf-sub">until an answer or a limit</text>
+    </svg>
+  </div>
+</section>
+
+<div class="home-body">
+  <div class="wrap">
+    <div class="prose">
+{{.Page.Body}}
+    </div>
+  </div>
+</div>
+
+<section class="home-sections" aria-labelledby="sections-title">
+  <div class="wrap">
+    <h2 id="sections-title">Where to go next</h2>
+    <ul class="paths">
+      {{- range .Site.Sections}}
+      <li>
+        <h3><a href="/{{.Dir}}/">{{.Title}}</a></h3>
+        <p>{{.Index.Description}}</p>
+        {{- with .Pages}}
+        <ul>
+          {{- range .}}
+          <li><a href="{{.URL}}">{{.Name}}</a></li>
+          {{- end}}
+        </ul>
+        {{- end}}
+      </li>
+      {{- end}}
+    </ul>
+  </div>
+</section>
+{{- end}}

@@ -1,93 +1,102 @@
 # golang-agents.com
 
-Deployed on Cloudflare (a Worker serving static assets) with wrangler: `npx wrangler deploy` from this folder publishes the site to golang-agents.com and www.golang-agents.com (custom domains in `wrangler.jsonc`; Cloudflare manages the DNS records and certificates). `.assetsignore` keeps this README, the config, and git files off the site. The GitHub Pages notes below are kept for reference only.
+A code-first guide to building AI agents in Go, with a page for the book *Building AI Agents in Go* by Dayna Blackwell.
 
-# golang-agents.com
+The pages are Markdown under `content/`, rendered by a small Go program (`cmd/build`) into `dist/`, which Cloudflare serves as static assets.
 
-The website for *Building AI Agents in Go: From the agent loop to production*, by Dayna Blackwell.
+## Build and preview
 
-One static page: plain HTML and CSS, with one small inline script (the store link), no build step, no analytics, and no external requests. The fonts, images, and icons are all served from this repository.
+The build reads code excerpts from the companion code, so it needs a copy of it: the book repository's `code/` directory next to this one (the default), or a clone of [go-agents-book-code](https://github.com/blackwell-systems/go-agents-book-code), passed with `-code`.
+
+```
+go run ./cmd/build                     # or: go run ./cmd/build -code ../go-agents-book-code/code
+python3 -m http.server 8000 -d dist    # then open http://localhost:8000/
+```
+
+The build replaces `dist/`, copies `static/`, renders every page, writes `sitemap.xml`, `robots.txt`, and `feed.xml`, and then checks every internal link, asset reference, and `#fragment` in the output, and every link into the companion repository's `code/` tree. A broken link, a missing excerpt tag, an unknown front matter key, or an em dash in a page fails the build.
+
+A page with `draft: true` is left out entirely: no HTML, no sitemap or feed entry, and no place in the nav or its section's list. Drafts stay on disk for review.
+
+The build also runs a copy check: no published page may share a run of 10 or more consecutive words with the book's chapters, since there is no free web edition of the book. It reads the chapters from `../go-agents-book/book/chapters` (set `-book` to another path; `-book ""` skips the check with a warning). Code blocks, inline code, table rows, HTML tags, and link targets are left out, and so are the author's bio and copyright page. The threshold is `copyRun` in `cmd/build/copycheck.go`.
+
+`go test ./...` tests the generator.
+
+## Deploy
+
+```
+go run ./cmd/build && npx wrangler deploy
+```
+
+`wrangler.jsonc` serves `dist/` as a Worker's static assets on golang-agents.com and www.golang-agents.com, with trailing-slash URLs (`/foundations/agent-loop/` is `dist/foundations/agent-loop/index.html`) and `404.html` for unknown paths. `static/.assetsignore` is copied into `dist/` and keeps stray files off the site.
+
+## Layout
 
 | Path | What |
 | --- | --- |
-| `index.html` | The page |
-| `style.css` | The cover's palette and type |
-| `fonts/` | Cinzel, Inter, and Space Grotesk (WOFF2), with their SIL Open Font Licenses |
-| `img/` | The cover at 360, 540, 720, and 1080 px wide, in AVIF and WebP, with a 720 px JPEG fallback |
-| `sample/` | The free sample PDFs (`building-ai-agents-in-go-sample-light.pdf` and `-dark.pdf`), copied in before launch |
-| `og.jpg` | The 1200 × 630 social card (Open Graph and Twitter) |
-| `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | The icons: the cover's amber ring on night navy |
-| `CNAME` | The custom domain for GitHub Pages |
-| `.nojekyll` | Tells GitHub Pages to serve the files as they are, without Jekyll |
+| `content/` | The pages, in Markdown with front matter. `content/PLAN.md` is the content plan, not a page |
+| `content/<section>/_index.md` | A section's own page; the other files in the directory are its guides |
+| `templates/` | `base.html` (head, header, footer) and one file per layout: `home`, `section`, `article`, `book`, `glossary`, `page`, `work` (the Work with me page and its contact form) |
+| `static/` | Copied as is: `style.css`, `fonts/`, `img/`, `sample/`, the icons, and `og-v2.jpg` |
+| `cmd/build/` | The generator: goldmark for Markdown, chroma for highlighting, `html/template` for layouts |
+| `dist/` | The built site (not committed) |
 
-## Preview locally
+The sections are fixed in `cmd/build/main.go`: Foundations, Patterns, Production, Examples, Ecosystem, and Findings.
+
+## Writing a page
+
+Front matter is `key: value` lines between `---` lines:
 
 ```
-python3 -m http.server 8000
+---
+title: The agent loop in Go
+short: The agent loop                  # optional; for nav and lists
+description: One or two sentences for search results and lists.
+chapters: 1, 4, 5                      # the book chapters it draws on
+stage: all                             # the loop stage it works on: 1 to 4, or all
+date: 2026-10-18                       # required for guides
+updated: 2026-10-20                    # optional
+weight: 20                             # order in its section
+book: A custom closing line, in Markdown.   # optional
+work: true                             # optional; adds the "Building this at work?" line
+draft: true                            # optional; keeps the page out of the build
+---
 ```
 
-Run it in this directory, then open http://localhost:8000/.
+(The comments above are for this README; front matter lines take no comments after the value.)
 
-## Updating the images
+Code comes from the companion code, never pasted. An empty fenced block with `include=` pulls a tagged excerpt (the same `// tag::name[]` markers the book uses), or a range of lines from any file, and its caption links to those lines on GitHub:
 
-The images come from the book's cover. When the cover changes, regenerate them from the book repository, which must sit next to this one (`../go-agents-book`):
+````
+```go include=ch01/agent/loop.go tag=run
+```
+
+```text include=ch04/testdata/out/fix.txt lines=18..40 title="go run ./ch04, turns 3 and 4"
+```
+````
+
+A link to `code:ch04/agent/gotest.go` becomes a link to that file in the repository, after the build checks that it exists. Glossary terms link as `/glossary/#term`.
+
+Code links point at the `main` branch (`codeRef` in `cmd/build/main.go`, the one setting for it), with line ranges computed from the local copy, so build from a copy that matches what is published. At release, `codeRef` becomes `v1.0`, the tag on the code repository, so line links stay stable.
+
+## Images and fonts
+
+The cover images, the social card, and the icons come from the book's cover. When the cover changes, regenerate them from the book repository into `static/`:
 
 ```
 cd ../go-agents-book
-make site-assets
+tools/site-assets.sh ../golang-agents-site/static
 ```
 
-That runs `tools/site-assets.sh`, which rebuilds the cover if needed and writes `img/`, `og.jpg`, `favicon.ico`, and `apple-touch-icon.png` here. It needs ImageMagick 7, `avifenc`, and `cwebp`. The page, the CSS, the fonts, and `favicon.svg` are edited here directly.
-
-## Publishing on GitHub Pages
-
-The site is served from the root of the `main` branch.
-
-1. Create the repository on GitHub. It must be public for GitHub Pages on a free plan. Then add it as a remote and push `main`.
-2. In the repository, open **Settings > Pages**. Under **Build and deployment**, set **Source** to "Deploy from a branch", the branch to `main`, and the folder to `/ (root)`. Save.
-3. Under **Custom domain**, enter `golang-agents.com` and save. The `CNAME` file already holds it.
-4. At the domain registrar, add the DNS records below.
-5. Once the DNS check passes and GitHub has issued the certificate (it can take up to an hour or so), tick **Enforce HTTPS** on the same page.
-
-It's worth also verifying the domain for the GitHub account or organization (**Settings > Pages > Add a domain** in the account's settings). That stops anyone else from pointing a GitHub Pages site at it.
-
-### DNS records
-
-For the apex domain, `golang-agents.com`:
-
-| Type | Name | Value |
-| --- | --- | --- |
-| A | `@` | `185.199.108.153` |
-| A | `@` | `185.199.109.153` |
-| A | `@` | `185.199.110.153` |
-| A | `@` | `185.199.111.153` |
-| AAAA | `@` | `2606:50c0:8000::153` |
-| AAAA | `@` | `2606:50c0:8001::153` |
-| AAAA | `@` | `2606:50c0:8002::153` |
-| AAAA | `@` | `2606:50c0:8003::153` |
-
-The AAAA records (IPv6) are optional but recommended.
-
-For `www.golang-agents.com`:
-
-| Type | Name | Value |
-| --- | --- | --- |
-| CNAME | `www` | `<owner>.github.io` |
-
-Replace `<owner>` with the GitHub user or organization that owns this repository (for example `blackwell-systems.github.io`). With both in place, GitHub redirects `www` to the apex. Remove any other A, AAAA, or ALIAS records on the apex, such as a registrar's parking page.
-
-These are GitHub's published addresses as of October 2026; check them against GitHub's "Managing a custom domain for your GitHub Pages site" page if anything fails.
-
-## Before launch
-
-- **Store link:** set `STORE_URL` in the inline script at the bottom of `index.html` to the Gumroad product URL. Every buy button (header, hero, buy box) has the class `buy-link` and picks it up. While it is empty they jump to `#buy`.
-- **Sample:** copy `building-ai-agents-in-go-sample-light.pdf` and `building-ai-agents-in-go-sample-dark.pdf` into `sample/`. The sample holds the introduction, chapters 1 and 4, and chapter 15's section "One crash, step by step".
-- **Price and updates:** $29, one price, permanent; buyers get every update of this edition free, by email through the store. There is no mailing list signup.
-- **Author photo:** optional; the About section has none.
+It needs ImageMagick 7, `avifenc`, and `cwebp`. The CSS, the fonts, and `favicon.svg` are edited here directly.
 
 ## Rules for changes
 
-- This repository is public. Keep anything private out of it: no keys, no unpublished chapter text, no planning notes.
-- Every figure on the page comes from the book's chapter text. The four results under "What the measurements showed" come from chapters 10, 9, 13, and 15.
+- This repository is public. Keep anything private out of it: no keys, no unpublished chapter text, no planning notes beyond `content/PLAN.md`.
+- There is no free web edition of the book. Pages are original and short, answer one question, and show small excerpts from the public, Apache 2.0 companion code; the book has the full build, the tests, and the depth.
+- Every figure comes from the book or the code, with its chapter cited. No new measurements.
+- The book's prose rules apply: no em dashes, no hype, nothing disparaging about other languages or frameworks.
+- The book appears in the nav, on `/book/`, and in one line at the end of each guide.
 - Never use the Go logo; "Go" is plain text. The footer keeps the non-affiliation line and the gopher credit.
-- Keep the page free of external requests.
+- Keep the site free of external requests: fonts, images, and scripts are served from here. The one exception is `/work-with-me/`, whose contact form loads Cloudflare Turnstile from `challenges.cloudflare.com` and posts to `https://blackwell-systems.com/api/contact` (the same endpoint as blackwell-systems.com/contact, which allows this origin).
+- The site names no rates or prices for consulting; the book page's $29 is the only price.
+- The theme follows the visitor's system setting (`prefers-color-scheme`); the header toggle overrides it and remembers the choice in the browser. The light theme is the light edition's palette.

@@ -1,0 +1,28 @@
+{{define "main" -}}
+<div class="section-page">
+  <div class="wrap">
+    <header class="guide-head">
+      <p class="eyebrow">Section</p>
+      <h1>{{.Page.Title}}</h1>
+      <p class="lede">{{.Page.Description}}</p>
+    </header>
+    {{- with .Section.Pages}}
+    <ol class="cards">
+      {{- range .}}
+      <li>
+        <a href="{{.URL}}">
+          {{- with .Kind}}<span class="card-kind">{{.}}</span>{{end}}
+          <span class="card-title">{{.Name}}</span>
+          <span class="card-desc">{{.Description}}</span>
+          {{- with .Chapters}}<span class="card-cite">{{chapters .}}</span>{{end}}
+        </a>
+      </li>
+      {{- end}}
+    </ol>
+    {{- end}}
+    <div class="prose">
+{{.Page.Body}}
+    </div>
+  </div>
+</div>
+{{- end}}

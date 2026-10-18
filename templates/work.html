@@ -1,0 +1,120 @@
+{{define "main" -}}
+<div class="section-page work-page">
+  <div class="wrap">
+    <header class="guide-head">
+      <p class="eyebrow">Blackwell Systems</p>
+      <h1>{{.Page.Title}}</h1>
+      <p class="lede">{{.Page.Description}}</p>
+      <div class="actions"><a class="button primary" href="#contact">Get in touch</a><a class="button secondary" href="https://cal.com/blackwell-systems">Book a call</a></div>
+    </header>
+    <div class="work-grid">
+      <div class="prose">
+{{.Page.Body}}
+      </div>
+      <section class="contact" id="contact" aria-labelledby="contact-title">
+        <h2 id="contact-title">Get in touch</h2>
+        <p>Tell me what you’re building or weighing, and I’ll reply by email.</p>
+        <form id="contact-form" class="contact-form" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="message">What are you working on?</label>
+            <textarea id="message" name="message" rows="6" required></textarea>
+          </div>
+          <div class="hp" aria-hidden="true">
+            <label for="company">Company</label>
+            <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <div id="turnstile" class="turnstile"></div>
+          <button class="button primary" type="submit" id="contact-submit">Send</button>
+          <p id="contact-status" class="contact-status" role="status" aria-live="polite"></p>
+        </form>
+        <p class="contact-alt">Prefer to talk? <a href="https://cal.com/blackwell-systems">Book a call</a>, or email <a href="mailto:dayna@blackwell-systems.com">dayna@blackwell-systems.com</a>.</p>
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+// The contact form posts JSON to Blackwell Systems' contact endpoint,
+// with a Cloudflare Turnstile token. The widget follows the page's theme.
+(function () {
+  var form = document.getElementById("contact-form");
+  var status = document.getElementById("contact-status");
+  var button = document.getElementById("contact-submit");
+  var box = document.getElementById("turnstile");
+  var widget = null;
+  var fallback = "Please email dayna@blackwell-systems.com directly.";
+
+  function theme() {
+    return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+  }
+  function render() {
+    if (!window.turnstile) return;
+    if (widget !== null) window.turnstile.remove(widget);
+    widget = window.turnstile.render(box, {
+      sitekey: "0x4AAAAAAE-cmZsa9amJY-Bl",
+      theme: theme(),
+      size: box.clientWidth < 300 ? "compact" : "normal"
+    });
+  }
+  window.onTurnstileLoad = render;
+  new MutationObserver(render).observe(document.documentElement,
+    { attributes: true, attributeFilter: ["data-theme"] });
+
+  function say(text, ok) {
+    status.textContent = text;
+    status.className = "contact-status " + (ok ? "ok" : "error");
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var data = {
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      message: form.message.value.trim(),
+      company: form.company.value.trim(),
+      turnstileToken: widget !== null && window.turnstile ? window.turnstile.getResponse(widget) || "" : ""
+    };
+    if (!data.name || !data.email || !data.message) {
+      say("Please fill in your name, email, and message.", false);
+      return;
+    }
+    if (!data.turnstileToken) {
+      say("Please complete the check above the Send button.", false);
+      return;
+    }
+    button.disabled = true;
+    var label = button.textContent;
+    button.textContent = "Sending...";
+    say("", true);
+    try {
+      var r = await fetch("https://blackwell-systems.com/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      var body = await r.json().catch(function () { return {}; });
+      if (r.ok && body.ok) {
+        form.reset();
+        say("Thanks. Your message is on its way, and I'll reply by email soon.", true);
+      } else {
+        say((body.error || "Something went wrong.") + " " + fallback, false);
+      }
+    } catch (err) {
+      say("Network error. " + fallback, false);
+    } finally {
+      button.disabled = false;
+      button.textContent = label;
+      if (window.turnstile && widget !== null) window.turnstile.reset(widget);
+    }
+  });
+})();
+</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&amp;onload=onTurnstileLoad" async defer></script>
+{{- end}}

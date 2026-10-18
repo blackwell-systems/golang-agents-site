@@ -2,8 +2,11 @@
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "name": "golang-agents",
   "compatibility_date": "2026-10-12",
+  // The site is built into dist/ by `go run ./cmd/build`; deploy only after a build.
   "assets": {
-    "directory": "."
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
   },
   "routes": [
     { "pattern": "golang-agents.com", "custom_domain": true },

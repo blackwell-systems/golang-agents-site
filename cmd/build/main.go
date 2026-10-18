@@ -1,0 +1,124 @@
+// Command build renders golang-agents.com: the Markdown pages under
+// content/, through the templates under templates/, into dist/, along
+// with the files under static/, a sitemap, robots.txt, and an RSS feed.
+// It then checks every internal link in the output.
+//
+// Run it from the repository root:
+//
+//	go run ./cmd/build
+//
+// Code excerpts come from the companion code, which -code names: the
+// code/ directory of a clone of go-agents-book-code.
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+)
+
+func main() {
+	var cfg config
+	flag.StringVar(&cfg.content, "content", "content", "the Markdown pages")
+	flag.StringVar(&cfg.templates, "templates", "templates", "the HTML templates")
+	flag.StringVar(&cfg.static, "static", "static", "files copied as they are")
+	flag.StringVar(&cfg.out, "out", "dist", "the output directory, replaced on each build")
+	flag.StringVar(&cfg.code, "code", "../go-agents-book/code",
+		"the companion code's code/ directory, for excerpts")
+	flag.StringVar(&cfg.book, "book", "../go-agents-book/book/chapters",
+		"the book's chapters, for the copy check; empty skips the check")
+	flag.Parse()
+	if err := build(cfg); err != nil {
+		fmt.Fprintln(os.Stderr, "build:", err)
+		os.Exit(1)
+	}
+}
+
+// config holds the build's directories.
+type config struct {
+	content, templates, static, out, code, book string
+}
+
+// The site's fixed values.
+const (
+	siteURL  = "https://golang-agents.com"
+	siteName = "AI Agents in Go"
+	siteTag  = "A code-first guide to building AI agents in Go"
+	author   = "Dayna Blackwell"
+	ogImage  = "/og-v2.jpg"
+	repoURL  = "https://github.com/blackwell-systems/go-agents-book-code"
+	codeRef  = "main" // the branch or commit that code links point at
+	storeURL = "https://blackwell341.gumroad.com/l/go-agents"
+)
+
+// section is one part of the site, with a directory under content/.
+type section struct {
+	Dir, Title string
+}
+
+// sections are the site's sections, in the order the nav lists them.
+var sections = []section{
+	{"foundations", "Foundations"},
+	{"patterns", "Patterns"},
+	{"production", "Production"},
+	{"examples", "Examples"},
+	{"ecosystem", "Ecosystem"},
+	{"findings", "Findings"},
+}
+
+func build(cfg config) error {
+	code, err := openCode(cfg.code)
+	if err != nil {
+		return err
+	}
+	pages, err := loadPages(cfg.content)
+	if err != nil {
+		return err
+	}
+	if cfg.book == "" {
+		fmt.Fprintln(os.Stderr, "build: copy check skipped (-book is empty)")
+	} else {
+		runs, err := loadBook(cfg.book)
+		if err != nil {
+			return err
+		}
+		if err := checkCopy(runs, pages); err != nil {
+			return err
+		}
+	}
+	md := newMarkdown(code)
+	for _, p := range pages {
+		if err := p.render(md, code); err != nil {
+			return err
+		}
+	}
+	site, err := newSite(pages, cfg.static)
+	if err != nil {
+		return err
+	}
+	tmpl, err := loadTemplates(cfg.templates)
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(cfg.out); err != nil {
+		return fmt.Errorf("clear output: %w", err)
+	}
+	if err := copyStatic(cfg.static, cfg.out); err != nil {
+		return err
+	}
+	for _, p := range pages {
+		if err := writePage(cfg.out, tmpl, site, p); err != nil {
+			return err
+		}
+	}
+	if err := writeFeeds(cfg.out, site); err != nil {
+		return err
+	}
+	n, err := checkLinks(cfg.out, code)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("built %d pages into %s; %d internal links checked\n",
+		len(pages), cfg.out, n)
+	return nil
+}
