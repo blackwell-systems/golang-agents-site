@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  // golangagents.com, the domain without the hyphen, redirects to the site.
+  "name": "golangagents-redirect",
+  "main": "index.js",
+  "compatibility_date": "2026-10-12",
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "golangagents.com", "custom_domain": true },
+    { "pattern": "www.golangagents.com", "custom_domain": true }
+  ]
+}
