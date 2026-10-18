@@ -1,9 +1,8 @@
 ---
-draft: true
-title: "Workflow or agent? Choosing a shape for a program that uses a model"
+title: "Workflow or agent? The shapes, in Go"
 short: Workflow or agent?
 description: Programs that call a model come in five shapes, from a fixed sequence of calls to several cooperating agents. Pick the simplest one that handles the task, go further only when the task forces you to, and mix shapes when a task has a routine part and an open-ended part.
-chapters: 1, 5
+chapters: 1, 5, 6, 13
 stage: 4
 date: 2026-10-18
 weight: 30
@@ -15,9 +14,9 @@ In some programs your code makes it, at places you chose when you wrote it.
 In others the model makes it on every turn, after seeing what the previous step produced.
 Handing the model more of those decisions makes the program able to do more, and it also makes it slower, more expensive, and harder to test.
 
-Chapter 5 of the book lays out the shapes, adapted from Anthropic's "Building effective agents".
+Chapter 5 of the book lays out the shapes, adapted from Anthropic's ["Building effective agents"](https://www.anthropic.com/engineering/building-effective-agents), which names them.
 Chapter 1 built one task both ways and measured the difference.
-This page covers both.
+This page covers both, and shows the workflow shapes as small Go functions from the companion code's [`shapes` example](code:shapes).
 
 ## Five shapes
 
@@ -34,6 +33,45 @@ In the bottom two, an [agent](/glossary/#agent), the model owns the plan.
 
 Pick the highest row that can do the job, and go lower only when the task leaves you no choice.
 
+## The workflow shapes in Go
+
+The book builds the agent row of the table.
+The `shapes` example builds the rows above it, plus one shape the table leaves out, and each fits in one function.
+All of them take chapter 6's `agent.Model`, so any model client from the book plugs in, and all of them treat a reply the model didn't finish (a `finish_reason` of `length`, `content_filter`, or `error`) as an error, never as an answer, which is the rule chapter 5's hardened loop follows.
+
+**A fixed chain** runs its steps in order, each step's prompt built from the previous step's output, and checks each reply in code before the next step sees it:
+
+```go include=shapes/chain.go tag=chain
+```
+
+The check is what keeps a chain honest.
+Without it, a malformed summary from step one becomes the input of step two, and the error surfaces two calls later, if at all.
+A chain costs one call per step, made one after another, so its latency is the sum of its steps; in exchange, each call holds only the last output, which keeps it small and easy to test alone.
+
+**A router** asks a small, cheap model for the input's kind and hands the input to that kind's handler, which can be a large model, a small one, or plain code ([`route.go`](code:shapes/route.go)).
+It adds one short call in front of every input, and an input it misfiles gets the wrong treatment, so measure the classifier on inputs someone has labeled before you trust it.
+The input also reaches the classifier's prompt, so a crafted input can choose its own kind: no handler should hold a power the worst input mustn't reach.
+
+**Parallel calls with a vote** ask several voters the same question at once and return the first answer a quorum of them gives:
+
+```go include=shapes/vote.go tag=vote
+```
+
+The deferred `wg.Wait` means no voter's goroutine outlives the call, and cancelling with a cause stops the calls still running once the vote is decided, since their answers can't change it.
+A vote costs one call per voter and takes about as long as the slowest call it waits for.
+It only buys something if the voters can disagree: one model at temperature 0 gives the same answer every time.
+Answers are compared as strings after trimming space, so ask for a word or a fixed label; in the example's demo, `Yes` and `yes` count as two different answers.
+
+**Check and revise** is the shape chapter 5's table leaves out, one model judging another's output, which the book uses for evals in chapter 13.
+A writer drafts, a critic judges the draft, and the critic's notes go back to the writer, up to a limit:
+
+```go include=shapes/revise.go tag=revise-loop
+```
+
+The critic can be code (a length limit, a schema, the tests), a model, or both, with the cheap checks first; `AllOf` in the same file runs them in that order.
+Each round costs a critic call and a writer call, and the writer's calls grow, since each one carries the conversation so far; `maxRevisions` bounds both.
+Chapter 13 measured why the critic deserves suspicion too: a model reviewer [spent its whole reasoning budget](/findings/measured-mistakes/#reviewer-budget) on 10 of 25 reviews and returned nothing usable.
+
 ## What moving down costs, measured
 
 Chapter 1 fixed the same bug both ways, on four models with ten runs per model.
@@ -43,7 +81,7 @@ As a workflow, the program followed three hard-coded steps: run the tests and re
 On every model the workflow's cost was between one sixth and one quarter of the agent's.
 Its single model call finished in somewhere between under one second and 2.5 seconds; the agent's runs took 7.5 to 13.5 seconds.
 The agent passed all 40 runs and the workflow passed 39.
-[The workflow-versus-agent finding](/findings/workflow-vs-agent/) has the table and the failed run.
+[Measured mistakes](/findings/measured-mistakes/#workflow-tab) has the failed run and its method.
 That failure is worth a look: the model put a literal tab character inside a JSON string, so the edit failed to decode, and the workflow had no step that could send the error back and ask again.
 
 So for this bug, the workflow wins.
@@ -104,11 +142,19 @@ leave: Waiting matters. The workflow's single call took at most 2.5 seconds; eac
 - **Do inputs fall into kinds?** Route them, and give each kind the simplest shape that handles it.
 - **Are the pieces independent?** Call the model for each piece in parallel and merge the results in code.
 - **Does each step depend on what the last one found?** Use an agent, and give it a turn limit, a cost budget, and validated tool calls from the start.
-- **Does the task split into large independent parts?** Several agents may help, but measure first: on the book's 99-report batch, [fan-out finished no faster than one agent](/findings/fan-out/) and cost more.
+- **Does the task split into large independent parts?** Several agents may help, but measure first: on the book's 99-report batch, [fan-out finished no faster than one agent](/findings/measured-mistakes/#fan-out) and cost more.
 
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):
+
+```console
+$ go run ./shapes
+$ go test -race ./shapes
+```
+
+The first runs each workflow shape on scripted models, on a crash report from the book's `remind` service, and prints what each returned and how many calls it made: two calls for the chain, four to the small model and two to the large one for the router, a vote that reaches its quorum and one that doesn't, and two rounds of writing and critique.
+No key is needed.
 
 ```console
 $ go run ./ch04

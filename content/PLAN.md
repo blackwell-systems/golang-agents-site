@@ -48,7 +48,7 @@ If a term later earns a full explanation, it gets a guide, and its glossary entr
 | --- | --- | --- | --- | --- | --- |
 | `/design/tool-design/` | Designing tools a model uses well | how to write tool descriptions and errors for an LLM | 7, 4 | `ch07/agent/registry.go`, `ch07/agent/schema.go`, `ch07/triage/` | draft |
 | `/design/structured-output/` | Structured output: an agent's answer in a fixed shape | LLM structured output in Go | 7 | `ch07/agent/final.go` | draft |
-| `/design/workflows-vs-agents/` | Workflow or agent? Choosing a shape | when to use an agent and when a workflow | 1, 5 | `ch05/agent/loop.go` | draft |
+| `/design/workflows-vs-agents/` | Workflow or agent? The shapes, in Go | when to use an agent and when a workflow | 1, 5, 6, 13 | `shapes/`, `ch05/agent/types.go` | published |
 | `/design/context-management/` | Keeping a long run's context in check | agent context compaction, trimming, prompt caching | 8 | `ch08/agent/policy.go`, `ch08/agent/trim.go`, `ch08/agent/compact.go` | draft |
 | `/design/parallel-tool-calls/` | Running tool calls in parallel with goroutines | parallel tool calls in Go | 9 | `ch09/agent/runner.go`, `ch09/agent/slots.go` | draft |
 | `/design/sub-agents/` | Sub-agents and fan-out in Go | multi-agent and sub-agent patterns | 9 | `ch09/fanout.go`, `ch09/agent/fanin.go` | draft |
@@ -78,6 +78,7 @@ Each example page says what the program shows, the exact commands (offline, from
 | `/run/ch07-crash-triage/` | One crash report, triaged | `go run ./ch07` | 7 | `ch07/`, `remind/`, `catalog/` | draft |
 | `/run/ch10-mcp-tracker/` | An agent filing issues through an MCP server | `go run ./ch10` | 10 | `ch10/`, `ch10/trackermcp/` | draft |
 | `/run/ch16-framework-ports/` | One task three ways: the harness, Eino, and Genkit | `cd ch16 && go run ./cmd/harness` (and `eino`, `genkit`) | 16 | `ch16/` | draft |
+| `/run/stream-to-browser/` | Streaming an agent's progress to a browser | `go run ./ssebrowser` | 6 | `ssebrowser/` | published |
 
 ## Providers and frameworks (`/providers/`, formerly Ecosystem)
 

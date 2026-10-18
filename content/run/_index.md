@@ -17,6 +17,7 @@ Or download the repository as a [zip of the main branch](https://github.com/blac
 ## Every chapter's program
 
 Each chapter's directory is a full snapshot of the agent at that point, so any row runs without the ones above it.
+The last two rows are examples beyond the chapters, built on chapter 6's agent: the workflow shapes chapter 5 names, and an agent's progress streamed to a browser.
 The counts are computed from the code each time this site is built: Go files, lines in those files, and top-level test functions, leaving out the fixtures under `testdata`.
 In all, the repository holds {{code files}} Go files and {{code tests}} test functions in {{code packages}} packages.
 
@@ -41,12 +42,15 @@ ch17 | The finished crash-triage agent | `go run ./ch17` |
 catalog | The crash catalog's tasks and its grader | `go test ./catalog/` |
 tracker | The small issue tracker the agent files issues in | `go test ./tracker/...` |
 remind | The practice service, with bugs seeded on purpose (its own module) | `cd remind && go test ./...` |
+shapes | The workflow shapes: a chain, a router, a vote, and check and revise | `go run ./shapes` | /design/workflows-vs-agents/
+ssebrowser | An agent's events streamed to a browser page | `go run ./ssebrowser` | /run/stream-to-browser/
 ```
 
 A few rows end on purpose with an error or a pause:
 
 - `ch05` and `ch06` replay failures, so they exit with the error they demonstrate.
 - `ch14` and `ch17` stop when the agent asks to file an issue, because filing waits for a person's approval; the program prints the call it is waiting on.
-- `ch08 -task batch` replays a whole batch and grades it, which takes a few minutes; the other rows finish within two.
+- `ssebrowser` is a server: it prints an address to open and runs until you press Ctrl-C.
+- `ch08 -task batch` replays a whole batch and grades it, which takes a few minutes; the other rows finish within about two minutes.
 
 With `OPENROUTER_API_KEY` set, the same commands call a live model and cost money; each chapter of the book says what its runs cost when they were recorded.
