@@ -23,7 +23,7 @@ task: fix the failing test in the `duration` package as a fixed three-step workf
 models: `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, `deepseek/deepseek-v4.1-flash`
 runs: ten per model
 date: October 2026
-source: Chapter 1
+source: Chapter 1, and chapter 5’s table of shapes
 
 The workflow passed 39 of 40 runs, and on each model it cost between a sixth and a quarter of what the agent cost. Its one failure was a reply it could not decode.
 ```

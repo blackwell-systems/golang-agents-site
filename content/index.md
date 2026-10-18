@@ -103,7 +103,7 @@ task: fixing one failing Go test as a three-step workflow, with a single model c
 models: the same four models
 runs: ten per model
 date: October 2026
-source: Chapter 1
+source: Chapter 1, and chapter 5’s table of shapes
 link: /findings/measured-mistakes/#workflow-tab
 more: The one failure
 
@@ -118,3 +118,4 @@ The workflow cost between a sixth and a quarter of what the agent cost on each m
 - **Measured, with the method.** Claims about what works come from recorded runs, with the task, the models, the number of runs, and the date, as in the three results above. The failures are measured too: [twelve measured mistakes](/findings/measured-mistakes/), each with its method.
 - **Offline by default.** Every example runs without a key and costs nothing. With `OPENROUTER_API_KEY` set, the same programs call a live model.
 - **The standard library first.** The code reaches the model over plain `net/http` and `encoding/json/v2`, so you can see every moving part before deciding what to adopt.
+- **Clear about its limits.** Retrieval, memory across unrelated runs, and multi-agent planning are left out on purpose; [what this covers](/scope/) says why. [Why Go](/loop/why-go/) makes the case for the language from the book's measurements.

@@ -993,7 +993,7 @@ cite { font-style: italic; }
   color: var(--stone);
 }
 .result p:last-child { margin-bottom: 0; }
-.result .method {
+.result .method, .findings .method {
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: 0.2rem 0.9rem;
@@ -1003,8 +1003,8 @@ cite { font-style: italic; }
   font-size: 0.88rem;
   line-height: 1.45;
 }
-.result .method div { display: contents; }
-.result .method dt {
+.result .method div, .findings .method div { display: contents; }
+.result .method dt, .findings .method dt {
   font-family: var(--label);
   font-weight: 600;
   font-size: 0.72rem;
@@ -1013,7 +1013,9 @@ cite { font-style: italic; }
   color: var(--soft);
   padding-top: 0.15rem;
 }
-.result .method dd { margin: 0; color: var(--stone); }
+.result .method dd, .findings .method dd { margin: 0; color: var(--stone); }
+.findings .method { margin-top: auto; }
+.findings .method + .cite { margin-top: 0; }
 .result-source {
   font-family: var(--label);
   font-size: 0.8rem;

@@ -99,13 +99,15 @@
         <p class="figure">79 <span>of 80</span></p>
         <h3>One sentence in a tool description decided the first move in 79 of 80 replies.</h3>
         <p>Chapter 10 added one sentence to the description of a tool from another program and sent the agent’s first request to four models, ten times each. You learn how to write that sentence for your own tools, and how to defend against one written by someone else.</p>
-        <p class="cite">Chapter 10, MCP</p>
+        <dl class="method"><div><dt>Task</dt><dd>The triage agent’s first request, with one sentence added to an MCP tool’s description</dd></div><div><dt>Models</dt><dd>Four: <code>claude-haiku-5.5</code>, <code>gpt-5.6-luna</code>, <code>glm-5.3-flash</code>, <code>deepseek-v4.1-flash</code></dd></div><div><dt>Runs</dt><dd>Ten per model and condition, first reply only</dd></div><div><dt>Date</dt><dd>October 2026</dd></div></dl>
+        <p class="cite">Chapter 10, MCP · <a href="/findings/tool-description-poisoning/">The finding</a></p>
       </li>
       <li>
         <p class="figure">910 <span>crashes, 0 duplicates</span></p>
         <h3>An agent that survives a crash without filing anything twice.</h3>
         <p>Chapter 15 crashes a run at every point where a crash could land, then resumes it: 910 scenarios. With idempotency keys, the agent made no duplicates and lost nothing.</p>
-        <p class="cite">Chapter 15, Durable, deployed agents</p>
+        <dl class="method"><div><dt>Task</dt><dd>The agent’s own loop, crashed at each of its 38 crash points and resumed, then crashed again at every point each restart reaches</dd></div><div><dt>Models</dt><dd>A scripted model, against a tracker that honors idempotency keys</dd></div><div><dt>Runs</dt><dd>910 crash-and-resume scenarios</dd></div><div><dt>Date</dt><dd>Deterministic: <code>go test ./ch15/durable/</code> repeats it</dd></div></dl>
+        <p class="cite">Chapter 15, Durable, deployed agents · <a href="/findings/measured-mistakes/#save-per-turn">What saving once per turn did</a></p>
       </li>
     </ul>
   </div>
@@ -245,6 +247,10 @@
       <details>
         <summary>Which models does it work with?</summary>
         <p>The book calls models through OpenRouter, which reaches models from many companies through one account and one request format. The model ID is one setting, so when a model is retired you choose another with tool support and change the setting.</p>
+      </details>
+      <details>
+        <summary>What doesn’t it cover?</summary>
+        <p>Retrieval and vector stores, memory kept across unrelated runs, multi-agent planning, user interfaces, and fine-tuning, each on purpose. <a href="/scope/">What this guide and the book leave out</a> gives the reason for each.</p>
       </details>
       <details>
         <summary>Will the book be updated?</summary>
