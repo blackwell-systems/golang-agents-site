@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "golang-agents",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "."
+  },
+  "routes": [
+    { "pattern": "golang-agents.com", "custom_domain": true },
+    { "pattern": "www.golang-agents.com", "custom_domain": true }
+  ]
+}

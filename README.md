@@ -1,5 +1,9 @@
 # golang-agents.com
 
+Deployed on Cloudflare (a Worker serving static assets) with wrangler: `npx wrangler deploy` from this folder publishes the site to golang-agents.com and www.golang-agents.com (custom domains in `wrangler.jsonc`; Cloudflare manages the DNS records and certificates). `.assetsignore` keeps this README, the config, and git files off the site. The GitHub Pages notes below are kept for reference only.
+
+# golang-agents.com
+
 The website for *Building AI Agents in Go: From the agent loop to production*, by Dayna Blackwell.
 
 One static page: plain HTML and CSS, with one small inline script (the store link), no build step, no analytics, and no external requests. The fonts, images, and icons are all served from this repository.
