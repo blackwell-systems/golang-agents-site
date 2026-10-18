@@ -92,7 +92,8 @@ var methodKeys = []string{"task", "models", "runs", "date"}
 //	What the number means, in Markdown.
 //	```
 //
-// unit, link, and more are optional; the others are required.
+// unit, link, and more are optional; the others are required. link may
+// be a code: link, as in Markdown.
 func (r *codeBlocks) result(body string) (string, error) {
 	keys := append([]string{"figure", "unit", "source", "link", "more"}, methodKeys...)
 	f, text, err := fields(body, keys...)
@@ -133,8 +134,14 @@ func (r *codeBlocks) result(body string) (string, error) {
 		if m := f["more"]; len(m) > 0 {
 			more = m[0]
 		}
+		href := l[0]
+		if rel, ok := strings.CutPrefix(href, "code:"); ok {
+			if href, err = r.code.url(rel, 0, 0); err != nil {
+				return "", err
+			}
+		}
 		fmt.Fprintf(&b, `<span aria-hidden="true"> · </span><a href="%s">%s</a>`,
-			html.EscapeString(l[0]), html.EscapeString(more))
+			html.EscapeString(href), html.EscapeString(more))
 	}
 	b.WriteString("</p></div>\n")
 	return b.String(), nil

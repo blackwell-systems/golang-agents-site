@@ -37,9 +37,9 @@ On every turn the harness does the same four things:
 Each page on this site works on one of these stages or on the whole loop, and says which.
 When an agent misbehaves, the stage tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.
 
-## The whole loop in 30 lines
+## The whole loop, as chapter 1 writes it
 
-Here is the loop, as the first chapter of the companion code writes it:
+Here is the loop from the first chapter of the companion code:
 
 ```go include=ch01/agent/loop.go tag=run
 ```
@@ -59,11 +59,62 @@ $ go run ./ch01
 
 The output replays a real model's fix of a failing test, turn by turn, through this loop.
 Then `go run ./ch04` runs the same loop against recorded replies from a real model, with a real `go test` behind its `run_tests` tool.
-Both need Go 1.27 or later.
+Both need Go {{code go-version}} or later and no API key.
+The repository holds {{code files}} Go files, {{code lines}} lines in all, and {{code tests}} test functions, none of which calls a model or needs an API key; [Run it](/run/) lists each chapter's program with its own counts.
+
+## Three measured results
+
+Each number below comes from runs recorded for the book, and each says how it was measured.
+
+<div class="result-cards">
+
+```result
+figure: 79 of 80
+unit: first replies
+task: the triage agent's first request, with one sentence in an MCP tool's description asking for a different call
+models: four inexpensive models: `claude-haiku-5.5`, `gpt-5.6-luna`, `glm-5.3-flash`, `deepseek-v4.1-flash`
+runs: ten per model and condition
+date: October 2026
+source: Chapter 10
+link: /findings/tool-description-poisoning/
+more: The finding
+
+One sentence in a tool the model hadn't called yet decided its first move. Labeling the text as the server's cut that to 57 of 80.
+```
+
+```result
+figure: 910
+unit: crashes, 0 duplicates
+task: the agent's own loop, crashed at each of its 38 crash points and resumed, then crashed a second time at every point each restart reaches
+models: a scripted model, against a tracker that honors idempotency keys
+runs: 910 crash-and-resume scenarios
+date: deterministic; `go test ./ch15/durable/` repeats it
+source: Chapter 15
+link: /findings/measured-mistakes/#save-per-turn
+more: What saving once per turn did
+
+With a key on every call that changes something, no scenario filed anything twice, lost an issue or comment, or had to ask a person.
+```
+
+```result
+figure: 39 of 40
+unit: runs passed
+task: fixing one failing Go test as a three-step workflow, with a single model call
+models: the same four models
+runs: ten per model
+date: October 2026
+source: Chapter 1
+link: /findings/measured-mistakes/#workflow-tab
+more: The one failure
+
+The workflow cost between a sixth and a quarter of what the agent cost on each model. Its one failed run shows what a fixed sequence gives up.
+```
+
+</div>
 
 ## How this guide works
 
 - **One agent, grown step by step.** The examples follow one agent from a 30-line loop that fixes a failing test to a crash-triage agent for a small Go web service, so each page adds to code you have already seen.
-- **Measured, with the method.** Claims about what works come from recorded runs, with the models, the number of runs, and the date. For example: [one sentence in a tool description decided 79 of 80 first moves](/findings/tool-description-poisoning/).
+- **Measured, with the method.** Claims about what works come from recorded runs, with the task, the models, the number of runs, and the date, as in the three results above. The failures are measured too: [twelve measured mistakes](/findings/measured-mistakes/), each with its method.
 - **Offline by default.** Every example runs without a key and costs nothing. With `OPENROUTER_API_KEY` set, the same programs call a live model.
 - **The standard library first.** The code reaches the model over plain `net/http` and `encoding/json/v2`, so you can see every moving part before deciding what to adopt.
