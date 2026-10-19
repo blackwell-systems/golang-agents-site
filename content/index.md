@@ -4,64 +4,6 @@ description: Learn how AI agents work at the level of every request, reply, and 
 layout: home
 ---
 
-## About this site
-
-Guides to building AI agents in Go, one question per page: what a tool call looks like as JSON, when a run should stop, how to test an agent without calling a model.
-They draw on the book *Building AI Agents in Go*, and [Start here](/start/) puts them in order for three kinds of reader.
-
-The code on every page comes from the book's [public repository](https://github.com/blackwell-systems/go-agents-book-code) (Apache 2.0), where each excerpt belongs to a program with tests.
-The programs run offline: with no API key, they replay saved model replies, most of them recorded from real runs, and the tools, `go test` included, run on your machine.
-
-## Learn it by building it
-
-The way to understand an agent is to build one, one piece at a time, and see what each piece is for.
-The book behind this guide starts from a loop with no model in it at all, a scripted stand-in, so the control flow is plain before any AI arrives.
-Then it adds the pieces one at a time: a real model call, tools, streaming, context management, concurrency, evals, safety, and recovery from a crash.
-Each piece is a small, tested Go change that you can run and break on purpose, and every chapter's program is in the public repository.
-
-The code uses Go's standard library: `net/http` for the API, `encoding/json/v2` for the wire format, `context` for deadlines and cancellation.
-No framework sits between you and the model, so every request, reply, and tool call is something you wrote and can read.
-Along the way you also see what happens inside the model, from tokens and sampling to why answers vary, because that explains much of how an agent behaves.
-
-By the end of the book you can read any agent framework and know what it does underneath, and decide what to adopt and what to write yourself.
-
-## The loop, in four stages
-
-An agent is a model inside a [harness](/glossary/#harness), the program around it.
-On every turn the harness does the same four things:
-
-<ol class="loop-stages"><li><strong>Build the request</strong>Decide what the model sees: instructions, the conversation so far, tool results, and the tools it may call.</li><li><strong>Call the model</strong>Send the request and read the reply, with a deadline and a count of what it cost.</li><li><strong>Run the tools</strong>Carry out the calls the model asked for, and add each result to the conversation.</li><li><strong>Decide</strong>Stop with an answer, stop at a limit, or go around again.</li></ol>
-
-<p class="loop-back">Then back to stage 1, with everything that just happened in the conversation.</p>
-
-Each page on this site works on one of these stages or on the whole loop, and says which.
-When an agent misbehaves, the stage tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.
-
-## The whole loop, as chapter 1 writes it
-
-Here is the loop from the first chapter of the companion code:
-
-```go include=ch01/agent/loop.go tag=run
-```
-
-It sends the whole conversation on every call, because the model keeps nothing between calls.
-It appends the reply before running its tools, so each tool result answers a call the conversation already holds.
-It stops on an answer, at the turn limit, or when `ctx` is cancelled.
-[The agent loop in Go](/loop/agent-loop/) explains each line.
-
-Run it with no model at all, from a scripted list of replies:
-
-```console
-$ git clone https://github.com/blackwell-systems/go-agents-book-code
-$ cd go-agents-book-code/code
-$ go run ./ch01
-```
-
-The output replays a real model's fix of a failing test, turn by turn, through this loop.
-Then `go run ./ch04` runs the same loop against recorded replies from a real model, with a real `go test` behind its `run_tests` tool.
-Both need Go {{code go-version}} or later and no API key.
-The repository holds {{code files}} Go files, {{code lines}} lines in all, and {{code tests}} test functions, none of which calls a model or needs an API key; [Run it](/run/) lists each chapter's program with its own counts.
-
 ## Three measured results
 
 Each number below comes from runs recorded for the book, and each says how it was measured.
@@ -112,8 +54,46 @@ The workflow cost between a sixth and a quarter of what the agent cost on each m
 
 </div>
 
+## The loop, in four stages
+
+An agent is a model inside a [harness](/glossary/#harness), the program around it.
+On every turn the harness does the same four things:
+
+<ol class="loop-stages"><li><strong>Build the request</strong>Decide what the model sees: instructions, the conversation so far, tool results, and the tools it may call.</li><li><strong>Call the model</strong>Send the request and read the reply, with a deadline and a count of what it cost.</li><li><strong>Run the tools</strong>Carry out the calls the model asked for, and add each result to the conversation.</li><li><strong>Decide</strong>Stop with an answer, stop at a limit, or go around again.</li></ol>
+
+<p class="loop-back">Then back to stage 1, with everything that just happened in the conversation.</p>
+
+Each page on this site works on one of these stages or on the whole loop, and says which.
+When an agent misbehaves, the stage tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.
+
+## The whole loop, as chapter 1 writes it
+
+Here is the loop from the first chapter of the companion code:
+
+```go include=ch01/agent/loop.go tag=run
+```
+
+It sends the whole conversation on every call, because the model keeps nothing between calls.
+It appends the reply before running its tools, so each tool result answers a call the conversation already holds.
+It stops on an answer, at the turn limit, or when `ctx` is cancelled.
+[The agent loop in Go](/loop/agent-loop/) explains each line.
+
+Run it with no model at all, from a scripted list of replies:
+
+```console
+$ git clone https://github.com/blackwell-systems/go-agents-book-code
+$ cd go-agents-book-code/code
+$ go run ./ch01
+```
+
+The output replays a real model's fix of a failing test, turn by turn.
+Then `go run ./ch04` runs the same loop against a real model's recorded replies, with a real `go test` behind its `run_tests` tool.
+Both need Go {{code go-version}} or later and no API key.
+The repository holds {{code files}} Go files and {{code tests}} test functions, and none of them calls a model; [Run it](/run/) lists every chapter's program.
+
 ## How this guide works
 
+- **Drawn from a book, with tested code.** Each guide draws on the book *Building AI Agents in Go*, and its code comes from the book's [public repository](https://github.com/blackwell-systems/go-agents-book-code) (Apache 2.0), where every excerpt belongs to a program with tests.
 - **One agent, grown step by step.** The examples follow one agent from a 30-line loop that fixes a failing test to a crash-triage agent for a small Go web service, so each page adds to code you have already seen.
 - **Measured, with the method.** Claims about what works come from recorded runs, with the task, the models, the number of runs, and the date, as in the three results above. The failures are measured too: [twelve measured mistakes](/findings/measured-mistakes/), each with its method.
 - **Offline by default.** Every example runs without a key and costs nothing. With `OPENROUTER_API_KEY` set, the same programs call a live model.

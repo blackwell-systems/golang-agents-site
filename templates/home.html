@@ -36,14 +36,6 @@
   </div>
 </section>
 
-<div class="home-body">
-  <div class="wrap">
-    <div class="prose">
-{{.Page.Body}}
-    </div>
-  </div>
-</div>
-
 {{- with .Site.Paths}}
 <section class="home-start" aria-labelledby="start-title">
   <div class="wrap">
@@ -53,7 +45,9 @@
       <li>
         <h3><a href="{{.URL}}">{{.Title}}</a></h3>
         <p>{{.Lead}}</p>
-        <p>{{len .Steps}} steps{{if lt .Live (len .Steps)}}, {{.Live}} published so far{{end}}.{{with $.Site.FirstLive .}} It starts with <a href="{{.URL}}">{{.Name}}</a>.{{end}}</p>
+        {{- with $.Site.FirstLive .}}
+        <p>It starts with <a href="{{.URL}}">{{.Name}}</a>.</p>
+        {{- end}}
       </li>
       {{- end}}
     </ul>
@@ -61,10 +55,18 @@
 </section>
 {{- end}}
 
+<div class="home-body">
+  <div class="wrap">
+    <div class="prose">
+{{.Page.Body}}
+    </div>
+  </div>
+</div>
+
 <section class="home-sections" aria-labelledby="sections-title">
   <div class="wrap">
     <h2 id="sections-title">Where to go next</h2>
-    <p class="live-count">{{len .Site.Guides}} guides are published so far{{with len .Site.Held}}, and {{.}} more are written and being reviewed{{end}}. Each section lists only what’s published.</p>
+    <p class="live-count">{{len .Site.Guides}} guides in {{len .Site.Sections}} sections.</p>
     <ul class="paths">
       {{- range .Site.Sections}}
       <li>

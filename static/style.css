@@ -1454,7 +1454,7 @@ cite { font-style: italic; }
 .hero-measured { color: var(--ivory); max-width: 40rem; margin-top: 1.25rem; }
 .hero-for { color: var(--soft); max-width: 40rem; font-size: 0.97rem; }
 .byline { max-width: 40rem; font-size: 0.9rem; color: var(--soft); margin: 0; }
-.home-start { padding: 1.5rem 0 0; }
+.home-start { padding: clamp(2.5rem, 6vw, 4rem) 0 0; }
 .home-start h2, .home-sections h2 { font-size: clamp(1.4rem, 3.4vw, 1.75rem); }
 .live-count { color: var(--soft); max-width: var(--measure); }
 .paths .held { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--soft); }
