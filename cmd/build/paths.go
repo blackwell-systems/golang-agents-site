@@ -227,8 +227,7 @@ func (r *codeBlocks) path(body string) (string, error) {
 	var b strings.Builder
 	fmt.Fprintf(&b, `<section class="reading-path" aria-labelledby="%s">`, p.ID)
 	fmt.Fprintf(&b, `<h2 id="%s">%s</h2><p>%s</p>`, p.ID, html.EscapeString(p.Title), text)
-	fmt.Fprintf(&b, `<p class="path-count">%d steps; %s</p><ol class="path-steps">`,
-		len(p.Steps), liveCount(p))
+	b.WriteString(`<ol class="path-steps">`)
 	for _, s := range p.Steps {
 		if s.Live {
 			fmt.Fprintf(&b, `<li><a href="%s"><span class="step-title">%s</span>`+
@@ -243,14 +242,4 @@ func (r *codeBlocks) path(body string) (string, error) {
 	}
 	b.WriteString("</ol></section>\n")
 	return b.String(), nil
-}
-
-// liveCount says how many of a path's steps are published.
-func liveCount(p *Path) string {
-	switch n := p.Live(); n {
-	case len(p.Steps):
-		return "all published"
-	default:
-		return fmt.Sprintf("%d published so far, the rest being reviewed", n)
-	}
 }
