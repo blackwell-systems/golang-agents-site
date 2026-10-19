@@ -23,6 +23,7 @@ step: /basics/calling-a-model/
 step: /basics/common-errors/
 step: /basics/tool-calling/
 step: /run/ch04-first-agent/
+step: /build/first-agent/
 step: /basics/tokens-and-cost/
 step: /basics/how-models-work/
 step: /basics/choosing-a-model/
@@ -32,7 +33,7 @@ step: /build/workflows-vs-agents/
 step: /production/testing-offline/
 step: /findings/the-finished-agent/
 
-For a Go developer who has never built an agent. It starts with setting up and a loop that runs with no model at all, then makes a first real model call, explains messages and roles, adds tools, and runs a real agent. After that come what each turn costs, how a model picks its words, choosing a model, tool design, stopping safely, and testing. The last step shows where it all leads: the agent the book finishes with, and how well it did.
+For a Go developer who has never built an agent. It starts with setting up and a loop that runs with no model at all, then makes a first real model call, explains messages and roles, adds tools, runs a real agent, and builds one from scratch. After that come what each turn costs, how a model picks its words, choosing a model, tool design, stopping safely, and testing. The last step shows where it all leads: the agent the book finishes with, and how well it did.
 ```
 
 ```path

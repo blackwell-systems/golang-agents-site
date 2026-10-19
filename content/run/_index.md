@@ -21,7 +21,7 @@ Their pages, [ch01](/run/ch01-scripted-loop/) and [ch04](/run/ch04-first-agent/)
 ## Every chapter's program
 
 Each chapter's directory is a full snapshot of the agent at that point, so any row runs without the ones above it.
-The last two rows are examples beyond the chapters, built on chapter 6's agent: the workflow shapes chapter 5 names, and an agent's progress streamed to a browser.
+The last three rows are examples beyond the chapters: the workflow shapes chapter 5 names and an agent's progress streamed to a browser, both built on chapter 6's agent, and a standalone first agent that a tutorial builds from scratch.
 The counts are computed from the code each time this site is built: Go files, lines in those files, and top-level test functions, leaving out the fixtures under `testdata`.
 In all, the repository holds {{code files}} Go files and {{code tests}} test functions in {{code packages}} packages.
 
@@ -48,6 +48,7 @@ tracker | The small issue tracker the agent files issues in | `go test ./tracker
 remind | The practice service, with bugs seeded on purpose (its own module) | `cd remind && go test ./...` |
 shapes | The workflow shapes: a chain, a router, a vote, and check and revise | `go run ./shapes` | /build/workflows-vs-agents/
 ssebrowser | An agent's events streamed to a browser page | `go run ./ssebrowser` | /run/stream-to-browser/
+firstagent | A standalone first agent: questions about the files in a directory | `go run ./firstagent` | /build/first-agent/
 ```
 
 ## What each one prints
