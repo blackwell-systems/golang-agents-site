@@ -58,7 +58,7 @@ If your agent needs either, the rest of the book still applies unchanged: the tu
 
 **A user interface.**
 The agent is a command and an HTTP service with a review queue for approvals.
-Chapter 6 streams its work as events in Go; showing them in a browser, or wiring the agent into a chat tool, is left to you.
+Chapter 6 streams its work as events in Go, and the [ssebrowser example](/run/stream-to-browser/) shows them in a browser; wiring the agent into a chat tool is left to you.
 
 **Fine-tuning and training.**
 The book works with models as they come from a provider's API.
