@@ -10,20 +10,18 @@ work: true
 weight: 70
 art: ch15
 ---
-
 Picture the triage agent partway through a long batch.
 It has filed one issue and is writing a test for the next crash group when a deploy restarts the machine.
 If the run simply starts over, it pays a second time for every model call it had made.
 Worse, if the process died just after the tracker created that issue and before the agent wrote the answer down, the new process has no idea the issue exists and files another.
 With other tools the same gap means a customer refunded twice or a deploy run twice.
 
-Chapter 15 of the book closes both gaps.
-The pieces are in [`ch15/durable`](code:ch15/durable), which stores checkpoints, and [`ch15/agent`](code:ch15/agent), whose loop saves and resumes them.
+Both gaps close with two pieces: [`ch15/durable`](code:ch15/durable), which stores checkpoints, and [`ch15/agent`](code:ch15/agent), whose loop saves and resumes them.
 
 ## What to save
 
 [Run state](/glossary/#run-state) is whatever a later process needs in order to carry on: the messages so far, tokens and dollars spent, the turn count, the context policy's summary, any calls waiting on a person, and a phase recording the loop's next move.
-The book uses four phases: `model` when a model call comes next, `tools` once a reply's calls are fixed but not all answered, `paused` while a person decides, and `done` once the answer exists.
+This loop uses four phases: `model` when a model call comes next, `tools` once a reply's calls are fixed but not all answered, `paused` while a person decides, and `done` once the answer exists.
 
 Spending and turn counts are in the state for a reason that is easy to miss.
 If a restart forgot them, a run that crashed every few turns would start each life with a fresh budget and never reach its limits.
@@ -31,7 +29,7 @@ Restarts get a limit of their own as well, ten by default, after which the run s
 
 Files the agent changed are part of the state too.
 The state can keep a SHA-256 for every file the run has written; on resume, a file that no longer matches stops the run with `ErrWorkspaceChanged` rather than letting the model reason about code its conversation doesn't describe.
-Chapter 15's command doesn't wire that check yet, since only the run's own process touches its workspace; chapter 17's finished agent records each write and checks the workspace on every resume.
+The sample triage command doesn't wire that check yet, since only the run's own process touches its workspace; the finished crash-triage agent records each write and checks the workspace on every resume.
 
 ## Save at five moments
 
@@ -56,7 +54,7 @@ A reply that was saved is never paid for twice; a reply that arrived and was los
 
 A [checkpoint](/glossary/#checkpoint) is only useful if, whenever the crash comes, the disk holds either the old copy or the new one, never half of one.
 Writing over the file in place breaks that.
-The usual fix has four steps, written out in the book's code:
+The usual fix has four steps, written out in the companion code:
 
 ```go include=ch15/durable/checkpoint.go tag=write
 ```
@@ -64,7 +62,7 @@ The usual fix has four steps, written out in the book's code:
 The temporary file goes in the same directory because a rename can't cross file systems, and the rename is what swaps old for new in one step.
 Syncing the file first keeps the new name from pointing at data that never reached the disk; syncing the directory afterwards keeps the rename itself from vanishing in a power cut.
 On macOS, Go's `File.Sync` also asks the drive to empty its own cache.
-On the M1 Pro used for the book, a recorded batch run made 142 saves, with a median of 8 to 12 ms across seven measurements, against model calls whose median was over two seconds.
+On an M1 Pro, a recorded batch run made 142 saves, with a median of 8 to 12 ms across seven measurements, against model calls whose median was over two seconds.
 The temporary file is created with permissions 0600, which matters because a checkpoint contains every tool result, and tool results contain whatever the agent read.
 
 Three smaller choices are worth copying:
@@ -113,7 +111,7 @@ The loop saves it just before a call that can change something, at save point 3.
 After a crash, an unanswered call with no marker certainly never started and simply runs; one with a marker may have acted.
 For a call that needs approval, the marker is written after the yes, so a crash during the decision leaves nothing to resolve.
 
-The book also keeps a refile guard in `issue_file`: a second filing for a cause the run already filed is refused with the number of the existing issue.
+The triage agent also keeps a refile guard in `issue_file`: a second filing for a cause the run already filed is refused with the number of the existing issue.
 It covers a case keys can't: the model filing one crash a second time through a fresh call, which carries a fresh key.
 
 ## The resolution ladder
@@ -122,14 +120,14 @@ When a marked call has no saved result, it goes up three steps, each tried only 
 
 1. **Run it again** when a repeat is harmless: the tool only reads, is idempotent, or sent a key the service still remembers.
 2. **Ask the service** through the tool's lookup, such as a search by key. A lookup may answer "no such record" only when it is certain; a search index that lags behind writes has to return an error and pass the question up.
-3. **Ask a person**, through the same approver chapter 14 uses for approvals, with its own answers: "rerun" if it didn't happen, or "done" with what they found, which becomes the call's result.
+3. **Ask a person**, through the same approver used for tool approvals, with its own answers: "rerun" if it didn't happen, or "done" with what they found, which becomes the call's result.
 
 The third step exists because, for a tool with no key, retrying is a bet that the first call failed, and losing that bet produces the duplicate all of this was built to prevent.
 With keys that the service honors, a call never gets past the first step.
 
 ## Does it work? Crash it everywhere
 
-The chapter's crash sweep runs a small scripted triage job once to find every point where a crash could land, then reruns it from scratch for each point: crash there, restart, finish, count.
+The crash sweep runs a small scripted triage job once to find every point where a crash could land, then reruns it from scratch for each point: crash there, restart, finish, count.
 It does it again with a second crash during the restart.
 
 ```result
@@ -147,7 +145,7 @@ Saving once per turn left a duplicate issue or comment at 8 of its 18 crash poin
 ```
 
 Without keys, the same loop made no duplicates either, but only by asking a person 624 times over 892 scenarios.
-The sweep's limits are stated in the chapter: a panic is not a power loss, the syncs are off so it runs in seconds, the tracker never crashes, the scripted person always answers correctly, and a scripted model repeats itself where a real one wouldn't.
+The sweep has these limits: a panic is not a power loss, the syncs are off so it runs in seconds, the tracker never crashes, the scripted person always answers correctly, and a scripted model repeats itself where a real one wouldn't.
 
 ## Steps for your own agent
 
@@ -162,10 +160,10 @@ The sweep's limits are stated in the chapter: a panic is not a power loss, the s
 ## When to use it
 
 ```fit
-reach: Tools change the world outside the run. With one save per turn, a crash left a duplicate issue or comment at 8 of 18 crash points; keys and markers left none in any scenario (chapter 15).
-reach: The platform stops processes on its own schedule. Kubernetes allows 30 seconds and `docker stop` 10, and one model call in chapter 12's runs took 27.5 seconds (chapters 12 and 15).
-leave: Markers without keys when nobody is on call. Against a tracker that ignored keys, markers turned crashes inside calls into 624 questions for a person over 892 scenarios of the agent's loop (chapter 15).
-leave: Short runs with no side effects. No variant in the sweep lost an issue or comment; what a crash costs such a run is the model calls since its last save (chapter 15).
+reach: Tools change the world outside the run. With one save per turn, a crash left a duplicate issue or comment at 8 of 18 crash points; keys and markers left none in any scenario.
+reach: The platform stops processes on its own schedule. Kubernetes allows 30 seconds and `docker stop` 10, and one model call in the recorded runs took 27.5 seconds.
+leave: Markers without keys when nobody is on call. Against a tracker that ignored keys, markers turned crashes inside calls into 624 questions for a person over 892 scenarios of the agent's loop.
+leave: Short runs with no side effects. No variant in the sweep lost an issue or comment; what a crash costs such a run is the model calls since its last save.
 ```
 
 ## Try it

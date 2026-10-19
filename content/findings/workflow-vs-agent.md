@@ -25,13 +25,13 @@ Written as a fixed three-step workflow, the bug fix cost a quarter to a sixth as
 In an agent, the model picks every next step.
 In a [workflow](/glossary/#workflow), your code has already picked the steps, and the model is called at the places the code chose.
 A common rule of thumb says to prefer a workflow whenever you know the steps.
-Chapter 1 of the book checked that rule on a task small enough to build both ways.
+That rule was checked on a task small enough to build both ways.
 
 ## What was tested
 
 The task: a small Go package, `duration`, has failing tests because its unit table maps `'m'` to `time.Second`.
 
-**The agent** is chapter 4's program: the loop from [the agent loop in Go](/basics/agent-loop/) with a real model client, given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
+**The agent** is the loop from [the agent loop in Go](/basics/agent-loop/) with a real model client, given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
 
 **The workflow** is three steps written into the program:
 
@@ -92,7 +92,7 @@ To compare models, or to learn whether a change to an agent helped, you need tas
 
 ## Try it
 
-The workflow and agent runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them. The agent itself is chapter 4's program.
+The workflow and agent runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them. The agent is the `ch04` program in the companion code.
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):
 
 ```console

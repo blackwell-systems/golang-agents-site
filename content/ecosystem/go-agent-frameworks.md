@@ -15,8 +15,8 @@ That is a good deal for a lot of teams.
 The trouble is choosing between frameworks: a list of features per framework is out of date within a few months.
 A steadier way to judge one is to hold it up against the parts of an agent you could write yourself, and ask, part by part, what it does for you, what it does differently, and what is still left for you to write.
 
-Chapter 16 of the book does exactly that, using the harness built in chapters 1 to 15 as the yardstick.
-This page gives the short version.
+This page does exactly that, using a hand-built agent harness as the yardstick.
+It gives the short version.
 The version numbers and facts below come from reading each module's source in October 2026, so they will age; the questions at the end are meant to outlast them.
 A disclosure: the author builds [Bide](https://bide-ai.com), a Go library for durable agents.
 It is left out of the comparison so that this page never grades the author's own work.
@@ -37,7 +37,7 @@ It is a single loop, and the model decides what happens on each pass.
 ## The parts, mapped
 
 Every cell records one of four answers: the framework has the part, has some of it, relies on an external package for it, or has nothing for it.
-The chapter ran Eino and Genkit; the other three columns come from their documentation and source, with no run behind them.
+The comparison ran Eino and Genkit; the other three columns come from their documentation and source, with no run behind them.
 
 | Part | ADK v1.9.0 | Eino v0.9.21 | Genkit v1.13.1 | LangChainGo v0.1.15 | trpc-agent-go v1.11.2 |
 | --- | --- | --- | --- | --- | --- |
@@ -54,34 +54,34 @@ The chapter ran Eino and Genkit; the other three columns come from their documen
 | Development UI | has | an IDE plugin | has | none | none; an AG-UI server for chat front ends |
 
 One cell rests on less than the others.
-Genkit's panic cell comes from its source, where each tool runs in a goroutine Genkit starts, and from one probe run while the chapter was checked, in which the process exited before the caller's `recover` could run; no test in the companion code panics a tool.
+Genkit's panic cell comes from its source, where each tool runs in a goroutine Genkit starts, and from one probe run while this table was checked, in which the process exited before the caller's `recover` could run; no test in the companion code panics a tool.
 
 The v1 releases of ADK for Go speak only to Gemini models; the v2 line adds an OpenAI-compatible adapter, still marked experimental.
 There is nothing odd about a model provider's framework favoring that provider's models, but if your agent may need to change providers, check this first.
 
 ## One task, three versions, the same replies
 
-For the comparison, the chapter took one job from the triage agent, diagnosing a single crash group with three tools, and wrote it again in Eino and in Genkit.
-It picked a job with a hard step on purpose.
+For the comparison, one job was taken from the triage agent, diagnosing a single crash group with three tools, and written again in Eino and in Genkit.
+The job was picked with a hard step on purpose.
 Filing an issue with `issue_file` requires a person to approve it, so each version has to halt, hold its state, and pick up again after the decision.
-The chapter is open that this tilts things toward the book's own code, because the approval gate, error handling, and retries are parts the book built.
-A task built around what the frameworks offer and the book doesn't (many providers, a development UI, a fixed multi-step pipeline) would show their strengths instead.
+This tilts things toward the hand-built harness, because the approval gate, error handling, and retries are parts that harness supplies.
+A task built around what the frameworks offer and the harness doesn't (many providers, a development UI, a fixed multi-step pipeline) would show their strengths instead.
 
 Eino and Genkit both let you hand them your own `*http.Client`.
-That made it possible to feed all three versions the same scripted replies, written by hand in the book's replay format, through one transport that also saved a copy of every request each version made.
+That made it possible to feed all three versions the same scripted replies, written by hand in the harness's replay format, through one transport that also saved a copy of every request each version made.
 In Eino, the approval is an interrupt raised from inside the tool:
 
 ```go include=ch16/eino/eino.go tag=issue
 ```
 
-In Genkit it is middleware set on the generate options, which has the same shape as the book's approval gate:
+In Genkit it is middleware set on the generate options, which has the same shape as the hand-built approval gate:
 
 ```go include=ch16/genkit/genkit.go tag=setup
 ```
 
 Here is what the code measured (`go run ./compare` prints the table, and a test checks it):
 
-| Measure | The book's agent | Eino | Genkit |
+| Measure | Hand-built agent | Eino | Genkit |
 | --- | --- | --- | --- |
 | Lines of code for the task | 80 | 156 | 116 |
 | Lines under it, outside the standard library and the shared task code | 5,351 | 97,076 | 132,201 |
@@ -92,7 +92,7 @@ Here is what the code measured (`go run ./compare` prints the table, and a test 
 | Bytes kept while waiting for the person | 1,692 | 45,562 | 1,322 |
 
 Be careful with the line counts.
-The book's version is only 80 lines because 5,351 lines from fourteen earlier chapters sit beneath it, so the row doesn't show the frameworks needing more code for the same job.
+The hand-built version is only 80 lines because 5,351 lines from fourteen earlier stages of the harness sit beneath it, so the row doesn't show the frameworks needing more code for the same job.
 Turned around, those 5,351 lines are roughly what adopting a framework would spare you.
 Not all of them, though: around 1,500 are the sandbox, egress check, and audit log, and neither framework supplies those.
 
@@ -100,22 +100,22 @@ The first requests from all three versions were almost identical, within 70 byte
 Where the versions did differ, each difference traced back to a default that somebody chose, and each default is defensible: ending the run on a tool error or not, retrying a 503 or not, sending a string result as plain text or as a JSON-encoded string, marking schemas strict or not.
 One difference took reading two layers below the framework to find.
 Genkit's plugin is built on the OpenAI Go library, and that library waits between retries with `time.Sleep`, which ignores the context.
-When the chapter cancelled a run 100 milliseconds into a retry, Genkit took 421 to 485 milliseconds to return; the book's version took 100 to 103.
+When a run was cancelled 100 milliseconds into a retry, Genkit took 421 to 485 milliseconds to return; the hand-built version took 100 to 103.
 A batch job won't notice.
 A handler serving a request with a deadline will, because its goroutine stays busy until the sleep ends.
 
-The chapter also ran each version once against a live model, `anthropic/claude-haiku-5.5`; each filed one issue and submitted a diagnosis, and the three runs cost $0.0028 between them.
+Each version was also run once against a live model, `anthropic/claude-haiku-5.5`; each filed one issue and submitted a diagnosis, and the three runs cost $0.0028 between them.
 
 ## What frameworks give
 
-These are things you get from a framework that the book's harness never builds:
+These are things you get from a framework that the hand-built harness never builds:
 
 - **Provider breadth.** Genkit ships plugins for Anthropic's, Google's, and Ollama's APIs; eino-ext covers Claude, Gemini, DeepSeek, Qwen, Ollama, and others.
 - **Context management out of the box**, in the form of Eino's summarization and reduction middleware.
 - **Development UIs** for stepping through a run, replaying one step, and changing a prompt in place. ADK and Genkit include one, and Eino offers an IDE plugin.
 - **Tracing integrations**: ADK, Genkit, and trpc-agent-go emit OpenTelemetry; Eino has Langfuse and LangSmith handlers.
 - **Small parts done well.** Genkit's retry middleware stops waiting as soon as the context is done. Eino's error wrapper turns tool errors into results without swallowing interrupts. ADK's `retryandreflect` plugin coaches the model after a tool call fails.
-- **Multi-agent patterns and graphs** that the book would need several more chapters to write.
+- **Multi-agent patterns and graphs** that the harness would need several more stages to write.
 
 ## What they cost
 
@@ -126,7 +126,7 @@ These are things you get from a framework that the book's harness never builds:
 
 The vendor SDKs sit between the two paths.
 Anthropic's Go SDK has a tool runner that repeats the model call and the tool calls until the model is done; it has no turn limit until you set `MaxIterations`, and it returns tool errors to the model.
-For an agent on one provider with a loop as simple as the book's first one, an SDK's runner is a reasonable place to stop.
+For an agent on one provider with a loop as simple as the minimal one in the companion code, an SDK's runner is a reasonable place to stop.
 
 ## Eight questions for any framework
 
@@ -147,8 +147,8 @@ That leaves three choices.
 **Build** if the agent is your product and you need a say in every byte sent and every failure path.
 **Adopt** if your needs line up with the framework's strengths and you agree with its answers to the questions.
 **Adopt for part of the job** if one piece is worth borrowing: a provider adapter that sits behind your own model interface, a tracing exporter, or a graph runner wrapped around a loop you keep.
-The book built its own agent, so it reads these questions from the builder's side, and says so; a team whose agent is one feature of a larger product could weigh the same answers differently.
-The chapter works through one example of each of the first two.
+This page reads these questions from the builder's side, and says so; a team whose agent is one feature of a larger product could weigh the same answers differently.
+One worked example of each of the first two follows.
 A triage service that has to survive restarts while approvals are pending comes out as build.
 A support bot that writes draft replies for a person to send, wants to try several providers and use a development UI, and loses little when a run fails, comes out as adopt.
 

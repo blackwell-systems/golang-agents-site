@@ -16,7 +16,7 @@ A [sub-agent](/glossary/#sub-agent) is another.
 The parent hands a narrow question to a tool, the tool runs a second copy of the loop with an empty conversation, and only the final answer comes back.
 Whatever the sub-agent read along the way is discarded with its conversation, so the parent's history grows by one answer.
 
-Chapter 9 of the book adds a sub-agent to the crash-triage agent and then tests it on the task it was designed for.
+The rest of this page adds a sub-agent to the crash-triage agent and then tests it on the task it was designed for.
 
 ## A sub-agent is a tool
 
@@ -60,7 +60,7 @@ A triage run that nobody is supervising benefits more from a fixed limit the mod
 
 The longest single task in the catalog is a crash in the digest code.
 Its cause sits three packages away in `schedule`, and to understand how the next run time is calculated, the agent ends up reading most of that package.
-On the default model, `anthropic/claude-haiku-5.5`, chapter 9 ran this task three times with `explain_package` available and three times without it (October 2026):
+On the default model, `anthropic/claude-haiku-5.5`, this task was run three times with `explain_package` available and three times without it (October 2026):
 
 | Runs | Turns | Parent's largest request (tokens) | Cost, sub-agent included | Checks passed (of 16) |
 | --- | --- | --- | --- | --- |
@@ -76,7 +76,7 @@ So the two agents read much of the same code, and the runs with the tool needed 
 All six runs located the root cause and passed all 16 checks.
 
 The task also never came close to needing context relief.
-Its largest request stayed below 38,000 tokens, well under the size at which chapter 8's policy begins to clear old results.
+Its largest request stayed below 38,000 tokens, well under the size at which such a context policy begins to clear old results.
 
 ## When a sub-agent pays
 
@@ -84,7 +84,7 @@ The saving comes from questions about files the parent will never open again.
 Examples: how some other package gets used, what a third-party library does, or which handful of forty call sites actually matter.
 If the sub-agent's answer points to a change in the very files it just read, the parent must open those files to make the change, and the sub-agent's reading was duplicated work.
 
-Research is the stronger case, and chapter 9's case study is about it.
+Research is the stronger case.
 There the answer is scattered across many sources that have nothing to do with each other.
 A lead agent breaks the question into parts and starts a sub-agent for each; every sub-agent reads its own sources in a separate context and returns a brief summary.
 Anthropic's report on its multi-agent research system covers a design like that.
@@ -98,11 +98,11 @@ And give sub-agents read-only tools, because the pages they read are untrusted, 
 
 The model decides when a sub-agent runs, by calling the tool.
 In fan-out, the harness itself splits the job ahead of time and starts one agent per part.
-Each is a form of concurrency in Go, and the book measured both on the triage agent.
+Each is a form of concurrency in Go, and both were measured on the triage agent.
 On the 99-report batch, [fan-out finished no faster than one agent](/findings/fan-out/); what it gave instead was steadier cost and smaller requests.
-When a model chooses how many agents to start and merges their results, the program is doing orchestration, and the book deliberately stops short of that.
+When a model chooses how many agents to start and merges their results, the program is doing orchestration, and this page deliberately stops short of that.
 
-## What the book measured, and what it didn't
+## What was measured, and what wasn't
 
 Measured, on the default model in October 2026:
 
@@ -111,9 +111,9 @@ Measured, on the default model in October 2026:
 
 Not measured:
 
-- **A sub-agent on a task where the parent never rereads the files.** That is the case the book expects to pay, and its one task with a sub-agent wasn't one.
-- **A research workload.** The research assistant is a case study in the chapter, described from Anthropic's published report; the book ran no research agent.
-- **Orchestration**, where a model decides how many agents to start and what each one does. The book leaves it out on purpose.
+- **A sub-agent on a task where the parent never rereads the files.** That is where a sub-agent should pay off, and the one task tested with a sub-agent wasn't that case.
+- **A research workload.** The research assistant is described from Anthropic's published report; no research agent was run.
+- **Orchestration**, where a model decides how many agents to start and what each one does. That is left out on purpose.
 
 Three runs a side can show a large effect and can't rank two close ones.
 If your agent asks side questions about code it will never edit, or reads many independent sources, the unmeasured cases are the ones that describe it, and a few runs of your own, with and without the sub-agent, will tell you more than this page can.
@@ -121,10 +121,10 @@ If your agent asks side questions about code it will never edit, or reads many i
 ## When to use it
 
 ```fit
-reach: A side question needs reading the parent will never use again. On chapter 9's digest task, the sub-agent answered its question in three or four calls for $0.0020 to $0.0032 (chapter 9).
-reach: You want a steady bill and small requests across a batch. One agent per crash group cost $0.124 to $0.126 in four runs and never sent a request over 28,275 tokens (chapter 9).
-leave: The answer leads to an edit in the files the sub-agent read. On the digest task, the parent reread those files anyway, and runs with the sub-agent took one to seven more turns and cost slightly more (chapter 9).
-leave: One agent with a context policy can hold the batch. Four agents at a time finished no sooner and cost 25 to 60 percent more (chapter 9).
+reach: A side question needs reading the parent will never use again. On the digest task, the sub-agent answered its question in three or four calls for $0.0020 to $0.0032.
+reach: You want a steady bill and small requests across a batch. One agent per crash group cost $0.124 to $0.126 in four runs and never sent a request over 28,275 tokens.
+leave: The answer leads to an edit in the files the sub-agent read. On the digest task, the parent reread those files anyway, and runs with the sub-agent took one to seven more turns and cost slightly more.
+leave: One agent with a context policy can hold the batch. Four agents at a time finished no sooner and cost 25 to 60 percent more.
 ```
 
 ## Try it

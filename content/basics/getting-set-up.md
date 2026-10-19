@@ -35,10 +35,10 @@ $ go run ./ch01
 
 If the last command prints an agent fixing a failing test, turn by turn, everything works.
 
-The repository holds one directory per chapter of the book, `ch01` to `ch17`.
+The repository holds one numbered directory per step of the build, `ch01` to `ch17`.
 Each is a complete snapshot of the agent at that point, so you can run any of them without the others, and compare two to see what changed.
 Inside each, the agent itself is the package in `chNN/agent`, and `main.go` is a thin program that sets it up.
-A few directories sit beside the chapters: `remind`, a small web service with bugs planted on purpose for the agent to find; `tracker`, a small issue tracker the agent files issues in; and `catalog`, the set of tasks used to grade the agent.
+A few directories sit beside those: `remind`, a small web service with bugs planted on purpose for the agent to find; `tracker`, a small issue tracker the agent files issues in; and `catalog`, the set of tasks used to grade the agent.
 [Meet them on the examples page](/run/) when the guides start using them.
 
 Every directory has tests, and none of them calls a model:
@@ -52,7 +52,7 @@ $ go test ./ch01/...
 A program decides how to run from one environment variable.
 
 - **Without `OPENROUTER_API_KEY`,** it replays model replies recorded from a real run. The tools still run for real on your machine, `go test` included, so the agent's actions are genuine; only the model's side is a recording. This costs nothing and gives the same result every time.
-- **With `OPENROUTER_API_KEY` set,** the same program calls a live model and costs money, usually fractions of a cent per run for the early chapters. [Your first model call](/basics/first-model-call/) shows how to get a key.
+- **With `OPENROUTER_API_KEY` set,** the same program calls a live model and costs money, usually fractions of a cent per run for the early examples. [Your first model call](/basics/first-model-call/) shows how to get a key.
 
 `OPENROUTER_MODEL` picks a different model for a live run; leave it unset to use the one the code recommends.
 

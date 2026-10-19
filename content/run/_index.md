@@ -21,7 +21,7 @@ Their pages, [ch01](/run/ch01-scripted-loop/) and [ch04](/run/ch04-first-agent/)
 ## Every chapter's program
 
 Each chapter's directory is a full snapshot of the agent at that point, so any row runs without the ones above it.
-The last three rows are examples beyond the chapters: the workflow shapes chapter 5 names and an agent's progress streamed to a browser, both built on chapter 6's agent, and a standalone first agent that a tutorial builds from scratch.
+The last three rows are examples beyond the chapter snapshots: the workflow shapes `ch05` names and an agent's progress streamed to a browser, both built on `ch06`'s agent, and a standalone first agent that a tutorial builds from scratch.
 The counts are computed from the code each time this site is built: Go files, lines in those files, and top-level test functions, leaving out the fixtures under `testdata`.
 In all, the repository holds {{code files}} Go files and {{code tests}} test functions in {{code packages}} packages.
 
@@ -137,7 +137,7 @@ graded against the catalog: 22 of 22 checks passed
 spent $0.0235 in all
 ```
 
-**`ch10`** and **`ch11`** replay the same triage run, through an MCP tracker and then through the chapter's provider layer, and it now catches both duplicates:
+**`ch10`** and **`ch11`** replay the same triage run, through an MCP tracker and then through `ch11`'s provider layer, and it now catches both duplicates:
 
 ```text
 diagnosis:
@@ -187,7 +187,7 @@ tool returned           3      3      0      0      0
 --- PASS: TestCrashSweep (14.63s)
 ```
 
-**`ch16`** runs the task on the book's harness and ends with what it did:
+**`ch16`** runs the task on the harness in the companion code and ends with what it did:
 
 ```text
 issues filed 1, diagnosis submitted true
@@ -207,4 +207,4 @@ Parallel calls with a vote: 3 of 5 must agree
 
 **`ssebrowser`** is a server: it prints `open http://127.0.0.1:8080` and runs until you press Ctrl-C.
 
-With `OPENROUTER_API_KEY` set, the same commands call a live model and cost money; each chapter of the book says what its runs cost when they were recorded.
+With `OPENROUTER_API_KEY` set, the same commands call a live model and cost money; the runs recorded for these guides list what they cost at the time.

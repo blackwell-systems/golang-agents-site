@@ -11,10 +11,10 @@ art: ch17
 work: true
 ---
 
-The book's agent ends up as one Go program, `triage`, that reads the crash reports a web service writes, sorts them into groups with one cause each, reproduces each cause in a test, fixes it when a fix is safe to make, and files one issue per cause.
+The agent ends up as one Go program, `triage`, that reads the crash reports a web service writes, sorts them into groups with one cause each, reproduces each cause in a test, fixes it when a fix is safe to make, and files one issue per cause.
 Its practice target is `remind`, a reminders service of about 4,800 lines that ships with the companion code with bugs planted in it.
 This page reports how the finished agent did on three models, how those numbers were produced, what went wrong in the runs that failed, and what it takes to run the agent against your own code.
-Everything here comes from chapter 17 and the run records behind its tables.
+The results here come from the run records behind the tables below.
 
 If evals are new to you, three ideas are enough to read the page.
 Each task is a batch of crash reports with tests the agent never sees, and a run passes only when those tests pass.
@@ -51,7 +51,7 @@ The runs took place on October 17 and 18, 2026, on three models:
 - `deepseek/deepseek-v4.1-flash`, two runs of each task (three for five of them), because it cost the most per run and the whole budget was $6.
 
 Each model's requests went to a single pinned provider, so a change of host partway through couldn't move a result.
-Every run had all of chapter 14's defenses on, with a scripted approver standing in for a person: it approved every issue and comment, and refused every edit to a [protected path](/glossary/#protected-path).
+Every run had all of the harness's defenses on, with a scripted approver standing in for a person: it approved every issue and comment, and refused every edit to a [protected path](/glossary/#protected-path).
 A run counts as passed only if the grader's code says so; nobody's opinion enters it.
 
 Two terms carry the tables.
@@ -91,7 +91,7 @@ DeepSeek's ranges for cost per pass ($0.0333 to $0.0915) and Haiku's ($0.0124 to
 
 </div>
 
-The main columns of chapter 17's tables:
+The main columns of the tables:
 
 | Model | Pass rate | Floor (15 tasks) | Hard (5 tasks) | Cost per pass | Median turns |
 | --- | --- | --- | --- | --- | --- |
@@ -110,7 +110,7 @@ A few more figures from the same runs:
 - **The reviewer often ran out of room.** About two reviews in five failed, nearly all because the reviewing model used up its 8,000-token cap. A failed review lets the diagnosis through unreviewed, so it can only cost a rejection that might have led to a fix.
 - **DeepSeek lost 54 runs to its provider.** The provider answered with a 429 and a three-minute `Retry-After`, longer than the retry policy's one-minute limit, so those runs stopped before they could be judged. They are counted as unscored and cost $0.0693 together.
 
-The times in chapter 17's table were taken on one laptop that was running other jobs, most heavily during DeepSeek's runs, so they can't be compared across models and are left out here.
+The times were taken on one laptop that was running other jobs, most heavily during DeepSeek's runs, so they can't be compared across models and are left out here.
 
 ## The recommendation
 
@@ -123,7 +123,7 @@ On three confirmation tasks the bug sits in a protected file, so under the eval'
 The catalog's grader predates the defenses and expected a fix, so the first grading failed correct hand-offs; the rule was changed to grade a hand-off the way diagnose-only mode is graded, and the saved runs were graded again offline with no model called.
 No verdict moved under the adopted rule.
 A looser rule would have raised Haiku to 77% and DeepSeek to 66%, and it was rejected because it excused a test the policy let the agent write.
-The rule was fixed after the recordings had been read, which chapter 17 calls the wrong order: write down how a grader treats the policy, and commit it, before looking at any regraded number.
+The rule was fixed after the recordings had been read, which is the wrong order: write down how a grader treats the policy, and commit it, before looking at any regraded number.
 
 Read the table as a picture of two days in October 2026.
 A provider can change the model behind a name, prices move, and a new prompt or tool changes the agent being measured.
@@ -135,7 +135,7 @@ They can't predict how an agent of yours will do at a different job, or how a la
 
 ## Where it fails
 
-Chapter 17 reads the recordings of the failed runs, and most failures fall into a few patterns:
+The recordings of the failed runs show most failures in a few patterns:
 
 - **A search that finds nothing.** Luna searched open issues with words and a fingerprint at once. Issues filed by a person have no fingerprint, so both filters together matched nothing, and Luna filed the issue again. That happened in 46 of its 48 failed runs, and in 32 it was the only fault, although the tool's description warns that a person may have filed the crash in other words.
 - **The crash site taken for the cause.** In one run of a hard task, Haiku blamed the function that panicked, and the reviewer accepted the diagnosis. The real cause was another function that deleted a user and left the user's lists behind; Haiku got it right on its second try and wrong again on the third.
@@ -143,7 +143,7 @@ Chapter 17 reads the recordings of the failed runs, and most failures fall into 
 - **Out of turns.** Thirteen of DeepSeek's 15 failed runs reached the 40-turn limit; five of those were on tasks whose fix is in a protected file, where the model kept hunting for another way in instead of handing the group to a person.
 - **The whole catalog at once.** One run on the batch, 99 reports from 23 causes, failed: Haiku used 279 turns and $0.18, and got the grouping and the one-issue-per-cause check wrong. One run is a single data point, so the table records it as a count.
 
-For each pattern chapter 17 proposes a change and says what it would cost to confirm: a search tool that falls back to words alone (a full rerun of the confirmation set, about $1.23 for Luna's three runs per task), more runs of the decoy tasks before changing the reviewer, a test the agent can't edit that checks every route's middleware, and several batch runs at about $0.18 each.
+A change is proposed for each pattern, with what it would cost to confirm: a search tool that falls back to words alone (a full rerun of the confirmation set, about $1.23 for Luna's three runs per task), more runs of the decoy tasks before changing the reviewer, a test the agent can't edit that checks every route's middleware, and several batch runs at about $0.18 each.
 
 ### Gaps in the harness itself
 
@@ -165,7 +165,7 @@ They live together in a `Target`, which defaults to `remind`'s values:
 The module path matters most.
 Fingerprints are computed from frames under that path alone, so if you leave `remind`'s path in place, none of your service's frames count, and a week of its crashes falls into a handful of groups, one per kind of panic.
 
-Chapter 17's steps, in order:
+The steps, in order:
 
 1. **Write crash reports.** Make your service's panic recovery append one JSON object per crash to a file, with the same fields `remind` writes, from the panic and stack trace to the request and the last log lines. Don't leave out the build's commit: the agent checks out that commit to investigate each group.
 2. **Describe the service.** A target file names your module and your protected paths: authentication and authorization code, build and deploy configuration, anything that holds a secret. The name defaults to the last element of the module path.

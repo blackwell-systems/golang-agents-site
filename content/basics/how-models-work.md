@@ -17,7 +17,7 @@ It sounds just as sure when it is wrong as when it is right.
 And it can ask for tools.
 
 A single mechanism accounts for all four, and a few dozen lines of Go, with no machine learning in them, are enough to watch it work.
-This page follows chapter 3 of the book, whose experiments live in [`ch03`](code:ch03) of the companion code and run offline.
+The experiments described here live in [`ch03`](code:ch03) of the companion code and run offline.
 
 ## Next-token prediction
 
@@ -30,7 +30,7 @@ Everything a model sends back, a paragraph of advice or a tool call, comes out o
 ## A model made of counts
 
 The smallest model that works this way just counts.
-Chapter 3's toy reads a training text, an early draft of the book's first two chapters of roughly 7,600 words, and records, for each pair of words, which word followed the pair and how often.
+The toy used here reads a training text of roughly 7,600 words and records, for each pair of words, which word followed the pair and how often.
 The pair "the model" was followed by 38 words in all, 5 of them "sees", so the toy rates "sees" at 5/38, about 0.13.
 
 Generating means looking up the last two words and choosing from what followed them:
@@ -51,7 +51,7 @@ Here is the toy's greedy run:
 ```text include=ch03/testdata/out/toy.txt lines=8..13 title="go run ./ch03 toy, the greedy run"
 ```
 
-The sentence about `OPENROUTER_API_KEY` sounds like the book, since each run of three words in it occurs somewhere in the training text.
+The sentence about `OPENROUTER_API_KEY` reads like the training text, since each run of three words in it occurs somewhere in that text.
 It is also false: the saved replies come from the API, and `ToolCall` has nothing to do with them.
 The toy has no notion of truth; it writes whatever is probable.
 
@@ -67,9 +67,9 @@ Temperature is a setting applied to the probabilities before the choice.
 Values below 1 sharpen them, so the favorite wins more often, and 0 means always taking the favorite, which is greedy decoding.
 Values above 1 even them out, and long-shot tokens get chosen more often.
 At 0.5 the toy's "sees" climbs from 0.13 to about 0.33.
-A real model applies temperature by dividing each token's score by it before the softmax, the step that turns scores into probabilities; chapter 3 shows that the toy's exponent is that same operation written another way.
+A real model applies temperature by dividing each token's score by it before the softmax, the step that turns scores into probabilities; the toy's exponent is that same operation written another way.
 
-Chapter 3 then put a small open model, `meta-llama/llama-3.1-8b-instruct`, through it: describe Go in exactly three words, ten calls at each of four temperatures.
+One recorded experiment put a small open model, `meta-llama/llama-3.1-8b-instruct`, through it: describe Go in exactly three words, ten calls at each of four temperatures.
 Temperature 0 produced one reply, ten times over.
 At 0.7 and at 1, all ten replies differed and all of them were sensible.
 At 1.5, six of the ten fell apart into strings like "Concurrentoons statically": once an improbable token is chosen, it becomes the start that every later token is predicted from.
@@ -80,11 +80,11 @@ Sampling explains most of the variation, but setting the temperature to 0 doesn'
 Providers run many requests together on their hardware, and the arithmetic can come out slightly differently from one batch to the next.
 When two tokens are nearly tied, that difference is enough to flip the choice, and the text diverges from that token on.
 A router such as OpenRouter can also pass two requests for one model to two different providers, whose hardware differs.
-In chapter 3, one provider serving the Llama model at temperature 0 returned the same reply in ten calls out of ten; another, serving the same model at the same setting, returned two different replies across nine calls.
+In one recorded comparison, one provider serving the Llama model at temperature 0 returned the same reply in ten calls out of ten; another, serving the same model at the same setting, returned two different replies across nine calls.
 
 In an agent the effect compounds.
 A different token early in a turn can mean a different tool call, and every later turn starts from that one.
-The book's evals, which run each task many times and report rates, are built around this, and [Two identical runs scored 15 points apart](/findings/identical-runs/) shows what happens when you compare single runs.
+Evals that run each task many times and report rates are built around this, and [Two identical runs scored 15 points apart](/findings/identical-runs/) shows what happens when you compare single runs.
 So check what an agent accomplishes, such as the tests passing or the right issue filed, and never the exact words it wrote.
 
 ## Tokens
@@ -92,14 +92,14 @@ So check what an agent accomplishes, such as the tests passing or the right issu
 Real models work in neither words nor letters.
 A frequent word gets a token of its own, and a rare one is assembled from fragments.
 Most [tokenizers](/glossary/#tokenizer) are built with byte-pair encoding: begin with the 256 possible byte values, then again and again merge the most common neighboring pair into a new token.
-Chapter 3 implements one in Go and trains it on the toy's text.
+The companion code implements one in Go and trains it on the toy's text.
 An English sentence comes out at about a token per word, while `ParseDuration` splits into `P`, `ar`, `se`, `D`, `uration`.
 
 Production tokenizers handle code far better than that, but the rule survives: text unlike the tokenizer's training data costs more tokens.
-In October 2026 the book measured the same two texts on five models.
+In October 2026, recorded runs measured the same two texts on five models.
 A 1,008-byte Go file came to between 336 and 502 tokens, and a page of English to between 450 and 598.
 Four of the five landed within 7 percent of each other.
-The fifth, the book's default model, `anthropic/claude-haiku-5.5`, needed about a third more tokens than the others for the English and about 50 percent more for the Go.
+The fifth, the default model in the companion code, `anthropic/claude-haiku-5.5`, needed about a third more tokens than the others for the English and about 50 percent more for the Go.
 A price per token can mislead, then; compare models by what a whole task costs.
 [Tokens, cost, and the context window](/basics/tokens-and-cost/) follows that through an agent's bill.
 
@@ -108,14 +108,14 @@ A price per token can mislead, then; compare models by what a whole task costs.
 The toy looks two words back; a real model needs a word from thousands of tokens earlier.
 [Attention](/glossary/#attention) works like a fuzzy map lookup: each position scores its query against every earlier position's key and takes a blend of their values, weighted by the match.
 Because the weights come from a softmax that hands out a fixed total of 1, every token added to the context leaves less attention for the ones that matter.
-In chapter 3's small attention example, putting a hundred more words between "test" and "it" cut the weight on "test" to 0.03.
+In one small attention example, putting a hundred more words between "test" and "it" cut the weight on "test" to 0.03.
 That is part of why a model's accuracy falls as its input grows.
 
 ## A tool call is text
 
 A model consumes and produces a single sequence of tokens.
 Your request is a list of messages, so the provider first flattens it into one text with a [chat template](/glossary/#chat-template), using special tokens to mark where each role's message starts and ends.
-Chapter 3's `chatml` package renders the start of the bug fix the way Qwen3's template does:
+The `chatml` package in the companion code renders the start of the bug fix the way Qwen3's template does:
 
 ```text include=ch03/testdata/out/template.txt lines=3..28 title="go run ./ch03 template"
 ```

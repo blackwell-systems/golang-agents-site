@@ -16,7 +16,7 @@ Whether a real model tends to produce good replies is a different question, and 
 Measuring it takes an [eval](/glossary/#eval).
 You run the agent against a real model many times, score each run, and summarize the scores as a rate.
 
-In chapter 13, the book builds evals for its crash-triage agent.
+These evals were built for a crash-triage agent.
 This page covers how they are designed and the measurements behind each choice.
 The eval code lives in [`ch13/evals`](code:ch13/evals), and the grader in [`catalog/grade.go`](code:catalog/grade.go).
 
@@ -29,14 +29,14 @@ A fresh sample of 29 similar crashes would give a somewhat different result, and
 On a set this small, a change that shifts the pass rate by fewer points than that is invisible.
 
 A single rate also lumps together failures of very different kinds.
-During chapter 8's prompt work, the most useful change left the root-cause score where it was, 21 correct out of 25 runs both before and after; what improved were the checks surrounding the diagnosis.
+During earlier prompt work on the same agent, the most useful change left the root-cause score where it was, 21 correct out of 25 runs both before and after; what improved were the checks surrounding the diagnosis.
 
 So a rate alone isn't enough.
 An agent eval also needs tiers, so that a failure says something specific; graders written in code; a separate verdict for runs whose result says nothing about the agent; and comparisons done one task at a time, with a range.
 
 ## An eval set with tiers
 
-The book's [eval set](/glossary/#eval-set) is the [crash catalog](/glossary/#crash-catalog), 32 tasks in all.
+The [eval set](/glossary/#eval-set) is the [crash catalog](/glossary/#crash-catalog), 32 tasks in all.
 A task bundles crash reports, a `remind` commit to begin from, the groups the reports should fall into, the root-cause functions accepted for each group, and [hidden tests](/glossary/#hidden-test) that the agent never gets to see.
 
 A failure on one task can mean something quite different from a failure on another, so the tasks are divided:
@@ -94,13 +94,13 @@ Unscored runs are counted and reported, excluded from the pass rate, and run aga
 There are two ways to handle them badly.
 Score them as failures, and any model unlucky enough to run during a provider outage looks worse than it is.
 Throw them away without care, and the rate creeps upward: provider failures scale with request count, which makes long runs the likeliest to be lost, and long runs cluster on hard tasks.
-The book uses two rules against that.
+Two rules guard against that.
 The pass rate averages each task's own pass fraction, so a task carries equal weight however many of its runs were lost.
 And the runner keeps rerunning a task until it has its full quota of scored runs.
 
 ## Report a rate with its range
 
-For k passes out of n runs, the book reports a 95 percent Wilson score interval.
+For k passes out of n runs, report a 95 percent Wilson score interval.
 It never goes below 0 or above 1, and it still has some width when every run passed or every run failed.
 When the rate pools several runs per task, the range is computed by resampling tasks instead, because two runs of the same task resemble each other more than runs of two different tasks do.
 
@@ -115,7 +115,7 @@ For an agent you plan to run once per task, that is the difference you care abou
 Two versions of an agent should be compared on the same tasks, one pair at a time, with the range found by resampling tasks.
 Tasks that both versions pass easily contribute nothing to the comparison; the result is driven by the tasks where they disagree.
 
-The most useful measurement in the chapter is how far apart two identical runs land.
+The most useful measurement here is how far apart two identical runs land.
 
 ```result
 figure: +15
@@ -132,7 +132,7 @@ Nothing changed between the runs, yet the second scored 15 points higher: better
 ```
 
 A change has to beat that gap before its improvement means anything.
-With fewer than twelve tasks, the book's comparison reports no range at all, only the counts of tasks that got better, worse, or stayed the same, since a resampled range on so few tasks comes out too narrow.
+With fewer than twelve tasks, the comparison reports no range at all, only the counts of tasks that got better, worse, or stayed the same, since a resampled range on so few tasks comes out too narrow.
 
 Cost and turn counts belong in the report as well, since they often tell two versions apart when the pass rates can't.
 On the confirmation set, the average scored run cost $0.0081, and the median run took 13 turns.
@@ -140,7 +140,7 @@ On the confirmation set, the average scored run cost $0.0081, and the median run
 ## Gates, reviewers, and judges
 
 **A gate** is a rule written in code, inside the harness, that the agent has no way around.
-Chapter 13 adds one in front of `issue_file`.
+Here one sits in front of `issue_file`.
 The agent can file an issue only after its reproducer has failed twice on the original code for the right reason and then passed on the fix.
 The gate can be fooled: a test and a fix can match each other perfectly while both target the wrong bug.
 In 40 runs on the hard tier, it never rejected anything.
@@ -157,8 +157,8 @@ Thirty cases is about the minimum: with 27 matches out of 30, the judge's agreem
 
 ## Steps for your own agent
 
-1. Start the eval set from real failures: each time the agent gets something wrong, save its input and what it should have done. Chapter 13 cites Anthropic's suggestion of 20 to 50 such tasks as a start.
-2. Split the tasks into a floor that should almost always pass and a hard tier, and keep a confirmation set you never tune on; the book tunes on 12 of its 32 tasks and confirms on the other 20.
+1. Start the eval set from real failures: each time the agent gets something wrong, save its input and what it should have done. Anthropic suggests 20 to 50 such tasks as a start.
+2. Split the tasks into a floor that should almost always pass and a hard tier, and keep a confirmation set you never tune on; this eval set tunes on 12 of its 32 tasks and confirms on the other 20.
 3. Grade with code wherever you can, include checks the agent never sees, and give the grader tests of its own.
 4. Give every way a run can end a verdict, and keep provider and harness failures out of the pass rate as unscored runs, counted and rerun.
 5. Report each rate with its range, plus pass^k if the agent runs once per task in production.
@@ -169,10 +169,10 @@ Thirty cases is about the minimum: with 27 matches out of 30, the judge's agreem
 ## When to use it
 
 ```fit
-reach: You are about to change the prompt, the model, or a tool, and need to know whether the change helped. Two identical runs of the same agent scored 15 points apart, so one run of each version can't tell you (chapter 13).
-reach: Answers can be checked by code. Hidden tests caught all nine `m2` runs that fixed the wrong function, which a gate that checks the test against the fix would have passed (chapter 13).
-leave: A model judge as the only grade where code can grade. A reviewer with an uncapped reasoning budget failed 10 of 25 reviews and rejected three right answers (chapter 13).
-leave: Reading small differences on small sets. With ten hard tasks, a one-task gain was within what two identical runs produced (chapter 13).
+reach: You are about to change the prompt, the model, or a tool, and need to know whether the change helped. Two identical runs of the same agent scored 15 points apart, so one run of each version can't tell you.
+reach: Answers can be checked by code. Hidden tests caught all nine `m2` runs that fixed the wrong function, which a gate that checks the test against the fix would have passed.
+leave: A model judge as the only grade where code can grade. A reviewer with an uncapped reasoning budget failed 10 of 25 reviews and rejected three right answers.
+leave: Reading small differences on small sets. With ten hard tasks, a one-task gain was within what two identical runs produced.
 ```
 
 ## Try it
@@ -186,4 +186,4 @@ $ go test ./catalog/ -run Grade
 
 The first command runs the tests for the statistics and the verdicts; the second runs the grader's tests.
 The evals themselves call a live model and cost money.
-In the chapter's measurements on `anthropic/claude-haiku-5.5`, a run cost under a cent, and the runner accepts a dollar budget and stops starting new runs once it would go past it.
+Recorded measurements on `anthropic/claude-haiku-5.5` put a run under a cent, and the runner accepts a dollar budget and stops starting new runs once it would go past it.

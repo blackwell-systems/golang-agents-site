@@ -13,7 +13,7 @@ art: ch08
 A model has no memory between requests, so the harness sends the entire history each turn: the task, every crash report opened so far, every file read, every test output.
 Over a long run that history gets big.
 Money is the first thing it hurts; the model's ability to pay attention to all of it comes later.
-Deciding what goes into each request is stage 1 of the loop, and chapter 8 of the book turns that decision into Go code you can swap and test.
+Deciding what goes into each request is stage 1 of the loop, and the design below turns that decision into Go code you can swap and test.
 
 ## The problem, measured
 
@@ -52,7 +52,7 @@ Since it is encrypted, the harness has no way to condense it, so all the policie
 
 ## Policies, not rewrites
 
-In chapter 8, how to build a request is a value you pass to the loop:
+How to build a request is a value you pass to the loop:
 
 ```go include=ch08/agent/policy.go tag=policy
 ```
@@ -130,7 +130,7 @@ Every row is one batch run on the default model, except the last, which is two, 
 Read that last row before the others.
 Nothing changed between its two runs except the model's choices, and one run took 62 turns for $0.42 while the other took 30 turns for $0.06, a sevenfold difference in cost.
 So a gap between two single-run rows means something only when it is large and has a cause you can point to.
-The book reads two gaps that way: caching, where 95 percent of the input came from the cache against none, and the 132 turns from clearing too early, which line up with the 47 repeated reads.
+Two of the gaps can be read that way: caching, where 95 percent of the input came from the cache against none, and the 132 turns from clearing too early, which line up with the 47 repeated reads.
 The checks-passed column, which ranges from 81 to 87, is within the spread you could get by running any row again.
 
 ## What to take from it
@@ -145,10 +145,10 @@ The checks-passed column, which ranges from 81 to 87, is within the spread you c
 ## When to use it
 
 ```fit
-reach: Requests grow toward a price tier. Past 100,000 tokens, the default model bills every token of the request at five times the base rate, and every single-agent batch run came within 4 percent of that line, one crossing it (chapters 8, 9, and 11).
-reach: The provider caches only what you mark. Cache markers cut one batch run on the default model from $1.33 to $0.23 for the same work (chapter 8).
-leave: Clearing old results early in a run. Cleared from the start, the agent reread the same things 47 times and took 132 turns where the others took about 35 (chapter 8).
-leave: Runs that stay short. On chapter 9's longest single task, no request passed 38,000 tokens, well under where the default policy starts clearing (chapter 9).
+reach: Requests grow toward a price tier. Past 100,000 tokens, the default model bills every token of the request at five times the base rate, and every single-agent batch run came within 4 percent of that line, one crossing it.
+reach: The provider caches only what you mark. Cache markers cut one batch run on the default model from $1.33 to $0.23 for the same work.
+leave: Clearing old results early in a run. Cleared from the start, the agent reread the same things 47 times and took 132 turns where the others took about 35.
+leave: Runs that stay short. On the longest single task recorded, no request passed 38,000 tokens, well under where the default policy starts clearing.
 ```
 
 ## Try it

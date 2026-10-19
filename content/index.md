@@ -22,9 +22,9 @@ On every turn the harness does the same four things:
 Each page on this site works on one of these stages or on the whole loop, and says which.
 When an agent misbehaves, the stage tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.
 
-## The whole loop, as chapter 1 writes it
+## The whole loop, in code
 
-Here is the loop from the first chapter of the companion code:
+Here is the loop as the companion code writes it:
 
 ```go include=ch01/agent/loop.go tag=run
 ```
@@ -45,13 +45,13 @@ $ go run ./ch01
 The output replays a real model's fix of a failing test, turn by turn.
 Then `go run ./ch04` runs the same loop against a real model's recorded replies, with a real `go test` behind its `run_tests` tool.
 Both need Go {{code go-version}} or later and no API key.
-The repository holds {{code files}} Go files and {{code tests}} test functions, and none of them calls a model; [Examples](/run/) lists every chapter's program.
+The repository holds {{code files}} Go files and {{code tests}} test functions, and none of them calls a model; [Examples](/run/) lists every program in the repository.
 
 ## How this guide works
 
-- **Drawn from a book, with tested code.** Each guide draws on the book *Building AI Agents in Go*, and its code comes from the book's [public repository](https://github.com/blackwell-systems/go-agents-book-code) (Apache 2.0), where every excerpt belongs to a program with tests.
+- **Tested code, from a public repository.** Each guide's code comes from the [public repository](https://github.com/blackwell-systems/go-agents-book-code) (Apache 2.0), where every excerpt belongs to a program with tests.
 - **One agent, grown step by step.** The examples follow one agent from a 30-line loop that fixes a failing test to a crash-triage agent for a small Go web service, so each page adds to code you have already seen.
 - **Measured, with the method.** Claims about what works come from recorded runs, with the task, the models, the number of runs, and the date. The failures are measured too: [twelve measured mistakes](/findings/measured-mistakes/), each with its method.
 - **Offline by default.** Every example runs without a key and costs nothing. With `OPENROUTER_API_KEY` set, the same programs call a live model.
 - **The standard library first.** The code reaches the model over plain `net/http` and `encoding/json/v2`, so you can see every moving part before deciding what to adopt.
-- **Clear about its limits.** Retrieval, memory across unrelated runs, and a model that hands work to other agents at run time are left out on purpose; [what this covers](/scope/) says why, and what was measured instead. [Why Go](/ecosystem/why-go/) makes the case for the language from the book's measurements.
+- **Clear about its limits.** Retrieval, memory across unrelated runs, and a model that hands work to other agents at run time are left out on purpose; [what this covers](/scope/) says why, and what was measured instead. [Why Go](/ecosystem/why-go/) makes the case for the language from recorded measurements.

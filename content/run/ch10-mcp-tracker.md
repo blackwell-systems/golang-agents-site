@@ -40,8 +40,8 @@ On this run the agent marked both already-filed crashes as duplicates of their e
 ```text include=ch10/testdata/out/m1-mcp.txt lines=139..149 title="The end of the run"
 ```
 
-The prompt had changed since chapter 7, which is where the duplicates came from; the protocol didn't change what the agent could do.
-In the chapter's three runs each way on the default model, the agent worked with the server's tools as readily as with its own hand-written ones, and every run passed every check.
+The prompt had changed since that earlier run, which is where the duplicates came from; the protocol didn't change what the agent could do.
+In three runs each way on the default model, the agent worked with the server's tools as readily as with its own hand-written ones, and every run passed every check.
 
 ## Serve the tracker to anything
 
@@ -56,7 +56,7 @@ To connect it to an assistant app, add a server entry to that app's MCP configur
 ## Pin the server's tools
 
 A server's tool descriptions go straight into the model's context.
-[One sentence in a description decided 79 of 80 first moves](/findings/tool-description-poisoning/) in the book's measurement, so the client can pin each tool's definition by hash after a person reads it:
+[One sentence in a description decided 79 of 80 first moves](/findings/tool-description-poisoning/) in one recorded measurement, so the client can pin each tool's definition by hash after a person reads it:
 
 ```console
 $ go run ./ch10 -print-digests > pins.json

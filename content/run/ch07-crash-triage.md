@@ -10,7 +10,7 @@ weight: 30
 art: ch07
 ---
 
-From chapter 7 on, the companion code's agent has a real job: triaging crash reports from `remind`, a small web service for reminders (twenty packages, roughly 4,800 lines of Go), with bugs seeded in it on purpose.
+From `ch07` on, the companion code's agent has a real job: triaging crash reports from `remind`, a small web service for reminders (twenty packages, roughly 4,800 lines of Go), with bugs seeded in it on purpose.
 This program runs one task from the crash catalog, replayed from a run recorded on `anthropic/claude-haiku-5.5` in October 2026, with every tool working for real against a fresh copy of the service.
 
 ## What it shows
@@ -53,7 +53,7 @@ The agent's evidence, in its final answer, cites the stack, the code, and the lo
 
 The run passed 12 of 16 checks.
 The four failures say the agent marked both already-filed crashes as `fixed`, treating them as its own to fix, instead of as duplicates of issues #101 and #102.
-The first system prompt never tells the model how to handle a report the tracker already knows about, and chapter 8's prompt work starts from exactly this failure.
+The first system prompt never tells the model how to handle a report the tracker already knows about, which is the failure a better prompt has to fix.
 A typed answer is what made the mistake a failed check instead of a paragraph to read.
 
 **The cost.** 17 turns, $0.034, and every request is bigger than the one before, growing from roughly 3,800 tokens to roughly 29,600.

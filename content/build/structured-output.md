@@ -15,8 +15,8 @@ The last step of many agents is written for a program: the crash-triage agent ha
 Code that scrapes those facts out of prose works until the model words things differently, which it will.
 The answer needs a shape the program can decode.
 
-Chapter 7 of the book gives the triage agent such a shape.
-Here are the two available approaches, the one the book picks, and the part that counts for more than the format, which is verifying what the answer claims.
+Below, the triage agent gets such a shape.
+Here are the two available approaches, the one used by default in the companion code, and the part that counts for more than the format, which is verifying what the answer claims.
 
 ## Two ways to get structure
 
@@ -24,12 +24,12 @@ Here are the two available approaches, the one the book picks, and the part that
 Support varies by model and by provider.
 On OpenRouter, leaving out `require_parameters` allows routing to a provider that doesn't honor the option.
 Many providers also won't apply it in a turn that offers tools.
-The book reserves it for single calls that use no tools, for example condensing the early turns of a long conversation.
+Reserve it for single calls that use no tools, for example condensing the early turns of a long conversation.
 
 **A final tool.** Give the agent an extra tool, `submit_diagnosis` in this case, and make its arguments the answer.
 Nothing about it is special: the schema comes from the same generator as every other tool's, the arguments go through the same decoder and checks, and a rejected call produces an ordinary tool error.
 Any model that supports tool calling can use it.
-The book takes this route by default.
+The companion code takes this route by default.
 
 ## The answer as a Go type
 
@@ -41,7 +41,7 @@ The answer is declared as a Go struct, tagged the same way as the argument struc
 Fields that code will switch on, the status above all, are enumerations.
 Each field's description explains it to the model, and the descriptions spell out the easy-to-miss points, such as a root cause that "may not be where it crashed".
 A field the model has nothing for is omitted from the JSON; the model never sends `null`.
-There is one `Diagnosis` for each crash group, and the crash catalog's grader, which chapter 13's evals use, reads the same record.
+There is one `Diagnosis` for each crash group, and the crash catalog's grader reads the same record.
 
 ## How the loop ends on it
 
@@ -73,9 +73,9 @@ If the test already passes before the fix, it says nothing about the crash, no m
 A test name that doesn't match any test gets a dedicated message, because that usually means a typo.
 Every failed check comes back to the model as an error explaining the problem, and the run continues.
 
-The chapter is clear about what this can't catch.
+There are limits to what this can catch.
 A test can fail for an unrelated reason, a fix can land in the wrong place, and a flaky test might get through by chance.
-Chapter 13's grader narrows that gap with hidden tests the agent never sees.
+The crash catalog's grader narrows that gap with hidden tests the agent never sees.
 
 ## One run, end to end
 
@@ -89,16 +89,16 @@ Guarding against nil in `owned` would have ended the panic while leaving every o
 Because the answer was typed, its error was easy to see too.
 The catalog's grader checked it against the expected answer 16 ways, and 12 passed.
 All four failures came from one mistake: the agent marked the two crashes already in the tracker as `fixed` when they should have been duplicates of the existing issues.
-The first system prompt gave no instruction for a crash that matches a filed issue, and the next chapter's prompt work begins with that.
+The first system prompt gave no instruction for a crash that matches a filed issue, and revising the prompt begins with that.
 In a prose answer the mistake would have been one clause in a paragraph; in a struct it shows up as failed checks.
 The run used 17 turns and cost $0.034.
 
 ## When to use which
 
 ```fit
-reach: A final tool, when the agent already calls tools or has to run on many models. It works on any model that can call tools, and because the recorded run's answer was typed, the catalog's grader showed its one mistake as four failed checks out of 16 (chapter 7).
-reach: A constrained reply, for a single call with no tools. Chapter 8's summary call sends a JSON Schema as `response_format` with `require_parameters` set, so OpenRouter routes only to providers that apply it (chapter 8).
-leave: Trusting the shape alone. A schema can't tell a passing reproducer from a failing one; `submit_diagnosis` runs the test on the original code and on the fix before it accepts the answer (chapter 7).
+reach: A final tool, when the agent already calls tools or has to run on many models. It works on any model that can call tools, and because the recorded run's answer was typed, the catalog's grader showed its one mistake as four failed checks out of 16.
+reach: A constrained reply, for a single call with no tools. The companion code's summary call sends a JSON Schema as `response_format` with `require_parameters` set, so OpenRouter routes only to providers that apply it.
+leave: Trusting the shape alone. A schema can't tell a passing reproducer from a failing one; `submit_diagnosis` runs the test on the original code and on the fix before it accepts the answer.
 ```
 
 Whichever you choose, validate in your own code as well: decode strictly, enforce enumerations and required fields, and test every claim in the answer that a program is able to test.

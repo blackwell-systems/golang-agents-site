@@ -14,7 +14,7 @@ A model never runs a tool.
 It writes a request to run one, and your program decides what that request means.
 The request travels as JSON, and getting the JSON right in both directions is most of what "tool calling" means for the program that does it.
 
-This page shows the real JSON from one recorded run of chapter 4's agent, on `anthropic/claude-haiku-5.5` in October 2026: the request that offers tools, the reply that asks for them, and the messages that answer.
+This page shows the real JSON from one recorded run of the example agent, on `anthropic/claude-haiku-5.5` in October 2026: the request that offers tools, the reply that asks for them, and the messages that answer.
 Then it shows the Go types that carry them, from the companion code's [`openrouter` package](code:ch04/openrouter).
 The API is OpenRouter's chat completions endpoint, `POST https://openrouter.ai/api/v1/chat/completions`, which uses the OpenAI-compatible format that many providers and local servers share.
 
@@ -40,14 +40,14 @@ The model reads the name and the description to decide when to call the tool, an
 
 The definitions go out with every request, and they are not free.
 In this run the first request was 583 tokens, although the task is one sentence: the four definitions came to about 270 tokens, and the provider added about 290 more of its own instructions for using tools, text you never see but pay for.
-How much a provider adds varies; across chapter 1's 40 runs (ten on each of four models, October 2026), the same first request came to 126 tokens on `gpt-5.6-luna`, whose provider encodes tool definitions in a compact format of its own, and at 441 on `deepseek-v4.1-flash`.
+How much a provider adds varies; across 40 recorded runs (ten on each of four models, October 2026), the same first request came to 126 tokens on `gpt-5.6-luna`, whose provider encodes tool definitions in a compact format of its own, and at 441 on `deepseek-v4.1-flash`.
 
 ## What the model actually reads
 
 The JSON above is what your program sends, not what the model sees.
 A model reads one stream of text, so before generating, the provider turns the messages and the tool definitions into a single text using the model's [chat template](/glossary/#chat-template), a layout each model family was trained on.
 The provider's own instructions for using tools, the roughly 290 tokens counted above, are part of that text.
-Chapter 3's `chatml` package renders the start of the book's bug fix the way Qwen3's open models lay it out, with one tool:
+The `chatml` package renders the start of the bug fix prompt the way Qwen3's open models lay it out, with one tool:
 
 ```text include=ch03/testdata/out/template.txt lines=3..22 title="One tool, a task, and a tool call, as the model reads them"
 ```
@@ -73,7 +73,7 @@ Four things in it are worth reading closely.
 
 **One reply, two calls.** The model asked to run the tests and list the files at once.
 A reply can hold several tool calls, and text alongside them.
-Every model in chapter 1's 40 runs did this in every run.
+Every model in the 40 recorded runs did this in every run.
 The `parallel_tool_calls` setting can turn it off, but the name misleads: it decides whether a single reply is allowed to contain more than one call, and says nothing about whether your harness runs them concurrently.
 The companion code leaves it on: every turn resends the whole conversation, so asking for two things at once saves a turn's worth of tokens and time.
 
@@ -88,7 +88,7 @@ The harness never reads it, but it must send it back, exactly as it came, with t
 
 `finish_reason` is `tool_calls`, OpenRouter's translation of Anthropic's own `tool_use` in `native_finish_reason`.
 Don't lean on it.
-Chapter 2 found the translation right in all 194 replies of the 40 runs, but other servers that accept the same requests don't all translate as carefully, and some report `stop` for a reply that holds tool calls.
+The translation was right in all 194 replies of the 40 runs, but other servers that accept the same requests don't all translate as carefully, and some report `stop` for a reply that holds tool calls.
 The loop in the companion code decides from the reply itself: a reply with tool calls is a request for tools, whatever its finish reason says.
 
 ## Each result answers one call, by its ID
@@ -126,7 +126,7 @@ An empty result becomes `(no output)`, since an empty message can trip up some p
 ## A wrong call gets an error the model can fix
 
 Because the arguments are text the model wrote, the harness checks every call before running it: is the tool name real, do the arguments decode into the tool's argument struct, and are there fields the struct doesn't have?
-Chapter 4's decoder rejects unknown fields, because models guess names (`old_str` for `old`), and ignoring a guess would leave the real field empty, which can turn an edit into a deletion that reports no error.
+The companion code's decoder rejects unknown fields, because models guess names (`old_str` for `old`), and ignoring a guess would leave the real field empty, which can turn an edit into a deletion that reports no error.
 
 Each failed check goes back to the model as a tool message that says what was wrong and what to send instead:
 

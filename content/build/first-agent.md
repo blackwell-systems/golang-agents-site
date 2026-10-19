@@ -52,7 +52,7 @@ Four types carry everything: a message, a tool call inside a message, a tool, an
 
 `Message` has the same fields, with the same JSON names, as a message in the chat completions API, so the client can send the conversation as it is and decode the model's reply straight into one.
 That keeps this program short.
-The book's code keeps its own types apart from the wire format instead, which lets one agent talk to providers whose formats differ; [calling a model from Go](/basics/calling-a-model/) shows that design.
+The companion code keeps its own types apart from the wire format instead, which lets one agent talk to providers whose formats differ; [calling a model from Go](/basics/calling-a-model/) shows that design.
 
 Two fields need a word.
 A tool call's `Arguments` is a string that holds JSON, not a JSON object, so each tool decodes its own.

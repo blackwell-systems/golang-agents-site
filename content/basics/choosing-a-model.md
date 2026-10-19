@@ -32,7 +32,7 @@ A model's price is quoted per million tokens, in and out.
 An agent's bill is that price times every token of every request in a run, and a run takes as many turns as the model needs.
 A model that is cheaper per token but takes twice as many turns can cost more per finished task.
 
-The book's final crash-triage agent measured exactly this on three inexpensive models, 20 tasks each, in October 2026:
+A crash-triage agent was measured on exactly this, with three inexpensive models, 20 tasks each, in October 2026:
 
 | Model | Tasks passed | Cost per passing run | Median turns |
 | --- | --- | --- | --- |

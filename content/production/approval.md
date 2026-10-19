@@ -14,12 +14,12 @@ art: ch14
 Some calls an agent makes deserve a second pair of eyes: an issue that people will read, an edit to authorization code, a refund.
 The idea is simple and the details decide whether it protects anything.
 Where does the check sit, what does the person look at, how far does one yes reach, and what happens at 3 a.m. when nobody replies?
-Chapter 14 of the book answers those questions for the crash-triage agent, chapter 15 makes a waiting run survive a restart, and chapter 17 moves the decisions into a review queue.
+What follows answers those questions for a crash-triage agent, makes a waiting run survive a restart, and moves the decisions into a review queue.
 The code is in [`ch14/safety`](code:ch14/safety) and [`ch14/agent`](code:ch14/agent).
 
 ## Put the gate in the harness
 
-In the companion code, [approval](/glossary/#approval) is a wrapper around a tool, the same kind of middleware chapter 12 uses for retries and timeouts.
+In the companion code, [approval](/glossary/#approval) is a wrapper around a tool, the same kind of middleware used for retries and timeouts.
 It sits outside those wrappers, so time spent waiting for a person never counts against a tool's time limit and is never retried; only the check on outgoing text sits further out.
 
 The alternative, a tool such as `ask_permission` that the model calls before acting, puts the choice to ask in the model's hands.
@@ -30,11 +30,11 @@ Permission has to come from code the model can't route around.
 ## Decide which calls need a person
 
 A policy marks the calls that wait.
-The book's default covers two kinds: anything that puts text in front of people (filing an issue or adding a comment, whether through the agent's built-in tools or the MCP server in front of the tracker), and any write to a [protected path](/glossary/#protected-path) such as the authorization package or an existing test.
+The default policy in the companion code covers two kinds: anything that puts text in front of people (filing an issue or adding a comment, whether through the agent's built-in tools or the MCP server in front of the tracker), and any write to a [protected path](/glossary/#protected-path) such as the authorization package or an existing test.
 Each tool reports what a call would change, its targets, because only the tool knows which of its arguments names a file.
 
 Read-only tools stay ungated.
-A call that has to wait for a decision runs in a stage by itself, so gating reads would give up chapter 9's parallel reads and buy nothing.
+A call that has to wait for a decision runs in a stage by itself, so gating reads would give up parallel reads and buy nothing.
 
 ## Show the evidence, made safe to read
 
@@ -98,9 +98,9 @@ A caller that slips an extra user message in after the waiting calls gets `ErrBa
 
 ## Make the pause survive a restart
 
-Chapter 15 saves the run in a [checkpoint](/glossary/#checkpoint), and three details connect it to approval.
+A [checkpoint](/glossary/#checkpoint) saves the run so a restart loses nothing, and three details connect it to approval.
 The marker that says "this call went out" is written after the yes, not before the question, so a process that dies while a person is deciding leaves nothing to investigate.
-The gate's denials, which chapter 14 keeps only in memory, are rebuilt from the audit log when the command runs with `-audit`; without it, a refusal doesn't outlive the process.
+The gate's denials, which the gate keeps only in memory, are rebuilt from the audit log when the command runs with `-audit`; without it, a refusal doesn't outlive the process.
 And when a crash leaves a call whose outcome nobody knows, the person is asked through the same approver, with a different question: did this take effect?
 The crash sweep includes tools behind the gate, with a crash point while the person decides, and with idempotency keys its 1,063 scenarios made no duplicates and asked nobody about an outcome.
 
@@ -113,19 +113,19 @@ A plain file can be edited by anyone with write access, and a plain hash chain c
 So each line carries an [HMAC](/glossary/#hmac) over itself and the previous line, keyed with a secret stored where neither the agent, its tools, nor test code can read it.
 The tests flip a denial to an approval, delete a line, and rebuild the whole chain under another key, and verification catches all three.
 Two limits remain: lines cut from the end of the log leave the chain intact, and an HMAC can't prove that a person, rather than a script, made the decision.
-For a record other teams must rely on, the book suggests signing each line with a key only the harness holds and shipping it to a store that accepts additions but no rewrites.
+For a record other teams must rely on, have the harness sign each line with a key that nothing else holds, and send the log to a store that accepts additions but no rewrites.
 
 ## What it costs in decisions
 
-Chapter 14 replayed the book's 30 recorded runs offline under the default policy.
+The default policy was replayed offline against 30 recorded runs.
 It would have held 104 calls for a decision, roughly 3.5 per run: 78 were filings and comments, and 26 were protected writes.
 Of the 15 writes into `auth/`, 14 were the agent fixing an already-filed bug outside its task, exactly what a person should catch.
 One task's run would have asked as many as seven times, and the recorded 99-report batch 22 times.
 
-That volume is why chapter 17's service puts decisions in a review queue, where a paused run waits without holding up any other group, approvals carry a deadline (a day by default), and a question about an unknown outcome has no deadline at all, since neither guess is safe.
+That volume is why decisions belong in a review queue, where a paused run waits without holding up any other group, approvals carry a deadline (a day by default), and a question about an unknown outcome has no deadline at all, since neither guess is safe.
 
 The OpenAI Agents SDK has the same overall shape: a tool can declare that it needs approval, a run returns with pending interruptions, and the run's state can be serialized and resumed later.
-What the book adds is binding each yes to a hash of the person's view, and keeping each denial per target file.
+What this design adds is binding each yes to a hash of the person's view, and keeping each denial per target file.
 
 ## Steps for your own agent
 
@@ -141,10 +141,10 @@ What the book adds is binding each yes to a hash of the person's view, and keepi
 ## When to use it
 
 ```fit
-reach: The agent sends text to people or changes something you protect. Over the book's 30 recorded runs, the default policy would have held 78 filings and comments and 26 protected writes for a person (chapter 14).
-reach: A model may look for another way after a refusal. One model asked for a denied file under three other spellings, and a gate that remembers denials by file turned each one down (chapter 14).
-leave: Read-only tools. A call waiting for a decision runs alone, so gating reads gives up parallel reads and protects nothing (chapters 9 and 14).
-leave: Trusted input in volume, with a person at a terminal. The recorded batch run would have asked 22 times, which is why approval can be switched off for trusted input and chapter 17 adds a review queue (chapters 14 and 17).
+reach: The agent sends text to people or changes something you protect. Over 30 recorded runs, the default policy would have held 78 filings and comments and 26 protected writes for a person.
+reach: A model may look for another way after a refusal. One model asked for a denied file under three other spellings, and a gate that remembers denials by file turned each one down.
+leave: Read-only tools. A call waiting for a decision runs alone, so gating reads gives up parallel reads and protects nothing.
+leave: Trusted input in volume, with a person at a terminal. The recorded batch run would have asked 22 times, which is why approval can be switched off for trusted input and the decisions can go to a review queue.
 ```
 
 ## Try it

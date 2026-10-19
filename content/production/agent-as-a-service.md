@@ -14,7 +14,7 @@ art: ch17
 While you watch an agent, you are part of its harness.
 You restart it when it dies, you say yes or no to its risky calls, and you notice when the bill climbs.
 Leave it running and the program has to do those jobs itself.
-Chapter 15 of the book turns the crash-triage agent into a command that can run unattended, and chapter 17 wraps that command in a service that takes crash reports as they happen.
+The crash-triage agent becomes a command that can run unattended, and that command becomes a service that takes crash reports as they happen.
 This page lists the decisions in the order you meet them, with code from [`ch15`](code:ch15) and [`ch17/service`](code:ch17/service).
 
 ## A binary that finds its own work
@@ -30,15 +30,15 @@ The command saves a new run to disk before doing anything with it: once a run ex
 
 Not all of a run's memory is in the loop's state.
 The tools remember which files the model has read (the patch tool won't edit a file the model never saw) and the agent's notes, in a `tools.json` beside the checkpoint.
-The random boundary chapter 14 puts around untrusted text is kept in a file too, since the saved conversation's rules name it.
+The random boundary put around untrusted text is kept in a file too, since the saved conversation's rules name it.
 And the approval gate's denials, held in memory during a run, are rebuilt from the audit log on restart when the command runs with `-audit`.
 
 ## Shut down by cancelling
 
-The textbook graceful shutdown stops taking new work and waits for current work to finish.
+The conventional graceful shutdown stops taking new work and waits for current work to finish.
 An agent can't wait.
 Platforms send SIGTERM and follow it with SIGKILL after a grace period: 30 seconds by default on Kubernetes and 10 for `docker stop` with a Linux container.
-Across the 209 model calls of chapter 12's live runs, the median took 2.35 seconds, the 95th percentile 9.25, and the slowest 27.5, longer than `docker stop` allows and close to Kubernetes' limit.
+Across the 209 model calls of the recorded live runs, the median took 2.35 seconds, the 95th percentile 9.25, and the slowest 27.5, longer than `docker stop` allows and close to Kubernetes' limit.
 
 So the command cancels:
 
@@ -52,19 +52,19 @@ A second signal ends the process at once, for whoever can't wait for the save.
 Calls that are already talking to the outside world get a short reprieve.
 A filing whose answer arrives settles the call, while a filing cut off halfway leaves an outcome nobody knows, so a tool wrapper gives calls with side effects five seconds after a shutdown before cancelling them.
 It does that with `context.WithoutCancel`, which keeps the call's values, its idempotency key among them, and forwards the cancellation on its own schedule.
-Five seconds sits well inside both platforms' limits, and since the wrapper is applied inside chapter 12's timeout wrapper, each tool's own time limit keeps working.
+Five seconds sits well inside both platforms' limits, and since the wrapper is applied inside the timeout wrapper, each tool's own time limit keeps working.
 
 ## A container image that keeps the key out of reach
 
 The agent runs `go test` and builds each workspace as a git repository at the crash's commit, so the image needs the Go toolchain and git.
-The book's image is 1.34 GB, almost all toolchain, runs as a user without root (uid 10001), and mounts the state directory as a volume.
+The image is 1.34 GB, almost all toolchain, runs as a user without root (uid 10001), and mounts the state directory as a volume.
 
 Give it the API key as a read-only mounted file named by `OPENROUTER_API_KEY_FILE`, readable by that user alone; the command refuses a key file that its group or others can read.
 A key passed with `-e` is worse in two ways.
 Anyone allowed to run Docker commands can read it with `docker inspect`.
 And although the command removes the variable from its own environment at startup, the kernel still holds the environment the first process started with, and any process of the same user can read it from `/proc/1/environ`.
-Chapter 15 tried it with a made-up key, and another process in the container read the key back.
-Test code runs as that same user inside the image, which also means the tests are at chapter 14's sandbox rung 2 at best: Docker's default settings don't allow the namespaces bubblewrap needs, so stronger isolation for the tests means a separate sandbox beside the agent's container.
+This was tried with a made-up key, and another process in the container read the key back.
+Test code runs as that same user inside the image, which also means the tests are at sandbox rung 2 at best: Docker's default settings don't allow the namespaces bubblewrap needs, so stronger isolation for the tests means a separate sandbox beside the agent's container.
 
 ## From a command to a service
 
@@ -93,7 +93,7 @@ A report for a group whose issue was closed means the crash returned after a fix
 ## The queue is a directory
 
 The service has no message broker.
-Every file under its state directory is written the way chapter 15 writes a checkpoint, so a crash leaves each file whole, and the writes go in a fixed order: the report, then the run that names it, then the 202 to the shipper.
+Every file under its state directory is written the way a checkpoint is written, so a crash leaves each file whole, and the writes go in a fixed order: the report, then the run that names it, then the 202 to the shipper.
 On startup the service looks for reports no run names and puts runs that were going back in the queue, where their checkpoints take them from where they were.
 Two runs go at once by default, up to twenty wait, and a report that would start a run when the queue is full gets 503 with `Retry-After`.
 
@@ -146,7 +146,7 @@ source: Chapter 17
 Five reports became two runs, two issues (one per cause), and two comments for late reports. The person made six decisions, all approvals. The kill lost nothing: after the restart the review queue held the same two items, and the ledger had counted $0.0096 by the end.
 ```
 
-Chapter 17 says plainly that this run was made to see the parts work together, not to measure them, and that its host was chosen by OpenRouter, so its numbers aren't comparable with the chapter's eval tables.
+This run was made to see the parts work together, not to measure them, and its host was chosen by OpenRouter, so its numbers aren't comparable with the eval tables.
 
 ## Steps for your own service
 
@@ -162,10 +162,10 @@ Chapter 17 says plainly that this run was made to see the parts work together, n
 ## When to use it
 
 ```fit
-reach: Reports arrive at any hour and must not wait for a person to type a command. The service took five live reports, survived a SIGKILL with two decisions waiting, and filed each cause once (chapter 17).
-reach: The platform may stop the process at any time. Kubernetes allows 30 seconds and `docker stop` 10, and the slowest model call in chapter 12's runs took 27.5 (chapters 12 and 15).
-leave: More than one machine, or more than one team. The directory queue and its file locks hold on one machine, and the service has one tracker, one budget, and one set of reviewers (chapters 15 and 17).
-leave: A batch you already have in hand. The command form of chapter 15 runs it and resumes after a crash without the service's moving parts (chapter 15).
+reach: Reports arrive at any hour and must not wait for a person to type a command. The service took five live reports, survived a SIGKILL with two decisions waiting, and filed each cause once.
+reach: The platform may stop the process at any time. Kubernetes allows 30 seconds and `docker stop` 10, and the slowest model call in the recorded runs took 27.5.
+leave: More than one machine, or more than one team. The directory queue and its file locks hold on one machine, and the service has one tracker, one budget, and one set of reviewers.
+leave: A batch you already have in hand. The command form runs it and resumes after a crash without the service's moving parts.
 ```
 
 ## Try it

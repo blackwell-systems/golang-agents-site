@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html"
-	"regexp"
 	"slices"
 	"strings"
 
@@ -130,8 +129,11 @@ func (r *codeBlocks) result(body string) (string, error) {
 		}
 		fmt.Fprintf(&b, `<div><dt>%s</dt><dd>%s</dd></div>`, strings.ToUpper(k[:1])+k[1:], v)
 	}
-	b.WriteString(`</dl><p class="result-source">`)
-	b.WriteString(html.EscapeString(f["source"][0]))
+	// The source line stays in the Markdown as a record of where the
+	// number came from; the page credits the public code, where anyone
+	// can rerun the measurement.
+	fmt.Fprintf(&b, `</dl><p class="result-source">Measured with the `+
+		`<a href="%s/tree/%s/code">companion code</a>`, repoURL, codeRef)
 	if l := f["link"]; len(l) > 0 {
 		more := "Read more"
 		if m := f["more"]; len(m) > 0 {
@@ -150,19 +152,12 @@ func (r *codeBlocks) result(body string) (string, error) {
 	return b.String(), nil
 }
 
-// cites matches a chapter citation, which every reason in a fit block
-// carries: the book result behind it.
-var cites = regexp.MustCompile(`\b[Cc]hapters? \d+`)
-
 // fit renders when to use a design and when not to:
 //
 //	```fit
-//	reach: a reason, citing its chapter (chapter 9)
-//	leave: a reason, citing its chapter (chapter 9)
+//	reach: a reason, with the measurement behind it where there is one
+//	leave: a reason
 //	```
-//
-// Each reason must cite a chapter, so the build fails on one that
-// doesn't say where it was measured.
 func (r *codeBlocks) fit(body string) (string, error) {
 	f, rest, err := fields(body, "reach", "leave")
 	if err != nil {
@@ -181,9 +176,6 @@ func (r *codeBlocks) fit(body string) (string, error) {
 	} {
 		fmt.Fprintf(&b, `<div class="fit-%s"><p class="fit-title">%s</p><ul>`, col.key, col.title)
 		for _, reason := range f[col.key] {
-			if !cites.MatchString(reason) {
-				return "", fmt.Errorf("%s: %q cites no chapter", col.key, reason)
-			}
 			t, err := r.inline(reason)
 			if err != nil {
 				return "", err

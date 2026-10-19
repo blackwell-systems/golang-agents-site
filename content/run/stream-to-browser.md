@@ -10,11 +10,11 @@ weight: 30
 art: ch06
 ---
 
-Chapter 6 of the book reads server-sent events from the model's API and turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn, and the end of the run.
+Reading server-sent events from the model's API turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn, and the end of a run.
 This example sends those events onward, from a Go server to a web page, so a person can watch a run as it happens and stop it.
 It is the companion code's [`ssebrowser` example](code:ssebrowser), built on `net/http` alone, with tests that run under the race detector.
 
-The model is scripted, a replay of chapter 1's run on the `duration` project slowed down so you can watch it, so everything runs offline.
+The model is scripted, a replay of a run on the `duration` project slowed down so you can watch it, so everything runs offline.
 The tools, `go test` among them, run for real.
 
 ## Run it

@@ -48,7 +48,7 @@ $ go run ./ch04 -replay fix-again
 
 This replays the same task on `openai/gpt-5.6-luna`.
 This model starts by listing the files. Next it reads both files and runs the tests together in one turn, makes its edit, spends a separate turn rerunning the tests, and then answers. That is five model calls where `anthropic/claude-haiku-5.5` needed four, and the fix is the same.
-Chapter 1 measured this model ten times, and every one of those runs followed this path.
+This model was measured ten times, and every one of those runs followed this path.
 
 Since each model finds its own route, this program's tests look at results and ignore the transcript. They check three things: the fix is in `duration.go`, a test run came after the final edit, and the run finished with an answer.
 A live run that wanders down some other route still passes as long as those three hold.
@@ -108,7 +108,7 @@ $ go test ./ch04/...
 ```
 
 The tests replay every saved run and check its outcome, compare the client's requests with the saved ones, and check the tools' rules, including the scrubbed environment.
-They run `go test` for real many times, so they take longer than chapter 1's.
+They run `go test` for real many times, so they take longer than the scripted-loop tests.
 
 ## Key files
 

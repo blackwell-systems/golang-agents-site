@@ -15,15 +15,14 @@ Maybe a team has an Anthropic account but no OpenRouter account, maybe a model i
 When the loop knows one API's wire format, each new provider is a change to the loop.
 When the loop knows only its own `Model` interface, each new provider is one more adapter, and the loop stays as it is.
 
-Chapter 11 of the book puts that idea under real load.
-It writes two extra clients for the same loop.
-One wraps an official SDK for the chat completions API the book already uses; the other is written by hand for Anthropic's Messages API, which does almost everything differently.
+Putting that idea under real load means writing two extra clients for the same loop.
+One wraps an official SDK for the chat completions API already used here; the other is written by hand for Anthropic's Messages API, which does almost everything differently.
 The code is in [`ch11/orsdk`](code:ch11/orsdk) and [`ch11/anthropic`](code:ch11/anthropic).
 
 ## Why test with a native API
 
 Adding another OpenAI-compatible endpoint would show very little.
-The book's hand-written client can already reach any such server; you change the base URL and nothing else.
+The hand-written client can already reach any such server; you change the base URL and nothing else.
 The real test is a [native API](/glossary/#native-api), meaning a provider's own request and reply format.
 The Messages API differs from chat completions in these ways:
 
@@ -33,23 +32,23 @@ The Messages API differs from chat completions in these ways:
 - reasoning comes back as thinking blocks, and each block carries a signature;
 - stop reasons, usage counts, and error bodies each have their own names and layout.
 
-Because OpenRouter also serves the Messages API, every run in the chapter used a single key.
+Because OpenRouter also serves the Messages API, every run recorded here used a single key.
 Change the base URL to `https://api.anthropic.com/v1` and the same client goes to Anthropic directly.
 
 ## An official SDK, behind your own interface
 
 OpenRouter has a Go SDK for chat completions, produced by a code generator from its API description.
-Adding it makes it the first dependency of the book's main module, pinned at `v0.9.59`: a generated library before 1.0 changes its types every time the description changes.
+Adding it makes it the first dependency of the main module in the companion code, pinned at `v0.9.59`: a generated library before 1.0 changes its types every time the description changes.
 Two settings in the adapter's constructor do most of the work:
 
 ```go include=ch11/orsdk/orsdk.go tag=client
 ```
 
-**Supply your own HTTP client.** Any value with a `Do` method will do, so the book's replay transport plugs straight in, and so does a thin wrapper that notes each response's status code and `Retry-After` header.
+**Supply your own HTTP client.** Any value with a `Do` method will do, so the replay transport plugs straight in, and so does a thin wrapper that notes each response's status code and `Retry-After` header.
 
 **Switch the SDK's retries off** if your harness already retries, or every harness retry will contain a full round of SDK retries.
 Left unconfigured, this SDK retries all 5xx responses and connection errors with backoff and keeps going for as long as an hour.
-In the chapter's test against a local server that returned 503 for every request, a single call with a 10-second deadline tried five times and stopped only when the deadline expired.
+In one test against a local server that returned 503 for every request, a single call with a 10-second deadline tried five times and stopped only when the deadline expired.
 
 **Translate its errors.** When a call fails, the SDK returns one of fourteen error types, and none of them exposes the HTTP status as a field.
 The adapter converts each one into the `*APIError` that the hand-written client already returns.
@@ -63,7 +62,8 @@ After the fix, the same task got 91 percent from the cache and cost between $0.0
 
 The SDK also alters a few bytes on the wire.
 Schemas are stored as Go maps, so their properties are sent in alphabetical order, and reasoning records are re-serialized with the fields rearranged.
-The chapter pushed every distinct reasoning record from the book's recorded runs, 443 of them, through the SDK's types; each came out with identical fields and values, and OpenRouter took them back in every run that used the SDK.
+Every distinct reasoning record from recorded runs, 443 of them, was pushed through the SDK's types.
+Each came out with identical fields and values, and OpenRouter took them back in every run that used the SDK.
 
 ## Reasoning stays with the provider and host that wrote it
 
@@ -77,7 +77,7 @@ For that, the agent's `Message` gets one new field:
 
 The value records the server as well as the API, since the model alone doesn't decide where a block is accepted.
 OpenRouter can send one model's requests to several hosts, and each host runs under its own account.
-The chapter's experiment on `anthropic/claude-haiku-5.5`, two runs in October 2026, showed the effect.
+An experiment on `anthropic/claude-haiku-5.5`, two runs in October 2026, showed the effect.
 It pinned the first request to one host, Claude Platform on AWS, and then sent the continuation, the block plus a tool result, along five routes, one of them the same host with the block left out.
 Returned to the host that produced it, the block was billed as input at its full size.
 Routed instead to Anthropic's own API, Azure, or Google Vertex, the request was refused by OpenRouter with a 400 that named the original host.
@@ -90,7 +90,7 @@ Rather than leave it to the account's default, the client sends Anthropic's beta
 
 ## One task, three clients
 
-Each client ran chapter 7's `m1` triage task three times in October 2026, all through OpenRouter on the default model at its API's default reasoning setting:
+Each client ran the `m1` triage task three times in October 2026, all through OpenRouter on the default model at its API's default reasoning setting:
 
 | Client | Turns | From the cache | Cost | Checks passed |
 | --- | --- | --- | --- | --- |
@@ -103,7 +103,7 @@ With three runs each, the numbers can't rank the clients by cost.
 What they do show is that switching clients took nothing away from the agent.
 The Messages API runs used an earlier version of its client; the recording the replay below uses comes from the final one, and finished in 13 turns for $0.0080, with 87.5 percent of its input served from the cache and all 16 checks passed.
 The two formats also come out close in size.
-The chapter encoded one request, the last of chapter 10's recorded `m1` run, with each client; leaving reasoning aside, the conversation part was 29,695 bytes in chat completions and 29,356 bytes in the Messages API, within about 1 percent.
+One request, the last of a recorded `m1` run, was encoded with each client; leaving reasoning aside, the conversation part was 29,695 bytes in chat completions and 29,356 bytes in the Messages API, within about 1 percent.
 
 ## A checklist for the next adapter
 

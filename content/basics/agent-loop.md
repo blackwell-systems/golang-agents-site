@@ -16,7 +16,7 @@ It sits behind an API, takes text in, and gives text back.
 Keeping the conversation, executing the tools it requests, and recognizing the end of the run are all jobs for code on your side.
 That code is the [harness](/glossary/#harness), and the loop at the middle of it fits on one screen.
 
-Below is that loop as chapter 1 of the book builds it, taken from the [companion repository](code:ch01/agent/loop.go).
+Below is that loop, taken from the [companion repository](code:ch01/agent/loop.go).
 No model is needed to run it.
 That is deliberate: the loop is ordinary Go, so you can write a test for each of its rules long before you pay for an API call.
 
@@ -44,8 +44,8 @@ A `Request` carries the messages and the definitions of the tools on offer.
 What comes back is one assistant message, and it may contain text, tool calls, or a mix.
 
 With only one method to satisfy, a canned stand-in and a real HTTP client look identical to the loop.
-Chapter 1 plugs in `Fake`, which hands back replies from a prepared list.
-Chapter 4 plugs in a client that talks to a real model, and the loop itself is untouched.
+The companion code first plugs in `Fake`, which hands back replies from a prepared list.
+It later plugs in a client that talks to a real model, and the loop itself is untouched.
 
 ## The loop resends the whole conversation each turn
 
@@ -76,10 +76,10 @@ And each turn begins by checking `ctx.Err()`, so a deadline or Ctrl-C ends the r
 
 ## Calls run in order
 
-In the bug fix that chapter 1 replays, one reply asks for two things: change `duration.go`, then run the tests.
+In the bug fix this example replays, one reply asks for two things: change `duration.go`, then run the tests.
 If both ran at once, the test run might see the file before the change and report a failure that the edit had already fixed.
 So this loop runs the calls in a reply sequentially, in the model's order, which can never cause that problem.
-Parallel tool calls are faster, but they force the harness to work out which calls are safe to overlap, and that is chapter 9's subject.
+Parallel tool calls are faster, but they force the harness to work out which calls are safe to overlap, and that is a problem of its own.
 
 ## Every problem becomes a message
 
@@ -97,7 +97,7 @@ Consider the other options.
 Ending the run discards all the work done before the mistake.
 Picking the nearest tool name and running it executes a call the model never made.
 Reporting the error costs a single turn.
-Chapter 4 replays a hand-written run in the API's format where the model makes three mistakes in a row: it calls a tool that isn't defined, passes a path as an array, and asks to replace text the file doesn't contain.
+A hand-written run in the API's format shows the model making three mistakes in a row: it calls a tool that isn't defined, passes a path as an array, and asks to replace text the file doesn't contain.
 Every error message explains the problem, and every following call is correct.
 The [ch04 example](/run/ch04-first-agent/) replays that run.
 
@@ -110,22 +110,22 @@ Without a turn limit, nothing guarantees the loop ends, and a real model bills y
 So `MaxTurns` is the loop's first setting, and leaving it at zero permits no turns at all, so every caller has to set it.
 
 There's no correct number you can know ahead of time.
-In chapter 1, all 40 bug-fix runs (ten on each of four models, October 2026) finished in four to six turns, so the program sets the limit to ten.
-Agent frameworks ship defaults that range from 10 turns to thousands of steps to no limit at all; chapter 1 lists them.
+In recorded runs, all 40 bug-fix runs (ten on each of four models, October 2026) finished in four to six turns, so the program sets the limit to ten.
+Agent frameworks ship defaults that range from 10 turns to thousands of steps to no limit at all.
 A default can't know what your task needs, so choose the limit yourself and report hitting it to the caller as a failure.
 
 ## A real model fits behind the same interface
 
-Chapter 4 runs this same `Run` against a real model.
+This same `Run` works against a real model unchanged.
 On the way in, the program wraps the client in another `Model` that totals the cost of the run:
 
 ```go include=ch04/main.go tag=meter
 ```
 
 Because `meter` embeds a `Model` and defines its own `Generate`, it satisfies the interface itself, and the loop has no way to know there is a client inside.
-Later chapters use the same trick, wrapping the model to add retries, timeouts, and tracing while the loop stays as it is.
+The same trick wraps the model to add retries, timeouts, and tracing while the loop stays as it is.
 
-Chapter 5 deals with what this short loop leaves out: a provider that rejects the request, a reply the loop can't use (a tool-call ID that appears twice, an answer truncated by the token limit), a run that overspends, and Ctrl-C arriving while a reply's tools are running.
+Beyond this short loop come the cases it leaves out: a provider that rejects the request, a reply the loop can't use (a tool-call ID that appears twice, an answer truncated by the token limit), a run that overspends, and Ctrl-C arriving while a reply's tools are running.
 Each one ends the run with a named [stop reason](/glossary/#stop-reason) that callers test with `errors.Is`, for example `ErrMaxTurns` or `ErrBudgetExceeded`.
 
 ## Run it

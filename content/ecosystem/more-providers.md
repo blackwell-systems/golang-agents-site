@@ -9,11 +9,11 @@ date: 2026-10-18
 weight: 20
 ---
 
-The book's agent speaks two formats: chat completions, through OpenRouter, and Anthropic's Messages API.
-Chapter 11 ends by suggesting a third adapter, for Gemini or a local server, and lists the questions such an adapter has to answer.
-This page answers them for four more providers, from their own documentation, so you can size the work before you start.
+The agent in the companion code speaks two formats: chat completions, through OpenRouter, and Anthropic's Messages API.
+A natural next step is a third adapter, for Gemini or a local server, and there are questions such an adapter has to answer.
+This page answers them for four providers, from their own documentation, so you can size the work before you start.
 
-Unlike the rest of this site, nothing here was measured for the book.
+Unlike the rest of this site, nothing here came from a recorded run.
 Every fact below comes from the provider's official documentation, linked in each section, as read on October 18, 2026.
 These APIs change often; check the linked page before you rely on a detail.
 
@@ -26,13 +26,13 @@ These APIs change often; check the linked page before you rely on a detail.
 | Amazon Bedrock | Converse (`/model/{modelId}/converse`) | A JSON object | Yes, `toolUseId` | Yes, for some models | AWS SDK for Go v2, `bedrockruntime` |
 | Cohere | Chat v2 (`POST /v2/chat`) | A string holding JSON | Yes | Yes, a compatibility API | `github.com/cohere-ai/cohere-go/v2` |
 
-The quickest way to reach any of them from the book's code is its OpenAI-compatible endpoint, by pointing `OPENROUTER_BASE_URL` at it, as chapter 2 does for Ollama.
+The quickest way to reach any of them from the companion code is its OpenAI-compatible endpoint, by pointing `OPENROUTER_BASE_URL` at it, as the companion code does for Ollama.
 The cost is the compatibility layer's gaps, listed below for each, and the loss of whatever the native API offers that chat completions doesn't.
 
 ## Google Gemini
 
 Google now recommends the [Interactions API](https://ai.google.dev/gemini-api/docs/interactions), generally available since June 2026, at `POST https://generativelanguage.googleapis.com/v1beta/interactions`, authenticated with an `x-goog-api-key` header.
-Its main difference from every API the book uses is state on the server: by default it stores each interaction (`store` is true), and a request can continue from `previous_interaction_id` instead of resending the conversation.
+Its main difference from chat completions and the Messages API is state on the server: by default it stores each interaction (`store` is true), and a request can continue from `previous_interaction_id` instead of resending the conversation.
 The documentation gives a retention of 55 days on the paid tier and 1 day on the free tier.
 Tools, the system instruction, and generation settings belong to one interaction and must be sent again with each request.
 
@@ -50,7 +50,7 @@ Usage arrives in `usageMetadata`, where `promptTokenCount` includes cached token
 **OpenAI compatibility.** Gemini serves chat completions at `https://generativelanguage.googleapis.com/v1beta/openai/`, with tools, streaming, and structured output; the [documentation](https://ai.google.dev/gemini-api/docs/openai) calls it beta and says parameters it doesn't list are ignored without an error.
 
 **Go.** The official library is [`google.golang.org/genai`](https://ai.google.dev/gemini-api/docs/libraries), generally available since May 2025.
-Chapter 16 notes that ADK for Go reaches Gemini through this client and accepts your own `*http.Client` through its configuration.
+ADK for Go reaches Gemini through this client and accepts your own `*http.Client` through its configuration.
 
 ## Ollama
 
@@ -64,7 +64,7 @@ There is no cost, since nothing is billed.
 **OpenAI compatibility.** Ollama also serves [`/v1/chat/completions`](https://docs.ollama.com/api/openai-compatibility), with tools and streaming, plus `/v1/responses` and others.
 The key is required but ignored on a local server.
 Among the fields it doesn't support are `tool_choice`, `logprobs`, and `n`.
-This is the endpoint chapter 2 uses, and the book notes two consequences: the program needs some non-empty key to stop replaying, and cost reads as zero.
+This is the endpoint the companion code uses, and two consequences follow: the program needs some non-empty key to stop replaying, and cost reads as zero.
 
 **Go.** Ollama's own repository includes a Go client, [`github.com/ollama/ollama/api`](https://pkg.go.dev/github.com/ollama/ollama/api); `ClientFromEnvironment` reads the server's address from `OLLAMA_HOST`.
 Its `ToolCall` type has an `ID` field and its `Message` a `ToolName`, so check which of them your model and server version fill in.
@@ -75,10 +75,10 @@ Bedrock hosts models from several companies, and its [Converse API](https://docs
 The system prompt is a separate `system` field, a list of blocks, and messages take two roles, `user` and `assistant`, each holding a list of content blocks.
 Tools go in `toolConfig`; the model's call is a [`toolUse`](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolUseBlock.html) block with a `toolUseId`, a `name`, and an `input` object; the result goes back as a [`toolResult`](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolResultBlock.html) block with the same `toolUseId`, and an optional `status` of `success` or `error`, which only some model families accept.
 
-The [`stopReason`](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html) values are `end_turn`, `tool_use`, `max_tokens`, `stop_sequence`, `guardrail_intervened`, `content_filtered`, `malformed_model_output`, `malformed_tool_use`, and `model_context_window_exceeded`; an adapter maps each onto the loop's finish reasons, as chapter 11 maps Anthropic's.
+The [`stopReason`](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html) values are `end_turn`, `tool_use`, `max_tokens`, `stop_sequence`, `guardrail_intervened`, `content_filtered`, `malformed_model_output`, `malformed_tool_use`, and `model_context_window_exceeded`; an adapter maps each onto the loop's finish reasons, the same way it maps Anthropic's.
 Usage reports `inputTokens`, `outputTokens`, and, with prompt caching, `cacheReadInputTokens` and `cacheWriteInputTokens`.
 The stream sends `messageStart`, then for each content block a start, deltas, and a stop, then `messageStop` with the stop reason, and last a `metadata` event with the usage.
-A model's reasoning comes with a signature, and the documentation warns that the reasoning must be sent back unchanged, the same rule chapter 11 meets with Anthropic's thinking blocks.
+A model's reasoning comes with a signature, and the documentation warns that the reasoning must be sent back unchanged, the same rule that applies to Anthropic's thinking blocks.
 
 Requests are signed with AWS credentials, or, as an alternative, authenticated with a [Bedrock API key](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html) as a bearer token; short-term keys last up to 12 hours and are the ones recommended for production.
 
@@ -101,11 +101,11 @@ Streaming is server-sent events.
 
 ## Writing the adapter
 
-Whichever you pick, the questions are chapter 11's, and the [difference table](/ecosystem/differences/) shows the answers for the two APIs the book covers.
+Whichever you pick, the questions raised at the start of this page apply, and the [difference table](/ecosystem/differences/) shows the answers for chat completions and the Messages API.
 Three answers on this page change the most code:
 
-- **Where the conversation lives.** Gemini's Interactions API and Bedrock's Responses API can keep it on the server. The book's loop resends the whole conversation every turn and saves it for crash recovery (chapter 15); a server-side copy is a second record to keep in step, or a feature to leave off.
-- **How arguments arrive.** Gemini, Ollama's native API, and Bedrock send an object, so an adapter that keeps the model's exact text for the loop, as chapter 4 does, has to serialize it.
+- **Where the conversation lives.** Gemini's Interactions API and Bedrock's Responses API can keep it on the server. The loop in these guides resends the whole conversation every turn and saves it for crash recovery; a server-side copy is a second record to keep in step, or a feature to leave off.
+- **How arguments arrive.** Gemini, Ollama's native API, and Bedrock send an object, so an adapter that keeps the model's exact text for the loop has to serialize it.
 - **How the stream ends.** Each one ends differently: an object with `done`, a `messageStop` followed by `metadata`, or server-sent events. Read the final usage from wherever it arrives before treating the reply as complete.
 
-Test each adapter the way chapter 11 tests the Messages API client: an `httptest` reply for each error and edge case, and a recorded run replayed through it.
+Test each adapter the way the Messages API client is tested: an `httptest` reply for each error and edge case, and a recorded run replayed through it.

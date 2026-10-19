@@ -35,7 +35,7 @@
     <footer class="guide-foot">
       <div class="book-line">
         {{- if .Page.BookHTML}}{{.Page.BookHTML}}{{else}}
-        <p>The book <a href="/book/"><cite>Building AI Agents in Go</cite></a> builds this step by step, with its tests{{with .Page.Chapters}}, in {{chapters .}}{{end}}.</p>
+        <p><a href="/book/"><cite>Building AI Agents in Go</cite></a> covers this step by step, with tests{{with .Page.Chapters}}, in {{chapters .}}{{end}}.</p>
         {{- end}}
       </div>
       {{- if .Page.Work}}

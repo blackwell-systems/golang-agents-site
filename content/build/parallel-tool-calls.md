@@ -13,13 +13,13 @@ art: ch09
 When a reply contains several tool calls, the model has only listed them; executing them is up to the harness.
 Starting them all at the same moment seems like a free speedup, and in Go it takes a few lines.
 The harder questions are which calls are allowed to overlap, how to keep the conversation valid and the run reproducible, and whether the speedup is real.
-This page works through those questions with chapter 9 of the book and its runner, [`ch09/agent/runner.go`](code:ch09/agent/runner.go).
+This page works through those questions with the runner in [`ch09/agent/runner.go`](code:ch09/agent/runner.go).
 
 ## How often models ask for several calls
 
 Models do this on their own, and frequently.
-In the runs the book recorded from chapter 4 on, between a quarter of replies and every reply requested more than one tool, depending on which model and which task.
-Chapter 9 counts all four models on both tasks; here are two of them on each:
+In the recorded runs, between a quarter of replies and every reply requested more than one tool call, depending on which model and which task.
+All four models were counted on both tasks; here are two of them on each:
 
 | Task | Model | Replies with more than one call | Mean calls per reply | Most in one reply |
 | --- | --- | --- | --- | --- |
@@ -28,8 +28,8 @@ Chapter 9 counts all four models on both tasks; here are two of them on each:
 | Crash triage, 14 tools | `anthropic/claude-haiku-5.5` | 64% | 2.59 | 6 |
 | Crash triage, 14 tools | `openai/gpt-5.6-luna` | 50% | 3.14 | 12 |
 
-The book never sets `parallel_tool_calls` on a request.
-On models that honor it, setting it to false limits each reply to one call; of the book's four models only `z-ai/glm-5.3-flash` accepts it, and Anthropic's own API has a separate switch for the same purpose.
+The companion code never sets `parallel_tool_calls` on a request.
+On models that honor it, setting it to false limits each reply to one call; of the four models tested only `z-ai/glm-5.3-flash` accepts it, and Anthropic's own API has a separate switch for the same purpose.
 There is no value that makes a model request more than one, and in spite of the name, the flag has no bearing on how your harness executes the calls it gets.
 Anthropic's documentation is explicit that execution order is the caller's business: run the calls however you like, provided each one gets exactly one result.
 
@@ -39,7 +39,7 @@ Some pairs must not overlap.
 In each of the default model's ten bug-fix runs, a single reply contained an edit to the file followed by a test run.
 If both start together, the tests can execute before the edit lands, check the old code, and report a failure that the edit had already fixed.
 
-Chapter 9 decides with the read-only flag that every tool has carried since chapter 7:
+The runner decides this with the read-only flag that every tool carries:
 
 - A run of adjacent calls to [read-only tools](/glossary/#read-only-tool) executes concurrently.
 - Every other call executes by itself, waiting for all earlier calls and holding back all later ones; this is a [barrier](/glossary/#barrier).
@@ -68,7 +68,7 @@ Three decisions make the runner correct:
 - **A panic in one tool is recovered at that tool's boundary.** The panic turns into that call's answer; the other calls in the stage carry on, and one tool's failure never cancels its neighbors.
 
 The API accepts results in any order, so why preserve the model's?
-Mostly for reproducibility: a run replays identically, and the book's recorded runs and tests keep passing.
+Mostly for reproducibility: a run replays identically, and recorded runs and tests keep passing.
 It also keeps the next request byte-for-byte equal to what sequential execution would have produced, so the prompt cache still hits.
 Streaming results back as each call completes wouldn't gain anything, since the next model call can't start until every result is in.
 
@@ -78,8 +78,8 @@ With every call started at once, the fake tests see the old code; with the stage
 
 ## What it saves on a coding agent
 
-Almost nothing, and chapter 9 has the numbers.
-It took the 87 tool calls from one recorded triage run and replayed them one by one, timing each:
+Almost nothing, and the numbers show it.
+One measurement replayed the 87 tool calls from one recorded triage run one by one, timing each:
 
 | Tool | Calls | Median (ms) | Longest (ms) |
 | --- | --- | --- | --- |
@@ -101,10 +101,10 @@ It is correct, it costs little, and it pays off for tools that spend their time 
 
 ## What was measured, and what wasn't
 
-Chapter 9 measured three things here: how often each of four models asks for several calls in one reply, across the book's saved runs; how long each triage tool takes, by replaying one recorded run's 87 calls one at a time; and, in its tests, that the staged runner keeps an edit ahead of the test run that follows it.
-It did not measure the runner on tools that wait on a network, where the saving should be largest, since the triage agent has no such tool.
+Three things were measured here: how often each of four models asks for several calls in one reply, across the saved runs; how long each triage tool takes, by replaying one recorded run's 87 calls one at a time; and, in the tests, that the staged runner keeps an edit ahead of the test run that follows it.
+The runner was not measured on tools that wait on a network, where the saving should be largest, since the triage agent has no such tool.
 The claim that overlapping those calls saves all but the slowest call's time is arithmetic, not a measurement, and worth checking on your own tools before you count on it.
-It also didn't build or measure the finer dependency-graph scheme described above.
+The finer dependency-graph scheme described above was not built or measured either.
 
 ## A tool that can't run at all
 
@@ -123,10 +123,10 @@ For a reply that edits a file and then runs tests, the ordering would have to co
 ## When to use it
 
 ```fit
-reach: Your model asks for several calls at once. In the book's saved runs, a quarter to all of the replies with tool calls asked for more than one, depending on the model and the task (chapter 9).
-reach: Tools wait on something slow, such as a network service; then the time saved is all but the slowest call's. On the book's local tools, the time went elsewhere (chapter 9).
-leave: Expecting it to speed up a coding agent. Replaying 87 recorded triage calls, the 60 read-only ones took a seventh of a second in all, so running them side by side saved milliseconds per turn (chapter 9).
-leave: Calls that change files or run tests. An edit and a test run in the same reply must run in order, alone, or the test can read the file from before the edit (chapters 1 and 9).
+reach: Your model asks for several calls at once. In the saved runs, a quarter to all of the replies with tool calls asked for more than one, depending on the model and the task.
+reach: Tools wait on something slow, such as a network service; then the time saved is all but the slowest call's. On the local tools in these guides, the time went elsewhere.
+leave: Expecting it to speed up a coding agent. Replaying 87 recorded triage calls, the 60 read-only ones took a seventh of a second in all, so running them side by side saved milliseconds per turn.
+leave: Calls that change files or run tests. An edit and a test run in the same reply must run in order, alone, or the test can read the file from before the edit.
 ```
 
 ## Try it

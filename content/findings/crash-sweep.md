@@ -29,7 +29,7 @@ Or it can do something twice.
 Suppose the tracker created an issue and the process died before writing down the reply.
 The new process finds a tool call with no result, makes the call, and the crash now has two issues.
 
-Chapter 15 of the book makes the run survive crashes, and then checks that work by crashing it in every place it can be crashed.
+The fix is to make the run survive crashes, and then check that work by crashing it in every place it can be crashed.
 
 ## The window no checkpoint can close
 
@@ -42,7 +42,7 @@ On its own, a single process can offer one of two promises.
 [At least once](/glossary/#at-least-once) means it keeps sending until it hears back, so an action can happen twice.
 The behavior people call exactly once is really the second promise with a cooperative receiver: the sender may resend, and the receiver spots a request it has already handled.
 
-Chapter 15 gives the run two tools for this:
+Two mechanisms handle this:
 
 - **An [idempotency key](/glossary/#idempotency-key)** goes out with every request that changes something. A receiver that keeps track of keys treats a second request with a known key as a repeat: it hands back its first answer and changes nothing.
 - **An [attempt marker](/glossary/#attempt-marker)** is written to the checkpoint just before such a request goes out. A restarted run that finds a marker with no result can't tell whether the call took effect, so it settles the call on a resolution ladder: run it again if a repeat is harmless (the tool only reads, is idempotent, or sent a key the other side still holds), otherwise ask the other side whether it happened, and only when neither works, ask a person.
@@ -79,7 +79,7 @@ It files two issues, comments on the first, and runs one search; only the search
 
 ## Five designs, compared
 
-The first sweep runs five versions of a durable loop, from the simplest to the one the chapter settles on:
+The first sweep runs five versions of a durable loop, from the simplest to the one this article settles on:
 
 ```text include=ch15/durable/testdata/sweep.txt lines=14..19 title="ch15/durable/testdata/sweep.txt: all scenarios"
 ```
@@ -114,7 +114,7 @@ Both came through with no duplicate and no lost effect, and with keys on, nobody
 
 ## What it can't show
 
-The chapter lists what the sweep leaves untested:
+The sweep leaves some things untested:
 
 - **A panic isn't a power cut.** The test crashes by panicking, and the operating system's file cache survives a panic. The sweep also turns off file syncs so that it finishes in seconds. It checks the order of the saves, and leaves open whether they reach the disk.
 - **The tracker is assumed durable.** It never crashes in the test.

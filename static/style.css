@@ -279,7 +279,6 @@ cite { font-style: italic; }
 }
 .site-nav a:hover { color: var(--ivory); }
 .site-nav a[aria-current="page"] { color: var(--ivory); border-bottom-color: var(--amber); }
-.site-nav a.nav-book { color: var(--amber); }
 @media (min-width: 80rem) {
   .header-row { flex-wrap: nowrap; }
   .site-nav { order: 2; flex: 0 1 auto; margin: 0 0 0 auto; padding: 0; border-top: 0; overflow: visible; }
@@ -1068,12 +1067,12 @@ cite { font-style: italic; }
 
 /* The end of a guide */
 .guide-foot { max-width: var(--measure); margin-top: 3rem; }
+/* The one mention of the book on a guide: a quiet line under the text. */
 .book-line {
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--amber-dim);
-  border-radius: 4px;
-  background: var(--accent-wash);
-  font-size: 0.97rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+  color: var(--soft);
 }
 .book-line p { margin: 0; }
 .pager {

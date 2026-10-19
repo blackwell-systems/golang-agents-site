@@ -24,11 +24,11 @@ A tool that always failed with “the file is locked” cost three of four model
 
 When a tool call fails, the harness returns the error text to the model in a tool message, and whatever the model does next is a reaction to that text.
 That makes the wording of every tool error part of how the agent behaves.
-Chapter 4 of the book put a number on how much.
+The measurements below put a number on how much.
 
 ## What was tested
 
-The task is the bug fix from Part 1: a small Go package, `duration`, whose tests fail because its unit table maps `'m'` to `time.Second`.
+The task is a bug fix: a small Go package, `duration`, whose tests fail because its unit table maps `'m'` to `time.Second`.
 A single line needs to change.
 
 For these recorded runs, `edit_file` was swapped for a version that returns the same error on every call: `the file is locked`.
@@ -48,7 +48,7 @@ With "the file is locked" (medians of three runs):
 | `z-ai/glm-5.3-flash` | 18 | 10 | 0 of 3 | $0.0048 |
 | `deepseek/deepseek-v4.1-flash` | 20 | 14 | 3 of 3 | $0.0061 |
 
-`anthropic/claude-haiku-5.5`, the default model, made two edit attempts and then gave its answer: the cause, the one-line fix, and the fact that it couldn't apply the fix.
+`anthropic/claude-haiku-5.5`, the default model in the companion code, made two edit attempts and then gave its answer: the cause, the one-line fix, and the fact that it couldn't apply the fix.
 The other three spent most of their 20 turns retrying in different forms: rephrasing the edit, rereading the file, and rerunning the tests in case something had changed.
 
 They also went looking for a way past the lock:
@@ -73,14 +73,14 @@ It says the situation will last for the whole session, tells the model not to re
 ## What it can't show
 
 Three runs per model is a small sample.
-Still, the gap between a median of 18 turns and a median of 4 is much wider than the run-to-run variation chapter 5 describes.
+Still, the gap between a median of 18 turns and a median of 4 is much wider than the run-to-run variation recorded elsewhere in these guides.
 The experiment covers one task, one tool, and two wordings, and a different kind of failure might call for different advice.
 The default model also gave up after two attempts under the first wording, so the benefit of a better message depends on which model reads it.
 
 The side results matter as much as the headline.
 When a model can't finish the obvious way, it tests the edges of what it has been given: a different file, a different spelling of the same path, a new file that changes behavior when the package loads.
 Nothing in those runs asked a model to get around the lock; the only task was the bug fix.
-That behavior is why the companion code confines its file tools with `os.Root`, and why the chapter 13 grader fails any run that deletes or skips a test.
+That behavior is why the companion code confines its file tools with `os.Root`, and why the grader fails any run that deletes or skips a test.
 
 ## What to do with it
 
@@ -88,7 +88,7 @@ Write tool errors for the model that will read them:
 
 - **Say whether another attempt can succeed.** "Temporary, retry in a moment" and "permanent for this session" call for different next steps, and when you leave it out, the model has to guess.
 - **Name the better move.** "Report the fix", "list the files to find the right path", "send JSON like `{"path": "a.go"}`".
-- **Be specific about what was wrong with the call.** Chapter 4's errors give the field, the value that arrived, and the value expected: `bad arguments: "path": got an array, want a string; send JSON like {"path": "a.go"}`.
+- **Be specific about what was wrong with the call.** The errors in the companion code give the field, the value that arrived, and the value expected: `bad arguments: "path": got an array, want a string; send JSON like {"path": "a.go"}`.
 - **Keep the wording the same from run to run.** `encoding/json/v2` changes its error text between processes on purpose, so the companion code builds its messages from the error's fields with `errors.AsType` and never from `err.Error()`. Fixed wording keeps recorded runs replayable and shows the model the same text every time.
 
 The decoder behind those messages lives in [`ch04/agent/tools.go`](code:ch04/agent/tools.go):
@@ -101,7 +101,7 @@ Good errors save turns, and only the limit guarantees that the loop ends.
 
 ## Try it
 
-The recorded runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them, as `fix-locked` and `fix-locked-clear` among the book's other tables. Chapter 4's code also has a hand-written replay in which the model makes three bad calls and recovers from each error.
+The recorded runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them, as `fix-locked` and `fix-locked-clear` among the other tables. The code in `ch04` also has a hand-written replay in which the model makes three bad calls and recovers from each error.
 From the `code` directory of a clone:
 
 ```console

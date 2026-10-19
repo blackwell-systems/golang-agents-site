@@ -11,15 +11,15 @@ weight: 20
 art: ch12
 ---
 
-Two failures from the book's own runs set up this page ([a dropped connection ended a 41-turn run](/findings/measured-mistakes/#dropped-connection) has the method).
+Two failures from recorded runs set up this page ([a dropped connection ended a 41-turn run](/findings/measured-mistakes/#dropped-connection) has the method).
 In the first, a batch run had read 1.7 million tokens when it hit `remote error: tls: bad record MAC` at turn 41.
 The harness resent the request once, right away, the resend failed as well, and the run ended with all of its findings gone.
 In the second, 23 agents were running in parallel, and that same TLS error cut off three of them in the middle of reading a reply.
 The task had nothing to do with either failure, and waiting a few seconds and trying again would probably have saved both.
 Afterwards there was also no record of which turns had cost the most or which calls had been slow.
 
-Chapter 12 of the book fixes both gaps.
-It adds retries, timeouts, logs, traces, and cost reporting, and builds each one as middleware wrapped around a call; the code is in [`ch12/agent`](code:ch12/agent).
+This page closes both gaps with retries, timeouts, logs, traces, and cost reporting.
+Each one is middleware wrapped around a call; the code is in [`ch12/agent`](code:ch12/agent).
 
 ## Middleware, two kinds
 
@@ -28,7 +28,7 @@ A retry sends it again, a timeout limits how long it may take, a span measures i
 Writing all of them into the loop body would make the loop longer with every addition.
 Each one is instead a [middleware](/glossary/#middleware) wrapper that you write once and stack with the others.
 
-The book uses two wrapper types.
+The companion code uses two wrapper types.
 Model wrappers wrap the streaming model interface.
 Tool wrappers receive the entire tool, safety flags included, and a retry needs those flags to tell whether running the tool twice is harmless.
 Model calls can always be sent again; many tool calls can't, and a single shared handler type would lose that distinction.
@@ -55,7 +55,7 @@ The classifier separates them by order: it looks at the caller's context before 
 Each attempt's own deadline is set with `context.WithTimeoutCause` and a cause of its own, `ErrAttemptTimeout`, which the classifier counts as a timeout and which makes the error message say which deadline fired.
 
 **Some 402s clear up on their own.** While a paid request is running, OpenRouter reserves its estimated cost against the account, and once those reservations add up to the available credit, new requests are refused.
-That refusal is a 402 whose body sets `limit_source` to `openrouter_in_flight_budget`, and the book retries it.
+That refusal is a 402 whose body sets `limit_source` to `openrouter_in_flight_budget`, and that one is retryable.
 Any other 402 means the credit is gone, and retrying won't help.
 There is a catch: an account that really has no credit left can receive the same in-flight `limit_source`, and in that case no number of retries succeeds.
 
@@ -71,7 +71,7 @@ With [backoff](/glossary/#backoff), each retry waits longer than the one before.
 ```go include=ch12/agent/backoff.go tag=backoff
 ```
 
-Chapter 12 measured it in a simulation that runs as an ordinary test:
+Full jitter was measured against plain backoff in a simulation that runs as an ordinary test:
 
 ```result
 figure: 2.3 s
@@ -100,7 +100,7 @@ Marc Brooker's AWS experiment, the source of full jitter, saved more requests th
 Here a rejected request is nearly free for the provider, so the gain from jitter is mostly time.
 
 A server can name its own wait in a `Retry-After` header.
-The book uses that value in place of the backoff, adds a small amount of jitter, and caps it.
+Use that value in place of the backoff, add a small amount of jitter, and cap it.
 If a server asks for ten minutes, the retries stop at once with an error that says what the server asked, which beats ten minutes with no output.
 
 ## Many agents, one provider
@@ -118,7 +118,7 @@ Anyone watching has already seen part of the first attempt, so before the new at
 Usage from the failed attempt is carried over and added to the attempt that succeeds, so budgets match the bill.
 A stream reports usage in its final chunk, so a stream that broke reports none.
 To recover that cost, the client saves each generation's ID, and OpenRouter can report the cost for that ID afterwards.
-The lookup isn't immediate: in the chapter's measurement, OpenRouter returned 404 for between about four and a half and eight and a half minutes before the generation appeared.
+The lookup isn't immediate: in a recorded measurement, OpenRouter returned 404 for between about four and a half and eight and a half minutes before the generation appeared.
 
 ## Tools: timeouts, and retries only when safe
 
@@ -140,8 +140,8 @@ Metadata is always logged.
 Content is logged only when you turn it on; it is truncated and then run through the same redaction hook every tool result already passes through.
 
 **Traces** show a run as a tree of [spans](/glossary/#span).
-The chapter first builds a small recorder on the standard library that prints that tree.
-It then exports the same spans through OpenTelemetry using the generative-AI naming conventions: `invoke_agent` for a run, `chat {model}` with token counts for a model call, and `execute_tool {name}` for a tool call.
+A small recorder built on the standard library prints that tree.
+The same spans can then be exported through OpenTelemetry, using the generative-AI naming conventions: `invoke_agent` for a run, `chat {model}` with token counts for a model call, and `execute_tool {name}` for a tool call.
 Those conventions put all of a call's retries under one span, so each attempt becomes a child span:
 
 ```text
@@ -162,7 +162,7 @@ Thirty of them went to 13 model calls and 5.3 to two test runs; the remaining 28
 ## Test it without waiting for an outage
 
 You can't count on these failures happening when you want to test them.
-The chapter's live runs made 209 model calls and none of them needed a retry.
+Recorded live runs made 209 model calls and none of them needed a retry.
 The companion code therefore has a transport that causes failures deliberately: a 429, a 503, a dropped connection, or a stream reset after a chosen number of bytes.
 Every behavior on this page is tested against it, and many of the tests use the fake clock from `testing/synctest`.
 
@@ -181,9 +181,9 @@ Every behavior on this page is tested against it, and many of the tests use the 
 ## When to use it
 
 ```fit
-reach: Runs are long enough that one dropped connection is expensive. A TLS error ended a run at turn 41 after $0.077 of work, and left three groups of a fan-out unresolved (chapter 12).
-leave: Retrying permanent errors. A 402 means the account is out of credit, as happened partway through the book's own runs; retrying adds requests until someone adds funds (chapters 5 and 12).
-leave: Retrying a tool that isn't safe to repeat. In the crash sweep, every duplicate came from repeating a filing or comment whose result was never saved; retry only tools marked safe (chapters 12 and 15).
+reach: Runs are long enough that one dropped connection is expensive. A TLS error ended a run at turn 41 after $0.077 of work, and left three groups of a fan-out unresolved.
+leave: Retrying permanent errors. A 402 means the account is out of credit, as happened partway through recorded runs; retrying adds requests until someone adds funds.
+leave: Retrying a tool that isn't safe to repeat. In the crash sweep, every duplicate came from repeating a filing or comment whose result was never saved; retry only tools marked safe.
 ```
 
 ## Try it

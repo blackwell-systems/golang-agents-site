@@ -14,11 +14,11 @@ An agent that waits for whole replies gives its user long stretches of nothing.
 The terminal sits blank for a few seconds, prints an entire turn, and goes blank again, and from the outside a slow model, a hung connection, and a crashed program all look the same.
 With streaming, text appears while the model is producing it, and the harness gets a much earlier signal when a connection has died.
 
-Here is how a stream looks on the wire, how chapter 6 of the book consumes one in Go, and the details that catch out a stream reader written too quickly.
+Here is how a stream looks on the wire, how to consume one in Go, and the details that catch out a stream reader written too quickly.
 
 ## What streaming buys, measured
 
-For chapter 6, each of four models answered one question ten times, half streamed and half not.
+In one recorded experiment, each of four models answered one question ten times, half streamed and half not.
 With the default model, `anthropic/claude-haiku-5.5`, streamed replies started showing text at a median of 1.6 seconds; the same reply without streaming appeared all at once after 2.7.
 Total time barely moved: for three of the four models, streamed and unstreamed replies finished within half a second of each other.
 
@@ -49,7 +49,7 @@ Where a complete response has a `message`, each chunk has a `delta` instead: onl
 ## Reading it with an iterator
 
 A `bufio.Scanner` plus a handful of rules is enough to parse the format.
-Chapter 6's `sseData` hands back the payload of each `data:` line through a range-over-func iterator, an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
+The `sseData` helper hands back the payload of each `data:` line through a range-over-func iterator, an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
 
 ```go include=ch06/openrouter/sse.go tag=sse
 ```
@@ -96,7 +96,7 @@ A reply that the token limit truncated ends the run with an error; it never turn
 
 A fixed deadline works for a whole-reply call, but a healthy stream can run longer than any deadline you would choose.
 What a stream needs is a cap on how long it may go without sending anything, an [idle timeout](/glossary/#idle-timeout).
-In chapter 6, a `time.AfterFunc` timer restarts every time bytes come in (comment lines count), and if it ever fires it cancels the context of that stream, recording `ErrStreamIdle` as the reason.
+A `time.AfterFunc` timer restarts every time bytes come in (comment lines count), and if it ever fires it cancels the context of that stream, recording `ErrStreamIdle` as the reason.
 It defaults to 30 seconds, which is deliberately loose.
 Across the twenty timed streams, no gap between pieces after a reply began was longer than 0.64 seconds, but one run spent 10.9 seconds before sending its first piece.
 A shorter timeout would trip on providers that hold a request in a queue before starting, and would discard replies that were on their way.
@@ -108,8 +108,8 @@ Cancellation can hit at any moment without corrupting the conversation: a reply 
 ## The run as an iterator
 
 The model's stream is a detail of the client.
-A program running an agent cares about a different set of happenings: text from the model, a finished tool call, a tool result, the end of a turn, the end of the run.
-Chapter 6 reports those as events, and the agent loop itself becomes `Events`, a function that returns an `iter.Seq` of them.
+A program running an agent cares about a different set of happenings: text from the model, a finished tool call, a tool result, the end of a turn, the end of a run.
+Those happenings are reported as events, and the agent loop itself becomes `Events`, a function that returns an `iter.Seq` of them.
 `Run` and the new `RunStream` both consume `Events`, so there is still exactly one loop.
 
 Making the run an iterator, rather than a goroutine sending events down a channel, keeps ownership simple.

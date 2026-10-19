@@ -11,13 +11,13 @@ weight: 10
 art: ch05
 ---
 
-The loop from the book's first chapters handles the happy path, where every request succeeds and every reply makes sense.
+A basic agent loop handles the happy path, where every request succeeds and every reply makes sense.
 Production runs are different.
 Requests fail for ordinary reasons: a mistyped key, an empty account, an overloaded provider.
 Some replies arrive broken, with two tool calls under one ID or with the text truncated at the token limit.
 A run that is never told to stop will keep paying for calls, and sooner or later someone hits Ctrl-C in the middle of a test run.
 
-Chapter 5 of the book goes through these cases one at a time.
+The rest of this page takes these cases one at a time.
 When it is done, each way a run can end has its own name, its own test, and its own one-line report.
 The code is in [`ch05/agent`](code:ch05/agent).
 
@@ -69,12 +69,12 @@ The HTTP status mostly settles it:
 | 429 | A rate limit | Yes, after a wait |
 | 500, 502, 503 | A failure on the API's or provider's side | Yes |
 
-The chapter's client reports a failed call as an `*APIError`.
+The client reports a failed call as an `*APIError`.
 It holds the numeric status, the message from the API, the `Retry-After` delay if the server sent one, and a `Retryable` method that encodes the right-hand column above.
 Matching "429" inside an error string stops working as soon as someone rewords the message; a method on a type keeps working.
-Chapter 12 later teaches `Retryable` one more case, OpenRouter's temporary in-flight 402, so the decision lives in one method you can extend.
+`Retryable` can cover one more case, OpenRouter's temporary in-flight 402, so the decision lives in one method you can extend.
 `openai-go` and `anthropic-sdk-go` take the same approach with `*openai.Error` and `*anthropic.Error`.
-In the book, chapter 5 only classifies; the retrying, with backoff and jitter, is chapter 12's job.
+This loop only classifies; the retrying, with backoff and jitter, is a separate step.
 
 ## A budget in dollars, checked before each call
 
@@ -85,7 +85,7 @@ A cost budget caps what you actually care about, the money:
 ```
 
 The check runs at the top of each turn, since nobody knows what a call costs until it returns.
-That choice has two effects, and the chapter wants both.
+That choice has two effects, and both are wanted here.
 First, the overshoot is bounded: a run can exceed its budget by one call at most.
 Second, if the call that crosses the line is the final answer, the run succeeds anyway, because you have already paid for that answer and discarding it would waste the money.
 
@@ -96,7 +96,7 @@ You might ask why the harness tracks spending when the provider already shows a 
 The balance covers everything on the account.
 A per-run total lets you stop one run and leave the rest of the account alone.
 The total depends on the usage numbers being right, though.
-In the book's live evidence runs with a very small `MaxTokens`, `openai/gpt-5.6-luna` reported no tokens and no cost for the replies that hit that limit.
+In recorded live runs with a very small `MaxTokens`, `openai/gpt-5.6-luna` reported no tokens and no cost for the replies that hit that limit.
 Check the account's spending separately to audit the budget.
 
 ## Check a reply before it joins the conversation
@@ -111,7 +111,7 @@ The order matters.
 If the loop appended the reply first and refused it afterwards, the conversation would hold a tool call that never got a result, and the API would reject every later request in that run.
 
 In live use these failures almost never show up.
-In the book's recorded runs without a token limit, 686 replies contained 617 tool calls, and none of them hit any of these problems.
+In recorded runs without a token limit, 686 replies contained 617 tool calls, and none of them hit any of these problems.
 That rarity is the reason to test them.
 A long-running agent will eventually get such a reply, and handling code that never runs is where the bugs hide.
 A duplicate ID is also hard to trace: the tools run normally, and only the following request fails, with a 400 that looks like your client's fault.
@@ -132,7 +132,7 @@ That situation is called an unknown outcome, and [durable runs](/production/dura
 
 ## Picking the limits
 
-Both limits need numbers, and the book's runs give a way to choose them.
+Both limits need numbers, and recorded runs give a way to choose them.
 
 ```result
 figure: 18 → 4
@@ -148,8 +148,8 @@ more: The finding
 With an error that said the file was locked, three of the four models kept going for a median of 18 to 20 turns, and one stopped only because the limit ended its runs. Reworded to say the change couldn't be made and to report the fix instead, the same error let every model finish in four or five turns.
 ```
 
-In chapter 1's 40 healthy runs of this fix, every one finished within six turns.
-A limit of 10 leaves those runs room and cuts the stuck ones off at about half the cost they ran up, so the book recommends `-max-turns 10` for this task even though its program defaults to 20 to leave room for harder ones.
+In 40 healthy runs of this fix, every one finished within six turns.
+A limit of 10 leaves those runs room and cuts the stuck ones off at about half the cost they ran up, so `-max-turns 10` fits this task even though the program defaults to 20 to leave room for harder ones.
 The rule generalizes: run the task a few times, note the turns a good run takes, and set the limit a little above that.
 Set the dollar budget from what a run is worth to you, not from what it usually costs.
 
@@ -168,10 +168,10 @@ Set the dollar budget from what a run is worth to you, not from what it usually 
 For this page, "it" is a loop that names its stop reasons and enforces limits.
 
 ```fit
-reach: Any run you won't watch. With a tool that kept failing, one model stopped only at the turn limit, and three used a median of 18 to 20 turns on a fix that healthy runs finished in six or fewer (chapters 4 and 5).
-reach: Replies you can't check by eye. A repeated tool-call ID passes unnoticed until the next request fails with a 400, so the loop refuses the reply before appending it (chapter 5).
-leave: Turning a tool's failure into a stop. An unknown tool name or bad arguments go back to the model as a tool message, and the run continues (chapter 5).
-leave: The run's own total as your only check on spending. A model reported zero cost for replies cut off by a 16-token limit, so audit the account's spending too (chapter 5).
+reach: Any run you won't watch. With a tool that kept failing, one model stopped only at the turn limit, and three used a median of 18 to 20 turns on a fix that healthy runs finished in six or fewer.
+reach: Replies you can't check by eye. A repeated tool-call ID passes unnoticed until the next request fails with a 400, so the loop refuses the reply before appending it.
+leave: Turning a tool's failure into a stop. An unknown tool name or bad arguments go back to the model as a tool message, and the run continues.
+leave: The run's own total as your only check on spending. A model reported zero cost for replies cut off by a 16-token limit, so audit the account's spending too.
 ```
 
 ## Try it

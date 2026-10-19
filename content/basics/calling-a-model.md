@@ -14,13 +14,13 @@ To a Go program, a model is a web service: you POST some JSON and decode the JSO
 `net/http` and `encoding/json/v2` cover all of it.
 The big providers do publish official Go SDKs, which bring typed options, built-in retries, and streaming helpers.
 The catch for an agent is that an SDK makes some choices on your behalf that an agent should make on purpose, such as the timeout for a call, whether a failure gets retried, and what happens to a reply that ended before it was done.
-Building the client yourself once puts each of those choices in front of you; the book switches to an SDK in chapter 11, where one is useful.
+Building the client yourself once puts each of those choices in front of you; a later project can switch to an SDK where one is useful.
 
-The client on this page is chapter 2's, from the [companion code](code:ch02/openrouter/client.go), and we'll follow one call from request to decoded reply.
+The client shown here comes from the [companion code](code:ch02/openrouter/client.go), and we'll follow one call from request to decoded reply.
 
 ## One endpoint
 
-Every request the book sends goes here:
+Every request the client sends goes here:
 
 ```text
 POST https://openrouter.ai/api/v1/chat/completions
@@ -78,7 +78,7 @@ A caller can then test the error two ways: `errors.Is(err, context.DeadlineExcee
 So the client wraps in whatever is missing using `%w: %w`, which wraps two errors in one, and its tests verify the result over both protocol versions.
 
 The two-minute figure is measured.
-Across the book's recorded runs, the longest single call lasted 76 seconds, `z-ai/glm-5.3-flash` producing 2,880 reasoning tokens, and in the bug-fix runs 90% of calls returned in under three seconds.
+Across the recorded runs in the companion code, the longest single call lasted 76 seconds, `z-ai/glm-5.3-flash` producing 2,880 reasoning tokens, and in the bug-fix runs 90% of calls returned in under three seconds.
 Two minutes covers the slow reasoning case and still catches a call that is stuck.
 The two official Go SDKs pick very different defaults: `openai-go` has no timeout unless you set one, and `anthropic-sdk-go` allows a non-streaming call ten minutes.
 
@@ -112,7 +112,7 @@ Each call gets exactly one attempt.
 Failures are routine with model APIs: 429 rate limits, 502 and 503 from overloaded providers, connections that drop halfway through a reply.
 The official Go SDKs handle this by retrying twice by default.
 That's handy, but the caller can't see it happen: one call just looks slow, and any budget that counts calls misses the extra attempts.
-The book puts retries in the harness instead (chapter 12), so every attempt is visible in the logs, counts against the budget, and stops when the run is cancelled.
+Put retries in the agent harness instead, so every attempt is visible in the logs, counts against the budget, and stops when the run is cancelled.
 
 ## Run it
 

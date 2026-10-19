@@ -24,7 +24,7 @@ One sentence appended to one tool’s description decided the model’s first mo
 
 When an agent connects to an [MCP](/glossary/#mcp) server, every request the agent sends carries the server's tool descriptions, exactly as the server wrote them.
 So part of your prompt is text you didn't write and may never have read.
-Chapter 10 of the book measured how much one sentence in one of them can do, before the agent has called anything.
+The measurement below counts how much one sentence in one of them can do, before the agent has called anything.
 
 ## What was tested
 
@@ -95,7 +95,7 @@ What it does is make the reviewer read exactly what the model will read, which m
 
 The attack sentence is plain to see.
 Anyone who reads the tool's description before connecting the server will spot it.
-The defense chapter 10 builds on that is a pin: a person reads a server's tools once, and the client records a hash of each tool's definition.
+The defense here is a pin: a person reads a server's tools once, and the client records a hash of each tool's definition.
 
 ```go include=ch10/mcptools/trust.go tag=digest
 ```
@@ -118,8 +118,8 @@ And a description can give instructions about tools that belong to a different s
 
 ## Try the pins
 
-The recorded replies behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints this table again from them along with the book's other measured results.
-The pins are in chapter 10's code.
+The recorded replies behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints this table again from them along with the other measured results recorded for these guides.
+The pins are in the companion code.
 From the `code` directory of a clone, with no key set:
 
 ```console

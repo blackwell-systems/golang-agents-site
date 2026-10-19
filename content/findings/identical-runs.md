@@ -27,11 +27,11 @@ Part of that is sampling: each token is drawn from a distribution.
 Part remains even at temperature 0, because providers batch requests and the order of the arithmetic shifts slightly with load.
 So any eval score is one draw from what the agent might have done, and before trusting it you need to know how far it drifts when nothing has changed.
 
-Chapter 13 of the book measured exactly that.
+The measurement below does exactly that.
 
 ## What was tested
 
-The agent is the book's crash-triage agent: given crash reports from a small Go web service, it groups them, finds each cause, writes a reproducer test, fixes the code, and files an issue.
+The agent is the crash-triage agent from the companion code: given crash reports from a small Go web service, it groups them, finds each cause, writes a reproducer test, fixes the code, and files an issue.
 Each task in the crash catalog comes with a grader, code that checks the result: the grouping, the root cause, the reproducer failing before the fix and passing after, hidden tests the agent never sees, and more.
 No model judges the result.
 
@@ -48,7 +48,7 @@ The 15 points are chance.
 So a prompt change that gains 15 points, judged on a single run of each task on a set this size, has proved nothing so far.
 
 Single runs swing just as widely.
-Under one context policy, chapter 8's 99-report batch took 62 turns and cost $0.42 on one run, then 30 turns and $0.06 on the next.
+Under one context policy, a 99-report batch took 62 turns and cost $0.42 on one run, then 30 turns and $0.06 on the next.
 
 ## Pair the comparison
 
@@ -62,7 +62,7 @@ A task that both pass contributes zero to the difference, and so does one that b
 The range comes from resampling the tasks with replacement, ten thousand times, and taking the middle 95 percent of the averages, because the tasks, not the runs, are what a small eval set has too few of.
 Below twelve tasks, a resampled range comes out too narrow, so the code reports no range at all, only the counts of tasks better, worse, and tied, and each task's results.
 
-Here is what pairing can separate, from chapter 13's comparisons on 29 tasks:
+Here is what pairing can separate, from comparisons recorded on 29 tasks:
 
 | Comparison | Difference, task by task | Tasks better, worse, tied |
 | --- | --- | --- |

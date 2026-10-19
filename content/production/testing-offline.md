@@ -16,7 +16,7 @@ The same prompt can produce a different reply on every call.
 Every call is billed and takes seconds.
 Providers also retire models, so a test written against one of them stops working when it goes away.
 `go test` should depend on none of that.
-In the book's companion code, all tests run without a network, and each example program falls back to recorded replies when it finds no API key.
+In the companion code, all tests run without a network, and each example program falls back to recorded replies when it finds no API key.
 This page walks through how that works, using [`ch02/replay`](code:ch02/replay) and the tests that use it.
 
 ## Three kinds of model and what each one shows
@@ -33,7 +33,7 @@ The third row belongs to [evals](/production/evals/), where you deliberately run
 ## A scripted model
 
 The loop only knows a model through one method, `Generate(ctx, req)`.
-Chapter 1's `Fake` implements it with a list of canned replies:
+A `Fake` implements it with a list of canned replies:
 
 ```go include=ch01/agent/fake.go tag=fake
 ```
@@ -60,7 +60,7 @@ Hand `http.Client` a round tripper that reads its responses from files, and the 
 Recorded calls belong to scripts, and each script is a numbered series of files such as `fix-01.json` and `fix-02.json`.
 A single client can serve calls from several scripts, which rules out storing the script name on the transport.
 The program puts the name in the request's context instead, under a key of an unexported type so that no other package can use the same key.
-This is exactly the case context values exist for: a value scoped to one request that has to pass from the program, through the book's client and `http.Client`, down to the transport.
+This is exactly the case context values exist for: a value scoped to one request that has to pass from the program, through the client and `http.Client`, down to the transport.
 
 The transport keeps the `RoundTripper` rules.
 It closes the request body, leaves the request unmodified, and returns an error for a request whose context is already cancelled, just as a real network round trip would.
@@ -79,7 +79,7 @@ From then on, with no key set, the program replays that run while its tools exec
 
 Many failures can't be triggered on request.
 There is no way to ask the API for a 503, or to get a model to reuse a tool-call ID, at the moment a test needs one.
-Chapter 5 writes those saved runs by hand.
+The alternative is to write those saved runs by hand.
 Each is a short list of turns, and each turn is either an HTTP status or a reply: some text, some tool calls, an odd finish reason, or two calls sharing an ID.
 An opt-in test turns the lists into recordings.
 It serves each one from an `httptest` server that speaks OpenRouter's format, points the real program at that server, and captures the traffic with the recording transport, so the saved requests match what the client really sends.
@@ -89,7 +89,7 @@ That produces a saved run for every stop reason and for every status code, and a
 
 The same task, run twice on the same model, can follow two different routes, and two models can reach the same fix in different ways.
 The tests for the real agent therefore check results and ignore wording.
-Chapter 4's outcome test replays every saved run and asks three questions.
+An outcome test replays every saved run and asks three questions.
 Does `duration.go` hold the fix?
 Did the tests run after the final edit?
 Did the run end with an answer?
@@ -98,7 +98,7 @@ A live run on some other model that takes yet another route is judged by the sam
 
 That test has a gap worth noticing.
 It doesn't check that the test file is unchanged, and an agent told to make failing tests pass has an easy shortcut: weaken the tests.
-The book's eval grader covers this.
+An eval grader covers this.
 A run that deletes or skips a test fails its task, and separate hidden tests, which the agent never sees, check that the fix actually works.
 
 ## Timeouts without waiting
@@ -111,13 +111,13 @@ The test's transport never responds; it just waits on the request's context.
 Inside the bubble, the two-minute deadline arrives immediately.
 The test then checks the returned error and confirms that the fake clock moved forward by exactly two minutes, and the whole test takes a few milliseconds.
 
-Later chapters use the same approach for streams that stop sending and for retries with backoff.
+The same approach works for streams that stop sending and for retries with backoff.
 Streams get one extra test that is worth borrowing.
 The network can split a response into pieces at any byte, so the test feeds one recorded stream to the reader again and again, split at every possible position, and expects the same result each time.
 
 ## What the tests cover
 
-By the end of chapter 5, the following are all tested with no network calls:
+The following are all tested with no network calls:
 
 - the request the client builds, checked against an `httptest` server
 - every saved reply and every saved status
@@ -129,8 +129,8 @@ By the end of chapter 5, the following are all tested with no network calls:
 
 ## How rare the failures are
 
-Chapter 5 counted how often live runs produce the replies these fixtures fake.
-Across the book's evidence runs that set no token limit, 686 replies carried 617 tool calls, and none of the replies was truncated, blocked by a filter, broken off by its provider, or missing or repeating an ID.
+Recorded evidence runs show how often live runs produce the replies these fixtures fake.
+Across those runs that set no token limit, 686 replies carried 617 tool calls, and none of the replies was truncated, blocked by a filter, broken off by its provider, or missing or repeating an ID.
 That is why the fixtures are written by hand: a test that waits for the real thing never runs, and the handling code it should cover is the code most likely to be wrong when the day comes.
 
 ## Steps for your own agent
@@ -146,9 +146,9 @@ That is why the fixtures are written by hand: a test that waits for the real thi
 ## When to use it
 
 ```fit
-reach: Every change to the harness. The loop's failure handling covers replies that live runs almost never send: none of 686 recorded replies was cut off, filtered, or carried a bad ID (chapter 5).
-reach: More than one model or route. A test that checks outcomes holds for any run that fixes the bug, whichever files it read on the way (chapter 4).
-leave: Measuring how good the agent is. Saved replies show your code handles a reply, not how often a model sends a good one; that takes many live runs, scored (chapters 5 and 13).
+reach: Every change to the harness. The loop's failure handling covers replies that live runs almost never send: none of 686 recorded replies was cut off, filtered, or carried a bad ID.
+reach: More than one model or route. A test that checks outcomes holds for any run that fixes the bug, whichever files it read on the way.
+leave: Measuring how good the agent is. Saved replies show your code handles a reply, not how often a model sends a good one; that takes many live runs, scored.
 ```
 
 ## Try it
@@ -162,4 +162,4 @@ $ go run ./ch05 -replay dup-id
 
 The first command runs every test for the hardened agent without a network or a key; the `run_tests` tool runs the real `go test`, so expect it to take a minute or two on a cold build cache.
 The second replays a hand-written failure: a reply whose two tool calls share an ID.
-Making a recording of your own is the one step that needs a key and spends money: chapter 4's program takes `-record` with a directory and `-replay` with a name for the script, and writes each call as a numbered file under that name.
+Making a recording of your own is the one step that needs a key and spends money: the example program takes `-record` with a directory and `-replay` with a name for the script, and writes each call as a numbered file under that name.

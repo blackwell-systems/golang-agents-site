@@ -15,7 +15,7 @@ Your request is counted in them, the reply is counted in them, the size limits a
 For an agent, one consequence matters more than any other.
 The model remembers nothing between calls, so each request has to resend the conversation from the beginning, and an agent's conversation never shrinks on its own.
 
-Below, that growth is traced through runs the book recorded, followed by what it does to cost and to the context window.
+Below, that growth is traced through recorded runs, followed by what it does to cost and to the context window.
 
 ## Tokens and prices
 
@@ -25,7 +25,7 @@ For English text, figure about four characters to a token.
 The request you send on a call is called the prompt, and the text the model sends back is the completion.
 
 Providers set two prices per million tokens, one for input and a higher one for output, since producing a token is much more work for the model than reading one.
-In October 2026 the book's default model, `anthropic/claude-haiku-5.5`, cost $0.10 per million input tokens and $0.50 per million output tokens.
+In October 2026 the default model in the companion code, `anthropic/claude-haiku-5.5`, cost $0.10 per million input tokens and $0.50 per million output tokens.
 
 Each reply comes with a usage report, and the agent should hold on to it:
 
@@ -35,12 +35,12 @@ Each reply comes with a usage report, and the agent should hold on to it:
 Two fields in that report deserve explanation.
 Cached tokens are input that matches the opening of a request the provider handled shortly before, and the provider bills them at a discount.
 Reasoning tokens are text the model writes to work through the problem before giving its answer; they are billed as output even when you never see them.
-In one of the book's recorded chats, a four-line answer used 700 output tokens, and 642 of those were reasoning.
+In one recorded chat, a four-line answer used 700 output tokens, and 642 of those were reasoning.
 
 ## The same question, four prices
 
 A low price per token doesn't guarantee a low price per answer.
-Chapter 2 asked four inexpensive models the same short question about nil and empty slices, four times on each.
+Four inexpensive models were asked the same short question about nil and empty slices, four times on each.
 The question was 19 words, but the input counts ran from 29 to 53 tokens, mainly because every provider adds its own formatting around a message.
 `z-ai/glm-5.3-flash` produced three times the output tokens of the default model, mostly reasoning, and the amount of reasoning swung between 193 and 807 tokens across runs of the identical question.
 `deepseek/deepseek-v4.1-flash` had the cheapest input on the price list, yet its median answer cost more than the default model's, because it wrote longer replies and its output price was higher.
@@ -61,7 +61,7 @@ Look at answer 1: you buy it as 122 output tokens in turn 1, then buy it again a
 A turn's cost therefore rises as the conversation lengthens, and the total for a conversation of n turns rises about as fast as n squared.
 
 Three turns hide this; twenty don't.
-The book also recorded a 20-turn chat on the default model.
+A 20-turn chat on the default model was recorded as well.
 By the last turn, a question of roughly twelve words went out inside a 13,785-token request.
 Over all twenty turns the requests added up to 124,673 tokens, nine times the size of the finished conversation, and turn 20 cost ten times what turn 1 did.
 
@@ -69,7 +69,7 @@ Over all twenty turns the requests added up to 124,673 tokens, nine times the si
 
 People add to a chat a sentence at a time.
 An agent adds whole tool outputs: each file it opens and each test run it does becomes part of the history, and it may take thirty turns with no person involved.
-Here are the four requests from chapter 4's bug fix, in which a model repairs a failing Go test using four tools:
+Here are the four requests from a recorded bug fix, in which a model repairs a failing Go test using four tools:
 
 | Call | Tokens in | Tokens out |
 | --- | --- | --- |
@@ -89,7 +89,7 @@ Measured on the identical first request, `deepseek/deepseek-v4.1-flash` came to 
 
 On a task this small the overhead hardly shows; the whole run cost $0.0008.
 Crash investigation is different, because the agent reads much more.
-Chapter 8's batch of 99 crash reports cost $1.33 in a run with no context policy; with a policy that marks the cache and clears old tool results once a request passes 60,000 tokens, two runs cost $0.06 and $0.42.
+A batch of 99 crash reports cost $1.33 in a run with no context policy; with a policy that marks the cache and clears old tool results once a request passes 60,000 tokens, two runs cost $0.06 and $0.42.
 
 ## Caching changes the bill, not the size
 
@@ -98,7 +98,7 @@ Agents benefit naturally, since each request is the one before it with a little 
 
 In the 20-turn chat, `openai/gpt-5.6-luna` and `deepseek/deepseek-v4.1-flash` cached without being asked and charged a tenth of the normal rate for most of each request; for `deepseek/deepseek-v4.1-flash`, the final turn ended up a little cheaper than the first.
 The default model supports caching as well, but through OpenRouter you have to request it by putting markers in the request.
-Chapter 8 adds two markers, one at the end of the part every request starts with (the system prompt and the task) and one at the end of the request, and measured the difference on its largest task:
+One approach adds two markers, one at the end of the part every request starts with (the system prompt and the task) and one at the end of the request. On the largest task in the companion code, the difference was:
 
 ```result
 figure: $0.23
@@ -123,7 +123,7 @@ Send more than fits and the provider will usually reject the request with an err
 Quality drops long before that limit.
 A 2023 paper by Liu and others, "Lost in the Middle", found that models reliably found a fact placed near the beginning or end of a long input and often missed the same fact placed in the middle.
 In 2025, Chroma's "Context Rot" report ran 18 models through simple tasks and saw every one of them get less accurate as the input lengthened, well short of its window.
-Length can raise the price per token too: on the default model, once a request passes 100,000 tokens, the whole request is billed at five times the usual rate, and about half the requests in chapter 8's uncached batch run crossed that line.
+Length can raise the price per token too: on the default model, once a request passes 100,000 tokens, the whole request is billed at five times the usual rate, and about half the requests in the uncached batch run crossed that line.
 
 So plan around a budget, not the window.
 A file the agent opened many turns back and doesn't need any more is still billed on each call, and it still takes some of the model's attention away from what matters now.
@@ -132,9 +132,9 @@ A file the agent opened many turns back and doesn't need any more is still bille
 
 - **Count from the first call.** Record the usage that comes back with each reply and total it for the run; the [ch04 example](/run/ch04-first-agent/) does it by wrapping the model.
 - **Bound the spend.** A turn limit catches a loop that won't stop, and a dollar budget checked before every call limits the cost itself.
-- **Keep tool output small.** Whatever a tool returns is resent on every call after it. Chapter 4's `go test` tool reduces 1,767 bytes of JSON events to a 158-byte report.
+- **Keep tool output small.** Whatever a tool returns is resent on every call after it. The `go test` tool in the bug fix reduces 1,767 bytes of JSON events to a 158-byte report.
 - **Keep the start of the request stable.** The cache discount only applies to an identical prefix, so put instructions and tool definitions first and leave them alone during a run.
-- **Decide what the model sees.** Eventually the history needs rules: drop old turns, clear old tool results, or summarize. That is stage 1 of the loop and the topic of chapter 8.
+- **Decide what the model sees.** Eventually the history needs rules: drop old turns, clear old tool results, or summarize. That is stage 1 of the loop.
 
 ## Run it
 

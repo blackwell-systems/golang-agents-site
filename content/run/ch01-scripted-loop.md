@@ -61,7 +61,7 @@ Each test in `ch01/agent` pins down a single rule of the loop.
 An answer ends the run, and so does reaching the turn limit.
 Each tool call is answered by exactly one tool message, even when one reply holds several calls.
 A tool that fails sends its error back flagged as an error, and a call to a tool that doesn't exist is told which tools do.
-The whole suite finishes in milliseconds without touching the network, and that is the reason the book writes the loop before it adds a model.
+The whole suite finishes in milliseconds without touching the network, and that is why the loop is written before it is connected to a real model.
 
 ## Things to try
 

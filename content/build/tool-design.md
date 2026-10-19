@@ -16,14 +16,14 @@ From those alone it decides whether to call the tool, what to pass, and what the
 It has no source to open and nobody to ask, and it will sometimes pick a tool for a job you never had in mind.
 Treat that model as the only user of a small API, and design for it the way you would for any API user who works from the docs.
 
-Chapter 7 of the book builds fourteen tools for its crash-triage agent.
+The companion code builds fourteen tools for a crash-triage agent.
 Below are the rules it follows, with code from [`ch07`](code:ch07) and the results its recorded runs produced.
 
 ## What the model reads when it chooses
 
 Your tool definitions don't reach the model through a side channel.
 The provider renders the messages and the definitions together into a single stream of text, in the format that model was trained on, called its [chat template](/glossary/#chat-template).
-In Qwen3's template, which chapter 3 of the book renders in Go, each definition becomes a line of JSON inside the system message, and after the list comes a short passage in English explaining that a call is a JSON object written between `<tool_call>` tags.
+In Qwen3's template, which the companion code renders in Go, each definition becomes a line of JSON inside the system message, and after the list comes a short passage in English explaining that a call is a JSON object written between `<tool_call>` tags.
 
 So a tool call is text the model writes, and the provider parses that text back into the `tool_calls` field you receive.
 Picking a tool is the same act as writing any other reply: given the request, the system prompt, and every name and description in the list, the model samples a likely continuation, and sometimes that continuation is a call.
@@ -68,7 +68,7 @@ A long result is therefore paid for again and again.
 ## Schemas from Go types
 
 A schema written by hand and a struct written by hand will disagree sooner or later.
-Chapter 7 avoids that by deriving the schema from the struct.
+Deriving the schema from the struct avoids that.
 Each tool declares its arguments as a Go struct, and a `desc` tag carries the text the model will read for each field:
 
 ```go include=ch07/triage/codetools.go tag=read-args
@@ -86,7 +86,7 @@ If the struct uses something JSON Schema can't describe here, a map or an interf
 At run time, each call's arguments are validated against the schema first, and only then decoded into the struct that `run` receives; tool code works with typed values and never parses JSON.
 
 Properties come out in the order the fields are declared, and the object gets `additionalProperties: false`.
-A tool that takes no arguments still gets empty `properties` and `required`, because in chapter 7's runs OpenAI's API refused the no-argument schema without them.
+A tool that takes no arguments still gets empty `properties` and `required`, because in recorded runs OpenAI's API refused the no-argument schema without them.
 
 ## Check every call strictly
 
@@ -96,7 +96,7 @@ It confirms that required fields are present, that enumerated strings hold a lis
 Each error message points to the offending field with a path like `"groups[0].status"`, then shows the argument shape the tool wants.
 
 The parse-error message exists because of one live run.
-Three calls in a row, the default model produced `{"package": "./...", "run": , "race": true}`.
+Three calls in a row, the default model in the companion code produced `{"package": "./...", "run": , "race": true}`.
 It had intended `null` for an optional field, and the streamed reply lost the `null`.
 The decoder at that point answered with "the arguments must be a JSON object".
 That was accurate and told the model nothing it could fix, so it sent the identical call again.
@@ -106,7 +106,7 @@ The error now reports where the JSON broke, and the schema lets optional fields 
 ## Errors the model can act on
 
 Whatever your error message says, the model reads it and decides its next call from it.
-In chapter 4's measurements, three runs per model on its bug-fix task, a tool that failed with "the file is locked" sent three of four models into retries lasting a median of 18 to 20 turns.
+In measurements on a bug-fix task, three runs per model, a tool that failed with "the file is locked" sent three of four models into retries lasting a median of 18 to 20 turns.
 Rewording the error to say the change could not be made, and what to do instead, made every model try the edit once and then report the fix, finishing in four or five turns.
 [An error that said "locked"](/findings/error-wording/) has the details.
 Good tool errors cover three things: the cause, whether a retry has any chance, and the call to make instead.
@@ -114,15 +114,15 @@ Good tool errors cover three things: the cause, whether a retry has any chance, 
 ## Flags that say what a tool does
 
 Some tools only read, some compute a result without leaving anything behind, and some change state outside the run.
-Chapter 7 captures this with two fields on `Tool`: [read-only](/glossary/#read-only-tool), and [idempotent](/glossary/#idempotent), which means a second identical call does no extra harm.
+This is captured with two fields on `Tool`: [read-only](/glossary/#read-only-tool), and [idempotent](/glossary/#idempotent), which means a second identical call does no extra harm.
 Both default to false, and a tool with neither flag set is assumed to have side effects; a new tool starts out treated as risky, and someone has to mark it safe.
-Later chapters act on the flags.
+The rest of the system acts on the flags.
 Only read-only calls run in parallel, only idempotent tools are retried, and approval gates sit in front of anything with side effects.
 
 ## Does the model pick the right tool?
 
 A description that sends the model to the wrong tool passes every test and every build.
-Chapter 7 adds a smoke test for it.
+A smoke test for tool choice catches it.
 It has fifteen short requests, each tagged with the tool that ought to handle it, and sends every request three times to each of four models, using the agent's real system prompt and tool set; the recorded runs are from October 2026.
 It then repeats the whole run with thirty extra tools that look plausible but aren't part of the agent.
 
@@ -131,7 +131,7 @@ Adding the extra tools changed scores by one or two points, which three runs can
 One answer moved for real.
 Asked to comment on issue 101, `z-ai/glm-5.3-flash` and `deepseek/deepseek-v4.1-flash` usually began with `issue_search` to find the issue; when the extras were present, both picked `issue_lookup` (whose description was just "Look up an issue.") on every one of their six tries.
 The models wanted a tool that fetches one issue by number, and the agent didn't have one.
-Chapter 8 adds `issue_read`.
+The fix is a new tool, `issue_read`.
 
 Not every lost point was a wrong choice.
 Some came from the system prompt overriding the request: given a request to file an issue, the models looked in the tracker before filing, which is what the prompt instructs, so the test gives those first steps half a point.
@@ -143,10 +143,10 @@ A test this small finds big problems, like a vague description or a pair of over
 These are the measured reasons to spend time on tool design, rather than a list of when to skip it.
 
 ```fit
-reach: Error messages. Told a file was "locked", three of four models used a median of 18 to 20 turns; told it was read-only, every model finished in four or five (chapter 4).
-reach: A cheap tool-choice test. With thirty decoy tools added, two models chose a look-alike name in all six tries, which exposed a missing tool (chapter 7).
-leave: Piling on tools without a test. The thirty extras moved scores by a point or two, within the noise, but the one systematic change pointed at a gap you only see by testing (chapter 7).
-leave: Tool descriptions that assume trust. A description is prompt text; one sentence in another server's tool decided 79 of 80 first moves (chapter 10).
+reach: Error messages. Told a file was "locked", three of four models used a median of 18 to 20 turns; told it was read-only, every model finished in four or five.
+reach: A cheap tool-choice test. With thirty decoy tools added, two models chose a look-alike name in all six tries, which exposed a missing tool.
+leave: Piling on tools without a test. The thirty extras moved scores by a point or two, within the noise, but the one systematic change pointed at a gap you only see by testing.
+leave: Tool descriptions that assume trust. A description is prompt text; one sentence in another server's tool decided 79 of 80 first moves.
 ```
 
 ## Try it
@@ -160,5 +160,5 @@ $ go run ./ch03 template
 ```
 
 The first two replay the recorded smoke-test runs, print each model's score out of 45, and list every answer that lost points; with `-distractors`, the `issue_lookup` picks show up in the list.
-The third prints the start of chapter 1's bug fix, one tool included, as Qwen3's chat template lays it out for the model.
+The third prints the start of the companion code's first bug fix, one tool included, as Qwen3's chat template lays it out for the model.
 The tools live in [`ch07/triage`](code:ch07/triage), and the schema generator in [`ch07/agent/schema.go`](code:ch07/agent/schema.go).

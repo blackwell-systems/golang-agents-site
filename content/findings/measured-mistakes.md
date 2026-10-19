@@ -10,10 +10,10 @@ weight: 5
 ---
 
 Lists of agent pitfalls are easy to write and hard to check.
-This one is built differently: each entry below is something that went wrong in a run the book recorded, with the number that shows how often, and the method behind that number.
+This one is built differently: each entry below is something that went wrong in a recorded run, with the number that shows how often, and the method behind that number.
 Most runs used inexpensive models in October 2026, and most cells rest on a handful of runs, so read each count as what happened on that task, those models, and that day, and treat it as evidence about your own agent only after you run the same check on it.
 
-The entries follow the order of the book's chapters, which is roughly the order you meet them while building an agent.
+The entries follow roughly the order you meet them while building an agent.
 
 ## A workflow had no step for a reply it couldn't read {#workflow-tab}
 
@@ -72,7 +72,7 @@ Asked to comment on issue 101, both models picked an extra tool, `issue_lookup`,
 
 The extras barely moved the overall scores, by a point or two.
 The one systematic change pointed at a gap: the triage tools had no way to read a single issue by its number, and a model that wanted to read the issue first reached for the tool whose name came closest.
-Chapter 8 added `issue_read`.
+The fix was to add `issue_read`.
 
 **What to change:** run a cheap tool-choice test with decoys before trusting a tool set; a decoy that wins every time is describing a tool you forgot.
 
@@ -166,7 +166,7 @@ source: Chapter 13
 The first grading failed every run, because the grader accepted only a bare commit hash or the exact subject line. Every run had answered with a short hash and the subject.
 ```
 
-The third model here, `openai/gpt-6-luna`, is a different model from the `openai/gpt-5.6-luna` in the other entries: it belonged to the prototype agent the author ran over the catalog before the book's own agent existed.
+The third model here, `openai/gpt-6-luna`, is a different model from the `openai/gpt-5.6-luna` in the other entries: it belonged to a prototype agent run over the catalog before the reference agent existed.
 
 The answers were right and the grader was wrong.
 It was fixed, given a test of its own, and the runs were graded again.
@@ -187,7 +187,7 @@ source: Chapter 13
 In all nine, the agent's reproducer test failed on the original code and passed once its fix went in, and every run fixed the crash site instead of the cause. A gate that checks the test against the fix would have passed all nine. The hidden tests failed them.
 ```
 
-The same blind spot showed on the book's own agent.
+The same blind spot showed on the reference agent.
 On the hard tier, 40 runs of `anthropic/claude-haiku-5.5` with a reviewer, six got a root cause wrong; five of those filed a reproducer, and the gate let every one through.
 A reproducer that exercises the crash site shows only that the crash site changed; whether the cause was found is a separate question.
 
