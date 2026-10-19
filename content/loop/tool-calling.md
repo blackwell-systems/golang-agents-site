@@ -41,6 +41,25 @@ The definitions go out with every request, and they are not free.
 In this run the first request was 583 tokens, although the task is one sentence: the four definitions came to about 270 tokens, and the provider added about 290 more of its own instructions for using tools, text you never see but pay for.
 How much a provider adds varies; across chapter 1's 40 runs (ten on each of four models, October 2026), the same first request came to 126 tokens on `gpt-5.6-luna`, whose provider encodes tool definitions in a compact format of its own, and at 441 on `deepseek-v4.1-flash`.
 
+## What the model actually reads
+
+The JSON above is what your program sends, not what the model sees.
+A model reads one stream of text, so before generating, the provider turns the messages and the tool definitions into a single text using the model's [chat template](/glossary/#chat-template), a layout each model family was trained on.
+The provider's own instructions for using tools, the roughly 290 tokens counted above, are part of that text.
+Chapter 3's `chatml` package renders the start of the book's bug fix the way Qwen3's open models lay it out, with one tool:
+
+```text include=ch03/testdata/out/template.txt lines=3..22 title="One tool, a task, and a tool call, as the model reads them"
+```
+
+The definition turns into one JSON line in the system message, and after it come instructions, in English, on how to ask for a call.
+The model's tool call is text it writes between `<tool_call>` tags, and the provider parses that text back into the `tool_calls` array you receive.
+So choosing to call a tool is the same act as writing any other reply: the model continues the text, and a call is the continuation it found most likely, given the descriptions, the task, and everything said so far.
+
+That explains several things a harness has to handle.
+Because the call is generated text, its arguments can be malformed JSON, and its name can be a tool that doesn't exist unless the provider restricts the output to the listed tools.
+Because the definitions sit in the same text as the conversation, the wording of a tool's name and description steers the choice as much as your prompt does, and text that comes back in a tool result is read with the same attention.
+Other model families use other templates, and most hosted providers don't show theirs, but the shape is the same.
+
 ## One reply can ask for several tools
 
 The model answered the first request like this (the part of the response that matters):

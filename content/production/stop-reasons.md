@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "Why did the agent stop? Limits, budgets, and errors a caller can check"
 short: Why the agent stopped
 description: A production agent loop names every way a run can end. API errors become a type that says whether to retry, sentinels form a tree checked with errors.Is, a dollar budget is checked before each call, replies are checked before they are kept, and cancellation still answers every tool call.
@@ -11,7 +10,7 @@ weight: 10
 art: ch05
 ---
 
-A 30-line agent loop is enough for the happy path, where every request succeeds and every reply makes sense.
+The loop from the book's first chapters handles the happy path, where every request succeeds and every reply makes sense.
 Production runs are different.
 Requests fail for ordinary reasons: a mistyped key, an empty account, an overloaded provider.
 Some replies arrive broken, with two tool calls under one ID or with the text truncated at the token limit.
@@ -72,6 +71,7 @@ The HTTP status mostly settles it:
 The chapter's client reports a failed call as an `*APIError`.
 It holds the numeric status, the message from the API, the `Retry-After` delay if the server sent one, and a `Retryable` method that encodes the right-hand column above.
 Matching "429" inside an error string stops working as soon as someone rewords the message; a method on a type keeps working.
+Chapter 12 later teaches `Retryable` one more case, OpenRouter's temporary in-flight 402, so the decision lives in one method you can extend.
 `openai-go` and `anthropic-sdk-go` take the same approach with `*openai.Error` and `*anthropic.Error`.
 In the book, chapter 5 only classifies; the retrying, with backoff and jitter, is chapter 12's job.
 
@@ -129,6 +129,50 @@ Suppose a tool files an issue, and the cancellation lands after the issue exists
 The tool message reports a failure even though the issue was created.
 That situation is called an unknown outcome, and [durable runs](/production/durable-runs/) covers how to resolve it.
 
+## Picking the limits
+
+Both limits need numbers, and the book's runs give a way to choose them.
+
+```result
+figure: 18 → 4
+unit: median turns
+task: the `duration` bug fix, with an `edit_file` tool that failed on every call; two wordings of its error
+models: `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, `deepseek/deepseek-v4.1-flash`
+runs: three per model and wording, with a 20-turn limit
+date: October 2026
+source: Chapter 4, and chapter 5's advice on limits
+link: /findings/measured-mistakes/#locked
+more: The finding
+
+With an error that said the file was locked, three of the four models kept going for a median of 18 to 20 turns, and one stopped only because the limit ended its runs. Healthy runs of the same fix took four to six turns.
+```
+
+In chapter 1's 40 healthy runs of this fix, every one finished within six turns.
+A limit of 10 leaves those runs room and cuts the stuck ones off at about half the cost they ran up, so the book recommends `-max-turns 10` for this task even though its program defaults to 20 to leave room for harder ones.
+The rule generalizes: run the task a few times, note the turns a good run takes, and set the limit a little above that.
+Set the dollar budget from what a run is worth to you, not from what it usually costs.
+
+## Steps for your own loop
+
+1. Give your client a typed error with the status, the server's delay, and a `Retryable` method, and have every caller ask the type.
+2. Group your sentinels into families with `%w`, so a caller can test for a whole class of stop.
+3. Add a turn limit and a dollar budget to every run, checked before each model call, and count usage from every reply, refused ones included.
+4. Check the finish reason and the tool-call IDs before a reply joins the conversation.
+5. Answer every tool call of a reply, with a "cancelled" result for the ones a cancellation kept from running.
+6. Return the conversation and the spend with every error, so a stopped run can be read and saved.
+7. Write one replayed fixture per stop reason, and a table test that checks each error's family.
+
+## When to use it
+
+For this page, "it" is a loop that names its stop reasons and enforces limits.
+
+```fit
+reach: Any run you won't watch. With a tool that kept failing, one model stopped only at the turn limit, and three used 16 to 20 turns on a fix that healthy runs finished in six or fewer (chapters 4 and 5).
+reach: Replies you can't check by eye. A repeated tool-call ID passes unnoticed until the next request fails with a 400, so the loop refuses the reply before appending it (chapter 5).
+leave: Turning a tool's failure into a stop. An unknown tool name or bad arguments go back to the model as a tool message, and the run continues (chapter 5).
+leave: The run's own total as your only check on spending. A model reported zero cost for replies cut off by a 16-token limit, so audit the account's spending too (chapter 5).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set, replay the failures:
@@ -138,8 +182,9 @@ $ go run ./ch05 -replay dup-id
 $ go run ./ch05 -replay status-429
 $ go run ./ch05 -replay truncated
 $ go run ./ch05 -max-cost 0.0002
+$ go run ./ch05 -replay circles -max-turns 4
 ```
 
 Near the end of each run's output, a `stopped:` line names the stop reason.
-The duplicate-ID replay prints `stopped: a reply the loop can't use` along with `bad tool call: the ID "call_dupid_1" is already in use`; the budget run prints `stopped: the cost budget`.
+The duplicate-ID replay prints `stopped: a reply the loop can't use` along with `bad tool call: the ID "call_dupid_1" is already in use`; the 429 prints `API error 429, worth retrying`; the budget run prints `stopped: the cost budget` and how far past $0.0002 its last call went; and `circles`, a saved run that runs the tests every turn and never edits anything, prints `stopped: the turn limit`.
 To run the tests for every saved failure, use `go test ./ch05/...`.

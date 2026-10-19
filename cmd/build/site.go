@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
@@ -21,6 +22,9 @@ type Site struct {
 	CSS                                     string // the stylesheet's path, with a version
 	Pages                                   []*Page
 	Sections                                []*Section
+	Guides                                  []*Page // every section's guides, in reading order
+	Held                                    []*Page // drafts this build holds back
+	Paths                                   []*Path // the reading paths on the start page
 }
 
 // Section is a section with its own page and the pages in it.
@@ -28,11 +32,14 @@ type Section struct {
 	Dir, Title, Nav, Art string
 	Index                *Page   // the section's own page, content/<dir>/_index.md
 	Pages                []*Page // the rest, by weight
+	Held                 int     // drafts in the section, held back from this build
 }
 
 // newSite groups pages into sections and versions the stylesheet, so a
-// new style.css is never served from a stale cache.
-func newSite(pages []*Page, static string) (*Site, error) {
+// new style.css is never served from a stale cache. Guides runs through
+// the sections in nav order, so the last guide of one section leads to
+// the first of the next.
+func newSite(pages, held []*Page, paths []*Path, static string) (*Site, error) {
 	css, err := os.ReadFile(filepath.Join(static, "style.css"))
 	if err != nil {
 		return nil, fmt.Errorf("stylesheet: %w", err)
@@ -42,7 +49,7 @@ func newSite(pages []*Page, static string) (*Site, error) {
 		URL: siteURL, Name: siteName, Tagline: siteTag, Author: author,
 		Repo: repoURL, Store: storeURL,
 		CSS:   "/style.css?v=" + hex.EncodeToString(sum[:4]),
-		Pages: pages,
+		Pages: pages, Held: held, Paths: paths,
 	}
 	for _, sec := range sections {
 		sv := &Section{Dir: sec.Dir, Title: sec.Title, Nav: cmp.Or(sec.Nav, sec.Title), Art: sec.Art}
@@ -58,9 +65,38 @@ func newSite(pages []*Page, static string) (*Site, error) {
 		if sv.Index == nil {
 			return nil, fmt.Errorf("section %s has no _index.md", sec.Dir)
 		}
+		for _, p := range held {
+			if p.Section == sec.Dir && !p.Index() {
+				sv.Held++
+			}
+		}
 		s.Sections = append(s.Sections, sv)
+		s.Guides = append(s.Guides, sv.Pages...)
 	}
 	return s, nil
+}
+
+// Others are the published pages outside the sections, other than the
+// home page, the 404 page, and the search page: the start page, the
+// glossary, the book, and the like, for the search page's full list.
+func (s *Site) Others() []*Page {
+	var out []*Page
+	for _, p := range s.Pages {
+		if p.Section == "" && p.URL != "/" && p.URL != "/404.html" && p.Layout != "search" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// FirstLive is the first published step of path, or nil.
+func (s *Site) FirstLive(path *Path) *Page {
+	for _, st := range path.Steps {
+		if st.Live {
+			return st.Page
+		}
+	}
+	return nil
 }
 
 // section returns the section p belongs to, or nil.
@@ -78,9 +114,13 @@ type view struct {
 	Site       *Site
 	Page       *Page
 	Section    *Section // the page's section, or nil
-	Prev, Next *Page    // neighbors in the section, for guides
-	Nav        []navItem
-	JSONLD     template.JS
+	Prev, Next *Page    // neighbors in the reading order, for guides
+	// PrevIn and NextIn name the neighbor's section when it isn't
+	// this page's, so a link that leaves the section says so.
+	PrevIn, NextIn string
+	Places         []PathPlace // where the page stands on the reading paths
+	Nav            []navItem
+	JSONLD         template.JS
 }
 
 type navItem struct {
@@ -129,7 +169,7 @@ func loadTemplates(dir string) (map[string]*template.Template, error) {
 		return nil, fmt.Errorf("templates: %w", err)
 	}
 	out := map[string]*template.Template{}
-	for _, layout := range []string{"home", "section", "article", "book", "glossary", "page", "work"} {
+	for _, layout := range []string{"home", "section", "article", "book", "glossary", "page", "work", "search"} {
 		t, err := template.Must(base.Clone()).ParseFiles(filepath.Join(dir, layout+".html"))
 		if err != nil {
 			return nil, fmt.Errorf("templates: %w", err)
@@ -141,7 +181,10 @@ func loadTemplates(dir string) (map[string]*template.Template, error) {
 
 // writePage renders p into its file under out.
 func writePage(out string, tmpl map[string]*template.Template, s *Site, p *Page) error {
-	v := view{Site: s, Page: p, Section: s.section(p)}
+	v := view{Site: s, Page: p, Section: s.section(p), Places: places(s.Paths, p)}
+	if len(s.Paths) > 0 {
+		v.Nav = append(v.Nav, navItem{"Start here", "/start/", p.URL == "/start/"})
+	}
 	for _, sec := range s.Sections {
 		v.Nav = append(v.Nav, navItem{sec.Nav, "/" + sec.Dir + "/", sec.Dir == p.Section})
 	}
@@ -149,16 +192,17 @@ func writePage(out string, tmpl map[string]*template.Template, s *Site, p *Page)
 		navItem{"Glossary", "/glossary/", p.URL == "/glossary/"},
 		navItem{"The book", "/book/", p.URL == "/book/"},
 		navItem{"Work with me", "/work-with-me/", p.URL == "/work-with-me/"})
-	if v.Section != nil && !p.Index() {
-		for i, q := range v.Section.Pages {
-			if q != p {
-				continue
+	if i := slices.Index(s.Guides, p); i >= 0 {
+		if i > 0 {
+			v.Prev = s.Guides[i-1]
+			if v.Prev.Section != p.Section {
+				v.PrevIn = s.section(v.Prev).Title
 			}
-			if i > 0 {
-				v.Prev = v.Section.Pages[i-1]
-			}
-			if i+1 < len(v.Section.Pages) {
-				v.Next = v.Section.Pages[i+1]
+		}
+		if i+1 < len(s.Guides) {
+			v.Next = s.Guides[i+1]
+			if v.Next.Section != p.Section {
+				v.NextIn = s.section(v.Next).Title
 			}
 		}
 	}

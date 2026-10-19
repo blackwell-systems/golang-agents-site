@@ -194,8 +194,9 @@ cite { font-style: italic; }
   background: var(--amber);
 }
 
-/* Header: the brand and the theme toggle, with the section nav beside
-   them on wide screens and in a scrolling strip below them on narrow ones. */
+/* Header: the brand, the search link, and the theme toggle, with the
+   section nav beside them on wide screens (80rem, where all of it fits)
+   and in a scrolling strip below them on narrower ones. */
 .site-header {
   border-bottom: 1px solid var(--line-soft);
   background: var(--night);
@@ -285,7 +286,7 @@ cite { font-style: italic; }
 .site-nav a:hover { color: var(--ivory); }
 .site-nav a[aria-current="page"] { color: var(--ivory); border-bottom-color: var(--amber); }
 .site-nav a.nav-book { color: var(--amber); }
-@media (min-width: 72rem) {
+@media (min-width: 80rem) {
   .header-row { flex-wrap: nowrap; }
   .site-nav { order: 2; flex: 0 1 auto; margin: 0 0 0 auto; padding: 0; border-top: 0; overflow: visible; }
   .site-nav a { padding: 1.1rem 0 1rem; }
@@ -1295,7 +1296,7 @@ cite { font-style: italic; }
   .home-hero-grid { grid-template-columns: minmax(0, 1fr) 440px; }
   .loop-figure { max-width: 440px; }
 }
-@media (max-width: 71.99rem) {
+@media (max-width: 79.99rem) {
   .site-nav { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); }
   .site-nav ul { padding-right: 2.5rem; }
 }
@@ -1428,3 +1429,149 @@ cite { font-style: italic; }
 
 /* The Gopher badge, on the 404 page. */
 .art-badge { width: 12rem; margin-bottom: 1rem; }
+
+/* The header's search link, a round button like the theme toggle. It
+   works without JavaScript; the toggle appears only with it. */
+.search-link {
+  margin-left: auto;
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--stone);
+}
+.search-link:hover, .search-link[aria-current="page"] { color: var(--ivory); border-color: var(--amber-dim); }
+.search-link + .theme-toggle { margin-left: 0.5rem; }
+.site-nav a.nav-start { color: var(--ivory); font-weight: 600; }
+@media (min-width: 80rem) {
+  .search-link { order: 3; margin-left: 0.75rem; }
+  .theme-toggle { order: 4; }
+}
+
+/* The home page: the measured claim and the author under the hook. */
+.hero-measured { color: var(--ivory); max-width: 40rem; margin-top: 1.25rem; }
+.hero-for { color: var(--soft); max-width: 40rem; font-size: 0.97rem; }
+.byline { max-width: 40rem; font-size: 0.9rem; color: var(--soft); margin: 0; }
+.home-start { padding: 1.5rem 0 0; }
+.home-start h2, .home-sections h2 { font-size: clamp(1.4rem, 3.4vw, 1.75rem); }
+.live-count { color: var(--soft); max-width: var(--measure); }
+.paths .held { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--soft); }
+.held-note { color: var(--soft); max-width: var(--measure); margin: -1rem 0 2.5rem; }
+
+/* The start page's reading paths: numbered steps, drafts unlinked. */
+.reading-path { margin: 2.5rem 0; }
+.prose .reading-path h2 { margin-top: 0; }
+.path-count {
+  font-family: var(--label);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--soft);
+}
+.prose .path-steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.prose .path-steps li { counter-increment: step; position: relative; margin: 0; padding-left: 2.6rem; }
+.prose .path-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1.5px solid var(--amber);
+  border-radius: 50%;
+  font-family: var(--label);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--amber);
+}
+.path-steps a { display: block; }
+.path-steps a, .path-steps li.pending {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  text-decoration: none;
+}
+.path-steps li.pending { padding-left: 3.6rem; background: transparent; border-style: dashed; }
+.prose .path-steps li.pending::before { left: 1rem; border-color: var(--line); color: var(--soft); }
+.path-steps a:hover { border-color: var(--amber-dim); }
+.step-title { display: block; font-family: var(--label); font-weight: 600; color: var(--ivory); }
+.step-desc { display: block; font-size: 0.93rem; line-height: 1.5; color: var(--stone); margin-top: 0.2rem; }
+.path-steps li.pending .step-title { display: inline; color: var(--soft); font-weight: 500; }
+.step-tag {
+  margin-left: 0.5rem;
+  font-family: var(--label);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--soft);
+  white-space: nowrap;
+}
+
+/* A page's place on the reading paths, above the pager. */
+.path-nav { margin-top: 1.5rem; font-family: var(--label); font-size: 0.92rem; }
+.path-nav-title {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.5rem;
+}
+.path-nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.path-nav li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  padding: 0.6rem 0.9rem;
+  border-left: 2px solid var(--amber-dim);
+  background: var(--panel-deep);
+}
+.path-name { font-weight: 600; color: var(--ivory); }
+.path-step, .path-end { color: var(--soft); }
+.path-move span { color: var(--soft); font-weight: 500; }
+
+/* The search page. */
+.search-form { max-width: var(--measure); margin-bottom: 1rem; }
+.search-form label { display: block; margin-bottom: 0.4rem; font-family: var(--label); font-weight: 600; color: var(--ivory); }
+.search-row { display: flex; gap: 0.6rem; }
+.search-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 3rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--ivory);
+  font: inherit;
+}
+.search-row input:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+.search-row .button { flex: none; }
+.search-help { font-size: 0.88rem; color: var(--soft); margin: 0.5rem 0 0; }
+.search-status { min-height: 1.5em; color: var(--soft); max-width: var(--measure); }
+.search-list { list-style: none; padding: 0; margin: 0 0 2rem; max-width: var(--measure); display: grid; gap: 1rem; }
+.search-list > li { padding: 0.9rem 1.1rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.result-title { font-family: var(--label); font-weight: 600; font-size: 1.05rem; }
+.result-section {
+  display: block;
+  font-family: var(--label);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-top: 0.15rem;
+}
+.result-desc { font-size: 0.93rem; line-height: 1.5; margin: 0.35rem 0 0; }
+.result-headings { margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; }
+.result-headings li::marker { color: var(--amber); }
+.site-index { max-width: var(--measure); }
+.site-index h2 { font-size: clamp(1.4rem, 3.4vw, 1.75rem); margin-top: 1rem; }
+.site-index h3 { margin: 1.5rem 0 0.5rem; }
+.site-index h3 a { color: var(--ivory); }
+.site-index ul { margin: 0; padding-left: 1.1rem; }
+.site-index li { margin-bottom: 0.5rem; }
+.site-index li span { display: block; font-size: 0.9rem; line-height: 1.45; color: var(--soft); }

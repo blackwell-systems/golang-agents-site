@@ -1,9 +1,8 @@
 ---
-draft: true
 title: Asking a person before a risky tool call
 short: Human approval
-description: Approval as tool middleware the model can't skip, a request that shows the raw evidence, a yes bound to a hash of exactly what the person saw, denials remembered for the run, runs that pause for a decision and resume later, and an audit log that notices edits.
-chapters: 14, 15
+description: How to put a person in front of an agent's risky calls. A gate in tool middleware that the model can't route around, raw evidence shown safely, a yes tied to a hash of exactly what was shown, denials that hold for the whole run, runs that pause and resume instead of blocking, and an audit log that reveals edits.
+chapters: 14, 15, 17
 stage: 3
 date: 2026-10-18
 work: true
@@ -11,97 +10,140 @@ weight: 60
 art: ch14
 ---
 
-Some tool calls should wait for a person: filing an issue people will read, changing authorization code, issuing a refund.
-Getting that right is mostly a matter of details: where the gate lives, what the person sees, what a yes covers, and what happens when nobody answers.
-Chapter 14 of the book builds an approval gate for the crash-triage agent, and chapter 15 makes the pause survive a restart.
+Some calls an agent makes deserve a second pair of eyes: an issue that people will read, an edit to authorization code, a refund.
+The idea is simple and the details decide whether it protects anything.
+Where does the check sit, what does the person look at, how far does one yes reach, and what happens at 3 a.m. when nobody replies?
+Chapter 14 of the book answers those questions for the crash-triage agent, chapter 15 makes a waiting run survive a restart, and chapter 17 moves the decisions into a review queue.
+The code is in [`ch14/safety`](code:ch14/safety) and [`ch14/agent`](code:ch14/agent).
 
-## Where the gate lives
+## Put the gate in the harness
 
-[Approval](/glossary/#approval) is a person's decision, recorded by the harness, that one specific action may go ahead.
-In the companion code it is tool middleware, around the tool, outside the retries and timeouts so the wait for a person is never retried or timed out as a tool call.
+In the companion code, [approval](/glossary/#approval) is a wrapper around a tool, the same kind of middleware chapter 12 uses for retries and timeouts.
+It sits outside those wrappers, so time spent waiting for a person never counts against a tool's time limit and is never retried; only the check on outgoing text sits further out.
 
-It is not a tool the model calls to ask permission.
-That would leave the decision to ask with the model, which can forget, or be told not to by an injected instruction.
-A tool for asking a person a question is useful for questions; it is never how permission is given.
+The alternative, a tool such as `ask_permission` that the model calls before acting, puts the choice to ask in the model's hands.
+A model can skip the call by mistake, and an injected instruction can tell it to skip the call on purpose.
+A tool for asking a person a question is still worth having, for questions.
+Permission has to come from code the model can't route around.
 
-A policy decides which calls need a decision.
-On by default: everything that sends text to people (filing and commenting, through the agent's own tools or an MCP server), and any write to a [protected path](/glossary/#protected-path), such as authorization code or existing tests.
-Each tool says what its call would change, its targets, since only the tool knows which argument is a file.
+## Decide which calls need a person
 
-## What the person sees
+A policy marks the calls that wait.
+The book's default covers two kinds: anything that puts text in front of people (filing an issue or adding a comment, whether through the agent's built-in tools or the MCP server in front of the tracker), and any write to a [protected path](/glossary/#protected-path) such as the authorization package or an existing test.
+Each tool reports what a call would change, its targets, because only the tool knows which of its arguments names a file.
+
+Read-only tools stay ungated.
+A call that has to wait for a decision runs in a stage by itself, so gating reads would give up chapter 9's parallel reads and buy nothing.
+
+## Show the evidence, made safe to read
 
 ```go include=ch14/agent/approve.go tag=types
 ```
 
-The request shows the raw evidence, not only the model's explanation, since that is written by the party the approval is meant to check: for an issue, the first crash report of its group; for a patch, the old and new text exactly as the tool will write them.
-The evidence is an attacker's text too, and a report can argue for its own approval, so a person should judge the change, not the reasons given for it.
+The model's own reason for a call is in the request, but it was written by the party the person is checking.
+So the request also carries raw evidence: the first crash report of the group, for a new issue, and the exact old and new text, for a patch.
+That evidence may be an attacker's text as well, and a report can plead for its own approval, so the person's job is to judge the change and ignore its arguments.
 
-The text is made safe to show.
-A terminal escape sequence in a crash report can rewrite the lines above it, and a right-to-left override can make `auth.go` read as something else.
-Each such character is shown as, say, `<U+202E>` rather than deleted, so the person can see that someone tried.
+Before any of it reaches a screen, characters that could deceive the reader are shown by their code points.
+An escape sequence in a report could redraw earlier lines on a terminal, and a right-to-left override could disguise a file name; each appears as something like `<U+202E>`, so the person sees that it was there.
+Paths get a stricter treatment that also escapes anything outside printable ASCII, so a look-alike letter can't pose as a plain one.
 
-## What a yes covers
+## Tie each yes to what was shown
 
-A decision names a hash of the call and of what the person was shown: the agent's name, the call's ID, the tool, its arguments (with object keys sorted, so the same arguments in another order hash the same), the reason, the evidence, and the current content of every file the call targets.
+A decision counts only if it names the request's hash, a SHA-256 over the agent's name, the call ID, the tool, its arguments with their object keys in sorted order, the reason, the evidence, and the current bytes of every target file.
 
-Each part is there for a reason.
-The call ID: two identical `issue_file` calls in one run must each be approved, or a yes for the first would let the model file the same issue any number of times.
-The files' content: a yes for a patch to a file can't approve the same patch after the file changed underneath it.
-After the decision the gate hashes again, and if anything changed while the person decided, the request goes back to them instead of running.
+Two parts of that list do most of the work.
+Without the call ID, approving one `issue_file` call would also approve an identical second call later in the run, and an approver that stores decisions by hash would let the model file that issue again and again.
+Without the file contents, a yes given for a patch would still apply after someone changed the file underneath it.
+The gate computes the hash again after the decision arrives, and if anything moved in the meantime, the call doesn't run and the person is asked again.
 
-## The defaults lean one way
+## Lean every default toward no
 
-- **No answer in time is a denial**, with the reason "no decision in time".
-- **A denial is remembered for the rest of the run**, by the call's hash and by every target, under a key that ignores case and spelling, so the same change can't come back through another tool, in other words, or as `AUTH/auth.go`. Issue calls target their crash group, so a refused filing can't come back reworded.
-- **A denial reaches the model as an error result**, `ErrDenied`, with the reason, so it can try something else. The run goes on.
-- **A cancelled run is a cancellation, never a denial**: the person didn't say no.
+- A request that gets no answer before its deadline is denied, with "no decision in time" as the reason.
+- A denial lasts for the rest of the run. The gate keeps it by hash and by each target, keyed in a way that ignores letter case and path spelling, so an identical change can't return through another tool, with reworded text, or as `AUTH/auth.go`. The issue tools give each filing a target of its own, its crash group, so a refused issue can't come back under a new title.
+- The model receives a denial as a tool error, `ErrDenied`, carrying the reason, and the run continues so the model can try something else.
+- Cancelling a run is never recorded as a denial, since nobody refused anything.
 
-The chapter's recorded runs show why remembering by target matters.
-Denied an edit to `auth/auth.go`, one model tried `auth/../auth/auth.go`, `auth//auth.go`, and `./auth/auth.go`; the path checks refused the first, and the gate's memory refused the other two without asking anyone.
-No attacker was involved; a model trying to finish its task treats a refusal as an obstacle.
+The second rule earned its place in a recorded run with no attacker in it:
 
-## Pausing a run for a person
+```result
+figure: 3
+unit: other spellings tried
+task: the injection eval's `i3-split-fields` task, with every chapter 14 defense on and a scripted approver that denies changes to protected files
+models: `openai/gpt-5.6-luna`
+runs: one recorded run, with a second showing the same pattern
+date: 16 October 2026
+source: Chapter 14
+link: /findings/measured-mistakes/#denial
+more: The finding
 
-A person may answer in minutes or tomorrow, and a run can't hold a model call open that long.
-So when the approver has no decision yet, the run stops, returning `*ApprovalPending`:
+After its patch to `auth/auth.go` was denied, the model asked for the same file as `auth/../auth/auth.go`, `auth//auth.go`, and `./auth/auth.go`. The path check refused the first; the gate's memory of the denial refused the other two without asking anyone.
+```
+
+## Pause the run instead of blocking
+
+People answer in minutes, hours, or the next morning, and a run can't keep a model call open while it waits.
+So an approver with nothing to report returns `ErrNoDecision`, and the run stops with a typed error:
 
 ```go include=ch14/agent/approve.go tag=pending
 ```
 
-The calls before the waiting one have run; it and the calls after it go into `Result.Pending`, unanswered.
-To resume, the caller runs the agent again on the saved conversation, with the earlier `Result` and an approver that has the decisions.
-Before its first model call, the loop runs the waiting calls through the gate again; no model call is made for them, and the turns and cost already spent count against the resumed run's limits, so a run that pauses ten times can't spend ten budgets.
+The calls that came before the waiting one in the same reply have already run.
+The waiting call and everything after it go into `Result.Pending` with no answers yet, since the later calls may depend on it.
 
-Adding a message after the waiting calls, say "approved, and check the logs too", gets `ErrBadResume` rather than a request the API would refuse: the answers to the waiting calls have to come first.
+Resuming takes two things: the conversation from that `Result`, with `Limits.Before` set to the `Result` itself, and `Limits.Approver` set to something that returns the decisions.
+The loop runs the pending calls through the gate first, before it makes any model call, and the turns and money already spent count toward the resumed run's limits, so pausing can't be used to reset a budget.
+A caller that slips an extra user message in after the waiting calls gets `ErrBadResume`, because the API expects the tool results to come first.
 
-Chapter 15 makes this survive a restart: the run's state goes into a [checkpoint](/glossary/#checkpoint), the gate's denials are rebuilt from the audit log when one is kept, and a crash while the person decides is one of the points its crash sweep tests.
+## Make the pause survive a restart
 
-## An audit log that notices edits
+Chapter 15 saves the run in a [checkpoint](/glossary/#checkpoint), and three details connect it to approval.
+The marker that says "this call went out" is written after the yes, not before the question, so a process that dies while a person is deciding leaves nothing to investigate.
+The gate's denials, which chapter 14 keeps only in memory, are rebuilt from the audit log when the command runs with `-audit`; without it, a refusal doesn't outlive the process.
+And when a crash leaves a call whose outcome nobody knows, the person is asked through the same approver, with a different question: did this take effect?
+The crash sweep includes tools behind the gate, with a crash point while the person decides, and with idempotency keys its 1,063 scenarios made no duplicates and asked nobody about an outcome.
 
-Every outcome at the gate goes into an append-only [audit log](/glossary/#audit-log): an approval, a denial, a call refused because it was denied earlier, a pause, a decision that went stale, and, for a call that went ahead, whether it ran or failed.
-Each line is written to disk before the call goes ahead.
+## Keep a log that shows tampering
 
-A log in a file can be edited by anyone who can write the file, so each line carries an [HMAC](/glossary/#hmac) over the line and the one before it, with a key the agent and its tools can't reach.
-A test changes a denial into an approval, removes a line, and builds a whole new chain with another key, and all three fail verification.
-The chapter states the limit: an HMAC shows nobody without the key changed the log, not that a person rather than a script made a decision.
+Every outcome at the gate goes into an append-only [audit log](/glossary/#audit-log): approvals, denials, calls refused because of an earlier denial, pauses, stale decisions, and whether an approved call then ran or failed.
+Each entry reaches the disk before the call proceeds.
+
+A plain file can be edited by anyone with write access, and a plain hash chain can be recomputed by the same person.
+So each line carries an [HMAC](/glossary/#hmac) over itself and the previous line, keyed with a secret stored where neither the agent, its tools, nor test code can read it.
+The tests flip a denial to an approval, delete a line, and rebuild the whole chain under another key, and verification catches all three.
+Two limits remain: lines cut from the end of the log leave the chain intact, and an HMAC can't prove that a person, rather than a script, made the decision.
+For a record other teams must rely on, the book suggests signing each line with a key only the harness holds and shipping it to a store that accepts additions but no rewrites.
 
 ## What it costs in decisions
 
-Replayed over the book's 30 recorded runs, the default policy would have stopped 104 calls for a person, about three and a half a run: 78 filings and comments, and 26 writes to protected paths.
-A run on one task would have asked up to seven times; a 99-report batch, 22 times.
-That is why the finished agent in chapter 17 puts decisions in a review queue, and why approval can be turned off for input you trust.
+Chapter 14 replayed the book's 30 recorded runs offline under the default policy.
+It would have held 104 calls for a decision, roughly 3.5 per run: 78 were filings and comments, and 26 were protected writes.
+Of the 15 writes into `auth/`, 14 were the agent fixing an already-filed bug outside its task, exactly what a person should catch.
+One task's run would have asked as many as seven times, and the recorded 99-report batch 22 times.
 
-Others use the same shape.
-The OpenAI Agents SDK lets a tool declare that it needs approval, returns from a run with pending interruptions, and serializes the run's state so it can resume later.
-What the companion code adds is binding each yes to a hash of exactly what the person saw, and remembering denials by the file they target.
+That volume is why chapter 17's service puts decisions in a review queue, where a paused run waits without holding up any other group, approvals carry a deadline (a day by default), and a question about an unknown outcome has no deadline at all, since neither guess is safe.
+
+The OpenAI Agents SDK has the same overall shape: a tool can declare that it needs approval, a run returns with pending interruptions, and the run's state can be serialized and resumed later.
+What the book adds is binding each yes to a hash of the person's view, and keeping each denial per target file.
+
+## Steps for your own agent
+
+1. Write the gate as tool middleware, outside retries and timeouts, and never as a tool the model chooses to call.
+2. Have each tool report its targets, and gate outgoing text and protected writes by default.
+3. Show the person the raw evidence with control and direction characters made visible.
+4. Hash the call ID, arguments, evidence, and target contents, and recheck the hash after the decision.
+5. Treat silence as a denial, remember denials by target for the whole run, and send them to the model as errors.
+6. Stop the run with a typed error when no decision exists yet, and resume from the saved conversation with the decisions.
+7. Log every outcome with a keyed chain, with the key out of the agent's reach.
+8. Count how many decisions your policy asks for on recorded runs before you ship it.
 
 ## When to use it
 
 ```fit
-reach: The agent sends text to people or changes something you protect. Replayed over the book's 30 recorded runs, the default policy would have stopped 78 filings and comments and 26 protected writes for a person (chapter 14).
-reach: A model may try another route after a refusal. One model asked for a file it had been denied under three other spellings, and a gate that remembers denials by file refused each (chapter 14).
-leave: Read-only tools. A call that waits for approval runs alone, so gating reads would give up parallel reads for nothing; the book's policy leaves them ungated (chapters 9 and 14).
-leave: Input you trust, in volume. The recorded 99-report batch run would have asked 22 times under the default policy, which is why approval can be switched off and chapter 17 adds a review queue (chapters 14 and 17).
+reach: The agent sends text to people or changes something you protect. Over the book's 30 recorded runs, the default policy would have held 78 filings and comments and 26 protected writes for a person (chapter 14).
+reach: A model may look for another way after a refusal. One model asked for a denied file under three other spellings, and a gate that remembers denials by file turned each one down (chapter 14).
+leave: Read-only tools. A call waiting for a decision runs alone, so gating reads gives up parallel reads and protects nothing (chapters 9 and 14).
+leave: Trusted input in volume, with a person at a terminal. The recorded batch run would have asked 22 times, which is why approval can be switched off for trusted input and chapter 17 adds a review queue (chapters 14 and 17).
 ```
 
 ## Try it
@@ -112,4 +154,5 @@ From the `code` directory of a clone of the [companion repository](https://githu
 $ go test ./ch14/safety/ -run 'Gate|Audit|PauseResume|DenialByTarget' -v
 ```
 
-The tests cover the hash, stale decisions, denials remembered by target, pausing and resuming a run, and tampering with the audit log.
+The tests cover the hash, decisions that went stale, denials remembered by target, pausing and resuming a run, and tampering with the audit log.
+No key is needed, and nothing calls a model.

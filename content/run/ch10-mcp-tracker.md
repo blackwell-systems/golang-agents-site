@@ -1,5 +1,4 @@
 ---
-draft: true
 title: An agent filing issues through an MCP server
 short: "ch10: Filing issues over MCP"
 description: The crash-triage agent reaching its issue tracker only through the Model Context Protocol, with the server started as a separate process. Replay the run offline, serve the tracker to any MCP client, and pin the server's tool definitions so a changed description stops the run.
@@ -41,7 +40,7 @@ On this run the agent marked both already-filed crashes as duplicates of their e
 ```
 
 The prompt had changed since chapter 7, which is where the duplicates came from; the protocol didn't change what the agent could do.
-In three runs each way, the agent worked with the server's tools as readily as with its own hand-written ones, and every run passed every check.
+In the chapter's three runs each way on the default model, the agent worked with the server's tools as readily as with its own hand-written ones, and every run passed every check.
 
 ## Serve the tracker to anything
 

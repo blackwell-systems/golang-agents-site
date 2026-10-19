@@ -1,8 +1,7 @@
 ---
-draft: true
 title: Calling a model's API from Go with net/http
 short: Calling a model from Go
-description: About a hundred lines of standard-library Go make a client for an OpenAI-compatible chat completions API, with a per-call deadline that records its cause, errors checked in every place they can appear, and the finish reason passed back to the caller.
+description: Under two hundred lines of standard-library Go make a client for an OpenAI-compatible chat completions API, with a per-call deadline that records its cause, errors checked in every place they can appear, and the finish reason passed back to the caller.
 chapters: 2
 stage: 2
 date: 2026-10-18
@@ -66,7 +65,7 @@ The API key travels as a bearer token in `Authorization`.
 
 ## A deadline with a reason
 
-The default `http.Client` will wait forever, and a model call can honestly take over a minute, so the client needs some limit.
+The default `http.Client` will wait forever, and a healthy model call can take over a minute, so the client needs some limit.
 `http.Client.Timeout` is the obvious place to put one, but it applies to every request through that client, and clients are usually shared by much of a program.
 It also gives no way to say which limit expired.
 

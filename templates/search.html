@@ -1,0 +1,42 @@
+{{define "main" -}}
+<div class="section-page search-page">
+  <div class="wrap">
+    <header class="guide-head">
+      <p class="eyebrow">Reference</p>
+      <h1>{{.Page.Title}}</h1>
+      <p class="lede">{{.Page.Description}}</p>
+    </header>
+    <form class="search-form" action="/search/" method="get" role="search">
+      <label for="search-q">Search titles, descriptions, and headings</label>
+      <div class="search-row">
+        <input id="search-q" name="q" type="search" autocomplete="off" spellcheck="false" aria-describedby="search-help" aria-controls="search-list">
+        <button class="button primary" type="submit">Search</button>
+      </div>
+      <p id="search-help" class="search-help">Every word must match. From the box, the down arrow moves into the results.</p>
+    </form>
+    <p id="search-status" class="search-status" role="status"></p>
+    <ol id="search-list" class="search-list" hidden></ol>
+    <section class="site-index" id="all-pages" aria-labelledby="all-pages-title">
+      <h2 id="all-pages-title">Every page</h2>
+      <noscript><p>Search runs in your browser and needs JavaScript. Without it, here is every page on the site by section, so your browser’s find in page works too.</p></noscript>
+      {{- range .Site.Sections}}
+      <h3><a href="/{{.Dir}}/">{{.Title}}</a></h3>
+      {{- with .Pages}}
+      <ul>
+        {{- range .}}
+        <li><a href="{{.URL}}">{{.Name}}</a><span>{{.Description}}</span></li>
+        {{- end}}
+      </ul>
+      {{- end}}
+      {{- end}}
+      <h3>Other pages</h3>
+      <ul>
+        {{- range .Site.Others}}
+        <li><a href="{{.URL}}">{{.Name}}</a><span>{{.Description}}</span></li>
+        {{- end}}
+      </ul>
+    </section>
+  </div>
+</div>
+<script src="/search.js" defer></script>
+{{- end}}

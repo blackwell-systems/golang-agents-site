@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "910 crash scenarios, no duplicate issues: a crash sweep of an agent's loop"
 short: 910 crashes, no duplicates
 description: Chapter 15 crashed the agent's run at every point a crash could land, restarted it, and counted duplicate issues. Saving once per turn duplicated work at 8 of its 18 crash points; idempotency keys removed every duplicate, and attempt markers without keys did too, at the price of 669 questions to a person.
@@ -130,7 +129,7 @@ The chapter lists what the sweep leaves untested:
 - **Crash on purpose at every point** to test the order of your saves, including the points you didn't expect trouble from.
 
 Durable workflow engines such as Temporal run into the same wall.
-Temporal requires its activities, the steps that reach outside the program, to be idempotent: an activity can do its work and die before reporting it, and then it runs a second time.
+Temporal asks for its activities, the steps that reach outside the program, to be idempotent: an activity can do its work and die before reporting it, and then it runs a second time.
 
 ## Try it
 

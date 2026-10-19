@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Keeping a long agent run's context in check
 short: Context management
 description: Each turn, an agent resends everything so far, so long runs get expensive and then hard for the model to follow. This page shows five context policies in Go (prompt caching, clearing old tool results, trimming turns, compaction, and notes) and what each did on a 99-report batch.
@@ -20,6 +19,18 @@ Deciding what goes into each request is stage 1 of the loop, and chapter 8 of th
 One task in the crash catalog throws everything at the agent together: 99 reports from 23 different causes, the kind of pile a crash feed produces after a release goes badly.
 The default model ran it with no context policy at all.
 It needed 35 turns and sent 3.1 million input tokens across them, roughly 89,000 per request on average, for a total of $1.33.
+
+```result
+figure: $0.23
+unit: down from $1.33, for the same work
+task: the crash catalog's batch task, 99 crash reports from 23 causes, triaged by one agent with chapter 8's prompt
+models: anthropic/claude-haiku-5.5, the book's default model, through OpenRouter
+runs: one run with no context policy and one with cache markers; the provider's billed cost
+date: October 2026
+source: Chapter 8
+
+Two cache markers per request, and no other change, moved 95 percent of the input to the cache price. Part of the drop comes from the price tier described below, which both runs crossed; at the base price alone, the chapter puts the saving at about four and a half times.
+```
 
 Pricing explains part of that bill.
 For requests above 100,000 tokens, the default model's price jumps to five times its normal rate, and close to half the requests in this run crossed that threshold.
@@ -67,7 +78,7 @@ The cache only works if the beginning of the request stays identical, so anythin
 In an old turn, the tool result is usually the bulk of the tokens, and if the model needs it again it can repeat the call.
 `ClearResults` swaps each large, old result for a short note and keeps all the messages in place.
 An early version started clearing on turn one.
-The agent then kept re-reading what had vanished: one read with identical arguments happened 47 times, and the run went 132 turns against roughly 35 for the other policies.
+The agent then kept re-reading what had vanished: it repeated a read it had already made, with the same arguments, 47 times across 16 files and 9 crash reports, and the run went 132 turns against roughly 35 for the other policies.
 The version that ships waits until the request crosses a size limit, and then advances its boundary several turns at a time, so consecutive requests keep the same prefix and the cache keeps working.
 
 **Trimming.**
@@ -99,7 +110,9 @@ The triage agent's default policy chains these together, starting with the one t
 
 Once a request passes 60,000 tokens, estimated from its byte count, it clears old results; it summarizes only if clearing falls short; and last it places cache markers on whatever remains.
 The estimate assumes four bytes per token.
-On this run it averaged 0.57 of the token count the provider reported, because code and crash reports pack more bytes into each token than English prose does, which puts 60,000 estimated tokens near 100,000 real ones.
+On the recorded run it averaged 0.57 of the token count the provider reported, and never went above 0.70.
+Code and crash reports take fewer bytes per token than English prose, so four bytes per token undercounts them, and the estimate also leaves out the tool definitions, about 4,000 tokens on every request.
+That puts 60,000 estimated tokens near 100,000 real ones.
 If the limit exists to keep requests under the price tier, set it lower, or calibrate it from the token usage the last reply reported.
 
 ## What the runs showed
@@ -112,9 +125,11 @@ If the limit exists to keep requests under the price tier, set it lower, or cali
 | Clear from the start, then cache markers | 132 | $0.68 | 76% | 81 |
 | Clear past 60,000 tokens, then cache markers (two runs) | 62 and 30 | $0.42 and $0.06 | 82% and 90% | 87 and 82 |
 
-Read the last row before the others.
+Every row is one batch run on the default model, except the last, which is two, and the checks are the catalog's 94 for this task.
+Read that last row before the others.
 Nothing changed between its two runs except the model's choices, and one run took 62 turns for $0.42 while the other took 30 turns for $0.06, a sevenfold difference in cost.
-With one run per policy, only gaps much bigger than that mean anything: the sixfold saving from caching, and the 132 turns from clearing too early.
+So a gap between two single-run rows means something only when it is large and has a cause you can point to.
+The book reads two gaps that way: caching, where 95 percent of the input came from the cache against none, and the 132 turns from clearing too early, which line up with the 47 repeated reads.
 The checks-passed column, which ranges from 81 to 87, is within the spread you could get by running any row again.
 
 ## What to take from it

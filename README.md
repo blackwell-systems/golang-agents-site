@@ -37,7 +37,7 @@ go run ./cmd/build && npx wrangler deploy
 | --- | --- |
 | `content/` | The pages, in Markdown with front matter. `content/PLAN.md` is the content plan, not a page |
 | `content/<section>/_index.md` | A section's own page; the other files in the directory are its guides |
-| `templates/` | `base.html` (head, header, footer) and one file per layout: `home`, `section`, `article`, `book`, `glossary`, `page`, `work` (the Work with me page and its contact form) |
+| `templates/` | `base.html` (head, header, footer, and the reading-path links) and one file per layout: `home`, `section`, `article`, `book`, `glossary`, `page`, `work` (the Work with me page and its contact form), `search` |
 | `static/` | Copied as is: `style.css`, `fonts/`, `img/`, `sample/`, the icons, and `og-v3.jpg` |
 | `cmd/build/` | The generator: goldmark for Markdown, chroma for highlighting, `html/template` for layouts |
 | `dist/` | The built site (not committed) |
@@ -79,6 +79,8 @@ Code comes from the companion code, never pasted. An empty fenced block with `in
 
 A link to `code:ch04/agent/gotest.go` becomes a link to that file in the repository, after the build checks that it exists. Glossary terms link as `/glossary/#term`.
 
+A link to `page:/production/approval/` (a `#fragment` may follow) names another page on the site. If that page is published it becomes an ordinary link; if it is still a draft, the link text appears without a link, and the link appears by itself when the page is published. A URL that names no page, published or draft, fails the build. Use it for any link to a guide that may not be out yet; a plain link to a draft fails the link check.
+
 ### Results, fit lists, and counts
 
 A measured number never appears without its method. A `result` block states one result with its task, models, runs, and date, all required, and the build fails without them:
@@ -115,6 +117,29 @@ Counts about the code are computed from the local copy, never typed: `{{code fil
 The copy check reads the prose inside all three blocks.
 
 Code links point at the `v1.0` tag of the code repository (`codeRef` in `cmd/build/main.go`, the one setting for it), with line ranges computed from the local copy, so build from a copy that matches that tag. Move it to a new tag with each edition.
+
+### Reading paths, the pager, and search
+
+`content/start.md` (`/start/`) holds the reading paths, one `path` block each:
+
+````
+```path
+id: newcomer
+title: Learning how agents work
+step: /loop/what-is-an-agent/
+step: /run/ch01-scripted-loop/
+
+Who the path suits, in Markdown. Its first sentence is shown on the home page.
+```
+````
+
+Each `step` is a page's URL. A step whose page is a draft is listed without a link, as being reviewed, and skipped by the links between steps, so a path fills in as pages are published; a URL that names no page fails the build. Every page on a path shows, at its foot, its step number on each path it belongs to and links to the nearest published steps before and after it. The nav's "Start here" item appears when the start page has paths.
+
+The Previous and Next links at the foot of a guide follow the reading order across the whole site: the sections in nav order, and within each the guides by weight, so the last guide of one section leads to the first of the next.
+
+Section pages and the home page count the drafts held back, so a section that is still filling says how many guides are being reviewed.
+
+Search is static. The build writes `search.json` (each page's title, section, description, and h2 and h3 headings with their ids), and `static/search.js` searches it on `/search/` (`content/search.md`, layout `search`), which lists every page by section for readers without JavaScript. The header's search icon links there.
 
 ## Images and fonts
 

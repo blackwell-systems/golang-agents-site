@@ -1,9 +1,8 @@
 ---
-draft: true
 title: Running an AI agent as a long-running service in Go
 short: An agent as a service
-description: Turning an agent into something you leave running. A static binary that resumes its own runs, shutdown that cancels and saves instead of waiting, a container that keeps the key out of the environment, and a service that takes reports over HTTP, queues work in a directory, keeps its spending on disk, and waits for people without blocking anything.
-chapters: 15, 17
+description: What changes when nobody is watching the agent. A static binary that picks up its own unfinished runs, a shutdown that cancels and saves inside the platform's grace period, a container that keeps the key out of every environment, and a service that takes crash reports over HTTP, queues work in a directory, keeps its spending on disk, and parks decisions in a review queue.
+chapters: 12, 15, 17
 stage: all
 date: 2026-10-18
 work: true
@@ -11,99 +10,162 @@ weight: 80
 art: ch17
 ---
 
-An agent that runs while you watch can rely on you: you restart it, approve its risky calls, and notice when it spends too much.
-An agent left running has to do all of that itself.
-Chapters 15 and 17 of the book turn the crash-triage agent into a command you can run unattended and then a service that takes crash reports as they happen.
-This page collects the decisions, with the code in [`ch15`](code:ch15) and [`ch17/service`](code:ch17/service).
+While you watch an agent, you are part of its harness.
+You restart it when it dies, you say yes or no to its risky calls, and you notice when the bill climbs.
+Leave it running and the program has to do those jobs itself.
+Chapter 15 of the book turns the crash-triage agent into a command that can run unattended, and chapter 17 wraps that command in a service that takes crash reports as they happen.
+This page lists the decisions in the order you meet them, with code from [`ch15`](code:ch15) and [`ch17/service`](code:ch17/service).
 
-## One binary that resumes its own work
+## A binary that finds its own work
 
-The triage agent uses no C code, so `CGO_ENABLED=0 go build` gives one static binary.
-Running the same command twice must resume, since that is what a platform does when it restarts a container: without an explicit run ID, the command resumes the task's newest unfinished run, or starts a new one.
+The agent has no C dependencies, so `CGO_ENABLED=0 go build -o triage ./ch15` produces a single static binary.
+Its runs live in one state directory, named with `-state` or the `TRIAGE_STATE` variable, so a service manager sets it once.
 
-A new run's ID is the task, the time, and eight random characters, and is never reused, because [idempotency keys](/glossary/#idempotency-key) are built from it.
-When old runs are pruned, a small tombstone file stays behind so the ID is remembered.
-A new run is saved to disk before it does anything: accepting work means promising to finish it.
+Platforms restart containers by running the same command again, so the same command has to continue rather than begin anew.
+When no `-run` is given, the command looks for the newest unfinished run of its task and resumes it, and only starts a fresh run if there is none.
+Fresh run IDs combine the task, the time, and eight random characters.
+They are never reused, because [idempotency keys](/glossary/#idempotency-key) are derived from them, and when old runs are pruned (after seven days unless `-keep` says otherwise) a small tombstone file keeps the ID taken.
+The command saves a new run to disk before doing anything with it: once a run exists on disk, something will finish it.
 
-Some state lives in the tools, not the loop, and has to survive too: which files the model has read (the patch tool refuses to edit unread files), the agent's notes, the random data marker that the saved conversation's rules name, and which changes a person denied, which are rebuilt from the audit log when one is kept.
+Not all of a run's memory is in the loop's state.
+The tools remember which files the model has read (the patch tool won't edit a file the model never saw) and the agent's notes, in a `tools.json` beside the checkpoint.
+The random boundary chapter 14 puts around untrusted text is kept in a file too, since the saved conversation's rules name it.
+And the approval gate's denials, held in memory during a run, are rebuilt from the audit log on restart when the command runs with `-audit`.
 
-## Shutdown: cancel and save, don't wait
+## Shut down by cancelling
 
-The usual advice is to stop accepting work and wait for what is running to finish.
-For an agent, waiting doesn't work.
-A platform sends SIGTERM, then SIGKILL after a grace period: Kubernetes waits 30 seconds by default, `docker stop` 10.
-In the book's measured runs, model calls took 2.35 seconds at the median, and the longest took 27.5.
-So the command cancels instead:
+The textbook graceful shutdown stops taking new work and waits for current work to finish.
+An agent can't wait.
+Platforms send SIGTERM and follow it with SIGKILL after a grace period: 30 seconds by default on Kubernetes and 10 for `docker stop` with a Linux container.
+Across the 209 model calls of chapter 12's live runs, the median took 2.35 seconds, the 95th percentile 9.25, and the slowest 27.5, longer than `docker stop` allows and close to Kubernetes' limit.
+
+So the command cancels:
 
 ```go include=ch15/durable.go tag=shutdown
 ```
 
-The first signal cancels the run's context with `ErrShutdown` as the cause; the model call in progress stops, unstarted tool calls are answered "cancelled", and the loop saves.
-A cancelled model call is repeated after the restart; every call before it was saved.
-A second signal exits at once, for a person who doesn't want to wait for the save.
+The first signal cancels the run with `ErrShutdown` as its cause.
+The model call in flight is abandoned and will be made again after the restart; tool calls that hadn't started get a "cancelled" answer that is kept out of the saved state; and the loop saves.
+A second signal ends the process at once, for whoever can't wait for the save.
 
-One kind of work gets a few seconds: a call that may change something and is already talking to the tracker is better finished than cut off, since its answer settles it.
-A tool middleware gives such calls five seconds after a shutdown, with `context.WithoutCancel` keeping the call's values and dropping the run's cancellation, and its tests run on `testing/synctest`'s fake clock.
+Calls that are already talking to the outside world get a short reprieve.
+A filing whose answer arrives settles the call, while a filing cut off halfway leaves an outcome nobody knows, so a tool wrapper gives calls with side effects five seconds after a shutdown before cancelling them.
+It does that with `context.WithoutCancel`, which keeps the call's values, its idempotency key among them, and forwards the cancellation on its own schedule.
+Five seconds sits well inside both platforms' limits, and since the wrapper is applied inside chapter 12's timeout wrapper, each tool's own time limit keeps working.
 
-## A container that keeps the key out of reach
+## A container image that keeps the key out of reach
 
-The agent runs `go test` and builds git workspaces, so its image needs the Go toolchain and git; the book's image is 1.34 GB, nearly all toolchain, and runs as a user without root, with the state directory as a volume.
+The agent runs `go test` and builds each workspace as a git repository at the crash's commit, so the image needs the Go toolchain and git.
+The book's image is 1.34 GB, almost all toolchain, runs as a user without root (uid 10001), and mounts the state directory as a volume.
 
-The key goes in a file, mounted read-only and named by `OPENROUTER_API_KEY_FILE`, not in the environment.
-`docker inspect` shows a container's variables to anyone who can run Docker commands, and even after the program removes the variable at startup, the kernel keeps the first process's starting environment, readable in `/proc/1/environ` by any process of the same user, which includes the test code the agent runs.
-The chapter checked: with a made-up key passed as a variable, another process read it back.
+Give it the API key as a read-only mounted file named by `OPENROUTER_API_KEY_FILE`, readable by that user alone; the command refuses a key file that its group or others can read.
+A key passed with `-e` is worse in two ways.
+Anyone allowed to run Docker commands can read it with `docker inspect`.
+And although the command removes the variable from its own environment at startup, the kernel still holds the environment the first process started with, and any process of the same user can read it from `/proc/1/environ`.
+Chapter 15 tried it with a made-up key, and another process in the container read the key back.
+Test code runs as that same user inside the image, which also means the tests are at chapter 14's sandbox rung 2 at best: Docker's default settings don't allow the namespaces bubblewrap needs, so stronger isolation for the tests means a separate sandbox beside the agent's container.
 
 ## From a command to a service
 
-Crashes arrive one at a time, at any hour, from a service that must not slow down while it reports them.
-`triage serve` takes each crash as it happens, routes it to a group, and runs the group's investigation when it can.
+Crashes don't come in batches. They trickle in, day and night, from a program that shouldn't slow down while reporting them.
+`triage serve` takes them as they occur, assigns each to a group by its fingerprint, and runs that group's investigation when there is room.
 
-**Ingest from a file, not from inside the crashing process.** The practice service already writes each crash report as a JSON line.
-A small shipper follows the file and posts each new line, saving its position after each post.
-The crash path stays local, the file is the durable record if the crashing process dies, and the service can move or be down for an hour without a new release of the crashing program.
+**Ship reports from a file.** The practice service already appends each crash report to a file as a JSON line.
+A small shipper, `crashship`, follows that file and posts each complete new line, recording its position after every post.
+Report-writing code runs in the middle of a panic, a poor moment to wait on a network, and a line in a local file outlives a process that is about to die.
+The service can move or go down for an hour without a new release of the program that crashes; the shipper backs off on 429 and 503 and catches up.
+A log shipper such as Vector or Fluent Bit can play the same part.
 
-**Authenticate and limit the door.** The ingest endpoint spends your money: anyone who can post can start runs and put text of their choosing in front of the agent.
-It takes a secret of its own, separate from reviewers' tokens, compared in constant time; limits each source; caps the body with `http.MaxBytesReader`; and redacts credentials from every report before anything is written.
+**Guard the door.** Whoever can post reports can start paid runs and put any text they like in front of the agent.
+The ingest endpoint takes its own secret, separate from the reviewers' tokens, so posting reports never grants the power to approve a patch.
+Secrets are compared with `subtle.ConstantTimeCompare` after hashing, must be at least 32 characters, and are read from files; a per-source limit answers 429 per one-minute window, `http.MaxBytesReader` caps a report at 256 KiB, and credentials are redacted from each report before it is written anywhere.
 
-**Deduplicate.** The shipper resends after a timeout, so a report seen before gets a 200 and changes nothing: [deduplication](/glossary/#deduplication), the receiving side of an idempotency key.
-The service can't trust the crashing program's report IDs, which restart at 1 with every process, so it builds its own key from the report's ID, time, commit, and service: a retry repeats them all, and a restarted process can reuse the ID but not the time.
+**Recognize repeats.** The shipper resends after a timeout, so a report the service has already stored gets a 200 and changes nothing, which is [deduplication](/glossary/#deduplication), the receiver's half of an idempotency key.
+The crashing program numbers its reports from 1 in each process, so its IDs repeat after every restart.
+The service files each report under its own key instead, a hash of the ID, the time, the commit, and the service name: a resend repeats all four, and a new crash after a restart can't match the time.
 
-**One run per group; late reports become comments.** A run can't take new input mid-run, and a second report for the same crash usually says nothing new except how often it happens.
-So a report for a running group is added to the group's issue as a comment when the run ends, through the same egress check and approval policy as the agent's own comments.
-If the issue was closed, the crash came back after a fix, and the report starts a new run.
+**One run per group.** A run takes its messages at the start and has no inbox, and a second report for the same crash mostly says that it happened again.
+A report that arrives while its group's run is going is saved as late, and when the run ends, the service gathers the late reports into one comment on the group's issue.
+That comment passes through the same egress check and approval policy as the agent's own comments, since its text came from a crash report.
+A report for a group whose issue was closed means the crash returned after a fix, and it starts a new run.
 
 ## The queue is a directory
 
-There is no message broker.
-Every file in the state directory is written the way a checkpoint is (temporary file, sync, rename, sync the directory), so after a crash each file holds its old contents or its new ones.
-The order of writes matters: the report first, then the run that names it, then the 202.
-On startup, the service looks for reports no run names, and requeues runs that were going.
+The service has no message broker.
+Every file under its state directory is written the way chapter 15 writes a checkpoint, so a crash leaves each file whole, and the writes go in a fixed order: the report, then the run that names it, then the 202 to the shipper.
+On startup the service looks for reports no run names and puts runs that were going back in the queue, where their checkpoints take them from where they were.
+Two runs go at once by default, up to twenty wait, and a report that would start a run when the queue is full gets 503 with `Retry-After`.
 
-A broker would add a second place where the truth about a run lives, and every crash would need the two to agree.
-When the service needs more than one machine, the directory and its file locks stop being enough, and that is the time for a broker or a database with leases.
+Each run's workspace checks out the commit that crashed, not the latest, because some crashes come from old builds whose bug is already fixed.
+The clone copies objects instead of hard-linking them and runs no hooks, so test code in the workspace can't reach your repository and the repository can't run code in the service.
 
-Runs start when there is a free slot (two by default) and money left for the day; a full queue answers 503 with `Retry-After`.
-Each workspace checks out the commit that crashed, not the latest, cloned without hard links and without running hooks.
+A broker would add a second record of where each run stands, and every crash would have to keep the two in agreement.
+On one machine, the checkpoints, their locks, and a directory listing already do the job.
+Once the service needs several machines, file locks stop being enough, and a broker or a database with leases becomes the right tool.
 
 ## Spending that survives a restart
 
-An in-memory budget resets on restart, and a service that crashes in a loop would spend its daily budget again each time.
-The service keeps a ledger on disk: a run takes its whole budget from the day when it starts, saved before it does anything, and gives back what it didn't spend when it stops.
-A process killed mid-run can't give money back, so the next one counts it, using the run's own record of what it spent plus its costliest turn.
-The service refuses to start without a daily limit.
+A budget kept in memory starts over with each process, so a service stuck in a crash loop would spend its day's money again on every restart.
+The service keeps a ledger on disk and refuses to start without a daily limit (`-daily`).
+When a run starts, its whole cap is taken from the day and saved before the run does anything; when it stops, the unspent part goes back.
+A process killed mid-run can't return anything, so the next process works out what that run spent from its own records, adds the most expensive single turn as an allowance for whatever call was underway, and never counts more than the run held.
 
 ## Contexts in a service
 
-The request that brought a report ends as soon as the service answers 202.
-A run whose context came from the request would be cancelled the moment it started, so every run's context comes from the service's root context instead, which only shutdown cancels.
-The request's context still bounds work done for the request itself, such as a tracker lookup during ingest.
+The request that delivered a report is over the moment the service answers 202.
+A run whose context came from that request would be cancelled as it started, so each run's context comes from the service's root:
+
+```go include=ch17/service/runs.go tag=start
+```
+
+Only shutdown cancels the root.
+The request's context still bounds work done on the request's behalf, such as the tracker lookup during ingest, so a client that hangs up stops that lookup and nothing else.
+
+When the service stops, it first calls `http.Server.Shutdown` so no report is half-saved, gives in-flight requests two seconds, and then cancels the root with `ErrShutdown`; runs save and go back to the queue for the next process.
 
 ## People, without blocking anything
 
-Approvals and unknown outcomes wait in a review queue, answered with a small command over HTTP with a reviewer's token.
-Nothing waits on a decision but the run that asked; other groups keep running.
-A pending approval has a deadline, and a missed one is a denial.
-An unknown outcome has none, because a guess either way risks a duplicate or a lost action; after four hours the service flags it as stale, which decides nothing but says someone should look.
+Approvals and unknown outcomes land in a review queue on disk, answered with a small `triage review` command that talks to the service over HTTP with a reviewer's token.
+Only the run that asked waits; every other group keeps going.
+An approval has a deadline, a day by default, and a missed one counts as a denial.
+An unknown outcome has none, because a timeout can't know whether the call took effect and either guess risks a duplicate or a lost action; after four hours the item is flagged stale, which decides nothing and tells someone to look at the tracker.
+Answers to the two kinds differ on purpose ("approve" or "deny" for one, "rerun" or "done" for the other), so nobody reruns a side effect by approving out of habit.
+
+## The service, run once for real
+
+```result
+figure: 0
+unit: issues filed twice, after a SIGKILL with two decisions waiting
+task: `triage serve` on five crash reports from the practice service, shipped by `crashship`, with a person answering the review queue; the service was killed with SIGKILL while both runs were paused and started again on the same state directory
+models: `anthropic/claude-haiku-5.5`
+runs: one live run of the service
+date: 18 October 2026
+source: Chapter 17
+
+Five reports became two runs, two issues (one per cause), and two comments for late reports. The person made six decisions, all approvals. The kill lost nothing: after the restart the review queue held the same two items, and the ledger had counted $0.0096 by the end.
+```
+
+Chapter 17 says plainly that this run was made to see the parts work together, not to measure them, and that its host was chosen by OpenRouter, so its numbers aren't comparable with the chapter's eval tables.
+
+## Steps for your own service
+
+1. Build one static binary that resumes its newest unfinished run when started with no run ID, and save every new run before starting it.
+2. On SIGTERM, cancel with a cause and save; give calls with side effects a few seconds; exit on a second signal.
+3. Read every secret from a file only the service user can read, and take key variables out of the environment before starting any child.
+4. Ingest from a file with a shipper, behind an endpoint with its own secret, a rate limit, a size cap, and redaction.
+5. Deduplicate reports by a key you build, and send late reports for a running group to its issue as one comment.
+6. Keep the queue, the ledger, and the review items as files written like checkpoints, in an order that a crash can't break.
+7. Derive every run's context from the service's root, never from a request.
+8. Put decisions in a review queue with deadlines for approvals and none for unknown outcomes.
+
+## When to use it
+
+```fit
+reach: Reports arrive at any hour and must not wait for a person to type a command. The service took five live reports, survived a SIGKILL with two decisions waiting, and filed each cause once (chapter 17).
+reach: The platform may stop the process at any time. Kubernetes allows 30 seconds and `docker stop` 10, and the slowest model call in chapter 12's runs took 27.5 (chapters 12 and 15).
+leave: More than one machine, or more than one team. The directory queue and its file locks hold on one machine, and the service has one tracker, one budget, and one set of reviewers (chapters 15 and 17).
+leave: A batch you already have in hand. The command form of chapter 15 runs it and resumes after a crash without the service's moving parts (chapter 15).
+```
 
 ## Try it
 
@@ -114,4 +176,6 @@ $ go test ./ch17/service/ -v -run 'Secrets|RedactedOnDisk|RepeatedIDs|Restart|Da
 $ go test ./ch15/agent/ -run Grace -v
 ```
 
-The service's tests run every case against `httptest` with a scripted stand-in for the agent, so none calls a model.
+The first runs the service's tests for secrets, redaction on disk, repeated report IDs, restarts, and the ledger, all against `httptest` with a scripted stand-in for the agent, so nothing calls a model.
+The second checks the five-second grace period on `testing/synctest`'s fake clock.
+[Durable runs](/production/durable-runs/) shows a run killed and resumed from the command line.

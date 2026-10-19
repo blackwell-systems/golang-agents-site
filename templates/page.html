@@ -11,6 +11,11 @@
     <div class="prose">
 {{.Page.Body}}
     </div>
+    {{- if .Places}}
+    <footer class="guide-foot">
+      {{- template "pathnav" .}}
+    </footer>
+    {{- end}}
   </div>
 </div>
 {{- end}}

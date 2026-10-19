@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "MCP in Go: a client and a server, both sides"
 short: MCP in Go
 description: The Model Context Protocol lets any agent use tools a separate program offers. What the protocol is on the wire, how a Go client matches responses to calls and stops a server in the order the protocol asks, what the extra process costs, how much to trust another program's tools, and when to use the official Go SDK.
@@ -12,7 +11,7 @@ art: ch10
 
 An agent's own tools are code in its own program.
 The services it might use, an issue tracker, a code host, a database, are mostly someone else's, and their owners know best what tools they should offer.
-The [Model Context Protocol](/glossary/#mcp) is a standard way for a program to offer tools, and data, to an agent that runs elsewhere, and for the agent to call them without code written for that service.
+The [Model Context Protocol](/glossary/#mcp) lets a program publish tools and data so that an agent in another process can use them, with no code written for that particular service.
 
 Chapter 10 of the book writes both sides by hand, a server for its issue tracker and a client in the agent, before showing the official Go SDK.
 Writing it by hand has a second purpose: an MCP server's tool descriptions go straight into your model's context, and deciding what to check requires knowing which messages carry that text.
@@ -22,7 +21,7 @@ Writing it by hand has a second purpose: an MCP server's tool descriptions go st
 An MCP server offers tools, which the model calls; resources, data the client can read; and prompts, templates a person picks from.
 An agent needs the tools.
 
-The messages are [JSON-RPC](/glossary/#json-rpc) 2.0: requests with an ID, responses carrying the ID of the request they answer, and notifications that expect no answer.
+The messages are [JSON-RPC](/glossary/#json-rpc) 2.0, which has three kinds: requests, each with an ID; responses, each naming the ID it replies to; and notifications, which get no reply.
 For a local server, the transport is the server's standard input and output, one message per line.
 The server's standard error is its own, for logs.
 
@@ -31,15 +30,16 @@ The book's code needs one Go type for every kind of message, since they differ o
 ```go include=ch10/mcp/jsonrpc.go tag=message
 ```
 
-In the current revision, 2026-07-28, every request carries what the server needs to answer it, the protocol version, the client's capabilities and name, in a `_meta` field, so the server keeps nothing between requests and any copy of it can answer any request.
-Earlier revisions opened each connection with a handshake instead, and most servers you can download still speak one of them; the book's client tries the current discovery first and falls back to the handshake.
+In the revision dated 2026-07-28, the current one, each request is self-contained: a `_meta` field carries the protocol version along with the client's name and capabilities.
+A server therefore needs no memory of earlier requests, and any instance of it can serve any request.
+Before that revision a connection began with a handshake, and many published servers still work that way, so the book's client sends the newer discovery request first and drops back to the handshake when the server doesn't understand it.
 
 A session goes: `server/discover` to learn the versions and capabilities, `tools/list` a page at a time, then `tools/call` with a name and arguments.
 
 ## Two kinds of failure
 
 A tool that ran and failed returns a result with `isError` set and text meant for the model; the agent sends it back as a tool error, and the model can correct its call.
-A call to a tool the server doesn't have is a protocol error, a JSON-RPC `error` with code -32602, which concerns the request itself.
+Asking for a tool the server never listed produces something else, a protocol error: a JSON-RPC `error` with code -32602, about the request rather than the work.
 And a call that gets no answer in time is cancelled: the client sends `notifications/cancelled` naming the request, and the server stops the work.
 
 ## The client: one reader, many callers
@@ -50,10 +50,11 @@ Each call registers a buffered channel under its request ID before it sends, and
 ```go include=ch10/mcp/client.go tag=route
 ```
 
-The channel has room for one message, so the reader never waits on a call, and a response to a call that already gave up is dropped.
-When the server's output ends, every call still waiting returns `ErrServerGone`, with the last lines the server wrote to standard error, since the reason a server died is usually there.
+Because each channel is buffered for exactly one message, the reading goroutine never blocks on a slow caller, and a response for a caller that has already given up goes nowhere.
+If the server's output stops, each caller still waiting gets `ErrServerGone`, along with the tail of the server's standard error, which is usually where a crashed server explains itself.
 
-Every call has a timeout, a minute by default, set with `context.WithTimeoutCause` so the error says which limit fired; in the chapter's test, a 100 ms timeout cancelled the tool's own context 100 ms after the call began, and the next call on the connection worked.
+Every call has a timeout, a minute by default, set with `context.WithTimeoutCause` so the error says which limit fired.
+In the chapter's `TestCancel`, a tool that waits on its context saw that context end 100 ms in, under a 100 ms timeout, and the connection kept working for the following call.
 
 ## Starting and stopping a server
 
@@ -63,13 +64,13 @@ Two details matter more than they look.
 A test sets the key and asks the server whether it can see it; it can't.
 This isn't a sandbox: the server still runs as you.
 
-**Stop it in the protocol's order.** Close its input, which a server takes as the signal to exit; wait; and only then kill it.
+**Stop it in the protocol's order.** First close the server's standard input, its cue to exit; then wait for it; kill it only if it is still running after a grace period.
 `exec.CommandContext` would kill it at once and skip the first two steps, so the client uses `exec.Command` and `context.AfterFunc` to start the shutdown when the run's context ends.
 Production clients go further, starting the server in a process group of its own and sending SIGTERM before SIGKILL, since real servers are often started through a launcher whose child survives the launcher being killed.
 
 ## What the extra process costs
 
-The chapter benchmarked one `tools/call` three ways on one machine:
+The chapter's `BenchmarkCall` timed one `tools/call` three ways, on an Apple M1 Pro that was busy with other jobs, taking the median of five runs of 2,000 calls each (October 2026):
 
 | How the tool is reached | Time per call |
 | --- | --- |
@@ -77,8 +78,8 @@ The chapter benchmarked one `tools/call` three ways on one machine:
 | A server in the same process, over pipes | 18 µs |
 | The tool's function, called directly | 0.16 µs |
 
-A call to a server process took about 900 times as long as a direct call, and under a ten-thousandth of a model call.
-Running the triage task three times through the tracker's MCP server and three times with hand-written tools, every run passed every check, and the model worked with the server's tools as readily as with its own.
+The process boundary made a call roughly 900 times slower than calling the function directly, and it still cost less than a ten-thousandth of one model call, which takes seconds.
+The chapter also ran the m1 triage task on the default model three times through the tracker's MCP server and three times with the agent's own tracker tools; all six runs passed all 16 checks, and the model used the server's tools as readily as its own.
 The protocol cost the agent nothing it could measure.
 
 ## Server tools as agent tools
@@ -94,12 +95,12 @@ The defense that works is upstream of the model: a person reads a server's tools
 
 ## When to use the official SDK
 
-The official MCP Go SDK implements the whole protocol: the HTTP transport with its authorization rules, resources and prompts, progress notifications, requests that let a server ask the person a question, and both protocol eras on both sides.
+The official MCP Go SDK covers what the book's version skips: servers on the network over HTTP and the authorization that goes with them, resources and prompts, progress reports, servers that pause a call to ask the user something, and the old and new protocol revisions, as client and as server.
 `mcp.AddTool` generates a tool's schema from its argument type and checks each call against it before the handler runs.
 The book's client and the SDK's server talk to each other, and so do the SDK's client and the book's server; the module's tests check both directions.
 
-The chapter's advice: for a server anyone else will run, use the SDK almost always, since it speaks both eras and changes when the protocol does.
-For a client inside an agent, a hand-built one, about 490 lines without comments plus 190 shared with the server, does what an agent needs and keeps the dependency out until you choose to take it.
+The chapter's advice: build a server that other people will run on the SDK, nearly always, since it follows protocol revisions for you.
+Inside your own agent the client is small: the book's is about 490 lines, not counting comments, plus 190 it shares with its server, and it covers what an agent uses without adding a module to your build until you decide you want one.
 
 ## When to use it
 

@@ -86,7 +86,7 @@ func build(cfg config) error {
 	if err != nil {
 		return err
 	}
-	pages, err := loadPages(cfg.content, cfg.drafts)
+	pages, held, err := loadPages(cfg.content, cfg.drafts)
 	if err != nil {
 		return err
 	}
@@ -101,13 +101,18 @@ func build(cfg config) error {
 			return err
 		}
 	}
-	md := newMarkdown(code)
+	ix := newPageIndex(pages, held)
+	paths, err := sitePaths(pages, ix) // from the start page's Markdown, before it renders
+	if err != nil {
+		return err
+	}
+	md := newMarkdown(code, ix)
 	for _, p := range pages {
 		if err := p.render(md, code); err != nil {
 			return err
 		}
 	}
-	site, err := newSite(pages, cfg.static)
+	site, err := newSite(pages, held, paths, cfg.static)
 	if err != nil {
 		return err
 	}
@@ -141,6 +146,9 @@ func build(cfg config) error {
 	if err := writeFeeds(cfg.out, site); err != nil {
 		return err
 	}
+	if err := writeSearchIndex(cfg.out, site); err != nil {
+		return err
+	}
 	if err := writeRedirects(cfg.out); err != nil {
 		return err
 	}
@@ -148,7 +156,7 @@ func build(cfg config) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("built %d pages into %s; %d internal links checked\n",
-		len(pages), cfg.out, n)
+	fmt.Printf("built %d pages into %s (%d drafts held back); %d internal links checked\n",
+		len(pages), cfg.out, len(held), n)
 	return nil
 }

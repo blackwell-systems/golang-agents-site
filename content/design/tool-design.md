@@ -1,9 +1,8 @@
 ---
-draft: true
 title: Designing tools a model uses well
 short: Designing tools
 description: The caller of an agent's tools reads a name, a description, and a schema, and never your code. This page covers task-shaped tools, short results, schemas generated from Go structs, strict argument checks, useful errors, and a cheap test of tool choice.
-chapters: 7, 4
+chapters: 7, 4, 3
 stage: 3
 date: 2026-10-18
 work: true
@@ -18,6 +17,18 @@ Treat that model as the only user of a small API, and design for it the way you 
 
 Chapter 7 of the book builds fourteen tools for its crash-triage agent.
 Below are the rules it follows, with code from [`ch07`](code:ch07) and the results its recorded runs produced.
+
+## What the model reads when it chooses
+
+Your tool definitions don't reach the model through a side channel.
+The provider renders the messages and the definitions together into a single stream of text, in the format that model was trained on, called its [chat template](/glossary/#chat-template).
+In Qwen3's template, which chapter 3 of the book renders in Go, each definition becomes a line of JSON inside the system message, and after the list comes a short passage in English explaining that a call is a JSON object written between `<tool_call>` tags.
+
+So a tool call is text the model writes, and the provider parses that text back into the `tool_calls` field you receive.
+Picking a tool is the same act as writing any other reply: given the request, the system prompt, and every name and description in the list, the model samples a likely continuation, and sometimes that continuation is a call.
+Unless the provider restricts decoding to the declared tools, as some strict modes do, nothing in that process even guarantees the name is real.
+That is why names and descriptions carry so much weight: they are all the model has to tell one tool from another.
+When no tool fits what the model wants to do, a name that looks closer can win on a one-line description, which is what the smoke test at the end of this page found.
 
 ## Design around tasks
 
@@ -86,14 +97,15 @@ Each error message points to the offending field with a path like `"groups[0].st
 The parse-error message exists because of one live run.
 Three calls in a row, the default model produced `{"package": "./...", "run": , "race": true}`.
 It had intended `null` for an optional field, and the streamed reply lost the `null`.
-The decoder at that point answered with "the arguments must be a JSON object". That was accurate and told the model nothing it could fix, so it sent the identical call again.
+The decoder at that point answered with "the arguments must be a JSON object".
+That was accurate and told the model nothing it could fix, so it sent the identical call again.
 Two changes fixed it.
 The error now reports where the JSON broke, and the schema lets optional fields be omitted, so `null` never needs to be sent.
 
 ## Errors the model can act on
 
 Whatever your error message says, the model reads it and decides its next call from it.
-In chapter 4's measurements, a tool that failed with "the file is locked" sent three of four models into retries lasting a median of 18 to 20 turns.
+In chapter 4's measurements, three runs per model on its bug-fix task, a tool that failed with "the file is locked" sent three of four models into retries lasting a median of 18 to 20 turns.
 Rewording the error to say the change could not be made, and what to do instead, made every model stop after its first try.
 [An error that said "locked"](/findings/error-wording/) has the details.
 Good tool errors cover three things: the cause, whether a retry has any chance, and the call to make instead.
@@ -110,7 +122,7 @@ Only read-only calls run in parallel, only idempotent tools are retried, and app
 
 A description that sends the model to the wrong tool passes every test and every build.
 Chapter 7 adds a smoke test for it.
-It has fifteen short requests, each tagged with the tool that ought to handle it, and sends every request three times to each of four models, using the agent's real system prompt and tool set.
+It has fifteen short requests, each tagged with the tool that ought to handle it, and sends every request three times to each of four models, using the agent's real system prompt and tool set; the recorded runs are from October 2026.
 It then repeats the whole run with thirty extra tools that look plausible but aren't part of the agent.
 
 Out of a possible 45, the models scored between 30.5 and 36.
@@ -121,7 +133,8 @@ The models wanted a tool that fetches one issue by number, and the agent didn't 
 Chapter 8 adds `issue_read`.
 
 Not every lost point was a wrong choice.
-Some came from the system prompt overriding the request: given a request to file an issue, the models looked in the tracker before filing, which is what the prompt instructs.
+Some came from the system prompt overriding the request: given a request to file an issue, the models looked in the tracker before filing, which is what the prompt instructs, so the test gives those first steps half a point.
+The score counts only the first tool a model asks for, and some requests list an acceptable second choice.
 A test this small finds big problems, like a vague description or a pair of overlapping tool names, and is too coarse to show a small improvement.
 
 ## When to use it
@@ -142,7 +155,9 @@ From the `code` directory of a clone of the [companion repository](https://githu
 ```console
 $ go run ./ch07/evals/toolselect
 $ go run ./ch07/evals/toolselect -distractors
+$ go run ./ch03 template
 ```
 
-Both commands replay the recorded smoke-test runs and list every answer that lost points.
+The first two replay the recorded smoke-test runs, print each model's score out of 45, and list every answer that lost points; with `-distractors`, the `issue_lookup` picks show up in the list.
+The third prints the start of chapter 1's bug fix, one tool included, as Qwen3's chat template lays it out for the model.
 The tools live in [`ch07/triage`](code:ch07/triage), and the schema generator in [`ch07/agent/schema.go`](code:ch07/agent/schema.go).

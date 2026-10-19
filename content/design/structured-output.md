@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "Structured output: an agent's answer in a fixed shape"
 short: Structured output
 description: If a program reads an agent's answer, prose is a poor format, since a parser breaks the first time the wording changes. A final tool, whose arguments are the answer, gives you a typed result from any tool-calling model and a place to check the answer before you accept it.
@@ -41,7 +40,7 @@ The answer is declared as a Go struct, tagged the same way as the argument struc
 Fields that code will switch on, the status above all, are enumerations.
 Each field's description explains it to the model, and the descriptions spell out the easy-to-miss points, such as a root cause that "may not be where it crashed".
 A field the model has nothing for is omitted from the JSON; the model never sends `null`.
-There is one `Diagnosis` for each crash group, and chapter 13's evals grade against this same type.
+There is one `Diagnosis` for each crash group, and the crash catalog's grader, which chapter 13's evals use, reads the same record.
 
 ## How the loop ends on it
 
@@ -58,7 +57,7 @@ Once a final call succeeds, nothing else in that reply runs: later calls in the 
 A model that writes its answer as plain text instead of calling the tool gets a nudge: a user message telling it to call the tool once it is finished, or to carry on with the work.
 If two nudges don't help, the run ends with `ErrNoFinalAnswer`, a sign that the program never received an answer it could use; callers test for it with `errors.Is`.
 
-## Check the claim, not just the shape
+## Checking what the answer claims
 
 The schema makes sure the answer has the right fields and types.
 Whether the content is correct is a separate matter, and a model sounds just as sure when it is wrong.
@@ -68,7 +67,7 @@ Whether the content is correct is a separate matter, and a model sounds just as 
 - A group marked duplicate points at an issue that is open, and a group marked fixed points at an issue that exists.
 - For a fixed group, the reproducer test is run twice. Against the untouched original plus the tests the agent wrote, it has to fail; against the agent's changed code it has to pass.
 
-Of these, the reproducer check catches the most.
+The reproducer check is the one that tests the substance of the claim.
 If the test already passes before the fix, it says nothing about the crash, no matter how convincing the fix is.
 A test name that doesn't match any test gets a dedicated message, because that usually means a typo.
 Every failed check comes back to the model as an error explaining the problem, and the run continues.
@@ -95,9 +94,13 @@ The run used 17 turns and cost $0.034.
 
 ## When to use which
 
-- **Use a final tool** if the agent calls tools already, if the code has to run on many models and providers, or if you want to verify the answer before taking it.
-- **Use structured outputs** for a single tool-free call on a provider that supports it, with `require_parameters` set so OpenRouter can only pick providers that apply the schema.
-- **Either way, validate** in your own code: decode strictly, enforce enumerations and required fields, and test every claim in the answer that a program is able to test.
+```fit
+reach: A final tool, when the agent already calls tools or has to run on many models. It works on any model that can call tools, and because the recorded run's answer was typed, the catalog's grader showed its one mistake as four failed checks out of 16 (chapter 7).
+reach: A constrained reply, for a single call with no tools. Chapter 8's summary call sends a JSON Schema as `response_format` with `require_parameters` set, so OpenRouter routes only to providers that apply it (chapter 8).
+leave: Trusting the shape alone. A schema can't tell a passing reproducer from a failing one; `submit_diagnosis` runs the test on the original code and on the fix before it accepts the answer (chapter 7).
+```
+
+Whichever you choose, validate in your own code as well: decode strictly, enforce enumerations and required fields, and test every claim in the answer that a program is able to test.
 
 ## Try it
 

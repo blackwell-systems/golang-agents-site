@@ -1,6 +1,6 @@
 ---
 title: Work with me
-description: Dayna Blackwell of Blackwell Systems helps teams build, review, measure, and run AI agents in Go. Architecture and production reviews, eval design, AI cost optimization, and AI opportunity assessments.
+description: Dayna Blackwell of Blackwell Systems helps teams build, review, measure, and run AI agents in Go. Architecture and production reviews, eval design, AI cost optimization, hands-on team workshops, and AI opportunity assessments.
 layout: work
 ---
 
@@ -19,6 +19,11 @@ Then you can tell whether the next prompt or model change helped.
 
 **AI cost optimization.**
 An audit of what your LLM calls cost and why, across prompt caching, model routing, batch processing, context and tool-output size, and the shape of the agent loop, with every saving measured before and after on your workload.
+
+**A hands-on workshop for your team.**
+One or two days in which your engineers build an agent in Go, following the book's path: a loop driven by a scripted model, then a real model with tools that fixes a failing test, then the limits, stop reasons, and offline tests that make it safe to run.
+The rest of the time goes to the parts your own agent needs most, chosen with you beforehand, such as tool design, evals, approval and sandboxing, or surviving a crash.
+Everything runs offline from recorded model replies, so nobody needs an API key to take part, and each engineer leaves with working, tested code of their own to build on.
 
 **AI opportunity assessment.**
 A fixed-scope, vendor-neutral read on where AI fits your business and where it doesn't, in plain language, for teams that want a straight answer before they build anything.

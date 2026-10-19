@@ -1,80 +1,105 @@
 ---
-draft: true
 title: How a language model picks its next token
 short: How models pick the next token
-description: A language model gives every possible next token a probability and picks one. A toy model in Go shows why answers vary, why fluent text can be false, why code costs more tokens than English, and why a tool call can be wrong in every way text can.
+description: A language model gives every possible next token a probability and picks one. A toy model in Go shows why answers vary, why temperature matters, why fluent text can be false, why code costs more tokens than English, and why a tool call is text the model writes.
 chapters: 3
 stage: 2
 date: 2026-10-18
-weight: 60
+weight: 45
 art: ch03
 ---
 
-An agent is built on four behaviors of the model inside it.
-Ask the same question twice and you can get two answers.
-The bill counts tokens, not words, and the same text costs more on one model than another.
-The model states wrong things in the same confident tone as right ones.
-And it knows how to ask for tools.
+Four habits of the model shape every agent built on it.
+It can give two different replies to one request.
+It is billed by the token rather than the word, and one text can come to more tokens on one model than on another.
+It sounds just as sure when it is wrong as when it is right.
+And it can ask for tools.
 
-All four come from one mechanism, and you can see it in a few dozen lines of Go with no machine learning at all.
-This page follows chapter 3 of the book, whose experiments are in [`ch03`](code:ch03) of the companion code and run offline.
+A single mechanism accounts for all four, and a few dozen lines of Go, with no machine learning in them, are enough to watch it work.
+This page follows chapter 3 of the book, whose experiments live in [`ch03`](code:ch03) of the companion code and run offline.
+
+## Next-token prediction
+
+A [language model](/glossary/#language-model) has one job: read some text and assign a probability to every [token](/glossary/#token) that could come next.
+A token is a short piece of text, often a whole word and sometimes a fragment of one; the Tokens section below shows where they come from.
+To write a reply, the model repeats that step: choose a token, add it to the end of the text, and predict again from the longer text.
+That repetition is called next-token prediction.
+Everything a model sends back, a paragraph of advice or a tool call, comes out of it one token at a time.
 
 ## A model made of counts
 
-A [language model](/glossary/#language-model) does one thing: given some text, it gives a probability for each possible next piece of text.
-Generating means doing that over and over: pick a piece, append it, predict again.
+The smallest model that works this way just counts.
+Chapter 3's toy reads a training text, an early draft of the book's first two chapters of roughly 7,600 words, and records, for each pair of words, which word followed the pair and how often.
+The pair "the model" was followed by 38 words in all, 5 of them "sees", so the toy rates "sees" at 5/38, about 0.13.
 
-The simplest version counts.
-Take a training text, and for every pair of words, count which words came next.
-Chapter 3's toy is trained on an early draft of the book's first two chapters, about 7,600 words.
-After "the model", it saw "sees" 5 times out of 38, so "sees" gets a probability of 5/38, about 0.13.
-
-To generate, the toy looks up the distribution for its last two words and picks one:
+Generating means looking up the last two words and choosing from what followed them:
 
 ```go include=ch03/toy/toy.go tag=generate
 ```
 
-There are two ways to pick, and they explain two behaviors you'll meet in real models.
+The choice can be made in two ways, and each matches something real models do.
 
-**Greedy decoding gets stuck.** Always taking the likeliest word, the toy reaches "a key and a 401);" and loops forever, because the likeliest continuation leads back to the same place. Small models writing long outputs can do the same, which is one reason APIs sample by default.
+**Greedy decoding loops.** Taking the most probable word every time, the toy reaches "a key and a 401);" and then repeats it forever, because the likeliest continuation of that phrase leads straight back to it. Small models writing long replies can fall into the same trap, which is one reason APIs sample by default.
 
-**Sampling varies.** Picking at random in proportion to the probabilities, three runs from the same two words go three different ways. That is the main reason the same question gets different answers: the model computes the same distribution each time, and whoever serves it draws a different sample.
+**Sampling differs from run to run.** Choose in proportion to the probabilities instead, and three runs from the same starting words go three separate ways. This is the main source of varying answers: every call works out the same probabilities, and the server draws a fresh sample from them.
 
 ## Fluent and wrong
 
-The greedy run also produced this sentence: "When OPENROUTER_API_KEY is empty, it replays replies saved from the agent's ToolCall."
-It reads like the book, because every three-word stretch of it appears in the book, and it is false.
-Nothing in the toy checks whether its text is true; it produces likely text.
+Here is the toy's greedy run:
 
-A real model is enormously better at producing likely text, and likely text is often true, which is why models are useful.
-But there is no separate step that checks facts, so false text that is likely comes out in the same confident tone, which the industry calls [hallucination](/glossary/#hallucination).
-For an agent the lesson is practical: check claims with tools.
-The crash-triage agent in the companion code has to show a test that fails before its fix and passes after, rather than say it found the bug.
+```text include=ch03/testdata/out/toy.txt lines=8..13 title="go run ./ch03 toy, the greedy run"
+```
+
+The sentence about `OPENROUTER_API_KEY` sounds like the book, since each run of three words in it occurs somewhere in the training text.
+It is also false: the saved replies come from the API, and `ToolCall` has nothing to do with them.
+The toy has no notion of truth; it writes whatever is probable.
+
+A real model is vastly better at probable text, and probable text is true often enough that models are worth using.
+Still, no stage of the mechanism checks facts, so a false statement that happens to be probable arrives in the same assured voice as a true one.
+The industry's word for this is [hallucination](/glossary/#hallucination).
+The rule it gives an agent is to verify claims with tools.
+The crash-triage agent in the companion code must produce a test that fails on the old code and passes with its patch; saying it found the bug isn't enough.
 
 ## Temperature
 
-Temperature reshapes the probabilities before sampling.
-Below 1 it makes likely choices likelier, and at 0 the pick becomes greedy; above 1 it flattens the distribution so unlikely choices come up more often.
-In the toy at temperature 0.5, "sees" rises from 0.13 to about 0.33.
-In a real model, temperature divides each score before the softmax that turns scores into probabilities, and the toy's exponent turns out to be the same operation written another way.
+Temperature is a setting applied to the probabilities before the choice.
+Values below 1 sharpen them, so the favorite wins more often, and 0 means always taking the favorite, which is greedy decoding.
+Values above 1 even them out, and long-shot tokens get chosen more often.
+At 0.5 the toy's "sees" climbs from 0.13 to about 0.33.
+A real model applies temperature by dividing each token's score by it before the softmax, the step that turns scores into probabilities; chapter 3 shows that the toy's exponent is that same operation written another way.
 
-Chapter 3 asked a small open model, `meta-llama/llama-3.1-8b-instruct`, to describe Go in exactly three words, ten times at each of four temperatures.
-At 0 it gave one reply all ten times; at 0.7 and 1, ten different reasonable replies; at 1.5, six of the ten turned to nonsense such as "Concurrentoons statically", because once an unlikely token is picked, everything after it is predicted from a broken start.
+Chapter 3 then put a small open model, `meta-llama/llama-3.1-8b-instruct`, through it: describe Go in exactly three words, ten calls at each of four temperatures.
+Temperature 0 produced one reply, ten times over.
+At 0.7 and at 1, all ten replies differed and all of them were sensible.
+At 1.5, six of the ten fell apart into strings like "Concurrentoons statically": once an improbable token is chosen, it becomes the start that every later token is predicted from.
 
-Temperature 0 doesn't make a model deterministic, either.
-Providers batch requests on their hardware, and the arithmetic can differ slightly between batches; serving the same model at temperature 0, one provider gave the same reply ten times in ten, and another gave two different replies in nine calls.
-So test what an agent achieves, such as the tests passing or the right issue filed, not the exact words.
+## Why identical runs differ
+
+Sampling explains most of the variation, but setting the temperature to 0 doesn't remove it.
+Providers run many requests together on their hardware, and the arithmetic can come out slightly differently from one batch to the next.
+When two tokens are nearly tied, that difference is enough to flip the choice, and the text diverges from that token on.
+A router such as OpenRouter can also pass two requests for one model to two different providers, whose hardware differs.
+In chapter 3, one provider serving the Llama model at temperature 0 returned the same reply in ten calls out of ten; another, serving the same model at the same setting, returned two different replies across nine calls.
+
+In an agent the effect compounds.
+A different token early in a turn can mean a different tool call, and every later turn starts from that one.
+The book's evals, which run each task many times and report rates, are built around this, and [Two identical runs scored 15 points apart](/findings/identical-runs/) shows what happens when you compare single runs.
+So check what an agent accomplishes, such as the tests passing or the right issue filed, and never the exact words it wrote.
 
 ## Tokens
 
-Real models predict neither words nor letters but tokens: common words become one token, and rarer words are built from pieces.
-Most tokenizers are built with byte-pair encoding, which starts from the 256 possible bytes and repeatedly merges the most frequent adjacent pair into a new token.
-Chapter 3 writes one in Go, trains it on the same text as the toy, and shows the pattern: the English sentence comes out at about one token per word, while `ParseDuration` becomes `P`, `ar`, `se`, `D`, `uration`.
+Real models work in neither words nor letters.
+A frequent word gets a token of its own, and a rare one is assembled from fragments.
+Most [tokenizers](/glossary/#tokenizer) are built with byte-pair encoding: begin with the 256 possible byte values, then again and again merge the most common neighboring pair into a new token.
+Chapter 3 implements one in Go and trains it on the toy's text.
+An English sentence comes out at about a token per word, while `ParseDuration` splits into `P`, `ar`, `se`, `D`, `uration`.
 
-Real tokenizers do much better on code, but the pattern holds: text unlike a tokenizer's training data takes more tokens.
-Measured on five models in October 2026, a 1,008-byte Go file took from 336 to 502 tokens, and a page of English from 450 to 598.
-Four of the five agreed within 7 percent; the default model's tokenizer used a third more tokens for the English and half again as many for the Go.
-So compare models by what a task costs, not by their price per token.
+Production tokenizers handle code far better than that, but the rule survives: text unlike the tokenizer's training data costs more tokens.
+In October 2026 the book measured the same two texts on five models.
+A 1,008-byte Go file came to between 336 and 502 tokens, and a page of English to between 450 and 598.
+Four of the five landed within 7 percent of each other.
+The fifth, the book's default model, `anthropic/claude-haiku-5.5`, needed about a third more tokens than the others for the English and about 50 percent more for the Go.
+A price per token can mislead, then; compare models by what a whole task costs.
 [Tokens, cost, and the context window](/loop/tokens-and-cost/) follows that through an agent's bill.
 
 ## Attention, briefly
@@ -82,21 +107,28 @@ So compare models by what a task costs, not by their price per token.
 The toy looks two words back; a real model needs a word from thousands of tokens earlier.
 [Attention](/glossary/#attention) works like a fuzzy map lookup: each position scores its query against every earlier position's key and takes a blend of their values, weighted by the match.
 Because the weights come from a softmax that hands out a fixed total of 1, every token added to the context leaves less attention for the ones that matter.
-In chapter 3's toy calculation, putting a hundred more words between "test" and "it" cut the weight on "test" to 0.03.
-That is part of why accuracy falls on long inputs well before the window is full.
+In chapter 3's small attention example, putting a hundred more words between "test" and "it" cut the weight on "test" to 0.03.
+That is part of why a model's accuracy falls as its input grows.
 
 ## A tool call is text
 
-A model reads and writes one stream of tokens.
-Before it sees your list of messages, the provider renders them with a [chat template](/glossary/#chat-template) into one text, with special tokens marking each role.
-Chapter 3 renders the start of the bug fix the way Qwen3's template does: the tool definition is a line of JSON inside the system message, followed by English instructions to write a JSON object between `<tool_call>` tags.
-The model's tool call is exactly that, text it wrote, which the provider parses back into the `tool_calls` field of the reply.
+A model consumes and produces a single sequence of tokens.
+Your request is a list of messages, so the provider first flattens it into one text with a [chat template](/glossary/#chat-template), using special tokens to mark where each role's message starts and ends.
+Chapter 3's `chatml` package renders the start of the bug fix the way Qwen3's template does:
 
-Three things follow for an agent:
+```text include=ch03/testdata/out/template.txt lines=3..28 title="go run ./ch03 template"
+```
 
-- **A tool call can be wrong in every way text can.** Malformed JSON, a wrong type, a tool name that doesn't exist. The harness checks every call and sends back an error that says how to fix it.
-- **Instructions and data share one stream.** A file the agent reads, or a crash report, lands in the same text as your system prompt. If it says "ignore your instructions", the model reads it with the same attention as everything else. That is prompt injection.
-- **The model learns nothing from your requests.** Its weights don't change when you call it; everything it knows about your task has to be in the request, every time.
+The tools are in that text too.
+`read_file` appears as one line of JSON in the system message, after English instructions that say to call a function by writing a JSON object between `<tool_call>` tags.
+The assistant's turn shows the result: the tool call is nothing more than text the model wrote in that format, and the provider parses it back out into the reply's `tool_calls` field.
+The tool's result returns the same way, as a user message wrapped in `<tool_response>` tags.
+
+Three consequences follow for an agent:
+
+- **A tool call fails the ways text fails.** The JSON can be malformed, an argument can have the wrong type, and the name can belong to no tool at all. The [harness](/glossary/#harness), the Go program around the model, validates each call and replies with an error that says how to correct it.
+- **Instructions and data travel together.** A file the agent opened or a crash report it was handed ends up in the same stream as your system prompt. If that text tells the model to ignore its instructions, the model weighs it like any other text. This is [prompt injection](/glossary/#prompt-injection), and special tokens can't prevent it.
+- **Calls don't teach the model anything.** A call leaves the model's weights unchanged, so whatever it should know about your task must be sent again in each request.
 
 ## Run it
 
@@ -105,7 +137,9 @@ From the `code` directory of a clone of the [companion repository](https://githu
 ```console
 $ go run ./ch03 toy
 $ go run ./ch03 bpe
+$ go run ./ch03 template
 $ go run ./ch03
 ```
 
-The first two run the toy model and the tokenizer; the last runs every experiment in order, including the probe of a real model's probabilities, replayed from recorded calls.
+The first three run the toy model, the tokenizer, and the chat template.
+The last runs every experiment in order, ending with the probe that asks a real model for its token probabilities; with `OPENROUTER_API_KEY` unset, the probe replays recorded calls.

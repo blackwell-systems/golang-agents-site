@@ -1,5 +1,4 @@
 ---
-draft: true
 title: What an AI agent is, in terms a Go programmer can build
 short: What an agent is
 description: An agent is a program where the model picks each next step and your Go code carries it out. This page follows one agent through a failing test, compares it with chatbots and workflows, and lists the parts you write.
@@ -36,7 +35,9 @@ The model has no access to the files and never could have, because it is a servi
 The right-hand column is where things happen, and all of it is your Go program: the code that gives `read_file` its meaning, runs the tests, applies the edit, and notices that the job is over.
 
 One run proves little, so the book repeated the task 40 times: ten runs each on `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, and `deepseek/deepseek-v4.1-flash`.
-All 40 fixed the bug, each in four to six turns, and the most expensive run cost under a fifth of a cent.
+All 40 fixed the bug, each in four to six turns, and no run cost more than a fifth of a cent.
+That price is counted in [tokens](/glossary/#token), the pieces of text a model reads and writes: a common word, a fragment of a longer word, or a punctuation mark.
+A provider charges for every token in the request and every token in the reply, at a price per million.
 The routes differed more than the outcomes.
 Two of the models repeated an identical sequence of calls in every run; the other two wandered by a turn.
 In some order, every run surveyed the project, read the source, edited it, and ran the tests to confirm.
@@ -62,13 +63,13 @@ An agent pays for itself only when the step after this one can't be known until 
 
 ## The model only asks
 
-Simon Willison's short definition reads: "An LLM agent runs tools in a loop to achieve a goal."
+Simon Willison defines an LLM agent as something that runs tools in a loop to achieve a goal.
 That is accurate as far as it goes, but the model runs nothing.
 It produces requests, and some program has to carry them out, hold on to the conversation, and judge when the work is finished.
 That program is the [harness](/glossary/#harness), and it does two jobs:
 
 - **Run the tools the model asks for**, safely, and send back each result.
-- **Decide what the model sees on every call.** A model remembers nothing from one call to the next. Every request has to include the conversation so far, so whatever you put in the request is the model's entire knowledge of the task.
+- **Decide what the model sees on every call.** A model remembers nothing from one call to the next. Every request has to include the conversation so far, so whatever you put in the request is the model's entire knowledge of the task. It also means every turn's request is bigger than the last, and every token of it is billed again; [Tokens, cost, and the context window](/loop/tokens-and-cost/) follows that growth through a run.
 
 The book treats the second job as every bit as important as the first.
 Later pages cover it under the name context management: deciding, as a run gets longer, what stays in the request, what gets cut, and what gets summarized.
@@ -88,7 +89,7 @@ When that request arrives, `Run` unpacks the JSON into a struct and opens the fi
 Arguments that fail to unpack produce an error that shows a correct example, which gives the model what it needs to send a better call next time.
 
 Tag every struct field that a model fills with an explicit `json` name.
-Go 1.27 adds `encoding/json/v2` to the standard library, and it matches names case-sensitively: without a tag, `"path"` does not land in `Path`, and the tool runs with an empty path and reports nothing wrong.
+The book's code uses `encoding/json/v2`, part of the standard library in Go 1.27, and it matches names case-sensitively: without a tag, `"path"` does not land in `Path`, decoding reports no error, and the tool receives an empty path.
 
 ## The parts you write
 
@@ -114,6 +115,7 @@ Use an agent for problems where you only learn the next step by taking the curre
 
 ## Try it
 
+You need Go {{code go-version}}; a `go` command from 1.21 on downloads that toolchain the first time it reads the module's `go.mod`, so the first run pauses for a moment.
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):
 
 ```console

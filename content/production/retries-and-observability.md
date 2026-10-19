@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "Retries, traces, and cost for an agent's model and tool calls"
 short: Retries and observability
 description: Which failures deserve a retry and which never do, full-jitter backoff measured against plain backoff, a retry budget and circuit breaker shared across agents, tool retries limited to tools that are safe to repeat, and logs and OpenTelemetry GenAI spans that show where a run's time and money went.
@@ -11,7 +10,7 @@ weight: 20
 art: ch12
 ---
 
-Two failures from the book's own runs set up this page.
+Two failures from the book's own runs set up this page ([a dropped connection ended a 41-turn run](/findings/measured-mistakes/#dropped-connection) has the method).
 In the first, a batch run had read 1.7 million tokens when it hit `remote error: tls: bad record MAC` at turn 41.
 The harness resent the request once, right away, the resend failed as well, and the run ended with all of its findings gone.
 In the second, 23 agents were running in parallel, and that same TLS error cut off three of them in the middle of reading a reply.
@@ -52,7 +51,7 @@ Two rows in that table hide a trap.
 **Two kinds of timeout produce the same error.** Both an attempt that ran past its own deadline and a run whose caller's deadline expired end in `context.DeadlineExceeded`.
 The attempt deserves another try; the expired caller means the run is over.
 The classifier separates them by order: it looks at the caller's context before anything else, and it only treats a timeout as retryable when that context is still live.
-The causes the code attaches with `context.WithTimeoutCause` don't decide anything here; they make the error message say which deadline fired.
+Each attempt's own deadline is set with `context.WithTimeoutCause` and a cause of its own, `ErrAttemptTimeout`, which the classifier counts as a timeout and which makes the error message say which deadline fired.
 
 **Some 402s clear up on their own.** While a paid request is running, OpenRouter reserves its estimated cost against the account, and once those reservations add up to the available credit, new requests are refused.
 That refusal is a 402 whose body sets `limit_source` to `openrouter_in_flight_budget`, and the book retries it.
@@ -71,8 +70,21 @@ With [backoff](/glossary/#backoff), each retry waits longer than the one before.
 ```go include=ch12/agent/backoff.go tag=backoff
 ```
 
-Chapter 12 tested this in a simulation.
-A hundred clients send a request at the same instant to a provider that serves 10 requests in each 100-millisecond window and turns the rest away:
+Chapter 12 measured it in a simulation that runs as an ordinary test:
+
+```result
+figure: 2.3 s
+unit: until the last client was answered, with full jitter
+task: a simulation in which 100 clients send at once and retry against a provider that serves 10 requests in each 100 ms window and refuses the rest with a 429
+models: none; the provider is simulated
+runs: one per fixed strategy, 200 random seeds per jittered one
+date: deterministic; `go test ./ch12/agent -run Contention` repeats it
+source: Chapter 12
+
+Backoff without jitter took 32.7 seconds, because every retry wave arrived together. Full jitter sent the fewest requests, 411 on average against 550, and finished in 2.3 seconds on average (1.3 to 6.2 across seeds).
+```
+
+The three main strategies side by side:
 
 | Retry strategy | Requests sent | Last client answered |
 | --- | --- | --- |
@@ -153,12 +165,24 @@ The chapter's live runs made 209 model calls and none of them needed a retry.
 The companion code therefore has a transport that causes failures deliberately: a 429, a 503, a dropped connection, or a stream reset after a chosen number of bytes.
 Every behavior on this page is tested against it, and many of the tests use the fake clock from `testing/synctest`.
 
+## Steps for your own agent
+
+1. Write a classifier that checks the caller's context first, then asks the error whether it is retryable, then looks for a timeout, then for a dropped connection; anything else is permanent.
+2. Give each attempt its own deadline with a cause you can recognize, inside a total time for all of a call's retries.
+3. Back off with full jitter, use the server's `Retry-After` in its place, and give up at once when the server asks for longer than you will wait.
+4. When retries run out, return an error that says it is not retryable, so no layer above starts the cycle again.
+5. Share a retry budget and a circuit breaker across every agent that calls the same provider.
+6. Retry a broken stream from the start, tell the display to clear the partial reply, and carry the failed attempt's usage into the total.
+7. Put a timeout on every tool, retry only tools marked read-only or idempotent, and stop the run with `ErrOutcomeUnknown` when a tool that changes things times out.
+8. Log metadata always and content only on request, through your redaction hook, and export spans under the generative-AI names.
+9. Test all of it with a transport that injects 429s, 503s, and dropped connections, since live runs rarely produce them.
+
 ## When to use it
 
 ```fit
 reach: Runs are long enough that one dropped connection is expensive. A TLS error ended a run at turn 41 after $0.077 of work, and left three groups of a fan-out unresolved (chapter 12).
 leave: Retrying permanent errors. A 402 means the account is out of credit, as happened partway through the book's own runs; retrying adds requests until someone adds funds (chapters 5 and 12).
-leave: Retrying a tool that isn't safe to repeat. In the crash sweep, sending a filing again after an unknown outcome is what produced every duplicate; retry only tools marked safe (chapters 12 and 15).
+leave: Retrying a tool that isn't safe to repeat. In the crash sweep, every duplicate came from repeating a filing or comment whose result was never saved; retry only tools marked safe (chapters 12 and 15).
 ```
 
 ## Try it

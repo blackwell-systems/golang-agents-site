@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Running an agent's tool calls in parallel with goroutines
 short: Parallel tool calls
 description: A single model reply often requests several tools. This page covers which of those calls can safely overlap, a runner built on sync.WaitGroup.Go and a semaphore that returns answers in the model's order, and why the time it saves on a coding agent is measured in milliseconds.
@@ -18,7 +17,8 @@ This page works through those questions with chapter 9 of the book and its runne
 ## How often models ask for several calls
 
 Models do this on their own, and frequently.
-In the runs the book recorded, between a quarter of replies and every reply requested more than one tool, depending on which model and which task:
+In the runs the book recorded from chapter 4 on, between a quarter of replies and every reply requested more than one tool, depending on which model and which task.
+Chapter 9 counts all four models on both tasks; here are two of them on each:
 
 | Task | Model | Replies with more than one call | Mean calls per reply | Most in one reply |
 | --- | --- | --- | --- | --- |
@@ -28,7 +28,7 @@ In the runs the book recorded, between a quarter of replies and every reply requ
 | Crash triage, 14 tools | `openai/gpt-5.6-luna` | 50% | 3.14 | 12 |
 
 The book never sets `parallel_tool_calls` on a request.
-On models that honor it, setting it to false limits each reply to one call.
+On models that honor it, setting it to false limits each reply to one call; of the book's four models only `z-ai/glm-5.3-flash` accepts it, and Anthropic's own API has a separate switch for the same purpose.
 There is no value that makes a model request more than one, and in spite of the name, the flag has no bearing on how your harness executes the calls it gets.
 Anthropic's documentation is explicit that execution order is the caller's business: run the calls however you like, provided each one gets exactly one result.
 
@@ -44,7 +44,7 @@ Chapter 9 decides with the read-only flag that every tool has carried since chap
 - Every other call executes by itself, waiting for all earlier calls and holding back all later ones; this is a [barrier](/glossary/#barrier).
 
 `run_tests` doesn't count as read-only, since it executes code, including tests the agent wrote, so it acts as a barrier.
-A call to a tool the harness doesn't recognize also gets its own stage, because nothing is known about what it does.
+A call to a tool the harness doesn't recognize also gets its own stage, because nothing is known about what it does, and so does the final tool: once it accepts an answer, the calls after it are answered "not run".
 
 ```go include=ch09/agent/runner.go tag=stages
 ```
@@ -98,6 +98,13 @@ Overlapping the reads on this agent saves a few milliseconds per turn.
 The runner stays in the code anyway.
 It is correct, it costs little, and it pays off for tools that spend their time waiting on remote services, a search API for instance, or a database on another machine.
 
+## What was measured, and what wasn't
+
+Chapter 9 measured three things here: how often each of four models asks for several calls in one reply, across the book's saved runs; how long each triage tool takes, by replaying one recorded run's 87 calls one at a time; and, in its tests, that the staged runner keeps an edit ahead of the test run that follows it.
+It did not measure the runner on tools that wait on a network, where the saving should be largest, since the triage agent has no such tool.
+The claim that overlapping those calls saves all but the slowest call's time is arithmetic, not a measurement, and worth checking on your own tools before you count on it.
+It also didn't build or measure the finer dependency-graph scheme described above.
+
 ## A tool that can't run at all
 
 Some failures leave the model nothing to try.
@@ -107,7 +114,7 @@ The runner halts at the current stage, gives every call that didn't run the answ
 
 ## Others choose differently
 
-The OpenAI Agents SDK, by default, launches all of a turn's function tool calls together, with an optional limit on how many run at once.
+The OpenAI Agents SDK, as its source stood in October 2026, launches all of a turn's function tool calls together by default, with an optional limit on how many run at once.
 Ordering is left to the tools, except that its shell and patch tools each run one call at a time within their own kind.
 For independent lookups that works well.
 For a reply that edits a file and then runs tests, the ordering would have to come from the tools themselves.
@@ -129,5 +136,5 @@ From the `code` directory of a clone of the [companion repository](https://githu
 $ go test ./ch09/agent/ -run 'Barrier|Stages' -race -v
 ```
 
-These tests run the stages on real goroutines with the race detector on.
+`TestStages` checks how replies split into stages, and `TestBarrier` runs the edit-then-test reply both ways, every call at once and through the runner, inside a `testing/synctest` bubble, with the race detector on.
 The semaphore is in [`ch09/agent/slots.go`](code:ch09/agent/slots.go).

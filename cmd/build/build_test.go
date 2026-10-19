@@ -82,7 +82,7 @@ func TestText(t *testing.T) {
 
 func TestConvertRejectsEmDash(t *testing.T) {
 	code := &codeRoot{dir: t.TempDir()}
-	_, err := convert(newMarkdown(code), code, []byte("a — b"))
+	_, err := convert(newMarkdown(code, newPageIndex(nil, nil)), code, []byte("a — b"))
 	if err == nil || !strings.Contains(err.Error(), "em dash") {
 		t.Errorf("convert with an em dash: err = %v", err)
 	}
@@ -90,7 +90,7 @@ func TestConvertRejectsEmDash(t *testing.T) {
 
 func TestBlocks(t *testing.T) {
 	code := &codeRoot{dir: t.TempDir()}
-	md := newMarkdown(code)
+	md := newMarkdown(code, newPageIndex(nil, nil))
 	result := "```result\nfigure: 79\nunit: of 80\ntask: a *first* request\nmodels: four\nruns: ten each\ndate: October 2026\nsource: Chapter 10\nlink: /findings/x/\n\nOne sentence decided it.\n```\n"
 	fit := "```fit\nreach: many groups (chapter 9)\nleave: a small batch (chapters 8 and 9)\n```\n"
 	tests := []struct {
@@ -216,5 +216,80 @@ func TestPicture(t *testing.T) {
 		if strings.Contains(a.Alt, "art:") || a.Alt == "" {
 			t.Errorf("arts[%q]: alt %q", name, a.Alt)
 		}
+	}
+}
+
+func TestPaths(t *testing.T) {
+	a := &Page{URL: "/a/", Title: "A", Description: "d"}
+	b := &Page{URL: "/b/", Title: "B", Description: "d", Draft: true}
+	c := &Page{URL: "/c/", Title: "C", Description: "d"}
+	ix := newPageIndex([]*Page{a, c}, []*Page{b})
+	src := "```path\nid: new\ntitle: New\nstep: /a/\nstep: /b/\nstep: /c/\n\nFor someone new.\n```\n"
+	rps, err := readPaths(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := ix.resolve(rps[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Live() != 2 {
+		t.Errorf("Live = %d, want 2", p.Live())
+	}
+	pl := places([]*Path{p}, a)
+	if len(pl) != 1 || pl[0].N != 1 || pl[0].Prev != nil || pl[0].Next != c {
+		t.Errorf("places(a) = %+v; want step 1, next c (the draft skipped)", pl)
+	}
+	if pl := places([]*Path{p}, c); pl[0].Prev != a || pl[0].Next != nil || pl[0].N != 3 {
+		t.Errorf("places(c) = %+v", pl[0])
+	}
+	for _, bad := range []string{
+		"```path\nid: x\ntitle: X\nstep: /a/\n\nOne step.\n```\n",            // too few steps
+		"```path\nid: x\ntitle: X\nstep: /a/\nstep: /a/\n\nTwice.\n```\n",    // a repeat
+		"```path\nid: X Y\ntitle: X\nstep: /a/\nstep: /c/\n\nBad id.\n```\n", // id
+		"```path\nid: x\ntitle: X\nstep: /a/\nstep: /c/\n```\n",              // no text
+	} {
+		if _, err := readPaths(bad); err == nil {
+			t.Errorf("readPaths(%q): no error", bad)
+		}
+	}
+	rp, _ := parsePath("id: x\ntitle: X\nstep: /a/\nstep: /nowhere/\n\nText.")
+	if _, err := ix.resolve(rp); err == nil {
+		t.Error("resolve with an unknown step: no error")
+	}
+
+	code := &codeRoot{dir: t.TempDir()}
+	out, err := convert(newMarkdown(code, ix), code, []byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`<h2 id="new">New</h2>`, `<a href="/a/">`, `<li class="pending"><span class="step-title">B</span>`} {
+		if !strings.Contains(string(out), want) {
+			t.Errorf("path block = %s\nwant it to contain %s", out, want)
+		}
+	}
+}
+
+func TestPageLinks(t *testing.T) {
+	ix := newPageIndex([]*Page{{URL: "/a/"}}, []*Page{{URL: "/b/"}})
+	code := &codeRoot{dir: t.TempDir()}
+	md := newMarkdown(code, ix)
+	out, err := convert(md, code, []byte("See [the a page](page:/a/#x) and [the *b* page](page:/b/)."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `<p>See <a href="/a/#x">the a page</a> and the <em>b</em> page.</p>`; strings.TrimSpace(string(out)) != want {
+		t.Errorf("page links = %s, want %s", out, want)
+	}
+	if _, err := convert(md, code, []byte("[x](page:/nowhere/)")); err == nil {
+		t.Error("a page link to no page: no error")
+	}
+}
+
+func TestHeadings(t *testing.T) {
+	body := `<h2 id="letter-a" class="letter">A</h2><h3 id="agent">Agent <code>x</code></h3><h2 id="b">Tools &amp; calls</h2><h4 id="c">No</h4>`
+	got := headings(body)
+	if len(got) != 2 || got[0][0] != "agent" || got[0][1] != "Agent x" || got[1][1] != "Tools & calls" {
+		t.Errorf("headings = %q", got)
 	}
 }

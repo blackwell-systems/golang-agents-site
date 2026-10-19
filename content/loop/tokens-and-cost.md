@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Tokens, cost, and the context window
 short: Tokens, cost, and context
 description: An agent's requests grow with every turn. This page shows that growth in recorded numbers, what a run costs, which tokens you pay for before the model reads the task, and why the size of the context window is a poor planning target.
@@ -43,7 +42,7 @@ A low price per token doesn't guarantee a low price per answer.
 Chapter 2 asked four inexpensive models the same short question about nil and empty slices, four times on each.
 The question was 19 words, but the input counts ran from 29 to 53 tokens, mainly because every provider adds its own formatting around a message.
 `z-ai/glm-5.3-flash` produced three times the output tokens of the default model, mostly reasoning, and the amount of reasoning swung between 193 and 807 tokens across runs of the identical question.
-`deepseek/deepseek-v4.1-flash` had the cheapest input on the price list, yet each of its answers cost more than the default model's, because it wrote longer replies and its output price was higher.
+`deepseek/deepseek-v4.1-flash` had the cheapest input on the price list, yet its median answer cost more than the default model's, because it wrote longer replies and its output price was higher.
 Before picking a model from a price table, run it on your own task and look at the bill.
 
 ## Every request carries everything
@@ -89,7 +88,7 @@ Measured on the identical first request, `deepseek/deepseek-v4.1-flash` came to 
 
 On a task this small the overhead hardly shows; the whole run cost $0.0008.
 Crash investigation is different, because the agent reads much more.
-Chapter 8's batch of 99 crash reports cost $1.33 in a run with no context policy; with a policy in place, two runs cost $0.06 and $0.42.
+Chapter 8's batch of 99 crash reports cost $1.33 in a run with no context policy; with a policy that marks the cache and clears old tool results once a request passes 60,000 tokens, two runs cost $0.06 and $0.42.
 
 ## Caching changes the bill, not the size
 
@@ -98,6 +97,20 @@ Agents benefit naturally, since each request is the one before it with a little 
 
 In the 20-turn chat, `openai/gpt-5.6-luna` and `deepseek/deepseek-v4.1-flash` cached without being asked and charged a tenth of the normal rate for most of each request; for `deepseek/deepseek-v4.1-flash`, the final turn ended up a little cheaper than the first.
 The default model supports caching as well, but through OpenRouter you have to request it by putting markers in the request.
+Chapter 8 adds two markers, one at the end of the part every request starts with (the system prompt and the task) and one at the end of the request, and measured the difference on its largest task:
+
+```result
+figure: $0.23
+unit: for the batch, down from $1.33
+task: chapter 8's batch of 99 crash reports from 23 causes, triaged by the crash-triage agent with its whole history in every request, once without cache markers and once with them
+models: `anthropic/claude-haiku-5.5`
+runs: one per condition
+date: October 2026
+source: Chapter 8
+
+With the markers, 95 percent of the input tokens were read from the cache, the cost fell about sixfold, and the agent passed the same 86 of the grader's 94 checks. The two runs took 35 and 33 turns, so most of the gap comes from what each token cost rather than from different choices by the model. Part of it is the long-context price tier described below: priced at the lower rate throughout, the markers would still have made the batch about four and a half times cheaper.
+```
+
 Either way, a cached history costs less while staying exactly as long, and length has a cost of its own, covered next.
 
 ## The context window, and why it's the wrong number
@@ -109,7 +122,7 @@ Send more than fits and the provider will usually reject the request with an err
 Quality drops long before that limit.
 A 2023 paper by Liu and others, "Lost in the Middle", found that models reliably found a fact placed near the beginning or end of a long input and often missed the same fact placed in the middle.
 In 2025, Chroma's "Context Rot" report ran 18 models through simple tasks and saw every one of them get less accurate as the input lengthened, well short of its window.
-Length can raise the price per token too: on the default model, once a request passes 100,000 tokens, the whole request is billed at a higher rate.
+Length can raise the price per token too: on the default model, once a request passes 100,000 tokens, the whole request is billed at five times the usual rate, and about half the requests in chapter 8's uncached batch run crossed that line.
 
 So plan around a budget, not the window.
 A file the agent opened many turns back and doesn't need any more is still billed on each call, and it still takes some of the model's attention away from what matters now.

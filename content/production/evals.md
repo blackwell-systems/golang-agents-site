@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Evals for an AI agent whose answers vary
 short: Evals for an agent
 description: How to tell whether an agent is good, and whether a change improved it. A tiered eval set, graders written as code with hidden tests, unscored runs kept out of the pass rate, rates reported with ranges, task-by-task comparisons, and the places a model reviewer and a model judge fit.
@@ -116,9 +115,23 @@ Two versions of an agent should be compared on the same tasks, one pair at a tim
 Tasks that both versions pass easily contribute nothing to the comparison; the result is driven by the tasks where they disagree.
 
 The most useful measurement in the chapter is how far apart two identical runs land.
-The same agent ran twice on the 20 confirmation tasks, and the second run scored 15 points higher than the first, with nothing changed between them.
-[Two identical runs scored 15 points apart](/findings/identical-runs/) goes through the numbers.
+
+```result
+figure: +15
+unit: points, from chance
+task: the crash-triage eval's confirmation set, the same agent and prompt run twice and compared as if the runs were two versions
+models: `anthropic/claude-haiku-5.5`
+runs: two per task, 20 tasks
+date: October 2026
+source: Chapter 13
+link: /findings/measured-mistakes/#identical-runs
+more: The finding
+
+Nothing changed between the runs, yet the second scored 15 points higher: better on 5 tasks, worse on 2, tied on 13. The range around the difference, -10 to +40, held zero.
+```
+
 A change has to beat that gap before its improvement means anything.
+With fewer than twelve tasks, the book's comparison reports no range at all, only the counts of tasks that got better, worse, or stayed the same, since a resampled range on so few tasks comes out too narrow.
 
 Cost and turn counts belong in the report as well, since they often tell two versions apart when the pass rates can't.
 On the confirmation set, the average scored run cost $0.0081, and the median run took 13 turns.
@@ -140,6 +153,17 @@ Measure a reviewer the way you measure the agent: what it catches, what it wrong
 Pick a judge from another model family than the agent, because models tend to prefer their own outputs.
 Calibrate it against human ratings on enough examples.
 Thirty cases is about the minimum: with 27 matches out of 30, the judge's agreement could still be anywhere from 74 to 97 percent.
+
+## Steps for your own agent
+
+1. Start the eval set from real failures: each time the agent gets something wrong, save its input and what it should have done. Chapter 13 cites Anthropic's suggestion of 20 to 50 such tasks as a start.
+2. Split the tasks into a floor that should almost always pass and a hard tier, and keep a confirmation set you never tune on; the book tunes on 12 of its 32 tasks and confirms on the other 20.
+3. Grade with code wherever you can, include checks the agent never sees, and give the grader tests of its own.
+4. Give every way a run can end a verdict, and keep provider and harness failures out of the pass rate as unscored runs, counted and rerun.
+5. Report each rate with its range, plus pass^k if the agent runs once per task in production.
+6. Compare versions task by task, and measure how far two identical runs land before you trust any difference.
+7. Put cost per run and turns in the same report, and cap the eval's spending before it starts.
+8. Add a reviewer or a judge only after measuring what it catches, what it wrongly rejects, and what it costs.
 
 ## When to use it
 

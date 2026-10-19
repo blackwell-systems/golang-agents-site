@@ -62,6 +62,7 @@
 <header class="site-header">
   <div class="wrap header-row">
     <a class="brand" href="/"{{if eq .Page.URL "/"}} aria-current="page"{{end}}><span class="brand-ring" aria-hidden="true"></span>{{.Site.Name}}</a>
+    <a class="search-link" href="/search/" aria-label="Search the site"{{if eq .Page.Layout "search"}} aria-current="page"{{end}}><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></a>
     <button class="theme-toggle" type="button" aria-label="Light theme" aria-pressed="false" hidden>
       <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
@@ -69,7 +70,7 @@
     <nav class="site-nav" aria-label="Sections">
       <ul>
         {{- range .Nav}}
-        <li><a href="{{.URL}}"{{if .Current}} aria-current="page"{{end}}{{if eq .URL "/book/"}} class="nav-book"{{end}}>{{.Title}}</a></li>
+        <li><a href="{{.URL}}"{{if .Current}} aria-current="page"{{end}}{{if eq .URL "/book/"}} class="nav-book"{{else if eq .URL "/start/"}} class="nav-start"{{end}}>{{.Title}}</a></li>
         {{- end}}
       </ul>
     </nav>
@@ -131,3 +132,20 @@
 </body>
 </html>
 {{end}}
+
+{{/* Where a page stands on the reading paths, with the steps either
+side of it; drafts on a path are skipped. */}}
+{{define "pathnav" -}}
+{{- with .Places}}
+      <nav class="path-nav" aria-label="Reading paths">
+        <p class="path-nav-title">On a reading path</p>
+        <ul>
+          {{- range .}}
+          <li><a class="path-name" href="{{.Path.URL}}">{{.Path.Title}}</a><span class="path-step">Step {{.N}} of {{len .Path.Steps}}</span>
+            {{- with .Prev}}<a class="path-move" href="{{.URL}}"><span>Back:</span> {{.Name}}</a>{{end}}
+            {{- with .Next}}<a class="path-move" href="{{.URL}}"><span>Next:</span> {{.Name}}</a>{{else}}<span class="path-end">The last step</span>{{end}}</li>
+          {{- end}}
+        </ul>
+      </nav>
+{{- end}}
+{{- end}}

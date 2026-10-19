@@ -37,7 +37,7 @@ type Meta struct {
 	Title       string // the page's title, used in <title> and the h1
 	Short       string // a shorter title for nav and lists; defaults to Title
 	Description string // one or two sentences for search results and lists
-	Layout      string // home, section, article, book, glossary, page, or work
+	Layout      string // home, section, article, book, glossary, page, work, or search
 	Chapters    string // the book chapters the page draws on, such as "1, 4"
 	Date        string // first published, as 2006-01-02
 	Updated     string // last changed in substance, as 2006-01-02
@@ -66,12 +66,13 @@ func (p *Page) Modified() string { return cmp.Or(p.Updated, p.Date) }
 // the feed and carries Article metadata.
 func (p *Page) Guide() bool { return p.Layout == "article" }
 
-// loadPages reads every page under dir that isn't a draft, or every
-// page if drafts is set. PLAN.md and README.md at the top of dir
-// describe the content and are not pages.
-func loadPages(dir string, drafts bool) ([]*Page, error) {
-	var pages []*Page
-	err := filepath.WalkDir(dir, func(file string, d fs.DirEntry, err error) error {
+// loadPages reads every page under dir. It returns the pages to build,
+// which are every page if drafts is set and otherwise the pages that
+// aren't drafts, and the drafts it holds back, which are never built
+// but which reading paths and page: links may name. PLAN.md and
+// README.md at the top of dir describe the content and are not pages.
+func loadPages(dir string, drafts bool) (pages, held []*Page, err error) {
+	err = filepath.WalkDir(dir, func(file string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -91,19 +92,22 @@ func loadPages(dir string, drafts bool) ([]*Page, error) {
 			return fmt.Errorf("%s: %w", rel, err)
 		}
 		if p.Draft && !drafts {
-			return nil // on disk for later; not built
+			held = append(held, p) // on disk for later; not built
+			return nil
 		}
 		pages = append(pages, p)
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("load pages: %w", err)
+		return nil, nil, fmt.Errorf("load pages: %w", err)
 	}
-	slices.SortFunc(pages, func(a, b *Page) int {
+	byOrder := func(a, b *Page) int {
 		return cmp.Or(cmp.Compare(a.Section, b.Section),
 			cmp.Compare(a.Weight, b.Weight), cmp.Compare(a.URL, b.URL))
-	})
-	return pages, nil
+	}
+	slices.SortFunc(pages, byOrder)
+	slices.SortFunc(held, byOrder)
+	return pages, held, nil
 }
 
 // loadPage reads one page and works out its URL and section from rel,
@@ -152,7 +156,7 @@ func (p *Page) check() error {
 		return fmt.Errorf("title and description are required")
 	}
 	switch p.Layout {
-	case "home", "section", "article", "book", "glossary", "page", "work":
+	case "home", "section", "article", "book", "glossary", "page", "work", "search":
 	default:
 		return fmt.Errorf("unknown layout %q", p.Layout)
 	}

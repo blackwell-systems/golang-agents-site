@@ -1,5 +1,4 @@
 ---
-draft: true
 title: One crash report, triaged by an agent
 short: "ch07: One crash report, triaged"
 description: The crash-triage agent's first run on a real Go web service, replayed offline. Four crash reports, two already filed, one bug that lives away from the line that crashed; fourteen tools, a final answer in a fixed shape, and a grade from the crash catalog.
@@ -11,7 +10,7 @@ art: ch07
 ---
 
 From chapter 7 on, the companion code's agent has a real job: triaging crash reports from `remind`, a small web service for reminders (twenty packages, roughly 4,800 lines of Go), with bugs seeded in it on purpose.
-This program runs one task from the crash catalog, replayed from a run recorded on `anthropic/claude-haiku-5.5`, with every tool working for real against a fresh copy of the service.
+This program runs one task from the crash catalog, replayed from a run recorded on `anthropic/claude-haiku-5.5` in October 2026, with every tool working for real against a fresh copy of the service.
 
 ## What it shows
 
@@ -28,7 +27,9 @@ From the `code` directory of a clone of [go-agents-book-code](https://github.com
 $ go run ./ch07
 ```
 
-The task is `m1-done-after-delete`, which hands the agent four crash reports. The tracker already has issues for two of them. The other two crashed in one place because of a mistake made somewhere else.
+The task is `m1-done-after-delete`, which hands the agent four crash reports.
+The tracker already has issues for two of them.
+The other two crashed in one place because of a mistake made somewhere else.
 The run starts like this:
 
 ```text include=ch07/testdata/out/m1.txt lines=2..12 title="go run ./ch07, the first turns"
@@ -72,6 +73,7 @@ Several "misses" are the system prompt winning: asked to file an issue, models s
 **Read a tool's output the way the model does.** The recorded tool outputs under `ch07/testdata/out/tools` show what concise results look like: `crash_read` shows the service's own stack frames, one line each, and `crash_goroutines` condenses an 85 KB goroutine dump, 46 goroutines, into 8 groups that take 7 KB.
 
 **Run it live**, with a key and `OPENROUTER_MODEL` set to another tool-capable model, and compare its grade with the recorded one.
+This makes real model calls; the recorded run cost $0.034.
 Expect a different path, and possibly a different grade; one run says little, which is what [evals](/production/evals/) are for.
 
 ## Key files

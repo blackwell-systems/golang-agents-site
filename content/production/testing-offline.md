@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Testing an AI agent offline with recorded replies
 short: Testing an agent offline
 description: An agent's tests should never call a live model. Use a scripted model for the loop's rules, an http.RoundTripper that replays recorded API calls for the client and tools, hand-written fixtures for failures you can't trigger, outcome checks in place of transcript checks, and testing/synctest for timeouts.
@@ -127,6 +126,30 @@ By the end of chapter 5, the following are all tested with no network calls:
 - the real `go test` tool on projects that pass, fail, and don't build, with the key hidden from the code under test
 - every stop reason, replayed
 
+## How rare the failures are
+
+Chapter 5 counted how often live runs produce the replies these fixtures fake.
+Across the book's evidence runs that set no token limit, 686 replies carried 617 tool calls, and none of the replies was truncated, blocked by a filter, broken off by its provider, or missing or repeating an ID.
+That is why the fixtures are written by hand: a test that waits for the real thing never runs, and the handling code it should cover is the code most likely to be wrong when the day comes.
+
+## Steps for your own agent
+
+1. Put the model behind a one-method interface, and test the loop's rules with a scripted fake that picks its reply from the request.
+2. Give your HTTP client an `http.RoundTripper` that replays saved responses by script and call number, and fails on a call the script doesn't have.
+3. Record a few real runs with a recording transport that never saves headers, and replay them in every test.
+4. For each failure you can't trigger on demand, write its replies by hand, serve them from `httptest`, and record them through the real client.
+5. Check outcomes (the file holds the fix, the tests ran after the last edit, the run ended with an answer), never the model's wording.
+6. Run anything that waits on a clock under `testing/synctest`.
+7. Keep live runs out of `go test`: they belong to evals, which measure a rate on purpose.
+
+## When to use it
+
+```fit
+reach: Every change to the harness. The loop's failure handling covers replies that live runs almost never send: none of 686 recorded replies was cut off, filtered, or carried a bad ID (chapter 5).
+reach: More than one model or route. A test that checks outcomes holds for any run that fixes the bug, whichever files it read on the way (chapter 4).
+leave: Measuring how good the agent is. Saved replies show your code handles a reply, not how often a model sends a good one; that takes many live runs, scored (chapters 5 and 13).
+```
+
 ## Try it
 
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):
@@ -136,6 +159,6 @@ $ go test ./ch05/...
 $ go run ./ch05 -replay dup-id
 ```
 
-The first command runs every test for the hardened agent without a network.
+The first command runs every test for the hardened agent without a network or a key; the `run_tests` tool runs the real `go test`, so expect it to take a minute or two on a cold build cache.
 The second replays a hand-written failure: a reply whose two tool calls share an ID.
-To make a recording of your own, set a key and run `go run ./ch04 -replay mine -record /tmp/runs`; each call is saved as `mine-01.json`, `mine-02.json`, and so on.
+Making a recording of your own is the one step that needs a key and spends money: chapter 4's program takes `-record` with a directory and `-replay` with a name for the script, and writes each call as a numbered file under that name.

@@ -1,5 +1,4 @@
 ---
-draft: true
 title: The same bug fix as a workflow cost a quarter to a sixth as much as the agent
 short: Workflow or agent, measured
 description: Chapter 1 fixed one Go bug on four models in two ways, as a three-step workflow written in code and as an agent that picks its own steps. The workflow was cheaper and faster on every model, and its single failure shows what it trades away.
@@ -31,7 +30,7 @@ Chapter 1 of the book checked that rule on a task small enough to build both way
 
 The task: a small Go package, `duration`, has failing tests because its unit table maps `'m'` to `time.Second`.
 
-**The agent** is the roughly 30-line loop from [the agent loop in Go](/loop/agent-loop/), given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
+**The agent** is chapter 4's program: the loop from [the agent loop in Go](/loop/agent-loop/) with a real model client, given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
 
 **The workflow** is three steps written into the program:
 
@@ -88,7 +87,7 @@ To compare models, or to learn whether a change to an agent helped, you need tas
 - **Begin with the steps you already know.** If you can list them, build a workflow. It costs less, runs faster, and is simpler to test, because every run follows the same path.
 - **Use an agent when each step depends on what the previous one found.** That dependence is what the agent's extra calls pay for. A crash whose cause sits far from where it showed up, or a problem where you must collect evidence before you know what to read, won't fit a fixed sequence.
 - **Combine the two.** Most real systems fall somewhere between. A support system, for instance, can send each ticket down a workflow and pass only the odd cases to an agent.
-- **Let a workflow retry its model step.** Its one failure here was a decoding error that a second attempt could have fixed, and an agent's loop gives you that retry for free.
+- **Let a workflow retry its model step.** Its one failure here was a decoding error that a second attempt could have fixed, and an agent's loop already has that retry built in.
 
 ## Try it
 

@@ -136,7 +136,16 @@ $ go run ./ch01
 $ go test ./ch01/...
 ```
 
-The first command plays the bug fix through the loop and prints every turn; the [ch01 example](/run/ch01-scripted-loop/) explains what you see.
+The first command plays the bug fix through the loop and prints every turn.
+Here are the first two:
+
+```text include=ch01/testdata/transcript.txt lines=1..13 title="go run ./ch01, turns 1 and 2"
+```
+
+Each `model asks` line is one tool call in the model's reply, and each `tool result` line is a tool message the loop appended, one per call and in the same order.
+In turn 1 the model runs the tests and lists the files; in turn 2 it reads both files, so its third reply can name the exact line to change.
+Nothing in `Run` knows it is fixing a test: it builds the request, calls the model, runs what was asked, and goes around again.
+The [ch01 example](/run/ch01-scripted-loop/) shows all four turns, including the edit and the final answer.
 The tests cover each rule separately: an answer ends the run, the turn limit ends the run, each tool call receives its own tool message, failing tools come back flagged as errors, and a made-up tool name is answered with the real list.
 None of them uses the network or an API key.
 

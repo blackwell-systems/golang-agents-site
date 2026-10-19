@@ -6,10 +6,13 @@
     <h1 id="title">{{.Site.Name}}</h1>
     <div class="ornament" aria-hidden="true"><span></span></div>
     <p class="hook">{{.Page.Description}}</p>
+    <p class="hero-measured">Every result here is measured: each number comes from recorded runs and names its task, its models, how many runs, and the date.</p>
+    <p class="hero-for">For Go developers new to language models. Basic Go is enough, and no example needs an API key.</p>
     <div class="actions">
-      <a class="button primary" href="/loop/agent-loop/">Start with the loop</a>
+      <a class="button primary" href="/start/">Start here</a>
       <a class="button secondary" href="/run/">Run the code</a>
     </div>
+    <p class="byline">By <a href="/work-with-me/#background">{{.Site.Author}}</a>, founder of Blackwell Systems, who builds AI agent infrastructure in Go, including Bide, a library for durable agents. Her data format for LLMs, GCF, ships in Google’s Chrome DevTools MCP, and she has merged over 50 pull requests into projects from Google, Anthropic, GitHub, and HashiCorp.</p>
     </div>
     <svg class="loop-figure" viewBox="-80 10 560 380" role="img" aria-labelledby="loop-figure-title">
       <title id="loop-figure-title">The agent loop: build the request, call the model, run the tools, decide, and back to building the request</title>
@@ -41,9 +44,27 @@
   </div>
 </div>
 
+{{- with .Site.Paths}}
+<section class="home-start" aria-labelledby="start-title">
+  <div class="wrap">
+    <h2 id="start-title">Three ways in</h2>
+    <ul class="paths">
+      {{- range .}}
+      <li>
+        <h3><a href="{{.URL}}">{{.Title}}</a></h3>
+        <p>{{.Lead}}</p>
+        <p>{{len .Steps}} steps{{if lt .Live (len .Steps)}}, {{.Live}} published so far{{end}}.{{with $.Site.FirstLive .}} It starts with <a href="{{.URL}}">{{.Name}}</a>.{{end}}</p>
+      </li>
+      {{- end}}
+    </ul>
+  </div>
+</section>
+{{- end}}
+
 <section class="home-sections" aria-labelledby="sections-title">
   <div class="wrap">
     <h2 id="sections-title">Where to go next</h2>
+    <p class="live-count">{{len .Site.Guides}} guides are published so far{{with len .Site.Held}}, and {{.}} more are written and being reviewed{{end}}. Each section lists only what’s published.</p>
     <ul class="paths">
       {{- range .Site.Sections}}
       <li>
@@ -55,6 +76,9 @@
           <li><a href="{{.URL}}">{{.Name}}</a></li>
           {{- end}}
         </ul>
+        {{- end}}
+        {{- with .Held}}
+        <p class="held">{{.}} more being reviewed</p>
         {{- end}}
       </li>
       {{- end}}

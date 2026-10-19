@@ -1,5 +1,4 @@
 ---
-draft: true
 title: An error that said "locked" cost a median of 18 turns; one that said "don't retry" cost 4
 short: How a tool error's wording changed the turns
 description: Chapter 4 made a tool fail on every call and changed only the wording of its error. Told "the file is locked", three of four models kept retrying and hunting for ways around the lock; told that retrying couldn't help, every model stopped after one attempt.
@@ -73,7 +72,7 @@ It says the situation will last for the whole session, tells the model not to re
 ## What it can't show
 
 Three runs per model is a small sample.
-Still, the gap between a median of 18 turns and a median of 4 is much wider than the run-to-run variation chapter 5 measures.
+Still, the gap between a median of 18 turns and a median of 4 is much wider than the run-to-run variation chapter 5 describes.
 The experiment covers one task, one tool, and two wordings, and a different kind of failure might call for different advice.
 The default model also gave up after two attempts under the first wording, so the benefit of a better message depends on which model reads it.
 
@@ -101,7 +100,7 @@ Good errors save turns, and only the limit guarantees that the loop ends.
 
 ## Try it
 
-The recorded runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them. A replay of a run that recovers from three bad calls is in chapter 4's code.
+The recorded runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them, as `fix-locked` and `fix-locked-clear` among the book's other tables. Chapter 4's code also has a hand-written replay in which the model makes three bad calls and recovers from each error.
 From the `code` directory of a clone:
 
 ```console

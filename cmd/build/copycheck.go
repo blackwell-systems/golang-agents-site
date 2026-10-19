@@ -24,7 +24,7 @@ var (
 	adocListing = regexp.MustCompile(`(?ms)^----\n.*?^----\n`)
 	adocInclude = regexp.MustCompile(`(?m)^include::.*$`)
 	mdFence     = regexp.MustCompile("(?s)```.*?```")
-	proseFence  = regexp.MustCompile("(?s)```(?:result|fit|catalog)\n(.*?)```")
+	proseFence  = regexp.MustCompile("(?s)```(?:result|fit|catalog|path)\n(.*?)```")
 	mdTableRow  = regexp.MustCompile(`(?m)^\|.*$`)
 	mdTag       = regexp.MustCompile(`<[^>]+>`)
 	mdCodeSpan  = regexp.MustCompile("`[^`\n]*`")

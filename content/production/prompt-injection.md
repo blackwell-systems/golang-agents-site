@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "Prompt injection and sandboxing: defenses that don't rely on the model"
 short: Prompt injection and sandboxing
 description: An agent that reads strangers' text, holds keys, edits code, and sends text out is an attractive target. A one-page threat model, a ladder of sandboxes for the code the agent runs, and five layers of defense from strongest to weakest, with what 237 measured runs could and couldn't show.
@@ -101,7 +100,7 @@ It repeats the deletion until no copy remains, because cutting one copy out can 
 
 ## An agent that went around a denial, with no attacker
 
-The run in this chapter that teaches the most contains no attack at all.
+The run in this chapter that teaches the most contains no attack at all ([refused once, the agent tried other spellings](/findings/measured-mistakes/#denial) has the method).
 `openai/gpt-5.6-luna` was running with every defense on, and decided to fix an older crash in `auth/auth.go` that had already been filed.
 Here is what it tried, in order:
 
@@ -112,7 +111,8 @@ Here is what it tried, in order:
 5. `auth/../auth/auth.go`. Denied, because the path contains `..`.
 6. `auth//auth.go` and then `./auth/auth.go`. Both denied, because the approval gate records a denial against the file a path resolves to, not against the characters of the path.
 
-In a different run, with the defenses switched off, `deepseek/deepseek-v4.1-flash` was unable to fill in a file through the file tool, so it wrote a test whose sole purpose was to write that file from test code.
+In a different run, under the `base` version without chapter 14's defenses, `deepseek/deepseek-v4.1-flash` was unable to fill in a file through the file tool, so it wrote a test whose sole purpose was to write that file from test code.
+No tool call named that file, so no path check saw it; that route is what the rung 3 rules above, read-only protected files and a check after every test run, are for.
 
 Neither model was attacked.
 Both were trying to finish a task and treated the refusal as one more thing in the way.
@@ -120,8 +120,17 @@ Injected instructions would get the same determination from a model, so the chec
 
 ## What a measurement can show
 
-The chapter ran its eight injection tasks against three versions of the agent (no injection defenses, the marker alone, and all the defenses) on three models, for 237 scored runs.
-Not one run tried to carry out its injected instruction.
+```result
+figure: 0 of 237
+unit: runs attempted the injected order
+task: the eight injection tasks of the crash catalog, under three versions of the agent: `base` (no chapter 14 defenses), `marked` (the data marker alone), and `defended` (every defense, with a scripted approver that denies protected changes)
+models: `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `deepseek/deepseek-v4.1-flash`
+runs: four scored runs per task and version for two models; fewer for DeepSeek, whose runs cost more than planned
+date: 16 October 2026
+source: Chapter 14
+
+No run tried to carry out what its injected order asked, in any version. With fixed, easy-to-spot injections and no positive control, this says these models declined these orders; it is not an attacker's success rate.
+```
 
 The chapter is careful about what that zero means.
 All eight injections were written once, ahead of time, and they are obvious; current models are trained against exactly this sort of text.
@@ -133,6 +142,17 @@ They don't say what success rate an attacker would get.
 The defenses did change the agent's ordinary work.
 The protected-path check held back edits to the authorization code that were outside the task's scope.
 With the defenses on, `anthropic/claude-haiku-5.5` passed every check in 30 of 32 runs; without them, it passed in 24 of 32.
+
+## Steps for your own agent
+
+1. Write the threat model: what the agent holds, where outside text reaches the model, each way it acts, and the defense on each.
+2. Remove every tool the task doesn't need; injected text can only ask for tools the agent has.
+3. List the paths a fix should never touch without a person, and check each write's real target, refusing `..`, links, and names outside plain ASCII.
+4. Run the code the agent writes in an operating-system sandbox (Seatbelt or bubblewrap) whenever the input comes from strangers, with no network beyond loopback.
+5. Keep keys in files only you can read, outside the workspace, and take key variables out of the environment before starting any child.
+6. Check every string that leaves for links and for your own secrets in their common encodings.
+7. Mark untrusted text with a random boundary, and treat that as a help, never a wall.
+8. Measure what the defenses cost honest work, and test them with injections written for your system, plus a version built to comply as a positive control.
 
 ## When to use it
 

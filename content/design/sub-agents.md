@@ -1,5 +1,4 @@
 ---
-draft: true
 title: Sub-agents in Go, and when a fresh context helps
 short: Sub-agents
 description: A sub-agent is your agent loop run again from inside a tool, with an empty history, to answer one self-contained question. This page covers building one in Go, reporting one that ran out of turns, limiting nesting to one level, and a measured case where it didn't pay off.
@@ -41,7 +40,7 @@ Sharing that record with the sub-agent would let the parent edit a file it knows
 So the sub-agent works in the same workspace but keeps a separate record of what it has read.
 
 **A sub-agent that didn't finish is an error result, never a budget error.**
-When the sub-agent hits its turn limit, the parent receives an ordinary tool error: "the helper didn't finish ... after 15 turns; ask a narrower question, or read the code yourself".
+When the sub-agent hits its turn limit, the parent receives an ordinary tool error, `the helper didn't finish (agent: budget exhausted: max turns reached) after 15 turns; ask a narrower question, or read the code yourself`, which tells it what to try next.
 Returning `ErrBudget` here would be wrong.
 The parent's loop reads `ErrBudget` as its own turns or money being used up, so it would halt and report a budget problem that belongs to someone else.
 The sub-agent's error is formatted into the message with `%v`, which copies its text without wrapping it, so no `errors.Is` check in the parent can match it.
@@ -88,7 +87,7 @@ Research is the stronger case, and chapter 9's case study is about it.
 There the answer is scattered across many sources that have nothing to do with each other.
 A lead agent breaks the question into parts and starts a sub-agent for each; every sub-agent reads its own sources in a separate context and returns a brief summary.
 Anthropic's report on its multi-agent research system covers a design like that.
-It notes that its multi-agent systems consumed roughly 15 times as many tokens as chats, and that "most coding tasks involve fewer truly parallelizable tasks than research".
+It reports that its multi-agent systems used roughly 15 times as many tokens as chats, and it names the reason coding sees smaller gains: coding tasks have "fewer truly parallelizable tasks than research".
 The rules from the triage agent hold there too.
 Use a single budget for the lead and all sub-agents.
 Report a sub-agent that ran out of turns as a result the lead can respond to.
@@ -101,6 +100,22 @@ In fan-out, the harness itself splits the job ahead of time and starts one agent
 Each is a form of concurrency in Go, and the book measured both on the triage agent.
 On the 99-report batch, [fan-out finished no faster than one agent](/findings/fan-out/); what it gave instead was steadier cost and smaller requests.
 When a model chooses how many agents to start and merges their results, the program is doing orchestration, and the book deliberately stops short of that.
+
+## What the book measured, and what it didn't
+
+Measured, on the default model in October 2026:
+
+- **One sub-agent on one task**, three runs with it and three without, on the catalog's longest single task. The result is in the table above: no context saved, a little more cost.
+- **Fan-out over a batch**: 23 group agents run four at once and run one after another, two runs of each, set against three runs of a single agent over the same 99 reports. Four at once beat one after another by about 2.4 times, matched the single agent's wall time, varied less in cost, and cost 25 to 60 percent more than the single agent.
+
+Not measured:
+
+- **A sub-agent on a task where the parent never rereads the files.** That is the case the book expects to pay, and its one task with a sub-agent wasn't one.
+- **A research workload.** The research assistant is a case study in the chapter, described from Anthropic's published report; the book ran no research agent.
+- **Orchestration**, where a model decides how many agents to start and what each one does. The book leaves it out on purpose.
+
+Three runs a side can show a large effect and can't rank two close ones.
+If your agent asks side questions about code it will never edit, or reads many independent sources, the unmeasured cases are the ones that describe it, and a few runs of your own, with and without the sub-agent, will tell you more than this page can.
 
 ## When to use it
 
@@ -117,7 +132,11 @@ From the `code` directory of a clone of the [companion repository](https://githu
 
 ```console
 $ go test ./ch09/triage/ -run TestExplainUnfinished -v
+$ go run ./ch09 -task g3-mixed-batch -groups -parallel 4
 ```
 
 The test confirms that a sub-agent that exhausts its turns reaches the parent as a tool error and that the parent keeps running.
+The second command, with no key set, replays a recorded fan-out run on a six-report task with five fingerprint groups.
+Each output line names the group whose agent produced it; after the agents finish come the merge of their workspaces, the filed issues, and a grade of 22 of 22 checks.
+The service's tests run many times along the way, so it takes a couple of minutes.
 The sub-agent's prompt and tool list are in [`ch09/triage/subagent.go`](code:ch09/triage/subagent.go).

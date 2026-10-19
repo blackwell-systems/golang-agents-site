@@ -24,10 +24,11 @@ import (
 // newMarkdown returns the Markdown converter: GitHub-flavored Markdown
 // with heading IDs and {#id} attributes, curly quotes but no dashes
 // (the prose rules ban em dashes, so "--" stays as typed), code blocks
-// highlighted by chroma, excerpts included from the companion code, and
-// code: links turned into links to the repository.
-func newMarkdown(code *codeRoot) goldmark.Markdown {
-	blocks := &codeBlocks{code: code}
+// highlighted by chroma, excerpts included from the companion code,
+// code: links turned into links to the repository, and page: links
+// resolved against pages, the site's pages.
+func newMarkdown(code *codeRoot, pages *pageIndex) goldmark.Markdown {
+	blocks := &codeBlocks{code: code, pages: pages}
 	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,
@@ -41,7 +42,8 @@ func newMarkdown(code *codeRoot) goldmark.Markdown {
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
 			parser.WithAttribute(),
-			parser.WithASTTransformers(util.Prioritized(codeLinks{code}, 100)),
+			parser.WithASTTransformers(util.Prioritized(codeLinks{code}, 100),
+				util.Prioritized(pageLinks{code, pages}, 100)),
 		),
 		goldmark.WithRendererOptions(
 			gmhtml.WithUnsafe(), // pages may hold HTML blocks, such as figures
@@ -77,6 +79,50 @@ func (t codeLinks) Transform(doc *ast.Document, _ text.Reader, _ parser.Context)
 	})
 }
 
+// pageLinks resolves links of the form page:/production/approval/ (a
+// #fragment may follow). A link to a published page becomes an ordinary
+// link; a link to a draft becomes its text alone, so a page can name a
+// guide that isn't out yet and gains the link when the guide is
+// published. A URL that names no page is an error.
+type pageLinks struct {
+	code  *codeRoot // collects the errors
+	pages *pageIndex
+}
+
+func (t pageLinks) Transform(doc *ast.Document, _ text.Reader, _ parser.Context) {
+	var unlink []*ast.Link
+	ast.Walk(doc, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+		link, ok := n.(*ast.Link)
+		if !entering || !ok {
+			return ast.WalkContinue, nil
+		}
+		dest, ok := strings.CutPrefix(string(link.Destination), "page:")
+		if !ok {
+			return ast.WalkContinue, nil
+		}
+		url, _, _ := strings.Cut(dest, "#")
+		_, live, err := t.pages.find(url)
+		switch {
+		case err != nil:
+			t.code.fail(fmt.Errorf("page link: %w", err))
+		case live:
+			link.Destination = []byte(dest)
+		default:
+			unlink = append(unlink, link)
+		}
+		return ast.WalkContinue, nil
+	})
+	for _, link := range unlink {
+		parent := link.Parent()
+		for c := link.FirstChild(); c != nil; {
+			next := c.NextSibling()
+			parent.InsertBefore(parent, link, c)
+			c = next
+		}
+		parent.RemoveChild(parent, link)
+	}
+}
+
 // codeBlocks renders fenced code blocks. A block whose info string has
 // include= takes its text from the companion code:
 //
@@ -88,8 +134,9 @@ func (t codeLinks) Transform(doc *ast.Document, _ text.Reader, _ parser.Context)
 // in its caption; without it, the caption is the file's path. A block
 // whose language is in blockLangs is a layout instead (blocks.go).
 type codeBlocks struct {
-	code *codeRoot
-	md   goldmark.Markdown // the converter, for the Markdown inside blocks
+	code  *codeRoot
+	pages *pageIndex        // the site's pages, for path blocks
+	md    goldmark.Markdown // the converter, for the Markdown inside blocks
 }
 
 func (r *codeBlocks) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {

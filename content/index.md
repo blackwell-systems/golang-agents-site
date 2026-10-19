@@ -6,7 +6,8 @@ layout: home
 
 ## What this site is
 
-A guide to building AI agents in Go, one question per page: how the loop works, what a tool call looks like on the wire, how to keep a long run's context in check, how to test an agent whose answers vary, and how to run one in production.
+A guide to building AI agents in Go, one question per page, written from the book *Building AI Agents in Go* and its tested code.
+The guides are being published in batches; the list at the end of this page shows exactly which are out, section by section, and [Start here](/start/) puts them in order for three kinds of reader.
 
 Every page is short and points at runnable code.
 The code comes from a [public repository](https://github.com/blackwell-systems/go-agents-book-code) under Apache 2.0, where each excerpt is part of a tested program, linted and run with the race detector.
@@ -15,15 +16,15 @@ The examples run offline: with no API key, they replay model replies recorded fr
 ## Learn it by building it
 
 The way to understand an agent is to build one, one piece at a time, and see what each piece is for.
-This guide and the book behind it start from a loop with no model in it at all, a scripted stand-in, so the control flow is plain before any AI arrives.
-Then the pieces go in one by one: a real model call, tools, streaming, context management, concurrency, evals, safety, and recovery from a crash.
-Each piece is a small, tested Go change that you can run and break on purpose.
+The book behind this guide starts from a loop with no model in it at all, a scripted stand-in, so the control flow is plain before any AI arrives.
+Then it adds the pieces one at a time: a real model call, tools, streaming, context management, concurrency, evals, safety, and recovery from a crash.
+Each piece is a small, tested Go change that you can run and break on purpose, and every chapter's program is in the public repository whether or not its guide is out yet.
 
 The code uses Go's standard library: `net/http` for the API, `encoding/json/v2` for the wire format, `context` for deadlines and cancellation.
 No framework sits between you and the model, so every request, reply, and tool call is something you wrote and can read.
 Along the way you also see what happens inside the model, from tokens and sampling to why answers vary, because that explains much of how an agent behaves.
 
-By the end you can read any agent framework and know what it does underneath, and decide what to adopt and what to write yourself.
+By the end of the book you can read any agent framework and know what it does underneath, and decide what to adopt and what to write yourself.
 
 ## The loop, in four stages
 
@@ -118,4 +119,4 @@ The workflow cost between a sixth and a quarter of what the agent cost on each m
 - **Measured, with the method.** Claims about what works come from recorded runs, with the task, the models, the number of runs, and the date, as in the three results above. The failures are measured too: [twelve measured mistakes](/findings/measured-mistakes/), each with its method.
 - **Offline by default.** Every example runs without a key and costs nothing. With `OPENROUTER_API_KEY` set, the same programs call a live model.
 - **The standard library first.** The code reaches the model over plain `net/http` and `encoding/json/v2`, so you can see every moving part before deciding what to adopt.
-- **Clear about its limits.** Retrieval, memory across unrelated runs, and multi-agent planning are left out on purpose; [what this covers](/scope/) says why. [Why Go](/loop/why-go/) makes the case for the language from the book's measurements.
+- **Clear about its limits.** Retrieval, memory across unrelated runs, and a model that hands work to other agents at run time are left out on purpose; [what this covers](/scope/) says why, and what was measured instead. [Why Go](/loop/why-go/) makes the case for the language from the book's measurements.

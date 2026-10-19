@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "One agent, several providers: OpenAI-compatible APIs, the Messages API, and official SDKs in Go"
 short: Providers and SDKs
 description: How to run one agent loop against providers whose APIs disagree on almost everything. An official SDK wrapped in your own interface with its retries off and its errors translated, a hand-written client for Anthropic's Messages API, reasoning that has to return to the provider and host that produced it, and one task run through three clients.
@@ -39,7 +38,7 @@ Change the base URL to `https://api.anthropic.com/v1` and the same client goes t
 ## An official SDK, behind your own interface
 
 OpenRouter has a Go SDK for chat completions, produced by a code generator from its API description.
-Adding it makes it the first dependency of the book's main module, and the version is pinned: a generated library before 1.0 changes its types every time the description changes.
+Adding it makes it the first dependency of the book's main module, pinned at `v0.9.59`: a generated library before 1.0 changes its types every time the description changes.
 Two settings in the adapter's constructor do most of the work:
 
 ```go include=ch11/orsdk/orsdk.go tag=client
@@ -77,8 +76,9 @@ For that, the agent's `Message` gets one new field:
 
 The value records the server as well as the API, since the model alone doesn't decide where a block is accepted.
 OpenRouter can send one model's requests to several hosts, and each host runs under its own account.
-The chapter's experiment on `anthropic/claude-haiku-5.5` showed the effect.
-Returned to the host that produced it, a thinking block was billed as input at its full size.
+The chapter's experiment on `anthropic/claude-haiku-5.5`, two runs in October 2026, showed the effect.
+It pinned the first request to one host, Claude Platform on AWS, and then sent the continuation, the block plus a tool result, along five routes, one of them the same host with the block left out.
+Returned to the host that produced it, the block was billed as input at its full size.
 Routed instead to Anthropic's own API, Azure, or Google Vertex, the request was refused by OpenRouter with a 400 that named the original host.
 The rule that follows: store the origin of every piece of reasoning, and drop the reasoning whenever a conversation moves to a different host or provider.
 
@@ -89,7 +89,7 @@ Rather than leave it to the account's default, the client sends Anthropic's beta
 
 ## One task, three clients
 
-Each client ran the book's standard triage task three times, all through OpenRouter on the default model:
+Each client ran chapter 7's `m1` triage task three times in October 2026, all through OpenRouter on the default model at its API's default reasoning setting:
 
 | Client | Turns | From the cache | Cost | Checks passed |
 | --- | --- | --- | --- | --- |
@@ -100,8 +100,9 @@ Each client ran the book's standard triage task three times, all through OpenRou
 All nine runs passed, and on every column the three clients' ranges overlap.
 With three runs each, the numbers can't rank the clients by cost.
 What they do show is that switching clients took nothing away from the agent.
+The Messages API runs used an earlier version of its client; the recording the replay below uses comes from the final one, and finished in 13 turns for $0.0080, with 87.5 percent of its input served from the cache and all 16 checks passed.
 The two formats also come out close in size.
-The chapter encoded one request, the last of a recorded run, with each client; leaving reasoning aside, the conversation part was 29,695 bytes in chat completions and 29,356 bytes in the Messages API, within about 1 percent.
+The chapter encoded one request, the last of chapter 10's recorded `m1` run, with each client; leaving reasoning aside, the conversation part was 29,695 bytes in chat completions and 29,356 bytes in the Messages API, within about 1 percent.
 
 ## A checklist for the next adapter
 
@@ -127,5 +128,5 @@ $ go run ./ch11 -provider anthropic
 $ go run ./ch11 -provider sdk
 ```
 
-Each command replays a recorded triage run through the chosen client, runs every tool for real, and prints the tokens and cost at the end.
-The service's tests run many times along the way, so give each command a few minutes.
+Each command replays a recorded `m1` run through the chosen client, runs every tool for real, and prints the tokens, the cost, and the catalog's grade at the end; both recordings pass 16 of 16.
+The service's tests run many times along the way, so give each command a minute or so.
