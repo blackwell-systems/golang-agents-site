@@ -9,7 +9,6 @@ It assumes you can write and run Go code; nothing about models or machine learni
 
 Pick the path that matches why you're here.
 Each one is a list of guides in the order they build on each other, and every guide on a path links to the step before and after it, so you can follow it without coming back to this page.
-Guides that are written but still being reviewed are listed without a link, and the links appear as they are published.
 
 ```path
 id: newcomer
