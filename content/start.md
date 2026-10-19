@@ -13,21 +13,26 @@ Each one is a list of guides in the order they build on each other, and every gu
 ```path
 id: newcomer
 title: Learning how agents work
+step: /basics/getting-set-up/
 step: /basics/what-is-an-agent/
 step: /run/ch01-scripted-loop/
 step: /basics/agent-loop/
+step: /basics/first-model-call/
+step: /basics/messages-and-roles/
 step: /basics/calling-a-model/
+step: /basics/common-errors/
 step: /basics/tool-calling/
 step: /run/ch04-first-agent/
 step: /basics/tokens-and-cost/
 step: /basics/how-models-work/
+step: /basics/choosing-a-model/
 step: /build/tool-design/
 step: /production/stop-reasons/
 step: /build/workflows-vs-agents/
 step: /production/testing-offline/
 step: /findings/the-finished-agent/
 
-For a Go developer who has never built an agent. It starts with what an agent is and a loop that runs with no model at all, then calls a real model, adds tools, and runs a real agent. After that come what each turn costs, how a model picks its words, tool design, stopping safely, and testing. The last step shows where it all leads: the agent the book finishes with, and how well it did.
+For a Go developer who has never built an agent. It starts with setting up and a loop that runs with no model at all, then makes a first real model call, explains messages and roles, adds tools, and runs a real agent. After that come what each turn costs, how a model picks its words, choosing a model, tool design, stopping safely, and testing. The last step shows where it all leads: the agent the book finishes with, and how well it did.
 ```
 
 ```path
