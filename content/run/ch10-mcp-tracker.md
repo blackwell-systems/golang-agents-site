@@ -16,7 +16,7 @@ The model's replies are recorded; the server, the protocol, and every tool run f
 
 ## What it shows
 
-- A hand-written MCP client and server in Go, newline-delimited JSON-RPC over standard input and output. [MCP in Go](/design/mcp/) explains both sides.
+- A hand-written MCP client and server in Go, newline-delimited JSON-RPC over standard input and output. [MCP in Go](/build/mcp/) explains both sides.
 - Server tools adapted into agent tools, with names prefixed by the server's name, descriptions labeled as the server's, and untrusted hints ignored.
 - A server whose tool definitions can be pinned by hash, so a change stops the run before it starts.
 

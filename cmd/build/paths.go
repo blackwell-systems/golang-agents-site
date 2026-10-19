@@ -14,7 +14,7 @@ import (
 //	```path
 //	id: newcomer
 //	title: Learning how agents work
-//	step: /loop/what-is-an-agent/
+//	step: /basics/what-is-an-agent/
 //	step: /run/ch01-scripted-loop/
 //
 //	Who the path suits, in Markdown.

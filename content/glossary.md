@@ -25,7 +25,7 @@ A thin layer that lets code written against one interface use something with a d
 ### Agent {#agent}
 
 A program where the model picks the next tool to call, one turn at a time, using what earlier tool calls returned, and keeps going until the job is finished or the harness hits a limit.
-<span class="cite-line">Chapter 1 · [The agent loop in Go](/loop/agent-loop/)</span>
+<span class="cite-line">Chapter 1 · [The agent loop in Go](/basics/agent-loop/)</span>
 
 ### Agent event {#agent-event}
 
@@ -35,7 +35,7 @@ A notice the harness emits while a run is in progress, at the moment each thing 
 ### Agentic loop {#agentic-loop}
 
 What the harness does each turn, in four steps: assemble the request, send it to the model, execute any tools the model asked for, then decide whether another turn is needed.
-<span class="cite-line">Chapter 1 · [The agent loop in Go](/loop/agent-loop/)</span>
+<span class="cite-line">Chapter 1 · [The agent loop in Go](/basics/agent-loop/)</span>
 
 ### Approval {#approval}
 
@@ -190,7 +190,7 @@ A short identifier derived from a crash report. The goal is that crashes from on
 ### Finish reason {#finish-reason}
 
 The field in each reply that says why the model stopped generating: it was done (`stop`), it ran out of room (`length`), it wants tools run (`tool_calls`), a content filter cut it off (`content_filter`), or the provider hit an error (`error`).
-<span class="cite-line">Chapter 2 · [Tool calling in Go, on the wire](/loop/tool-calling/)</span>
+<span class="cite-line">Chapter 2 · [Tool calling in Go, on the wire](/basics/tool-calling/)</span>
 
 ## G {#letter-g .letter}
 
@@ -207,7 +207,7 @@ Code that tests one run's result against each of its checks and decides whether 
 ### Greedy decoding {#greedy-decoding}
 
 Choosing the most probable token at every step. It gives the same text each time, and a small model writing a long reply can get stuck repeating one phrase. Temperature 0 asks for it.
-<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#a-model-made-of-counts)</span>
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/basics/how-models-work/#a-model-made-of-counts)</span>
 
 ## H {#letter-h .letter}
 
@@ -219,7 +219,7 @@ A model presenting something false with the same confidence as something true. N
 ### Harness {#harness}
 
 Everything in an agent program except the model. The harness carries out the tool calls the model requests, chooses what goes into each request, and decides when the run is over.
-<span class="cite-line">Chapter 1 · [The agent loop in Go](/loop/agent-loop/)</span>
+<span class="cite-line">Chapter 1 · [The agent loop in Go](/basics/agent-loop/)</span>
 
 ### Hidden test {#hidden-test}
 
@@ -273,7 +273,7 @@ A random amount added to each retry's wait, so clients that failed at the same m
 ### JSON Schema {#json-schema}
 
 A standard vocabulary for describing JSON values: the fields an object has, each field's type, and which fields are required. A tool definition uses one to describe its arguments.
-<span class="cite-line">Chapter 4 · [Tool calling in Go, on the wire](/loop/tool-calling/)</span>
+<span class="cite-line">Chapter 4 · [Tool calling in Go, on the wire](/basics/tool-calling/)</span>
 
 ### JSON-RPC {#json-rpc}
 
@@ -334,7 +334,7 @@ The API a provider built for its own models. A compatible API, by contrast, imit
 ### Next-token prediction {#next-token-prediction}
 
 How a language model writes: it gives every possible next token a probability, one is chosen, the token is added to the text, and the model predicts again from the longer text. Every reply, a tool call included, comes out this way.
-<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#next-token-prediction)</span>
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/basics/how-models-work/#next-token-prediction)</span>
 
 ## O {#letter-o .letter}
 
@@ -417,7 +417,7 @@ All a run needs to carry on once its process has exited: the conversation, the m
 ### Sampling {#sampling}
 
 Choosing the next token at random in proportion to the model's probabilities, instead of always taking the most probable one. APIs sample by default, which is the main reason the same request can get different replies.
-<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#a-model-made-of-counts)</span>
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/basics/how-models-work/#a-model-made-of-counts)</span>
 
 ### Sandbox {#sandbox}
 
@@ -457,7 +457,7 @@ The chain of function calls active at the moment a program panicked, listed from
 ### Stop reason {#stop-reason}
 
 The harness's account of why a whole run ended: it got an answer, hit a limit, was cancelled, or failed with an error. Compare the finish reason, which explains only why a single reply ended.
-<span class="cite-line">Chapter 5 · [The agent loop in Go](/loop/agent-loop/)</span>
+<span class="cite-line">Chapter 5 · [The agent loop in Go](/basics/agent-loop/)</span>
 
 ### Structured outputs {#structured-outputs}
 
@@ -484,7 +484,7 @@ The first message in a conversation, with the role `system`, holding instruction
 ### Temperature {#temperature}
 
 A setting applied to the model's probabilities before a token is chosen. Below 1 the favorite wins more often, and 0 means always taking it; above 1 unlikely tokens are chosen more often, and replies start to fall apart.
-<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#temperature)</span>
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/basics/how-models-work/#temperature)</span>
 
 ### Threat model {#threat-model}
 
@@ -504,12 +504,12 @@ The program that converts text into tokens and tokens back into text. It has a f
 ### Tool and tool call {#tool-and-tool-call}
 
 A tool is an action your program offers to perform for the model, like reading a file or running tests, which the model knows by a name and a description of its inputs. A tool call is the model's request to run one of those tools with specific inputs, for example `read_file` on `duration.go`.
-<span class="cite-line">Chapter 1 · [Tool calling in Go, on the wire](/loop/tool-calling/)</span>
+<span class="cite-line">Chapter 1 · [Tool calling in Go, on the wire](/basics/tool-calling/)</span>
 
 ### Tool definition {#tool-definition}
 
 The description of a tool sent to the model: a name, a plain-language explanation of what it does, and a JSON Schema for its arguments.
-<span class="cite-line">Chapter 4 · [Tool calling in Go, on the wire](/loop/tool-calling/)</span>
+<span class="cite-line">Chapter 4 · [Tool calling in Go, on the wire](/basics/tool-calling/)</span>
 
 ### Tool poisoning {#tool-poisoning}
 
@@ -519,7 +519,7 @@ Hostile instructions planted in a tool's description or schema to steer the mode
 ### Tool result {#tool-result}
 
 What a tool returned, delivered to the model as a `tool` message tagged with the ID of the tool call it responds to.
-<span class="cite-line">Chapter 1 · [Tool calling in Go, on the wire](/loop/tool-calling/)</span>
+<span class="cite-line">Chapter 1 · [Tool calling in Go, on the wire](/basics/tool-calling/)</span>
 
 ### Trace {#trace}
 
@@ -534,12 +534,12 @@ Two separate groups of tasks. You may try a change against the tuning set while 
 ### Turn {#turn}
 
 One trip around the loop: the harness sends the model the whole conversation so far, gets a reply, and acts on it.
-<span class="cite-line">Chapter 1 · [The agent loop in Go](/loop/agent-loop/)</span>
+<span class="cite-line">Chapter 1 · [The agent loop in Go](/basics/agent-loop/)</span>
 
 ### Turn limit {#turn-limit}
 
 A cap on how many turns a run can take before the harness ends it. A loop without one can keep running, and charging you, indefinitely.
-<span class="cite-line">Chapter 1 · [The agent loop in Go](/loop/agent-loop/)</span>
+<span class="cite-line">Chapter 1 · [The agent loop in Go](/basics/agent-loop/)</span>
 
 ## U {#letter-u .letter}
 
@@ -551,7 +551,7 @@ A run cut short by a failure in the harness or at the provider, so its result te
 ### Usage {#usage}
 
 The token counts the API returns with each reply: input tokens, output tokens, and on OpenRouter the dollar cost of the call.
-<span class="cite-line">Chapter 2 · [Tool calling in Go, on the wire](/loop/tool-calling/)</span>
+<span class="cite-line">Chapter 2 · [Tool calling in Go, on the wire](/basics/tool-calling/)</span>
 
 ## W {#letter-w .letter}
 

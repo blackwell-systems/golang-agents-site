@@ -6,7 +6,7 @@ card: Five ways to keep a long run affordable and on task, and what each did on 
 chapters: 8
 stage: 1
 date: 2026-10-18
-weight: 40
+weight: 50
 art: ch08
 ---
 

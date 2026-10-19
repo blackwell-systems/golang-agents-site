@@ -101,7 +101,7 @@ Streaming is server-sent events.
 
 ## Writing the adapter
 
-Whichever you pick, the questions are chapter 11's, and the [difference table](/providers/differences/) shows the answers for the two APIs the book covers.
+Whichever you pick, the questions are chapter 11's, and the [difference table](/ecosystem/differences/) shows the answers for the two APIs the book covers.
 Three answers on this page change the most code:
 
 - **Where the conversation lives.** Gemini's Interactions API and Bedrock's Responses API can keep it on the server. The book's loop resends the whole conversation every turn and saves it for crash recovery (chapter 15); a server-side copy is a second record to keep in step, or a feature to leave off.

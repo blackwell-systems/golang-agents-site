@@ -17,7 +17,7 @@ Without an API key, the program replays the model's replies from a run recorded 
 ## What it shows
 
 - The loop from the [ch01 example](/run/ch01-scripted-loop/), unchanged, driving a client for a real model through the same `Model` interface.
-- Tool calls on the wire: the client sends tool definitions and reads calls back, as [tool calling in Go, on the wire](/loop/tool-calling/) explains.
+- Tool calls on the wire: the client sends tool definitions and reads calls back, as [tool calling in Go, on the wire](/basics/tool-calling/) explains.
 - A `run_tests` tool that copies the project to a fresh temporary directory and runs `go test` there, with a deadline and a scrubbed environment.
 - Two models taking different paths to the same fix, and a run that recovers from three bad tool calls.
 

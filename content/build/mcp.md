@@ -6,7 +6,7 @@ card: The Model Context Protocol on the wire, a Go client for it, and how far to
 chapters: 10
 stage: 3
 date: 2026-10-18
-weight: 70
+weight: 80
 art: ch10
 ---
 

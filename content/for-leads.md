@@ -67,7 +67,7 @@ Runs are saved as they go, and every call that changes something carries an idem
 Chapter 15 crashed a run at every point a crash could land and resumed it: 910 scenarios, with nothing filed twice and nothing lost.
 
 **More agents than the job needs.**
-Splitting a batch across four agents at once finished no sooner and cost 25 to 60 percent more than one agent (chapter 9); [workflow or agent](/design/workflows-vs-agents/) shows how to pick the simplest shape that does the job.
+Splitting a batch across four agents at once finished no sooner and cost 25 to 60 percent more than one agent (chapter 9); [workflow or agent](/build/workflows-vs-agents/) shows how to pick the simplest shape that does the job.
 
 **Models and prices that change.**
 The model is one setting, the recorded replies keep every test passing after a model is retired, and chapter 17's results table carries its dates and is meant to be measured again whenever any input to it changes.
@@ -84,7 +84,7 @@ Retrieval over large document sets, memory kept across unrelated tasks, and a mo
 
 ## Getting a team started
 
-1. **The free code.** Clone the [repository](https://github.com/blackwell-systems/go-agents-book-code) and run `go run ./ch01` from its `code` directory; [Run it](/run/) lists every chapter's program and its command.
+1. **The free code.** Clone the [repository](https://github.com/blackwell-systems/go-agents-book-code) and run `go run ./ch01` from its `code` directory; [Examples](/run/) lists every chapter's program and its command.
 2. **The reading paths.** [Start here](/start/) has an ordered path for engineers new to agents and one for engineers shipping soon.
 3. **The free sample.** The introduction and the first part of chapter 1, as a [PDF](/sample/building-ai-agents-in-go-sample-light.pdf).
 4. **The book.** [*Building AI Agents in Go*](/book/) has the full build, the tests, the exercises, and the reasoning behind each decision. Team licenses are available; ask through [Work with me](/work-with-me/#contact).

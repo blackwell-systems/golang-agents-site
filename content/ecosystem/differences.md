@@ -6,7 +6,7 @@ card: The same request on OpenAI-style and Anthropic APIs differs in twelve plac
 chapters: 2, 4, 6, 8, 11
 stage: 2
 date: 2026-10-18
-weight: 10
+weight: 15
 art: ch11
 ---
 
@@ -73,7 +73,7 @@ The Messages API request carried no reasoning because that reasoning came from a
 The chat completions format is the one many servers accept, and the book's client reads its address from `OPENROUTER_BASE_URL`.
 Chapter 2 points it at a local Ollama server, `http://localhost:11434/v1`, with no other change.
 Two things differ there: the program needs any non-empty key to stop replaying, and fields only OpenRouter sends, such as each call's cost, read as zero, so a dollar budget does nothing.
-[More providers](/providers/more-providers/) lists the native APIs of Gemini, Ollama, Bedrock, and Cohere, with their official documentation.
+[More providers](/ecosystem/more-providers/) lists the native APIs of Gemini, Ollama, Bedrock, and Cohere, with their official documentation.
 
 ## Writing a third adapter
 

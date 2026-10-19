@@ -6,7 +6,7 @@ card: Five Go agent frameworks set against the parts of a harness, with one task
 chapters: 16
 stage: all
 date: 2026-10-18
-weight: 20
+weight: 40
 art: ch16
 ---
 

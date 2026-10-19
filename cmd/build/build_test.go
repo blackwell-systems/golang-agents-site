@@ -167,6 +167,14 @@ func TestRedirects(t *testing.T) {
 	if err := writeRedirects(out); err == nil {
 		t.Error("writeRedirects with no new sections built: no error")
 	}
+	for _, m := range movedPages {
+		if err := os.MkdirAll(filepath.Join(out, filepath.FromSlash(m.To)), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(out, filepath.FromSlash(m.To), "index.html"), nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
 	for _, m := range moved {
 		if err := os.MkdirAll(filepath.Join(out, m.To), 0o755); err != nil {
 			t.Fatal(err)
@@ -182,7 +190,10 @@ func TestRedirects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, line := range []string{"/foundations /loop/ 301\n", "/foundations/* /loop/:splat 301\n", "/ecosystem/ /providers/ 301\n"} {
+	if strings.Index(string(b), "/loop/why-go/ ") > strings.Index(string(b), "/loop/* ") {
+		t.Errorf("a moved page's redirect comes after its old section's:\n%s", b)
+	}
+	for _, line := range []string{"/foundations /basics/ 301\n", "/loop/* /basics/:splat 301\n", "/providers/ /ecosystem/ 301\n", "/loop/why-go/ /ecosystem/why-go/ 301\n"} {
 		if !strings.Contains(string(b), line) {
 			t.Errorf("_redirects lacks %q:\n%s", line, b)
 		}

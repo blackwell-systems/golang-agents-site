@@ -6,7 +6,7 @@ card: Reading server-sent events with bufio and an iterator, and rebuilding tool
 chapters: 6
 stage: 2
 date: 2026-10-18
-weight: 70
+weight: 30
 art: ch06
 ---
 

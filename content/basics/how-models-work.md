@@ -6,7 +6,7 @@ card: A toy model in Go shows why answers vary, what temperature does, and why a
 chapters: 3
 stage: 2
 date: 2026-10-18
-weight: 45
+weight: 60
 art: ch03
 ---
 
@@ -101,7 +101,7 @@ A 1,008-byte Go file came to between 336 and 502 tokens, and a page of English t
 Four of the five landed within 7 percent of each other.
 The fifth, the book's default model, `anthropic/claude-haiku-5.5`, needed about a third more tokens than the others for the English and about 50 percent more for the Go.
 A price per token can mislead, then; compare models by what a whole task costs.
-[Tokens, cost, and the context window](/loop/tokens-and-cost/) follows that through an agent's bill.
+[Tokens, cost, and the context window](/basics/tokens-and-cost/) follows that through an agent's bill.
 
 ## Attention, briefly
 

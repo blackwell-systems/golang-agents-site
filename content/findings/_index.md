@@ -1,5 +1,5 @@
 ---
-title: Findings
+title: Research
 description: Measured results from the book's recorded runs, each with its method, its sample size, and what it can't show.
 ---
 

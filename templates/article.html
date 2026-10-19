@@ -11,7 +11,7 @@
       {{- end}}
       <h1>{{.Page.Title}}</h1>
       <p class="lede">{{.Page.Description}}</p>
-      <p class="meta">{{with .Page.Chapters}}Draws on {{chapters .}} of the book<span aria-hidden="true"> · </span>{{end}}Updated <time datetime="{{.Page.Modified}}">{{date .Page.Modified}}</time></p>
+      <p class="meta">Updated <time datetime="{{.Page.Modified}}">{{date .Page.Modified}}</time></p>
       {{- with .Page.Stages}}
       <div class="stage-map"><p class="stage-map-label">{{if eq $.Page.Stage "all"}}This page works on all four stages of the loop{{else}}This page works on one stage of the loop{{end}}</p><ol>{{range .}}<li{{if .On}} class="on"{{end}}><span class="sm-n">{{.N}}</span>{{.Name}}{{if .On}}<span class="visually-hidden"> (this page)</span>{{end}}</li>{{end}}</ol></div>
       {{- end}}
@@ -43,12 +43,12 @@
       {{- end}}
       {{- template "pathnav" .}}
       {{- if or .Prev .Next}}
-      <nav class="pager" aria-label="More guides">
+      <nav class="pager" aria-label="More in this section">
         {{- with .Prev}}
-        <a class="pager-prev" href="{{.URL}}"><span>Previous{{with $.PrevIn}} · {{.}}{{end}}</span>{{.Name}}</a>
+        <a class="pager-prev" href="{{.URL}}"><span>Previous in {{$.Section.Title}}</span>{{.Name}}</a>
         {{- end}}
         {{- with .Next}}
-        <a class="pager-next" href="{{.URL}}"><span>Next{{with $.NextIn}} · {{.}}{{end}}</span>{{.Name}}</a>
+        <a class="pager-next" href="{{.URL}}"><span>Next in {{$.Section.Title}}</span>{{.Name}}</a>
         {{- end}}
       </nav>
       {{- end}}

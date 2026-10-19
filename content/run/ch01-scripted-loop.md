@@ -16,7 +16,7 @@ It is the smallest complete agent in the companion code, and every later example
 
 ## What it shows
 
-- The loop's four stages in about 30 lines of Go: assemble a request, send it to the model, execute any tool calls, and choose whether to go around again. [The agent loop in Go](/loop/agent-loop/) walks through them.
+- The loop's four stages in about 30 lines of Go: assemble a request, send it to the model, execute any tool calls, and choose whether to go around again. [The agent loop in Go](/basics/agent-loop/) walks through them.
 - A `Model` interface with one method, which a script satisfies as well as a real client does.
 - Tools as a definition the model sees plus a Go function it never sees.
 - Errors from tools going back to the model as messages, so they never stop the run.

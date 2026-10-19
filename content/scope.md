@@ -11,13 +11,14 @@ This page lists what the book behind this site covers, the topics both leave out
 ## What they cover
 
 The book builds one agent in Go, from an empty loop to a service you can leave running, in the order you need the pieces.
-The site follows the same plan, one question per page, and publishes its guides in batches; each section page lists the guides that are out.
+The site is organized by what you want to do, one question per page:
 
-- **[The loop](/loop/):** what an agent is, the request and the reply, tool calls on the wire, tokens and cost, streaming, and what happens inside the model, from tokens to sampling.
-- **[Design](/design/):** tools a model uses well, answers in a fixed shape, choosing a workflow or an agent, keeping a long run's context in check, parallel tool calls, sub-agents, and MCP on both sides.
+- **[Basics](/basics/):** what an agent is, the loop at its center, calling a model from Go, tool calls on the wire, tokens and cost, and what happens inside the model, from tokens to sampling.
+- **[Build](/build/):** a workflow or an agent, tools a model uses well, streaming, answers in a fixed shape, keeping a long run's context in check, parallel tool calls, sub-agents, and MCP on both sides.
 - **[Production](/production/):** stop reasons and budgets, retries, traces and cost, offline tests and evals, sandboxing and prompt injection, a person's approval, and runs that survive a crash. The [launch checklist](/production/launch-checklist/) sums these up.
-- **[Providers and frameworks](/providers/):** the chat completions API and Anthropic's Messages API in depth, official SDKs, and five Go agent frameworks compared on one task.
-- **[Findings](/findings/):** measured results from the book's recorded runs, each with its method, including [the mistakes](/findings/measured-mistakes/) and [the finished agent across three models](/findings/the-finished-agent/).
+- **[Go ecosystem](/ecosystem/):** why Go, the chat completions API and Anthropic's Messages API in depth, official SDKs, and five Go agent frameworks compared on one task.
+- **[Examples](/run/):** every chapter's program, with the command that runs it offline.
+- **[Research](/findings/):** measured results from the book's recorded runs, each with its method, including [the mistakes](/findings/measured-mistakes/) and [the finished agent across three models](/findings/the-finished-agent/).
 
 The book goes further than the site on every topic: the full build with its tests, the reasoning behind each decision, and the exercises.
 

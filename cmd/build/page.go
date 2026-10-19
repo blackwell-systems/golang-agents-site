@@ -24,7 +24,7 @@ import (
 // Page is one page of the site.
 type Page struct {
 	Source  string // the Markdown file, relative to content/
-	URL     string // the site path, such as "/loop/agent-loop/"
+	URL     string // the site path, such as "/basics/agent-loop/"
 	Section string // the section's directory, or "" outside sections
 	Meta
 	Body     template.HTML

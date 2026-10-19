@@ -70,7 +70,7 @@ It produces requests, and some program has to carry them out, hold on to the con
 That program is the [harness](/glossary/#harness), and it does two jobs:
 
 - **Run the tools the model asks for**, safely, and send back each result.
-- **Decide what the model sees on every call.** A model remembers nothing from one call to the next. Every request has to include the conversation so far, so whatever you put in the request is the model's entire knowledge of the task. It also means every turn's request is bigger than the last, and every token of it is billed again; [Tokens, cost, and the context window](/loop/tokens-and-cost/) follows that growth through a run.
+- **Decide what the model sees on every call.** A model remembers nothing from one call to the next. Every request has to include the conversation so far, so whatever you put in the request is the model's entire knowledge of the task. It also means every turn's request is bigger than the last, and every token of it is billed again; [Tokens, cost, and the context window](/basics/tokens-and-cost/) follows that growth through a run.
 
 The book treats the second job as every bit as important as the first.
 Later pages cover it under the name context management: deciding, as a run gets longer, what stays in the request, what gets cut, and what gets summarized.
@@ -99,7 +99,7 @@ An agent in Go comes down to a handful of plain pieces:
 - **A model interface** with one method, `Generate(ctx, req)`, so a scripted fake and a real HTTP client are interchangeable.
 - **Messages**: the conversation as a slice, each with a role (`system`, `user`, `assistant`, or `tool`).
 - **Tools**: a definition the model reads and a function the harness calls.
-- **The loop**: assemble a request, send it, act on any tool calls in the reply, then either finish or take another turn. [The agent loop in Go](/loop/agent-loop/) shows it in about 30 lines.
+- **The loop**: assemble a request, send it, act on any tool calls in the reply, then either finish or take another turn. [The agent loop in Go](/basics/agent-loop/) shows it in about 30 lines.
 - **Limits**: a cap on turns from the very first version, and later a cap on spending, since nothing else stops a loop that never gets an answer.
 
 You don't need a framework for any of this, and you don't need a model to test it.

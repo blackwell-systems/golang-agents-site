@@ -58,7 +58,7 @@ Read it stage by stage.
 
 **Build the request.** Every call sends `msgs` in full.
 A model carries no state from one call to the next, so the only thing it knows on a given call is what that request contains.
-That means the requests keep getting bigger as the run goes on; [tool calling on the wire](/loop/tool-calling/) shows how many tokens the first request already takes before the task is read.
+That means the requests keep getting bigger as the run goes on; [tool calling on the wire](/basics/tool-calling/) shows how many tokens the first request already takes before the task is read.
 `Run` calls `slices.Clone` before it appends anything, so the caller's slice and its backing array stay as they were.
 
 **Call the model.** `m.Generate(ctx, req)` receives the run's `ctx`, which lets a real client drop the HTTP request if the run is cancelled.
@@ -68,7 +68,7 @@ That way every tool result refers to a call already present in the conversation,
 This order is required, since the APIs refuse a request where some tool call lacks its result.
 
 **Decide.** A reply without tool calls is the answer, and the loop returns.
-If it does, the loop takes another turn, and when `for range lim.MaxTurns` is exhausted, `Run` returns `ErrMaxTurns`.
+If it has tool calls, the loop takes another turn, and when `for range lim.MaxTurns` is exhausted, `Run` returns `ErrMaxTurns`.
 
 Two details are easy to skim past.
 `Run` hands back a `Result` with the messages even on failure, because the turns leading up to a failure are the evidence for why it happened.
@@ -152,6 +152,6 @@ None of them uses the network or an API key.
 
 ## Where this goes next
 
-- [Tool calling in Go, on the wire](/loop/tool-calling/): what the request and reply look like as JSON once a real model is attached.
+- [Tool calling in Go, on the wire](/basics/tool-calling/): what the request and reply look like as JSON once a real model is attached.
 - [A real agent that fixes a failing test](/run/ch04-first-agent/): the same loop with a real model's recorded replies.
 - [Glossary](/glossary/): agent, harness, turn, tool call, and the rest of the vocabulary.

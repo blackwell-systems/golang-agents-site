@@ -145,7 +145,7 @@ source: Chapter 4, and chapter 5's advice on limits
 link: /findings/measured-mistakes/#locked
 more: The finding
 
-With an error that said the file was locked, three of the four models kept going for a median of 18 to 20 turns, and one stopped only because the limit ended its runs. Healthy runs of the same fix took four to six turns.
+With an error that said the file was locked, three of the four models kept going for a median of 18 to 20 turns, and one stopped only because the limit ended its runs. Reworded to say the change couldn't be made and to report the fix instead, the same error let every model finish in four or five turns.
 ```
 
 In chapter 1's 40 healthy runs of this fix, every one finished within six turns.
@@ -168,7 +168,7 @@ Set the dollar budget from what a run is worth to you, not from what it usually 
 For this page, "it" is a loop that names its stop reasons and enforces limits.
 
 ```fit
-reach: Any run you won't watch. With a tool that kept failing, one model stopped only at the turn limit, and three used 16 to 20 turns on a fix that healthy runs finished in six or fewer (chapters 4 and 5).
+reach: Any run you won't watch. With a tool that kept failing, one model stopped only at the turn limit, and three used a median of 18 to 20 turns on a fix that healthy runs finished in six or fewer (chapters 4 and 5).
 reach: Replies you can't check by eye. A repeated tool-call ID passes unnoticed until the next request fails with a 400, so the loop refuses the reply before appending it (chapter 5).
 leave: Turning a tool's failure into a stop. An unknown tool name or bad arguments go back to the model as a tool message, and the run continues (chapter 5).
 leave: The run's own total as your only check on spending. A model reported zero cost for replies cut off by a 16-token limit, so audit the account's spending too (chapter 5).

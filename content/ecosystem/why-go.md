@@ -5,7 +5,7 @@ description: An agent spends most of its time waiting on a network, running work
 card: Where Go's standard tools did an agent's work in the book's code, with numbers, and what Go costs.
 chapters: 5, 9, 11, 12, 15, 16
 date: 2026-10-18
-weight: 90
+weight: 5
 ---
 
 Very little of an agent is machine learning.
@@ -72,4 +72,4 @@ The book states these plainly, and so should any page arguing for Go:
 
 None of that argues against other languages.
 It says what Go makes cheap for an agent: carrying the reason a call stopped, running work side by side under a race checker, keeping every byte visible, and shipping one binary that stops on time.
-Whether those matter more than a larger ecosystem depends on your agent, and [the chapter 16 comparison](/providers/libraries/) is a place to start weighing it.
+Whether those matter more than a larger ecosystem depends on your agent, and [the chapter 16 comparison](/ecosystem/libraries/) is a place to start weighing it.

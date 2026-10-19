@@ -63,22 +63,35 @@ type section struct {
 
 // sections are the site's sections, in the order the nav lists them.
 var sections = []section{
-	{"loop", "The loop", "", "part1"},
-	{"design", "Design", "", "part2"},
+	{"basics", "Basics", "", "part1"},
+	{"build", "Build", "", "part2"},
 	{"production", "Production", "", "part3"},
-	{"run", "Run it", "", "intro"},
-	{"providers", "Providers and frameworks", "Providers", "ch11"},
-	{"findings", "Findings", "", "ch13"},
+	{"ecosystem", "Go ecosystem", "Ecosystem", "ch11"},
+	{"run", "Examples", "", "intro"},
+	{"findings", "Research", "", "ch13"},
 }
 
 // moved maps a section's old directory to its new one. The build writes
 // a permanent redirect from every URL under the old one, so links and
-// search results that predate a rename keep working.
+// search results that predate a rename keep working. Each entry points
+// at a section's current directory, never at another old one.
 var moved = []struct{ From, To string }{
-	{"foundations", "loop"},
-	{"patterns", "design"},
+	{"foundations", "basics"},
+	{"loop", "basics"},
+	{"patterns", "build"},
+	{"design", "build"},
 	{"examples", "run"},
-	{"ecosystem", "providers"},
+	{"providers", "ecosystem"},
+}
+
+// movedPages are pages that left their section for another one. Their
+// redirects come before the sections' in _redirects, since Cloudflare
+// uses the first rule that matches.
+var movedPages = []struct{ From, To string }{
+	{"/loop/why-go/", "/ecosystem/why-go/"},
+	{"/foundations/why-go/", "/ecosystem/why-go/"},
+	{"/loop/streaming/", "/build/streaming/"},
+	{"/foundations/streaming/", "/build/streaming/"},
 }
 
 func build(cfg config) error {

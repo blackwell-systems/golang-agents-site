@@ -11,7 +11,7 @@ None of that is specific to crashes.
 
 The book closes each of its three parts with a case study of an agent it doesn't build, and ties each failure that agent could have to the chapter whose code prevents it.
 Here are the three, retold briefly.
-Each starts from the same question, which shape the job needs, using the ladder in [workflow or agent](/design/workflows-vs-agents/): fixed code where the steps are known, an agent where the next step depends on what the last one found, and several agents only where the parts are truly independent.
+Each starts from the same question, which shape the job needs, using the ladder in [workflow or agent](/build/workflows-vs-agents/): fixed code where the steps are known, an agent where the next step depends on what the last one found, and several agents only where the parts are truly independent.
 
 ## A support-ticket resolver
 
@@ -28,7 +28,7 @@ Chapter 5 places this case next to its table of shapes, and it follows chapter 1
 **What keeps it safe** (book chapters in parentheses):
 
 - A puzzling ticket can keep the agent circling the same order, so the run needs a turn limit, a cost budget, and [a named reason for stopping](page:/production/stop-reasons/) (chapter 5).
-- A refund against an order ID that doesn't exist should return to the model as [a tool error it can fix](/loop/tool-calling/#a-wrong-call-gets-an-error-the-model-can-fix) (chapter 4), and the program should confirm the refund itself instead of believing a final message that claims it.
+- A refund against an order ID that doesn't exist should return to the model as [a tool error it can fix](/basics/tool-calling/#a-wrong-call-gets-an-error-the-model-can-fix) (chapter 4), and the program should confirm the refund itself instead of believing a final message that claims it.
 - Customers write the tickets, so a ticket that tells the agent to refund everything is [prompt injection](/glossary/#prompt-injection). A model can be talked out of its instructions; [a person approving each refund](page:/production/approval/) can't be, so that check sits in code in front of `issue_refund` (chapter 14).
 - A refund can go out moments before the process dies, with no record that it went. On resume it must not go out twice, so [the attempt is written down first](page:/production/durable-runs/), and an idempotency key travels with the call when the payment service supports one (chapter 15).
 - Every tool carries two marks, whether it only reads and whether repeating it is harmless, and from chapter 12 on those marks decide what may be retried. `issue_refund` has neither.

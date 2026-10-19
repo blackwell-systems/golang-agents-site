@@ -1,5 +1,5 @@
 ---
-title: Run it
+title: Examples
 description: Every chapter's program from the companion repository, with what it shows, its size and test count computed from the code, and the command that runs it offline from recorded model replies.
 ---
 
@@ -46,7 +46,7 @@ ch17 | The finished crash-triage agent | `go run ./ch17` |
 catalog | The crash catalog's tasks and its grader | `go test ./catalog/` |
 tracker | The small issue tracker the agent files issues in | `go test ./tracker/...` |
 remind | The practice service, with bugs seeded on purpose (its own module) | `cd remind && go test ./...` |
-shapes | The workflow shapes: a chain, a router, a vote, and check and revise | `go run ./shapes` | /design/workflows-vs-agents/
+shapes | The workflow shapes: a chain, a router, a vote, and check and revise | `go run ./shapes` | /build/workflows-vs-agents/
 ssebrowser | An agent's events streamed to a browser page | `go run ./ssebrowser` | /run/stream-to-browser/
 ```
 

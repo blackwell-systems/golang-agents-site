@@ -6,7 +6,7 @@ card: Run your agent loop again inside a tool to answer one question, and when t
 chapters: 9
 stage: 1
 date: 2026-10-18
-weight: 60
+weight: 70
 art: ch09
 ---
 

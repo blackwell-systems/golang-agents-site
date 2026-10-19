@@ -101,7 +101,7 @@ Here are three messages from the fourth request of the run, with the file conten
 
 The rule the API enforces: each call needs exactly one tool message, and that message has to come later in the list than the assistant message holding the call.
 Drop a result, or send one without its call, and the next request is rejected.
-If your loop adds the reply to the history first and then writes one result per call, in the order the calls appear, the rule holds by construction; [the agent loop in Go](/loop/agent-loop/) shows one.
+If your loop adds the reply to the history first and then writes one result per call, in the order the calls appear, the rule holds by construction; [the agent loop in Go](/basics/agent-loop/) shows one.
 
 ## The wire types stay inside the client
 
@@ -112,7 +112,7 @@ The client keeps the API's JSON in its own unexported types, separate from the a
 
 Three details carry most of the weight:
 
-- `Content` is `omitzero`, so when a reply is nothing but tool calls, the field is left out of the JSON entirely, as in the third listing above.
+- `Content` is `omitzero`, so when a reply is nothing but tool calls, the field is left out of the JSON entirely, as in the assistant message from turn 4 above.
 - `Arguments` is a `string`, matching the wire. When the client reads a reply, it keeps the arguments as raw JSON (`jsontext.Value`) in the agent's own `ToolCall`, valid or not, and each tool decodes its own; a model that sends an empty string for a tool with no arguments gets `{}`.
 - `ReasoningDetails` is a `jsontext.Value`, raw JSON the client carries without looking inside.
 

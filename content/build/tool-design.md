@@ -7,7 +7,7 @@ chapters: 7, 4, 3
 stage: 3
 date: 2026-10-18
 work: true
-weight: 10
+weight: 20
 art: ch07
 ---
 
@@ -107,7 +107,7 @@ The error now reports where the JSON broke, and the schema lets optional fields 
 
 Whatever your error message says, the model reads it and decides its next call from it.
 In chapter 4's measurements, three runs per model on its bug-fix task, a tool that failed with "the file is locked" sent three of four models into retries lasting a median of 18 to 20 turns.
-Rewording the error to say the change could not be made, and what to do instead, made every model stop after its first try.
+Rewording the error to say the change could not be made, and what to do instead, made every model try the edit once and then report the fix, finishing in four or five turns.
 [An error that said "locked"](/findings/error-wording/) has the details.
 Good tool errors cover three things: the cause, whether a retry has any chance, and the call to make instead.
 

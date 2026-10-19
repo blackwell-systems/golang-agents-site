@@ -6,7 +6,7 @@ card: Which tool calls can safely overlap, a runner that keeps the model's order
 chapters: 9
 stage: 3
 date: 2026-10-18
-weight: 50
+weight: 60
 art: ch09
 ---
 

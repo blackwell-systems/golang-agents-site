@@ -113,14 +113,11 @@ func (s *Site) section(p *Page) *Section {
 type view struct {
 	Site       *Site
 	Page       *Page
-	Section    *Section // the page's section, or nil
-	Prev, Next *Page    // neighbors in the reading order, for guides
-	// PrevIn and NextIn name the neighbor's section when it isn't
-	// this page's, so a link that leaves the section says so.
-	PrevIn, NextIn string
-	Places         []PathPlace // where the page stands on the reading paths
-	Nav            []navItem
-	JSONLD         template.JS
+	Section    *Section    // the page's section, or nil
+	Prev, Next *Page       // neighbors within the page's section, for guides
+	Places     []PathPlace // where the page stands on the reading paths
+	Nav        []navItem
+	JSONLD     template.JS
 }
 
 type navItem struct {
@@ -192,17 +189,15 @@ func writePage(out string, tmpl map[string]*template.Template, s *Site, p *Page)
 		navItem{"Glossary", "/glossary/", p.URL == "/glossary/"},
 		navItem{"The book", "/book/", p.URL == "/book/"},
 		navItem{"Work with me", "/work-with-me/", p.URL == "/work-with-me/"})
-	if i := slices.Index(s.Guides, p); i >= 0 {
-		if i > 0 {
-			v.Prev = s.Guides[i-1]
-			if v.Prev.Section != p.Section {
-				v.PrevIn = s.section(v.Prev).Title
+	// Previous and Next stay inside the page's section; the reading
+	// paths have their own links, so the two never point two ways.
+	if sec := s.section(p); sec != nil {
+		if i := slices.Index(sec.Pages, p); i >= 0 {
+			if i > 0 {
+				v.Prev = sec.Pages[i-1]
 			}
-		}
-		if i+1 < len(s.Guides) {
-			v.Next = s.Guides[i+1]
-			if v.Next.Section != p.Section {
-				v.NextIn = s.section(v.Next).Title
+			if i+1 < len(sec.Pages) {
+				v.Next = sec.Pages[i+1]
 			}
 		}
 	}

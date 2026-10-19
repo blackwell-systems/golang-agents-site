@@ -6,7 +6,7 @@ card: Get a typed, checked answer from any tool-calling model by making the answ
 chapters: 7
 stage: 4
 date: 2026-10-18
-weight: 20
+weight: 40
 art: ch07
 ---
 
@@ -33,7 +33,7 @@ The book takes this route by default.
 
 ## The answer as a Go type
 
-The answer is declared as a Go struct, tagged the same way as the argument structs on the [tool design](/design/tool-design/) page, so its schema is generated:
+The answer is declared as a Go struct, tagged the same way as the argument structs on the [tool design](/build/tool-design/) page, so its schema is generated:
 
 ```go include=ch07/triage/diagnosis.go tag=diagnosis
 ```
