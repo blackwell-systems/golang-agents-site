@@ -6,19 +6,18 @@ layout: home
 
 ## What this site is
 
-A guide to building AI agents in Go, one question per page, written from the book *Building AI Agents in Go* and its tested code.
-The guides are being published in batches; the list at the end of this page shows exactly which are out, section by section, and [Start here](/start/) puts them in order for three kinds of reader.
+Guides to building AI agents in Go, one question per page: what a tool call looks like as JSON, when a run should stop, how to test an agent without calling a model.
+They draw on the book *Building AI Agents in Go*, and [Start here](/start/) puts them in order for three kinds of reader.
 
-Every page is short and points at runnable code.
-The code comes from a [public repository](https://github.com/blackwell-systems/go-agents-book-code) under Apache 2.0, where each excerpt is part of a tested program, linted and run with the race detector.
-The examples run offline: with no API key, they replay model replies recorded from real runs (a few, written by hand, show failures that are hard to provoke), and the tools themselves, `go test` among them, really execute on your machine.
+The code on every page comes from the book's [public repository](https://github.com/blackwell-systems/go-agents-book-code) (Apache 2.0), where each excerpt belongs to a program with tests.
+The programs run offline: with no API key, they replay saved model replies, most of them recorded from real runs, and the tools, `go test` included, run on your machine.
 
 ## Learn it by building it
 
 The way to understand an agent is to build one, one piece at a time, and see what each piece is for.
 The book behind this guide starts from a loop with no model in it at all, a scripted stand-in, so the control flow is plain before any AI arrives.
 Then it adds the pieces one at a time: a real model call, tools, streaming, context management, concurrency, evals, safety, and recovery from a crash.
-Each piece is a small, tested Go change that you can run and break on purpose, and every chapter's program is in the public repository whether or not its guide is out yet.
+Each piece is a small, tested Go change that you can run and break on purpose, and every chapter's program is in the public repository.
 
 The code uses Go's standard library: `net/http` for the API, `encoding/json/v2` for the wire format, `context` for deadlines and cancellation.
 No framework sits between you and the model, so every request, reply, and tool call is something you wrote and can read.
