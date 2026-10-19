@@ -4,55 +4,11 @@ description: Learn how AI agents work at the level of every request, reply, and 
 layout: home
 ---
 
-## Three measured results
+## Common questions
 
-Each number below comes from runs recorded for the book, and each says how it was measured.
+Each links to the guide that answers it, with Go code you can run.
 
-<div class="result-cards">
-
-```result
-figure: 79 of 80
-unit: first replies
-task: the triage agent's first request, with one sentence in an MCP tool's description asking for a different call
-models: four inexpensive models: `claude-haiku-5.5`, `gpt-5.6-luna`, `glm-5.3-flash`, `deepseek-v4.1-flash`
-runs: ten per model and condition
-date: October 2026
-source: Chapter 10
-link: /findings/tool-description-poisoning/
-more: The finding
-
-One sentence in a tool the model hadn't called yet decided its first move. Labeling the text as the server's cut that to 57 of 80.
-```
-
-```result
-figure: 910
-unit: crashes, 0 duplicates
-task: the agent's own loop, crashed at each of its 38 crash points and resumed, then crashed a second time at every point each restart reaches
-models: a scripted model, against a tracker that honors idempotency keys
-runs: 910 crash-and-resume scenarios
-date: deterministic; `go test ./ch15/durable/` repeats it
-source: Chapter 15
-link: /findings/measured-mistakes/#save-per-turn
-more: What saving once per turn did
-
-With a key on every call that changes something, no scenario filed anything twice, lost an issue or comment, or had to ask a person.
-```
-
-```result
-figure: 39 of 40
-unit: runs passed
-task: fixing one failing Go test as a three-step workflow, with a single model call
-models: the same four models
-runs: ten per model
-date: October 2026
-source: Chapter 1, and chapter 5’s table of shapes
-link: /findings/measured-mistakes/#workflow-tab
-more: The one failure
-
-The workflow cost between a sixth and a quarter of what the agent cost on each model. Its one failed run shows what a fixed sequence gives up.
-```
-
-</div>
+<ul class="questions"><li><a href="/loop/what-is-an-agent/">What is an AI agent, and how is it different from a chatbot?</a><span>A program where the model picks each next step and your Go code carries it out.</span></li><li><a href="/loop/calling-a-model/">How do I call an LLM API from Go?</a><span>A chat completions client in standard-library Go, with deadlines and error checks.</span></li><li><a href="/loop/tool-calling/">How does tool calling work?</a><span>The JSON a tool call is made of, and how a Go client sends and reads it.</span></li><li><a href="/loop/streaming/">How do I stream a model's reply?</a><span>Server-sent events read with bufio, and tool calls rebuilt from their fragments.</span></li><li><a href="/design/workflows-vs-agents/">Should I build a workflow or an agent?</a><span>Five shapes of program that call a model, and how to pick the simplest that works.</span></li><li><a href="/design/tool-design/">How do I design tools a model uses well?</a><span>Names, descriptions, schemas from Go structs, short results, and useful errors.</span></li><li><a href="/design/context-management/">How do I keep a long run affordable?</a><span>Prompt caching, clearing old tool results, compaction, and notes.</span></li><li><a href="/design/mcp/">How do I connect an agent to MCP servers?</a><span>The Model Context Protocol on the wire, and a Go client for it.</span></li><li><a href="/production/testing-offline/">How do I test an agent without calling a model?</a><span>Scripted models, replayed HTTP, and checks on outcomes in place of transcripts.</span></li><li><a href="/production/prompt-injection/">How do I defend against prompt injection?</a><span>A threat model, sandboxes for the code an agent runs, and layers of defense.</span></li><li><a href="/providers/go-agent-frameworks/">Should I use a Go agent framework?</a><span>ADK, Eino, Genkit, LangChainGo, and trpc-agent-go, set against the parts of a harness.</span></li><li><a href="/production/launch-checklist/">What does it take to run an agent in production?</a><span>Twenty-three checks for an agent that runs unattended and spends money.</span></li></ul>
 
 ## The loop, in four stages
 
@@ -95,7 +51,7 @@ The repository holds {{code files}} Go files and {{code tests}} test functions, 
 
 - **Drawn from a book, with tested code.** Each guide draws on the book *Building AI Agents in Go*, and its code comes from the book's [public repository](https://github.com/blackwell-systems/go-agents-book-code) (Apache 2.0), where every excerpt belongs to a program with tests.
 - **One agent, grown step by step.** The examples follow one agent from a 30-line loop that fixes a failing test to a crash-triage agent for a small Go web service, so each page adds to code you have already seen.
-- **Measured, with the method.** Claims about what works come from recorded runs, with the task, the models, the number of runs, and the date, as in the three results above. The failures are measured too: [twelve measured mistakes](/findings/measured-mistakes/), each with its method.
+- **Measured, with the method.** Claims about what works come from recorded runs, with the task, the models, the number of runs, and the date. The failures are measured too: [twelve measured mistakes](/findings/measured-mistakes/), each with its method.
 - **Offline by default.** Every example runs without a key and costs nothing. With `OPENROUTER_API_KEY` set, the same programs call a live model.
 - **The standard library first.** The code reaches the model over plain `net/http` and `encoding/json/v2`, so you can see every moving part before deciding what to adopt.
 - **Clear about its limits.** Retrieval, memory across unrelated runs, and a model that hands work to other agents at run time are left out on purpose; [what this covers](/scope/) says why, and what was measured instead. [Why Go](/loop/why-go/) makes the case for the language from the book's measurements.

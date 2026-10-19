@@ -1575,3 +1575,18 @@ cite { font-style: italic; }
 .site-index ul { margin: 0; padding-left: 1.1rem; }
 .site-index li { margin-bottom: 0.5rem; }
 .site-index li span { display: block; font-size: 0.9rem; line-height: 1.45; color: var(--soft); }
+
+/* The home page's common questions: each a link to its guide, with one
+   line under it; two columns on wide screens. */
+.prose > .questions { max-width: 100%; }
+.prose .questions {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 2rem;
+  display: grid;
+  gap: 0.25rem 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+.prose .questions li { margin: 0; padding: 0.75rem 0; border-bottom: 1px solid var(--line-soft); }
+.prose .questions a { display: block; font-family: var(--label); font-weight: 600; font-size: 1.05rem; line-height: 1.35; }
+.prose .questions span { display: block; margin-top: 0.25rem; font-size: 0.95rem; line-height: 1.5; color: var(--soft); }
