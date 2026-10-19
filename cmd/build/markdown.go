@@ -25,8 +25,9 @@ import (
 // with heading IDs and {#id} attributes, curly quotes but no dashes
 // (the prose rules ban em dashes, so "--" stays as typed), code blocks
 // highlighted by chroma, excerpts included from the companion code,
-// code: links turned into links to the repository, and page: links
-// resolved against pages, the site's pages.
+// code: links turned into links to the repository, page: links
+// resolved against pages, the site's pages, and the columns of figures
+// in tables marked (tables.go).
 func newMarkdown(code *codeRoot, pages *pageIndex) goldmark.Markdown {
 	blocks := &codeBlocks{code: code, pages: pages}
 	md := goldmark.New(
@@ -43,7 +44,8 @@ func newMarkdown(code *codeRoot, pages *pageIndex) goldmark.Markdown {
 			parser.WithAutoHeadingID(),
 			parser.WithAttribute(),
 			parser.WithASTTransformers(util.Prioritized(codeLinks{code}, 100),
-				util.Prioritized(pageLinks{code, pages}, 100)),
+				util.Prioritized(pageLinks{code, pages}, 100),
+				util.Prioritized(numberColumns{}, 100)),
 		),
 		goldmark.WithRendererOptions(
 			gmhtml.WithUnsafe(), // pages may hold HTML blocks, such as figures

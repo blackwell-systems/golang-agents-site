@@ -15,6 +15,12 @@ Its practice target is `remind`, a reminders service of about 4,800 lines that s
 This page reports how the finished agent did on three models, how those numbers were produced, what went wrong in the runs that failed, and what it takes to run the agent against your own code.
 Everything here comes from chapter 17 and the run records behind its tables.
 
+If evals are new to you, three ideas are enough to read the page.
+Each task is a batch of crash reports with tests the agent never sees, and a run passes only when those tests pass.
+Each task was run two or three times, because the same agent on the same task doesn't always do the same thing.
+And every rate comes with a range, because 20 tasks pin a rate down only so far.
+The linked terms, such as [fingerprint](/glossary/#fingerprint), go to short definitions in the glossary.
+
 ## What it does
 
 The program has four forms:
@@ -34,6 +40,8 @@ The service keeps each day's spending in a file, so restarting it can't hand out
 The catalog holds 32 tasks, each a batch of crash reports from `remind` with tests the agent never sees.
 Twelve form the [tuning set](/glossary/#tuning-set), used while the prompt was being refined, and none of them counts below, since a prompt shaped on a task flatters itself on that task.
 The remaining 20 are kept for confirmation: 15 regression-floor tasks that a sound agent should almost never fail, and 5 hard-tier tasks where the first fix that comes to mind is wrong.
+The floor is a standard for the agent to meet, and the results below show it falling short: the best model passed 76% of its floor runs.
+[Where it fails](#where-it-fails) shows what went wrong in the rest.
 
 The runs took place on October 17 and 18, 2026, on three models:
 
@@ -119,6 +127,10 @@ The rule was fixed after the recordings had been read, which chapter 17 calls th
 Read the table as a picture of two days in October 2026.
 A provider can change the model behind a name, prices move, and a new prompt or tool changes the agent being measured.
 Measure again after any such change, and put the date beside every figure you quote.
+
+The runs also cover one kind of work, triaging crashes in one Go service, on three inexpensive models, with two or three runs per task.
+They say what this agent did on this catalog.
+They can't predict how an agent of yours will do at a different job, or how a larger model would do at this one; a catalog of your own tasks with hidden checks, built the way [evals](/production/evals/) describes, is how to find out.
 
 ## Where it fails
 

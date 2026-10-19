@@ -43,16 +43,10 @@
   --link: #7ccde8;
   --line-soft: rgba(30, 53, 80, 0.6);
   --accent-wash: rgba(233, 174, 85, 0.12);
-  --accent-ring: rgba(233, 174, 85, 0.18);
   --button-hover: #f2c079;
   --outline-soft: rgba(243, 234, 214, 0.5);
   --outline-wash: rgba(243, 234, 214, 0.06);
-  --hero-top: #030b14;
-  --hero-glow: rgba(18, 48, 84, 0.55);
-  --buy-top: #102440;
   --shadow: rgba(0, 0, 0, 0.7);
-  --cover-glow: rgba(40, 90, 150, 0.22);
-  --stars: 0.55;
   /* Syntax colors: the dark edition of the book. */
   --code-bg: #0d1d30;
   --syn-keyword: #bba5f0;
@@ -70,7 +64,7 @@
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --gutter: clamp(1rem, 4vw, 2.5rem);
   --page-max: 80rem; /* the widest the page grows */
-  --measure: 46rem; /* body text: about 90 characters a line */
+  --measure: 38rem; /* body text: about 72 characters a line */
   color-scheme: dark;
 }
 
@@ -125,10 +119,10 @@ code {
   font-size: 0.9em;
   color: var(--ivory);
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 0.05em 0.35em;
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
 }
+a code { color: inherit; }
 
 cite { font-style: italic; }
 
@@ -297,32 +291,12 @@ cite { font-style: italic; }
   .site-nav ul { gap: 1rem; }
 }
 
-/* Hero: the cover's navy with a soft blue glow and a sparse star field. */
+/* Hero: the cover's navy, flat. */
 .hero {
   position: relative;
-  overflow: hidden;
   padding: clamp(2.5rem, 7vw, 6rem) 0 clamp(3rem, 8vw, 6.5rem);
-  background:
-    radial-gradient(ellipse 60% 70% at 78% 45%, var(--hero-glow), transparent 70%),
-    linear-gradient(180deg, var(--hero-top) 0%, var(--night) 50%, var(--page) 100%);
-}
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: var(--stars);
-  background-image:
-    radial-gradient(1px 1px at 12% 18%, var(--ivory), transparent),
-    radial-gradient(1px 1px at 31% 8%, var(--stone), transparent),
-    radial-gradient(1px 1px at 47% 27%, var(--ivory), transparent),
-    radial-gradient(1.5px 1.5px at 63% 12%, var(--ivory), transparent),
-    radial-gradient(1px 1px at 82% 6%, var(--stone), transparent),
-    radial-gradient(1px 1px at 92% 31%, var(--ivory), transparent),
-    radial-gradient(1px 1px at 7% 62%, var(--stone), transparent),
-    radial-gradient(1px 1px at 22% 84%, var(--ivory), transparent),
-    radial-gradient(1px 1px at 54% 92%, var(--stone), transparent),
-    radial-gradient(1.5px 1.5px at 38% 55%, var(--stone), transparent);
+  background: var(--night);
+  border-bottom: 1px solid var(--line-soft);
 }
 .hero-grid {
   position: relative;
@@ -380,8 +354,7 @@ cite { font-style: italic; }
   border-radius: 3px;
   box-shadow:
     0 0 0 1px var(--amber-dim),
-    0 24px 50px -12px var(--shadow),
-    0 0 90px var(--cover-glow);
+    0 16px 32px -16px var(--shadow);
 }
 @media (min-width: 37.5rem) {
   .hero-cover { width: 300px; }
@@ -517,7 +490,6 @@ cite { font-style: italic; }
   height: 7px;
   border-radius: 50%;
   background: var(--amber);
-  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 /* Findings */
@@ -632,7 +604,7 @@ cite { font-style: italic; }
 .formats h3 { margin-bottom: 0.4rem; }
 .formats p { margin: 0; font-size: 0.97rem; }
 .buy-box {
-  background: linear-gradient(180deg, var(--buy-top), var(--panel));
+  background: var(--panel);
   border: 1px solid var(--amber-dim);
   border-radius: 6px;
   padding: 1.75rem;
@@ -751,16 +723,10 @@ cite { font-style: italic; }
   --amber-ink: #ffffff;
   --link: #0077a3;
   --accent-wash: rgba(160, 98, 15, 0.08);
-  --accent-ring: rgba(160, 98, 15, 0.16);
   --button-hover: #87520c;
   --outline-soft: rgba(8, 25, 43, 0.45);
   --outline-wash: rgba(8, 25, 43, 0.04);
-  --hero-top: #fbf8f2;
-  --hero-glow: rgba(233, 174, 85, 0.14);
-  --buy-top: #fbf3e4;
   --shadow: rgba(8, 25, 43, 0.2);
-  --cover-glow: rgba(160, 98, 15, 0.12);
-  --stars: 0;
   --code-bg: #f6f4ef;
   --syn-keyword: #6d28d9;
   --syn-type: #a04e08;
@@ -791,16 +757,10 @@ cite { font-style: italic; }
     --amber-ink: #ffffff;
     --link: #0077a3;
     --accent-wash: rgba(160, 98, 15, 0.08);
-    --accent-ring: rgba(160, 98, 15, 0.16);
     --button-hover: #87520c;
     --outline-soft: rgba(8, 25, 43, 0.45);
     --outline-wash: rgba(8, 25, 43, 0.04);
-    --hero-top: #fbf8f2;
-    --hero-glow: rgba(233, 174, 85, 0.14);
-    --buy-top: #fbf3e4;
     --shadow: rgba(8, 25, 43, 0.2);
-    --cover-glow: rgba(160, 98, 15, 0.12);
-    --stars: 0;
     --code-bg: #f6f4ef;
     --syn-keyword: #6d28d9;
     --syn-type: #a04e08;
@@ -820,7 +780,7 @@ cite { font-style: italic; }
 
 /* Guides, section pages, and the glossary */
 .guide, .section-page { padding: clamp(2.25rem, 6vw, 4rem) 0 clamp(3rem, 7vw, 5rem); }
-.guide-head { max-width: var(--measure); margin-bottom: 2.25rem; }
+.guide-head { max-width: 44rem; margin-bottom: 2.25rem; }
 .guide-head .lede { max-width: none; }
 .guide-head .eyebrow a { color: inherit; text-decoration: none; }
 .guide-head .eyebrow a:hover { text-decoration: underline; }
@@ -888,6 +848,9 @@ cite { font-style: italic; }
   border-bottom-color: var(--amber-dim);
 }
 .prose td code, .prose th code { white-space: nowrap; }
+.prose th.num, .prose td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.prose td.num { white-space: nowrap; }
+.prose th.num + th, .prose td.num + td { padding-left: 1.25rem; }
 .prose dl { margin: 0 0 1.25rem; }
 .prose dt { font-family: var(--label); font-weight: 600; color: var(--ivory); }
 .prose dd { margin: 0.2rem 0 1rem 0; }
@@ -917,6 +880,26 @@ cite { font-style: italic; }
   color: var(--stone);
 }
 .listing pre:focus-visible { outline-offset: 2px; }
+.listing-body { position: relative; }
+.copy {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel-deep);
+  color: var(--soft);
+  font-family: var(--label);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.copy:hover { color: var(--ivory); border-color: var(--amber-dim); }
+@media (hover: hover) {
+  .copy { opacity: 0; }
+  .listing-body:hover .copy, .copy:focus-visible { opacity: 1; }
+}
 .listing code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
 .chroma .line { display: block; }
 .chroma .k, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr, .chroma .ow { color: var(--syn-keyword); }
@@ -1039,6 +1022,7 @@ cite { font-style: italic; }
   margin: 1.5rem 0 2rem;
 }
 .result-cards .result { margin: 0; display: flex; flex-direction: column; }
+.prose > .result-cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
 .result-cards .result-source { margin-top: auto; }
 @media (min-width: 60rem) {
   /* Wider than the prose column, as wide as the page's grid. */
@@ -1326,9 +1310,19 @@ cite { font-style: italic; }
     margin-bottom: 0.6rem;
   }
   .toc ol { list-style: none; margin: 0; padding: 0; }
-  .toc li { margin-bottom: 0.45rem; line-height: 1.35; }
+  .toc li { position: relative; margin-bottom: 0.45rem; line-height: 1.35; }
   .toc a { color: var(--soft); text-decoration: none; }
   .toc a:hover { color: var(--ivory); text-decoration: underline; }
+  .toc a[aria-current="true"] { color: var(--ivory); }
+  .toc a[aria-current="true"]::before {
+    content: "";
+    position: absolute;
+    left: calc(-1rem - 1px);
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--amber);
+  }
 }
 
 /* A guide's closing line about consulting, quieter than the book line. */
@@ -1420,11 +1414,17 @@ cite { font-style: italic; }
   .guide-head.has-art:not(.section-head) {
     display: grid;
     max-width: none;
-    grid-template-columns: minmax(0, var(--measure)) 10rem;
+    grid-template-columns: minmax(0, 44rem) 10rem;
     column-gap: 2.5rem;
     align-items: start;
   }
   .guide-head .art-guide { float: none; width: auto; margin: 0.25rem 0 0; grid-column: 2; grid-row: 1; }
+}
+/* Where "On this page" shows, the plate takes the same column, so the
+   two line up. */
+@media (min-width: 72rem) {
+  .guide-head.has-art:not(.section-head) { grid-template-columns: minmax(0, 1fr) 14rem; column-gap: 3rem; }
+  .guide-head.has-art:not(.section-head) .head-text { max-width: 48rem; }
 }
 
 /* The Gopher badge, on the 404 page. */

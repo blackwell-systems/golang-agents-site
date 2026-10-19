@@ -165,6 +165,8 @@ source: Chapter 13
 The first grading failed every run, because the grader accepted only a bare commit hash or the exact subject line. Every run had answered with a short hash and the subject.
 ```
 
+The third model here, `openai/gpt-6-luna`, is a different model from the `openai/gpt-5.6-luna` in the other entries: it belonged to the prototype agent the author ran over the catalog before the book's own agent existed.
+
 The answers were right and the grader was wrong.
 It was fixed, given a test of its own, and the runs were graded again.
 

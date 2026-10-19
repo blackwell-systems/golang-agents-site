@@ -123,6 +123,7 @@ The tools are in that text too.
 `read_file` appears as one line of JSON in the system message, after English instructions that say to call a function by writing a JSON object between `<tool_call>` tags.
 The assistant's turn shows the result: the tool call is nothing more than text the model wrote in that format, and the provider parses it back out into the reply's `tool_calls` field.
 The tool's result returns the same way, as a user message wrapped in `<tool_response>` tags.
+These tags are Qwen3's; each model family has its own template, and closed models keep theirs private, but every one of them turns tool calls into text and back.
 
 Three consequences follow for an agent:
 

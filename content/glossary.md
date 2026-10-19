@@ -204,6 +204,11 @@ Ending a process without dropping work or leaving it half finished: refuse new w
 Code that tests one run's result against each of its checks and decides whether the run passed.
 <span class="cite-line">Chapter 13</span>
 
+### Greedy decoding {#greedy-decoding}
+
+Choosing the most probable token at every step. It gives the same text each time, and a small model writing a long reply can get stuck repeating one phrase. Temperature 0 asks for it.
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#a-model-made-of-counts)</span>
+
 ## H {#letter-h .letter}
 
 ### Hallucination {#hallucination}
@@ -326,6 +331,11 @@ Asking a model to score another model's output against a written rubric, for out
 The API a provider built for its own models. A compatible API, by contrast, imitates another provider's request and reply format.
 <span class="cite-line">Chapter 11</span>
 
+### Next-token prediction {#next-token-prediction}
+
+How a language model writes: it gives every possible next token a probability, one is chosen, the token is added to the text, and the model predicts again from the longer text. Every reply, a tool call included, comes out this way.
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#next-token-prediction)</span>
+
 ## O {#letter-o .letter}
 
 ### OpenRouter {#openrouter}
@@ -404,6 +414,11 @@ All a run needs to carry on once its process has exited: the conversation, the m
 
 ## S {#letter-s .letter}
 
+### Sampling {#sampling}
+
+Choosing the next token at random in proportion to the model's probabilities, instead of always taking the most probable one. APIs sample by default, which is the main reason the same request can get different replies.
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#a-model-made-of-counts)</span>
+
 ### Sandbox {#sandbox}
 
 Limits on what code may read, write, or connect to, enforced from outside that code so it can't lift them itself.
@@ -465,6 +480,11 @@ The first message in a conversation, with the role `system`, holding instruction
 <span class="cite-line">Chapter 2</span>
 
 ## T {#letter-t .letter}
+
+### Temperature {#temperature}
+
+A setting applied to the model's probabilities before a token is chosen. Below 1 the favorite wins more often, and 0 means always taking it; above 1 unlikely tokens are chosen more often, and replies start to fall apart.
+<span class="cite-line">Chapter 3 · [How a language model picks its next token](/loop/how-models-work/#temperature)</span>
 
 ### Threat model {#threat-model}
 

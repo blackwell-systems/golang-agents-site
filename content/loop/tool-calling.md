@@ -52,7 +52,8 @@ Chapter 3's `chatml` package renders the start of the book's bug fix the way Qwe
 ```
 
 The definition turns into one JSON line in the system message, and after it come instructions, in English, on how to ask for a call.
-The model's tool call is text it writes between `<tool_call>` tags, and the provider parses that text back into the `tool_calls` array you receive.
+In this template the model's tool call is text it writes between `<tool_call>` tags, and the provider parses that text back into the `tool_calls` array you receive.
+Other model families use other markers and wording, and closed models don't publish theirs, but the mechanism is the same: the call is text the model writes, which the provider turns back into JSON.
 So choosing to call a tool is the same act as writing any other reply: the model continues the text, and a call is the continuation it found most likely, given the descriptions, the task, and everything said so far.
 
 That explains several things a harness has to handle.

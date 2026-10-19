@@ -94,7 +94,7 @@
     </div>
     <div>
       <p>Code excerpts come from the <a href="{{.Site.Repo}}">companion code</a>, licensed under Apache 2.0.</p>
-      <p><a href="https://bide-ai.com">Bide</a>, a library for durable agents</p>
+      <p><a href="https://bide-ai.com">Bide</a>, {{.Site.Author}}'s library for durable agents</p>
       <p>Fonts under the SIL Open Font License: <a href="/fonts/LICENSE-cinzel.txt">Cinzel</a>, <a href="/fonts/LICENSE-inter.txt">Inter</a>, and <a href="/fonts/LICENSE-space-grotesk.txt">Space Grotesk</a>.</p>
     </div>
   </div>
@@ -126,6 +126,73 @@
     root.dataset.theme = next;
     try { localStorage.setItem("theme", next); } catch (e) {}
     label();
+  });
+})();
+
+// "On this page": mark the section being read.
+(function () {
+  var toc = document.querySelector("nav.toc");
+  if (!toc) return;
+  var items = [];
+  toc.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    var h = document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1)));
+    if (h) items.push({ a: a, h: h });
+  });
+  var current = null, queued = false;
+  function update() {
+    queued = false;
+    var next = null;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].h.getBoundingClientRect().top > 120) break;
+      next = items[i];
+    }
+    if (next === current) return;
+    if (current) current.a.removeAttribute("aria-current");
+    if (next) next.a.setAttribute("aria-current", "true");
+    current = next;
+  }
+  addEventListener("scroll", function () {
+    if (!queued) { queued = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+})();
+
+// A copy button on each code listing. For a console listing it copies
+// the commands alone, without the prompts or the output.
+(function () {
+  if (!navigator.clipboard) return;
+  function commands(pre) {
+    var out = [], more = false;
+    pre.querySelectorAll(".line").forEach(function (line) {
+      var gp = line.querySelector(".gp"), t = line.textContent.replace(/\n$/, "");
+      if (!gp && !more) return;
+      if (gp) t = t.slice(t.indexOf(gp.textContent) + gp.textContent.length).replace(/^ /, "");
+      out.push(t);
+      more = /\\$/.test(t);
+    });
+    return out.join("\n") + "\n";
+  }
+  document.querySelectorAll(".listing").forEach(function (fig) {
+    var pre = fig.querySelector("pre");
+    if (!pre) return;
+    var box = document.createElement("div"), b = document.createElement("button");
+    box.className = "listing-body";
+    b.type = "button";
+    b.className = "copy";
+    b.textContent = "Copy";
+    b.addEventListener("click", function () {
+      var text = pre.querySelector(".gp") ? commands(pre) : pre.textContent;
+      navigator.clipboard.writeText(text).then(function () {
+        b.textContent = "Copied";
+      }, function () {
+        b.textContent = "Copy failed";
+      }).then(function () {
+        setTimeout(function () { b.textContent = "Copy"; }, 1500);
+      });
+    });
+    pre.parentNode.insertBefore(box, pre);
+    box.appendChild(pre);
+    box.appendChild(b);
   });
 })();
 </script>
