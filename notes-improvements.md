@@ -1,6 +1,6 @@
 # Site improvements to keep in mind (2026-10-19)
 
-Agreed with the author; #6 done first.
+Agreed with the author; #6 done first. Restructure phase 1 done 2026-10-19 (sections by reader intent, redirects, book references in footers, beginner path reordered).
 
 1. Diagrams on the guide pages: the book's D2 diagrams, one or two per relevant guide.
 2. A short summary (three or four takeaways) under each guide's title.
