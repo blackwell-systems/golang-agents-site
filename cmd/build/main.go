@@ -51,7 +51,7 @@ const (
 	ogImage  = "/og-v2.jpg"
 	repoURL  = "https://github.com/blackwell-systems/go-agents-book-code"
 	codeRef  = "v1.0" // the tag (or branch) code links point at: the first edition
-	storeURL = "https://blackwell341.gumroad.com/l/go-agents"
+	storeURL = "https://blackwellsystems.gumroad.com/l/go-agents"
 )
 
 // section is one part of the site, with a directory under content/.
