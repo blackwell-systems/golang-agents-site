@@ -2,6 +2,7 @@
 title: Tokens, cost, and the context window
 short: Tokens, cost, and context
 description: An agent's requests grow with every turn. This page shows that growth in recorded numbers, what a run costs, which tokens you pay for before the model reads the task, and why the size of the context window is a poor planning target.
+card: How an agent's requests grow each turn, what a run costs, and why the context window misleads.
 chapters: 1, 2, 4
 stage: 1
 date: 2026-10-18

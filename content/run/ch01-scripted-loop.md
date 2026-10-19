@@ -2,6 +2,7 @@
 title: A scripted agent loop, no model needed
 short: "ch01: A scripted agent loop"
 description: Run a complete agent loop that fixes a failing Go test, driven by a script of replies recorded from a real model. No API key and no network, with tests that run in milliseconds.
+card: A complete agent loop that fixes a failing test from a script. No key, no network.
 chapters: 1
 stage: all
 date: 2026-10-18

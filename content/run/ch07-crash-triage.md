@@ -1,7 +1,8 @@
 ---
 title: One crash report, triaged by an agent
 short: "ch07: One crash report, triaged"
-description: The crash-triage agent's first run on a real Go web service, replayed offline. Four crash reports, two already filed, one bug that lives away from the line that crashed; fourteen tools, a final answer in a fixed shape, and a grade from the crash catalog.
+description: The crash-triage agent's first run on a small Go web service, replayed offline. Four crash reports, two already filed, one bug that lives away from the line that crashed; fourteen tools, a final answer in a fixed shape, and a grade from the crash catalog.
+card: The crash-triage agent's first run on four crash reports, replayed and graded offline.
 chapters: 7
 stage: all
 date: 2026-10-18

@@ -2,6 +2,7 @@
 title: Testing an AI agent offline with recorded replies
 short: Testing an agent offline
 description: An agent's tests should never call a live model. Use a scripted model for the loop's rules, an http.RoundTripper that replays recorded API calls for the client and tools, hand-written fixtures for failures you can't trigger, outcome checks in place of transcript checks, and testing/synctest for timeouts.
+card: Testing an agent without a live model: scripted models, replayed HTTP, and outcome checks.
 chapters: 1, 2, 4, 5
 stage: all
 date: 2026-10-18

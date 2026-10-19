@@ -2,6 +2,7 @@
 title: A real agent that fixes a failing test
 short: "ch04: A real agent fixes a failing test"
 description: The same 30-line loop, now driven by a real model's recorded replies, with tools that run go test for real on your machine. Replay two models' different paths to the same fix, and a run that recovers from three bad tool calls.
+card: The same loop on a real model's recorded replies, with go test running for real.
 chapters: 4
 stage: 3
 date: 2026-10-18

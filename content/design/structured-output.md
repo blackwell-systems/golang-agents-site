@@ -2,6 +2,7 @@
 title: "Structured output: an agent's answer in a fixed shape"
 short: Structured output
 description: If a program reads an agent's answer, prose is a poor format, since a parser breaks the first time the wording changes. A final tool, whose arguments are the answer, gives you a typed result from any tool-calling model and a place to check the answer before you accept it.
+card: Get a typed, checked answer from any tool-calling model by making the answer a final tool.
 chapters: 7
 stage: 4
 date: 2026-10-18

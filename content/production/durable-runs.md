@@ -2,6 +2,7 @@
 title: "Durable agent runs: checkpoints, resuming, and doing things exactly once"
 short: Durable runs
 description: How to make an agent survive a crash without losing its work or doing it twice. What to save, the five moments to save it, a checkpoint write that a crash can't tear, a lock and a restart limit, resuming by phase, and idempotency keys, attempt markers, and a three-step ladder for calls whose outcome nobody recorded.
+card: Surviving a crash without losing work or doing it twice: checkpoints, locks, and idempotency keys.
 chapters: 12, 15
 stage: all
 date: 2026-10-18

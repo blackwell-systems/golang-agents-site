@@ -2,6 +2,7 @@
 title: "Retries, traces, and cost for an agent's model and tool calls"
 short: Retries and observability
 description: Which failures deserve a retry and which never do, full-jitter backoff measured against plain backoff, a retry budget and circuit breaker shared across agents, tool retries limited to tools that are safe to repeat, and logs and OpenTelemetry GenAI spans that show where a run's time and money went.
+card: What to retry, how to back off, and traces that show where a run's time and money went.
 chapters: 12
 stage: 2
 date: 2026-10-18

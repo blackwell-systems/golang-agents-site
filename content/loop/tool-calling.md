@@ -2,6 +2,7 @@
 title: Tool calling in Go, on the wire
 short: Tool calling on the wire
 description: What a tool call looks like as JSON on an OpenAI-compatible chat completions API, how a Go client sends tool definitions and reads calls back, and the rules that keep a conversation valid.
+card: A tool call as raw JSON, how a Go client sends and reads one, and the rules that keep it valid.
 chapters: 4, 2
 stage: 3
 date: 2026-10-18

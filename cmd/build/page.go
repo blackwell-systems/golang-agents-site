@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/yuin/goldmark"
 )
@@ -37,6 +38,7 @@ type Meta struct {
 	Title       string // the page's title, used in <title> and the h1
 	Short       string // a shorter title for nav and lists; defaults to Title
 	Description string // one or two sentences for search results and lists
+	Card        string // one line for a section page's card; defaults to Description
 	Layout      string // home, section, article, book, glossary, page, work, or search
 	Chapters    string // the book chapters the page draws on, such as "1, 4"
 	Date        string // first published, as 2006-01-02
@@ -58,6 +60,9 @@ func (p *Page) Abs() string { return siteURL + p.URL }
 
 // Name is the page's short title.
 func (p *Page) Name() string { return cmp.Or(p.Short, p.Title) }
+
+// Blurb is the line a section page's card shows.
+func (p *Page) Blurb() string { return cmp.Or(p.Card, p.Description) }
 
 // Modified is the date the page last changed.
 func (p *Page) Modified() string { return cmp.Or(p.Updated, p.Date) }
@@ -123,7 +128,7 @@ func loadPage(file, rel string) (*Page, error) {
 	}
 	p := &Page{Source: rel, Meta: meta, Body: template.HTML(body)}
 	p.Title, p.Short = smartQuotes(p.Title), smartQuotes(p.Short)
-	p.Description = smartQuotes(p.Description)
+	p.Description, p.Card = smartQuotes(p.Description), smartQuotes(p.Card)
 	dir, name := path.Split(strings.TrimSuffix(rel, ".md"))
 	switch {
 	case rel == "index.md":
@@ -172,6 +177,10 @@ func (p *Page) check() error {
 	case "", "all", "1", "2", "3", "4":
 	default:
 		return fmt.Errorf("stage %q: want 1 to 4, or all", p.Stage)
+	}
+	// A card holds about two lines at its narrowest.
+	if n := utf8.RuneCountInString(p.Card); n > 120 {
+		return fmt.Errorf("card is %d characters; keep it to 120", n)
 	}
 	if p.Guide() && p.Date == "" {
 		return fmt.Errorf("an article needs a date")
@@ -223,6 +232,8 @@ func (m *Meta) set(key, val string) error {
 		m.Short = val
 	case "description":
 		m.Description = val
+	case "card":
+		m.Card = val
 	case "layout":
 		m.Layout = val
 	case "chapters":

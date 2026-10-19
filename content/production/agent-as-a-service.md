@@ -2,6 +2,7 @@
 title: Running an AI agent as a long-running service in Go
 short: An agent as a service
 description: What changes when nobody is watching the agent. A static binary that picks up its own unfinished runs, a shutdown that cancels and saves inside the platform's grace period, a container that keeps the key out of every environment, and a service that takes crash reports over HTTP, queues work in a directory, keeps its spending on disk, and parks decisions in a review queue.
+card: Running an agent unattended: restarts, shutdown, secrets, a work queue, budgets, and reviews.
 chapters: 12, 15, 17
 stage: all
 date: 2026-10-18

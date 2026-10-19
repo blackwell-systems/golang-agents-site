@@ -2,6 +2,7 @@
 title: Evals for an AI agent whose answers vary
 short: Evals for an agent
 description: How to tell whether an agent is good, and whether a change improved it. A tiered eval set, graders written as code with hidden tests, unscored runs kept out of the pass rate, rates reported with ranges, task-by-task comparisons, and the places a model reviewer and a model judge fit.
+card: How to tell whether an agent is good, and whether a change made it better.
 chapters: 13
 stage: all
 date: 2026-10-18

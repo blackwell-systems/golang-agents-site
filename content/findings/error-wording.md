@@ -2,6 +2,7 @@
 title: An error that said "locked" cost a median of 18 turns; one that said "don't retry" cost 4
 short: How a tool error's wording changed the turns
 description: Chapter 4 made a tool fail on every call and changed only the wording of its error. Told "the file is locked", three of four models kept retrying and hunting for ways around the lock; told that retrying couldn't help, every model stopped after one attempt.
+card: Two wordings of the same tool error: one kept three models retrying, the other stopped them all.
 chapters: 4
 stage: 3
 date: 2026-10-18

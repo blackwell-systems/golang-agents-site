@@ -2,6 +2,7 @@
 title: The same bug fix as a workflow cost a quarter to a sixth as much as the agent
 short: Workflow or agent, measured
 description: Chapter 1 fixed one Go bug on four models in two ways, as a three-step workflow written in code and as an agent that picks its own steps. The workflow was cheaper and faster on every model, and its single failure shows what it trades away.
+card: One Go bug fixed by a three-step workflow and by an agent, on four models: cost, speed, failures.
 chapters: 1
 stage: 4
 date: 2026-10-18

@@ -2,6 +2,7 @@
 title: "Before you leave an agent running: a checklist"
 short: Launch checklist
 description: Twenty-three checks for an agent that will run unattended and spend money, grouped by what can go wrong, each with the chapter that builds it and, where the book measured one, the failure that shows why it matters.
+card: Twenty-three checks for an agent that runs unattended and spends money.
 chapters: 4, 5, 10, 11, 12, 13, 14, 15
 stage: all
 date: 2026-10-18

@@ -2,6 +2,7 @@
 title: "The finished agent: results across three models, and where it fails"
 short: The finished agent
 description: The crash-triage agent the book ends with, measured on 20 held-out tasks with three models. Pass rates with their ranges, the cost of each passing run, how the failed runs went wrong, and how to point the agent at a Go service of your own.
+card: The book's final agent on 20 held-out tasks and three models: pass rates, costs, and failures.
 chapters: 17, 13
 stage: all
 date: 2026-10-19

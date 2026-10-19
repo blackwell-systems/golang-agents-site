@@ -2,6 +2,7 @@
 title: Sub-agents in Go, and when a fresh context helps
 short: Sub-agents
 description: A sub-agent is your agent loop run again from inside a tool, with an empty history, to answer one self-contained question. This page covers building one in Go, reporting one that ran out of turns, limiting nesting to one level, and a measured case where it didn't pay off.
+card: Run your agent loop again inside a tool to answer one question, and when that doesn't pay off.
 chapters: 9
 stage: 1
 date: 2026-10-18

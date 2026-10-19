@@ -2,6 +2,7 @@
 title: "One agent, several providers: OpenAI-compatible APIs, the Messages API, and official SDKs in Go"
 short: Providers and SDKs
 description: How to run one agent loop against providers whose APIs disagree on almost everything. An official SDK wrapped in your own interface with its retries off and its errors translated, a hand-written client for Anthropic's Messages API, reasoning that has to return to the provider and host that produced it, and one task run through three clients.
+card: One agent loop on providers whose APIs disagree, with each SDK behind your own interface.
 chapters: 11
 stage: 2
 date: 2026-10-18

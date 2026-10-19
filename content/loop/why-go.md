@@ -2,6 +2,7 @@
 title: Why Go for agents, from the book's evidence
 short: Why Go
 description: An agent spends most of its time waiting on a network, running work side by side, and deciding when to stop. Four places where Go's standard tools did that job in the book's code, with the numbers, and what Go costs you here.
+card: Where Go's standard tools did an agent's work in the book's code, with numbers, and what Go costs.
 chapters: 5, 9, 11, 12, 15, 16
 date: 2026-10-18
 weight: 90

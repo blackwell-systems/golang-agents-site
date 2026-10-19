@@ -2,6 +2,7 @@
 title: One sentence in a tool description decided 79 of 80 first moves
 short: One sentence decided 79 of 80 first moves
 description: A sentence added to an MCP tool's description, a tool the model hadn't called yet, steered the first move of four models in 79 of 80 replies. A label marking the text as the server's cut that to 57. What was tested, what it can't show, and the defenses that work upstream of the model.
+card: One sentence in an MCP tool's description steered four models' first move in 79 of 80 replies.
 chapters: 10
 stage: 1
 date: 2026-10-18

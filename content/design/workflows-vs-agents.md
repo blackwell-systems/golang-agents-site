@@ -2,6 +2,7 @@
 title: "Workflow or agent? The shapes, in Go"
 short: Workflow or agent?
 description: Programs that call a model come in five shapes, from a fixed sequence of calls to several cooperating agents. Pick the simplest one that handles the task, go further only when the task forces you to, and mix shapes when a task has a routine part and an open-ended part.
+card: Five shapes of program that call a model, and how to pick the simplest one that handles the task.
 chapters: 1, 5, 6, 13
 stage: 4
 date: 2026-10-18

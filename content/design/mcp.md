@@ -2,6 +2,7 @@
 title: "MCP in Go: a client and a server, both sides"
 short: MCP in Go
 description: The Model Context Protocol lets any agent use tools a separate program offers. What the protocol is on the wire, how a Go client matches responses to calls and stops a server in the order the protocol asks, what the extra process costs, how much to trust another program's tools, and when to use the official Go SDK.
+card: The Model Context Protocol on the wire, a Go client for it, and how far to trust another program's tools.
 chapters: 10
 stage: 3
 date: 2026-10-18

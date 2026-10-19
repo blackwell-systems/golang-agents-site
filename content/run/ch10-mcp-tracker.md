@@ -2,6 +2,7 @@
 title: An agent filing issues through an MCP server
 short: "ch10: Filing issues over MCP"
 description: The crash-triage agent reaching its issue tracker only through the Model Context Protocol, with the server started as a separate process. Replay the run offline, serve the tracker to any MCP client, and pin the server's tool definitions so a changed description stops the run.
+card: The agent filing issues through an MCP server, with the server's tool definitions pinned.
 chapters: 10
 stage: 3
 date: 2026-10-18

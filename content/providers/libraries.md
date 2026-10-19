@@ -2,6 +2,7 @@
 title: Go libraries and SDKs the book uses or compares
 short: Libraries and SDKs
 description: The provider SDKs, the MCP SDK, OpenTelemetry, and the five Go agent frameworks that the book's code imports or measures, each with its pinned version, what it does well, what it costs, and the part of a harness it stands in for.
+card: Every SDK and framework the book's code uses, with its version, its strengths, and its costs.
 chapters: 4, 10, 11, 12, 16
 date: 2026-10-18
 weight: 30

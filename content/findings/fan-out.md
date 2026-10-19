@@ -2,6 +2,7 @@
 title: Four agents at once finished no faster than one and cost 25 to 60 percent more
 short: Fan-out, measured
 description: Chapter 9 triaged a batch of 99 crash reports two ways, with one agent per cause running four at a time and with a single agent over the whole batch. The fan-out took about as long and cost more, though its cost was steadier and its requests stayed small.
+card: One agent per cause, four at a time, against one agent for 99 reports: no faster, and it cost more.
 chapters: 9
 stage: all
 date: 2026-10-18

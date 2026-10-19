@@ -2,6 +2,7 @@
 title: "One agent task three ways: a hand-built harness, Eino, and Genkit"
 short: "ch16: One task, three implementations"
 description: The same approval-gated diagnosis written on the book's agent package, on Eino, and on Genkit, run against the same scripted replies through a transport that records every request. Run the comparison, time a cancellation during a retry, and read what each version sends.
+card: One approval-gated task on the book's code, Eino, and Genkit, with every request recorded.
 chapters: 16
 stage: all
 date: 2026-10-18

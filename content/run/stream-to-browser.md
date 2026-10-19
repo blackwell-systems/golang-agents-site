@@ -2,6 +2,7 @@
 title: Streaming an agent's progress to a browser
 short: Streaming to a browser
 description: A server written with net/http alone sends an agent's events, as they happen, to a page that reads them with EventSource. The headers, the flush, a deadline per write, a heartbeat, a client that leaves, and a shutdown that ends open streams, from a tested example.
+card: An agent's progress streamed to a web page with net/http and server-sent events.
 kind: Example
 chapters: 6
 date: 2026-10-18

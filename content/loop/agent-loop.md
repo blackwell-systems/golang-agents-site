@@ -2,6 +2,7 @@
 title: The agent loop in Go
 short: The agent loop
 description: An agent is a model inside a loop, and the loop is plain Go. This page reads the whole loop, about 30 lines, stage by stage, along with the rules that keep it correct.
+card: The whole agent loop in about 30 lines of Go, read stage by stage.
 chapters: 1, 4, 5
 stage: all
 date: 2026-10-18

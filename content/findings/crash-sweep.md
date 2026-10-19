@@ -2,6 +2,7 @@
 title: "910 crash scenarios, no duplicate issues: a crash sweep of an agent's loop"
 short: 910 crashes, no duplicates
 description: Chapter 15 crashed the agent's run at every point a crash could land, restarted it, and counted duplicate issues. Saving once per turn duplicated work at 8 of its 18 crash points; idempotency keys removed every duplicate, and attempt markers without keys did too, at the price of 669 questions to a person.
+card: The agent crashed at every point and restarted: what caused duplicates, and what removed them.
 chapters: 15
 stage: 3
 date: 2026-10-18

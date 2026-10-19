@@ -2,6 +2,7 @@
 title: Calling a model's API from Go with net/http
 short: Calling a model from Go
 description: Under two hundred lines of standard-library Go make a client for an OpenAI-compatible chat completions API, with a per-call deadline that records its cause, errors checked in every place they can appear, and the finish reason passed back to the caller.
+card: A chat completions client in standard-library Go, with deadlines, error checks, and finish reasons.
 chapters: 2
 stage: 2
 date: 2026-10-18

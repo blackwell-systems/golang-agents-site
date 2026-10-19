@@ -2,6 +2,7 @@
 title: Twelve measured mistakes from the book's agent runs
 short: Measured mistakes
 description: Every failure on this page happened in a recorded run of the book's code, and each comes with its task, its models, how many runs it rests on, the date, and the chapter. What went wrong, how often, and what the code changed because of it.
+card: Twelve failures from recorded runs, each with how often it happened and what the code changed.
 chapters: 1, 4, 7, 9, 10, 12, 13, 14, 15
 stage: all
 date: 2026-10-18

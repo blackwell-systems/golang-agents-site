@@ -2,6 +2,7 @@
 title: Two identical runs of the same agent scored 15 points apart
 short: Two identical runs, 15 points apart
 description: Chapter 13 ran the same agent twice on each of 20 tasks and scored the second run against the first, as though one were a new version. The second came out 15 points ahead, with nothing changed. How to tell a real improvement from that, with ranges, paired comparisons, and counts.
+card: The same agent, run twice, scored 15 points apart. How to tell a real improvement from chance.
 chapters: 13
 stage: all
 date: 2026-10-18
