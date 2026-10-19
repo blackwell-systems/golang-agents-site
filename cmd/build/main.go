@@ -48,7 +48,7 @@ const (
 	siteName = "AI Agents in Go"
 	siteTag  = "A code-first guide to building AI agents in Go"
 	author   = "Dayna Blackwell"
-	ogImage  = "/og-v2.jpg"
+	ogImage  = "/og-v3.jpg"
 	repoURL  = "https://github.com/blackwell-systems/go-agents-book-code"
 	codeRef  = "v1.0" // the tag (or branch) code links point at: the first edition
 	storeURL = "https://blackwellsystems.gumroad.com/l/go-agents"

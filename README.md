@@ -38,7 +38,7 @@ go run ./cmd/build && npx wrangler deploy
 | `content/` | The pages, in Markdown with front matter. `content/PLAN.md` is the content plan, not a page |
 | `content/<section>/_index.md` | A section's own page; the other files in the directory are its guides |
 | `templates/` | `base.html` (head, header, footer) and one file per layout: `home`, `section`, `article`, `book`, `glossary`, `page`, `work` (the Work with me page and its contact form) |
-| `static/` | Copied as is: `style.css`, `fonts/`, `img/`, `sample/`, the icons, and `og-v2.jpg` |
+| `static/` | Copied as is: `style.css`, `fonts/`, `img/`, `sample/`, the icons, and `og-v3.jpg` |
 | `cmd/build/` | The generator: goldmark for Markdown, chroma for highlighting, `html/template` for layouts |
 | `dist/` | The built site (not committed) |
 
