@@ -7,6 +7,7 @@ chapters: 16
 stage: all
 date: 2026-10-18
 weight: 20
+art: ch16
 ---
 
 A framework hands you the loop, tool dispatch, memory, and tracing on day one, and you supply the prompt, the tools, and the policy.

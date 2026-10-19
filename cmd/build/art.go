@@ -1,0 +1,127 @@
+package main
+
+import (
+	"fmt"
+	"html"
+	"html/template"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+// An artwork is one of the book's illustrations, written at web sizes
+// into static/img/art/ by tools/art.sh. The openers are 4:5 plates on
+// their own navy ground; the badge is the Gopher on a transparent one.
+type artwork struct {
+	Alt    string
+	Widths []int  // the widths written, in px
+	Ratio  [2]int // width and height, for the height of each width
+	Ext    string // the fallback format: jpg, or png for the badge
+}
+
+// The widths tools/art.sh writes.
+var (
+	plateWidths = []int{480, 720, 1080}
+	badgeWidths = []int{240, 480}
+)
+
+// plate is an opener, with its alt text.
+func plate(alt string) artwork {
+	return artwork{Alt: alt, Widths: plateWidths, Ratio: [2]int{1122, 1402}, Ext: "jpg"}
+}
+
+// arts are the illustrations by name, with alt text that describes each
+// picture for a reader who can't see it. The cast: the Gopher, the Go
+// mascot, who builds and runs the harness; and the Ghost, a tall stone
+// android, the model in the loop.
+var arts = map[string]artwork{
+	"intro": plate("The Gopher and the Ghost, a tall stone android, lean over a map on a stone block at the foot of a monument; the Ghost points to the first stop on a lit route."),
+	"part1": plate("The Gopher reaches up for the last curved piece of a toy train track that the kneeling Ghost, a stone android, holds out, to close a loop where four small cars wait, each carrying one tool."),
+	"part2": plate("In a workshop under a lamp, the Gopher on a stool holds up a wrench, while the Ghost, a stone android, sits on the floor with a wrench from the pegboard, a finger to its head, studying a blank crash report pinned among the tools."),
+	"part3": plate("High on a terrace under great stone rings, the Gopher holds up a lantern beside the seated Ghost, a stone android, with the monument's lit workshop windows falling away below."),
+	"ch01":  plate("The Gopher as a conductor in a cap, one hand on a tall lever, watches the Ghost, a stone android, ride a loop-the-loop in a car far too small for it, past four stations: a box, a cylinder, a cone, and an arch."),
+	"ch02":  plate("The Gopher talks into a tin can whose string arcs up to the Ghost, a stone android, small on a high terrace with the other can to its head, while a long blank receipt curls out of the Gopher's can across the floor."),
+	"ch03":  plate("The kneeling Ghost, a stone android, holds open a door in its chest while the Gopher, on a stepstool, looks in through a magnifying glass at a tiny conveyor of blank tiles running toward a tray where two dice tumble."),
+	"ch04":  plate("The Gopher holds up a small screwdriver to the kneeling Ghost, a stone android, whose long fingers reach to take its first tool, beside an open toolbox and a table clock opened to show its gears."),
+	"ch05":  plate("The Gopher bolts a guardrail onto a loop track beside a stone post with a red stop button and a bead lap counter, a piggy bank nearby, while the Ghost, a stone android, kneels and watches the empty ride car."),
+	"ch06":  plate("The Ghost, a stone android, types at a small iron teleprinter while a long blank paper strip streams out across the floor, and the Gopher walks beside it reading as it comes, scissors in hand."),
+	"ch07":  plate("On a stool beside a tall cabinet of tagged drawers, the Gopher ties a blank tag onto a drawer while the kneeling Ghost, a stone android, reaches toward it and waits."),
+	"ch08":  plate("In front of a tall shelf of scrolls, the Gopher, an armful of long scrolls in hand, slides one short tied scroll into a small backpack that the kneeling Ghost, a stone android, holds open."),
+	"ch09":  plate("Six copies of the Ghost, a stone android, work at desks in a row of stone alcoves, each on a folder marked with a different shape, while the Gopher holds up a stopwatch beside one shared jar of coins."),
+	"ch10":  plate("A solid stone wall separates two rooms; the Gopher slides an open toolbox into a window through the wall, and on the other side the Ghost, a stone android, reaches in and lifts out a wrench."),
+	"ch11":  plate("The Gopher fits an adapter on the plug at the end of the Ghost's gathered cables, toward one of three differently shaped sockets in a stone wall, while the Ghost, a stone android, kneels and holds the cables."),
+	"ch12":  plate("In a stone control room, the Gopher in a hard hat sits by a breaker switch watching a trace of amber bars on a large screen, while the Ghost, a stone android, works at a bench beside it, one of its cables frayed."),
+	"ch13":  plate("Five identical copies of the Ghost, a stone android, kneel on stone plinths with the same folder, their eyes slightly different in brightness, while the Gopher judges with a clipboard in front of a chalkboard of five overlapping error bars."),
+	"ch14":  plate("The Ghost, a stone android, kneels in a walled sandbox digging with a small shovel, ignoring a crash report with a folded note tucked into it outside the wall, while the Gopher rests a hand on a green approval button without pressing it."),
+	"ch15":  plate("The Gopher, lantern in hand, plants flags marked with a circle, a triangle, and a square on the landings of a long stair, holding a book stamped with the same shapes, while the Ghost, a stone android, climbs below with an armful of folders and an unplugged cord lies on the bottom step."),
+	"ch16":  plate("In a lantern-lit market arcade, the Gopher studies a boxed kit beside open trays of neatly packed parts, while the Ghost, a stone android, turns over a well-made wrench from one of the kits."),
+	"ch17":  plate("Under great stone rings, the Ghost, a stone android, sorts crash reports into folders marked with simple shapes along a long stone table, while the Gopher checks a small tray set aside, labeled Ask a human."),
+	"gopher": {
+		Alt:    "The Gopher, the site's mascot, with its clipboard.",
+		Widths: badgeWidths, Ratio: [2]int{1, 1}, Ext: "png",
+	},
+}
+
+// artSizes are the sizes attribute for each place art appears, so the
+// browser picks the smallest file that is sharp at that size.
+var artSizes = map[string]string{
+	"hero":  "(min-width: 48rem) 15rem, 8rem",
+	"guide": "(min-width: 60rem) 10rem, 6rem",
+	"badge": "12rem",
+}
+
+// checkArt reports a page's art that isn't known, or whose files are
+// missing from static/img/art/.
+func checkArt(static string, names ...string) error {
+	for _, name := range names {
+		a, ok := arts[name]
+		if !ok {
+			return fmt.Errorf("art %q: not in arts (cmd/build/art.go)", name)
+		}
+		for _, w := range a.Widths {
+			for _, ext := range []string{"avif", "webp", a.Ext} {
+				f := filepath.Join(static, "img", "art", fmt.Sprintf("%s-%d.%s", name, w, ext))
+				if _, err := os.Stat(f); err != nil {
+					return fmt.Errorf("art %q: %w (run tools/art.sh)", name, err)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// picture is the <picture> element for art name in place, one of the
+// keys of artSizes. Every image has its width and height, so the page
+// doesn't shift when it loads, and decodes off the main thread; lazy
+// defers it until it nears the viewport, for art below the fold.
+func picture(name, place string, lazy bool) (template.HTML, error) {
+	a, ok := arts[name]
+	if !ok {
+		return "", fmt.Errorf("art %q: unknown", name)
+	}
+	sizes, ok := artSizes[place]
+	if !ok {
+		return "", fmt.Errorf("art place %q: unknown", place)
+	}
+	srcset := func(ext string) string {
+		var parts []string
+		for _, w := range a.Widths {
+			parts = append(parts, fmt.Sprintf("/img/art/%s-%d.%s %dw", name, w, ext, w))
+		}
+		return strings.Join(parts, ", ")
+	}
+	w := a.Widths[0]
+	h := (w*a.Ratio[1] + a.Ratio[0]/2) / a.Ratio[0] // rounded, as the resize rounds
+	loading := "eager"
+	if lazy {
+		loading = "lazy"
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, `<picture class="art art-%s">`, place)
+	fmt.Fprintf(&b, `<source type="image/avif" srcset="%s" sizes="%s">`, srcset("avif"), sizes)
+	fmt.Fprintf(&b, `<source type="image/webp" srcset="%s" sizes="%s">`, srcset("webp"), sizes)
+	fmt.Fprintf(&b, `<img src="/img/art/%s-%d.%s" srcset="%s" sizes="%s" width="%d" height="%d" alt="%s" loading="%s" decoding="async">`,
+		name, w, a.Ext, srcset(a.Ext), sizes, w, h, html.EscapeString(a.Alt), loading)
+	b.WriteString(`</picture>`)
+	return template.HTML(b.String()), nil
+}

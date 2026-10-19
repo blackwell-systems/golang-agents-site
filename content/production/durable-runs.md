@@ -8,6 +8,7 @@ stage: all
 date: 2026-10-18
 work: true
 weight: 70
+art: ch15
 ---
 
 The triage agent is halfway through a batch: it has filed an issue for one crash group and is writing a test for the next, when the machine restarts for a deploy.

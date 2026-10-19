@@ -7,6 +7,7 @@ chapters: 1
 stage: 4
 date: 2026-10-18
 weight: 30
+art: ch01
 ---
 
 ```result

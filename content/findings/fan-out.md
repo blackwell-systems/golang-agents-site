@@ -7,6 +7,7 @@ chapters: 9
 stage: all
 date: 2026-10-18
 weight: 40
+art: ch09
 ---
 
 ```result

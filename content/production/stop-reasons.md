@@ -8,6 +8,7 @@ stage: 4
 date: 2026-10-18
 work: true
 weight: 10
+art: ch05
 ---
 
 A 30-line agent loop is enough for the happy path, where every request succeeds and every reply makes sense.

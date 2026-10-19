@@ -7,6 +7,7 @@ chapters: 9
 stage: 1
 date: 2026-10-18
 weight: 60
+art: ch09
 ---
 
 As an agent investigates, every file and report it opens stays in its history and is resent each turn.

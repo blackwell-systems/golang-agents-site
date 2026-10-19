@@ -7,6 +7,7 @@ chapters: 7
 stage: all
 date: 2026-10-18
 weight: 30
+art: ch07
 ---
 
 From chapter 7 on, the companion code's agent has a real job: triaging crash reports from `remind`, a small web service for reminders (twenty packages, roughly 4,800 lines of Go), with bugs seeded in it on purpose.

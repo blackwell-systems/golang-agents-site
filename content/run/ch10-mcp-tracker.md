@@ -7,6 +7,7 @@ chapters: 10
 stage: 3
 date: 2026-10-18
 weight: 40
+art: ch10
 ---
 
 The tracker is the one part of the triage job that lives in another program, with its own data.

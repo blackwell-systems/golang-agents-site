@@ -5,6 +5,7 @@ description: The provider SDKs, the MCP SDK, OpenTelemetry, and the five Go agen
 chapters: 4, 10, 11, 12, 16
 date: 2026-10-18
 weight: 30
+art: ch16
 ---
 
 The book's agent is built on the standard library through chapter 10, and every part it builds by hand has a library that does the same job.

@@ -7,6 +7,7 @@ chapters: 1
 stage: all
 date: 2026-10-18
 weight: 10
+art: ch01
 ---
 
 "Agent" now gets attached to nearly anything that calls a model.

@@ -6,6 +6,7 @@ chapters: 1, 4, 5
 stage: all
 date: 2026-10-18
 weight: 20
+art: ch01
 ---
 
 An AI agent lets a model choose the next tool to run, turn after turn, using whatever the earlier tools reported, and it keeps going until the work is finished or a limit cuts it off.

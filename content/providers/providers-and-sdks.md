@@ -7,6 +7,7 @@ chapters: 11
 stage: 2
 date: 2026-10-18
 weight: 10
+art: ch11
 ---
 
 Sooner or later an agent written for one API needs to reach another.

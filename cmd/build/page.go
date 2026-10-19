@@ -47,6 +47,7 @@ type Meta struct {
 	BookLine    string // the closing line about the book, in Markdown
 	Work        bool   // close with a line pointing at /work-with-me/
 	Draft       bool   // kept out of the build: no page, sitemap, feed, or nav entry
+	Art         string // an illustration from cmd/build/art.go, such as "ch04"
 }
 
 // Index reports whether p is a section's own page.
@@ -171,6 +172,9 @@ func (p *Page) check() error {
 	if p.Guide() && p.Date == "" {
 		return fmt.Errorf("an article needs a date")
 	}
+	if _, ok := arts[p.Art]; p.Art != "" && !ok {
+		return fmt.Errorf("art %q: not in arts (cmd/build/art.go)", p.Art)
+	}
 	return nil
 }
 
@@ -229,6 +233,8 @@ func (m *Meta) set(key, val string) error {
 		m.Stage = val
 	case "book":
 		m.BookLine = val
+	case "art":
+		m.Art = val
 	case "draft":
 		b, err := strconv.ParseBool(val)
 		if err != nil {

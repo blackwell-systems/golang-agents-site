@@ -7,6 +7,7 @@ chapters: 9
 stage: 3
 date: 2026-10-18
 weight: 50
+art: ch09
 ---
 
 When a reply contains several tool calls, the model has only listed them; executing them is up to the harness.

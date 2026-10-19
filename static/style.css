@@ -1382,3 +1382,49 @@ cite { font-style: italic; }
   .contact { padding: 1.25rem 1rem; }
 }
 .turnstile { max-width: 100%; overflow: hidden; }
+
+/* The book's art. The openers are plates with their own navy ground,
+   framed by a thin line; on the light theme a soft shadow sets the
+   dark plate off the page. Every image has its width and height in
+   the HTML, so nothing shifts as it loads. */
+.art { display: block; }
+.art img { display: block; width: 100%; height: auto; }
+.art-hero img, .art-guide img {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #0a1828;
+}
+:root[data-theme="light"] .art-hero img,
+:root[data-theme="light"] .art-guide img { box-shadow: 0 6px 18px rgba(4, 14, 25, 0.18); border-color: rgba(4, 14, 25, 0.25); }
+
+/* A section's plate: above the introduction on narrow screens, beside
+   it on wide ones. */
+.section-head.has-art { display: grid; gap: 1.25rem; }
+.section-head .art-hero { width: 8rem; }
+@media (min-width: 48rem) {
+  .section-head.has-art {
+    max-width: none;
+    grid-template-columns: minmax(0, var(--measure)) 15rem;
+    column-gap: 2.5rem;
+    align-items: center;
+  }
+  .section-head .art-hero { width: auto; grid-column: 2; grid-row: 1; }
+}
+
+/* A guide's plate: small, floated beside the title on narrow screens,
+   in its own column on wide ones. */
+.guide-head .art-guide { float: right; width: 5.5rem; margin: 0.25rem 0 0.75rem 1rem; }
+@media (min-width: 30rem) { .guide-head .art-guide { width: 6.5rem; } }
+@media (min-width: 60rem) {
+  .guide-head.has-art:not(.section-head) {
+    display: grid;
+    max-width: none;
+    grid-template-columns: minmax(0, var(--measure)) 10rem;
+    column-gap: 2.5rem;
+    align-items: start;
+  }
+  .guide-head .art-guide { float: none; width: auto; margin: 0.25rem 0 0; grid-column: 2; grid-row: 1; }
+}
+
+/* The Gopher badge, on the 404 page. */
+.art-badge { width: 12rem; margin-bottom: 1rem; }

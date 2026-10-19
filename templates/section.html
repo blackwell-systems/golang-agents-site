@@ -1,10 +1,15 @@
 {{define "main" -}}
 <div class="section-page">
   <div class="wrap">
-    <header class="guide-head">
+    <header class="guide-head section-head{{if .Section.Art}} has-art{{end}}">
+      {{- with .Section.Art}}
+      {{picture . "hero" false}}
+      {{- end}}
+      <div class="head-text">
       <p class="eyebrow">Section</p>
       <h1>{{.Page.Title}}</h1>
       <p class="lede">{{.Page.Description}}</p>
+      </div>
     </header>
     {{- with .Section.Pages}}
     <ol class="cards">

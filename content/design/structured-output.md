@@ -7,6 +7,7 @@ chapters: 7
 stage: 4
 date: 2026-10-18
 weight: 20
+art: ch07
 ---
 
 A chatbot's last message is written for a human.

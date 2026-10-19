@@ -6,6 +6,7 @@ chapters: 2, 4, 6, 8, 11
 stage: 2
 date: 2026-10-18
 weight: 10
+art: ch11
 ---
 
 The book's agent talks to models through one interface, `Model`, with one method.

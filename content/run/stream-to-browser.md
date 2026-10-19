@@ -6,6 +6,7 @@ kind: Example
 chapters: 6
 date: 2026-10-18
 weight: 30
+art: ch06
 ---
 
 Chapter 6 of the book reads server-sent events from the model's API and turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn, and the end of the run.

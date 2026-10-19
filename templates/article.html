@@ -1,7 +1,11 @@
 {{define "main" -}}
 <article class="guide">
   <div class="wrap">
-    <header class="guide-head">
+    <header class="guide-head{{if .Page.Art}} has-art{{end}}">
+      {{- with .Page.Art}}
+      {{picture . "guide" false}}
+      {{- end}}
+      <div class="head-text">
       {{- with .Section}}
       <p class="eyebrow"><a href="/{{.Dir}}/">{{.Title}}</a>{{with $.Page.Kind}}<span aria-hidden="true"> · </span>{{.}}{{end}}</p>
       {{- end}}
@@ -11,6 +15,7 @@
       {{- with .Page.Stages}}
       <div class="stage-map"><p class="stage-map-label">{{if eq $.Page.Stage "all"}}This page works on all four stages of the loop{{else}}This page works on one stage of the loop{{end}}</p><ol>{{range .}}<li{{if .On}} class="on"{{end}}><span class="sm-n">{{.N}}</span>{{.Name}}{{if .On}}<span class="visually-hidden"> (this page)</span>{{end}}</li>{{end}}</ol></div>
       {{- end}}
+      </div>
     </header>
     <div class="guide-body">
     <div class="prose">

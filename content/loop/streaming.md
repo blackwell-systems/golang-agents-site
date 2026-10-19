@@ -7,6 +7,7 @@ chapters: 6
 stage: 2
 date: 2026-10-18
 weight: 70
+art: ch06
 ---
 
 An agent that waits for whole replies gives its user long stretches of nothing.

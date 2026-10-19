@@ -7,6 +7,7 @@ chapters: 10
 stage: 3
 date: 2026-10-18
 weight: 70
+art: ch10
 ---
 
 An agent's own tools are code in its own program.

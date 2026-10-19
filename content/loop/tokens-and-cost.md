@@ -7,6 +7,7 @@ chapters: 1, 2, 4
 stage: 1
 date: 2026-10-18
 weight: 50
+art: ch02
 ---
 
 Model APIs measure everything in tokens.

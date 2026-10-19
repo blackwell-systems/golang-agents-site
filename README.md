@@ -60,6 +60,7 @@ updated: 2026-10-20                    # optional
 weight: 20                             # order in its section
 book: A custom closing line, in Markdown.   # optional
 work: true                             # optional; adds the "Building this at work?" line
+art: ch04                              # optional; the book's opener shown beside the title (cmd/build/art.go)
 draft: true                            # optional; keeps the page out of the build
 ---
 ```
@@ -116,6 +117,15 @@ The copy check reads the prose inside all three blocks.
 Code links point at the `v1.0` tag of the code repository (`codeRef` in `cmd/build/main.go`, the one setting for it), with line ranges computed from the local copy, so build from a copy that matches that tag. Move it to a new tag with each edition.
 
 ## Images and fonts
+
+The book's art comes from the book repository too. `tools/art.sh` writes each opener (`intro`, `part1` to `part3`, `ch01` to `ch17`) into `static/img/art/` as AVIF, WebP, and JPEG at 480, 720, and 1080 px wide, and the Gopher badge as AVIF, WebP, and PNG at 240 and 480:
+
+```
+tools/art.sh            # reads ../go-agents-book/book/images
+```
+
+`cmd/build/art.go` holds each picture's alt text and renders the `<picture>` elements, with width and height so nothing shifts as an image loads. A page names its picture with `art:` in its front matter, each section's is set in `cmd/build/main.go`, and the build fails if a name is unknown or one of its files is missing.
+
 
 The cover images, the social card, and the icons come from the book's cover. When the cover changes, regenerate them from the book repository into `static/`:
 

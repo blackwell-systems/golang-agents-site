@@ -7,6 +7,7 @@ chapters: 2
 stage: 2
 date: 2026-10-18
 weight: 30
+art: ch02
 ---
 
 To a Go program, a model is a web service: you POST some JSON and decode the JSON that comes back.

@@ -8,6 +8,7 @@ stage: all
 date: 2026-10-18
 work: true
 weight: 30
+art: ch05
 ---
 
 Live models make poor test dependencies.

@@ -55,19 +55,20 @@ const (
 )
 
 // section is one part of the site, with a directory under content/.
-// Nav is the shorter name the header uses, when Title is too long.
+// Nav is the shorter name the header uses, when Title is too long, and
+// Art the illustration beside the section's introduction.
 type section struct {
-	Dir, Title, Nav string
+	Dir, Title, Nav, Art string
 }
 
 // sections are the site's sections, in the order the nav lists them.
 var sections = []section{
-	{"loop", "The loop", ""},
-	{"design", "Design", ""},
-	{"production", "Production", ""},
-	{"run", "Run it", ""},
-	{"providers", "Providers and frameworks", "Providers"},
-	{"findings", "Findings", ""},
+	{"loop", "The loop", "", "part1"},
+	{"design", "Design", "", "part2"},
+	{"production", "Production", "", "part3"},
+	{"run", "Run it", "", "intro"},
+	{"providers", "Providers and frameworks", "Providers", "ch11"},
+	{"findings", "Findings", "", "ch13"},
 }
 
 // moved maps a section's old directory to its new one. The build writes
@@ -108,6 +109,18 @@ func build(cfg config) error {
 	}
 	site, err := newSite(pages, cfg.static)
 	if err != nil {
+		return err
+	}
+	var used []string
+	for _, p := range pages {
+		if p.Art != "" {
+			used = append(used, p.Art)
+		}
+	}
+	for _, sec := range sections {
+		used = append(used, sec.Art)
+	}
+	if err := checkArt(cfg.static, used...); err != nil {
 		return err
 	}
 	tmpl, err := loadTemplates(cfg.templates)

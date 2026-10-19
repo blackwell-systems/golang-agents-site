@@ -7,6 +7,7 @@ chapters: 15
 stage: 3
 date: 2026-10-18
 weight: 60
+art: ch15
 ---
 
 ```result

@@ -6,6 +6,7 @@ chapters: 1, 5, 6, 13
 stage: 4
 date: 2026-10-18
 weight: 30
+art: ch05
 ---
 
 Calling a model from Go doesn't make a program an agent, and many such programs shouldn't be one.

@@ -8,6 +8,7 @@ stage: all
 date: 2026-10-18
 work: true
 weight: 80
+art: ch17
 ---
 
 An agent that runs while you watch can rely on you: you restart it, approve its risky calls, and notice when it spends too much.

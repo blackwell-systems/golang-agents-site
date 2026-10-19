@@ -6,6 +6,7 @@ chapters: 4, 2
 stage: 3
 date: 2026-10-18
 weight: 40
+art: ch04
 ---
 
 A model never runs a tool.

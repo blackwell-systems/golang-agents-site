@@ -25,9 +25,9 @@ type Site struct {
 
 // Section is a section with its own page and the pages in it.
 type Section struct {
-	Dir, Title, Nav string
-	Index           *Page   // the section's own page, content/<dir>/_index.md
-	Pages           []*Page // the rest, by weight
+	Dir, Title, Nav, Art string
+	Index                *Page   // the section's own page, content/<dir>/_index.md
+	Pages                []*Page // the rest, by weight
 }
 
 // newSite groups pages into sections and versions the stylesheet, so a
@@ -45,7 +45,7 @@ func newSite(pages []*Page, static string) (*Site, error) {
 		Pages: pages,
 	}
 	for _, sec := range sections {
-		sv := &Section{Dir: sec.Dir, Title: sec.Title, Nav: cmp.Or(sec.Nav, sec.Title)}
+		sv := &Section{Dir: sec.Dir, Title: sec.Title, Nav: cmp.Or(sec.Nav, sec.Title), Art: sec.Art}
 		for _, p := range pages {
 			switch {
 			case p.Section != sec.Dir:
@@ -98,6 +98,7 @@ var templateFuncs = template.FuncMap{
 		return t.Format("January 2, 2006")
 	},
 	"chapters": chapterText,
+	"picture":  picture,
 }
 
 // chapterText turns "1, 4" into "chapters 1 and 4".

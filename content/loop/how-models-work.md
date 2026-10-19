@@ -7,6 +7,7 @@ chapters: 3
 stage: 2
 date: 2026-10-18
 weight: 60
+art: ch03
 ---
 
 An agent is built on four behaviors of the model inside it.

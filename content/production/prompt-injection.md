@@ -8,6 +8,7 @@ stage: 3
 date: 2026-10-18
 work: true
 weight: 50
+art: ch14
 ---
 
 The book's crash-triage agent works from crash reports, and some of the text in every report was supplied by whoever made the request that crashed.

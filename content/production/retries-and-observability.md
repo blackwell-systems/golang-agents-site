@@ -8,6 +8,7 @@ stage: 2
 date: 2026-10-18
 work: true
 weight: 20
+art: ch12
 ---
 
 Two failures from the book's own runs set up this page.

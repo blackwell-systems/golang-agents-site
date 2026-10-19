@@ -188,3 +188,33 @@ func TestRedirects(t *testing.T) {
 		}
 	}
 }
+
+func TestPicture(t *testing.T) {
+	got, err := picture("ch04", "guide", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`<source type="image/avif" srcset="/img/art/ch04-480.avif 480w, /img/art/ch04-720.avif 720w, /img/art/ch04-1080.avif 1080w"`,
+		`width="480" height="600"`, `loading="eager"`, `decoding="async"`, `alt="The Gopher holds up`,
+	} {
+		if !strings.Contains(string(got), want) {
+			t.Errorf("picture(ch04) = %s\nwant it to contain %s", got, want)
+		}
+	}
+	if got, _ := picture("gopher", "badge", true); !strings.Contains(string(got), `width="240" height="240"`) ||
+		!strings.Contains(string(got), `loading="lazy"`) || !strings.Contains(string(got), "gopher-240.png") {
+		t.Errorf("picture(gopher) = %s", got)
+	}
+	if _, err := picture("ch99", "guide", false); err == nil {
+		t.Error("picture of an unknown name: no error")
+	}
+	if err := checkArt(t.TempDir(), "ch04"); err == nil {
+		t.Error("checkArt with no files: no error")
+	}
+	for name, a := range arts {
+		if strings.Contains(a.Alt, "art:") || a.Alt == "" {
+			t.Errorf("arts[%q]: alt %q", name, a.Alt)
+		}
+	}
+}

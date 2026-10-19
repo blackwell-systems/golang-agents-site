@@ -6,6 +6,7 @@ chapters: 1
 stage: all
 date: 2026-10-18
 weight: 10
+art: ch01
 ---
 
 This program runs the whole agent loop, with four tools and a small Go project whose tests fail, against a model that is a script.

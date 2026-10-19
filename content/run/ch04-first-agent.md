@@ -6,6 +6,7 @@ chapters: 4
 stage: 3
 date: 2026-10-18
 weight: 20
+art: ch04
 ---
 
 This program is the first real agent in the companion code.

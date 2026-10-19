@@ -7,6 +7,7 @@ chapters: 16
 stage: all
 date: 2026-10-18
 weight: 50
+art: ch16
 ---
 
 Chapter 16's ports put one piece of the triage agent on two Go frameworks and on the book's own agent package: a crash group's diagnosis with three tools, `run_tests`, `issue_file`, and `submit_diagnosis`, where `issue_file` needs a person's approval.

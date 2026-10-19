@@ -8,6 +8,7 @@ stage: 3
 date: 2026-10-18
 work: true
 weight: 10
+art: ch07
 ---
 
 Everything a model knows about one of your tools fits in three fields: what the tool is called, what its description says, and the JSON schema of its arguments.

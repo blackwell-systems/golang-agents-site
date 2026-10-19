@@ -7,6 +7,7 @@ chapters: 8
 stage: 1
 date: 2026-10-18
 weight: 40
+art: ch08
 ---
 
 A model has no memory between requests, so the harness sends the entire history each turn: the task, every crash report opened so far, every file read, every test output.

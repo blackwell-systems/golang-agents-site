@@ -2,6 +2,9 @@
 <div class="section-page">
   <div class="wrap">
     <header class="guide-head">
+      {{- with .Page.Art}}
+      {{picture . "badge" false}}
+      {{- end}}
       <h1>{{.Page.Title}}</h1>
       <p class="lede">{{.Page.Description}}</p>
     </header>
