@@ -1,6 +1,6 @@
 # Site improvements to keep in mind (2026-10-19)
 
-Agreed with the author; #6 done first. Restructure phase 1 done 2026-10-19 (sections by reader intent, redirects, book references in footers, beginner path reordered). Phase 2 done 2026-10-19 (five Basics pages). Phase 3 done 2026-10-19 (firstagent example, code v1.2, the Build your first agent tutorial). Next: phase 4, an example-project page and a second beginner review.
+Agreed with the author; #6 done first. Restructure phase 1 done 2026-10-19 (sections by reader intent, redirects, book references in footers, beginner path reordered). Phase 2 done 2026-10-19 (five Basics pages). Phase 3 done 2026-10-19 (firstagent example, code v1.2, the Build your first agent tutorial). Phase 4 (example-project page, second beginner review) skipped by the author 2026-10-19.
 
 1. Diagrams on the guide pages: the book's D2 diagrams, one or two per relevant guide.
 2. A short summary (three or four takeaways) under each guide's title.
