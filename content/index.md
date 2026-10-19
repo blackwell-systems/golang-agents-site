@@ -4,7 +4,7 @@ description: Learn how AI agents work at the level of every request, reply, and 
 layout: home
 ---
 
-## What this site is
+## About this site
 
 Guides to building AI agents in Go, one question per page: what a tool call looks like as JSON, when a run should stop, how to test an agent without calling a model.
 They draw on the book *Building AI Agents in Go*, and [Start here](/start/) puts them in order for three kinds of reader.
