@@ -12,7 +12,7 @@ art: ch09
 ---
 
 As an agent investigates, every file and report it opens stays in its history and is resent each turn.
-A context policy that clears and summarizes old turns is one way to keep that in check.
+A [context policy](/build/context-management/) that clears and summarizes old turns is one way to keep that in check.
 A [sub-agent](/glossary/#sub-agent) is another.
 The parent hands a narrow question to a tool, the tool runs a second copy of the loop with an empty conversation, and only the final answer comes back.
 Whatever the sub-agent read along the way is discarded with its conversation, so the parent's history grows by one answer.
@@ -59,7 +59,7 @@ A triage run that nobody is supervising benefits more from a fixed limit the mod
 
 ## Did it help? Measured
 
-The longest single task in the catalog is a crash in the digest code.
+The longest single task in the [crash catalog](/glossary/#crash-catalog) is a crash in the digest code.
 Its cause sits three packages away in `schedule`, and to understand how the next run time is calculated, the agent ends up reading most of that package.
 On the default model, `anthropic/claude-haiku-5.5`, this task was run three times with `explain_package` available and three times without it (October 2026):
 
@@ -77,7 +77,7 @@ So the two agents read much of the same code, and the runs with the tool needed 
 All six runs located the root cause and passed all 16 checks.
 
 The task also never came close to needing context relief.
-Its largest request stayed below 38,000 tokens, well under the size at which such a context policy begins to clear old results.
+Its largest request stayed below 38,000 tokens, well under the 60,000 tokens at which the context policy above begins to clear old results.
 
 ## When a sub-agent pays
 
@@ -93,7 +93,7 @@ It reports that its multi-agent systems used roughly 15 times as many tokens as 
 The rules from the triage agent hold there too.
 Use a single budget for the lead and all sub-agents.
 Report a sub-agent that ran out of turns as a result the lead can respond to.
-And give sub-agents read-only tools, because the pages they read are untrusted, and instructions planted in a page can travel up to the lead inside a summary.
+And give sub-agents read-only tools, because the pages they read are untrusted, and instructions planted in a page, a [prompt injection](/production/prompt-injection/), can travel up to the lead inside a summary.
 
 ## Sub-agents and fan-out
 
@@ -101,7 +101,7 @@ The model decides when a sub-agent runs, by calling the tool.
 In fan-out, the harness itself splits the job ahead of time and starts one agent per part.
 Each is a form of concurrency in Go, and both were measured on the triage agent.
 On the 99-report batch, [fan-out finished no faster than one agent](/findings/fan-out/); what it gave instead was steadier cost and smaller requests.
-When a model chooses how many agents to start and merges their results, the program is doing orchestration, and this page deliberately stops short of that.
+When the model itself decides how many agents to start and what each one does, and its replies drive the merging of their results, that is orchestration, and this page deliberately stops short of that.
 
 ## What was measured, and what wasn't
 
@@ -138,7 +138,7 @@ $ go run ./ch09 -task g3-mixed-batch -groups -parallel 4
 ```
 
 The test confirms that a sub-agent that exhausts its turns reaches the parent as a tool error and that the parent keeps running.
-The second command, with no key set, replays a recorded fan-out run on a six-report task with five fingerprint groups.
+The second command, with no key set, [replays a recorded](/production/testing-offline/) fan-out run on a six-report task with five fingerprint groups.
 Each output line names the group whose agent produced it; after the agents finish come the merge of their workspaces, the filed issues, and a grade of 22 of 22 checks.
 The service's tests run many times along the way, so it takes a couple of minutes.
 The sub-agent's prompt and tool list are in [`ch09/triage/subagent.go`](code:ch09/triage/subagent.go).

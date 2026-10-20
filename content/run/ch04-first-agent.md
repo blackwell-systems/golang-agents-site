@@ -11,7 +11,8 @@ art: ch04
 ---
 
 This program is the first real agent in the companion code.
-Nothing scripts the model's moves this time: it looks around a small Go project, runs the tests, works out where the bug is, and repairs it on its own.
+Nothing scripts the model's moves in the recorded run: it looks around a small Go project, runs the tests, works out where the bug is, and repairs it on its own.
+The bug is a typo in `duration.go`'s table of units, `'m'` mapped to `time.Second` instead of `time.Minute`, so a test expecting `Parse("1h30m")` to give 1h30m0s gets 1h0m30s.
 Without an API key, the program replays the model's replies from a run recorded in October 2026, but only the replies are saved: every tool, `go test` included, runs for real each time.
 
 ## What it shows
@@ -29,7 +30,7 @@ From the `code` directory of a clone of [go-agents-book-code](https://github.com
 $ go run ./ch04
 ```
 
-The run takes four turns.
+The run takes four turns, each one request to the model and its reply.
 In the first two, the model runs the tests and lists the files, then reads both files.
 Here are the last two turns and the summary:
 
@@ -38,7 +39,7 @@ Here are the last two turns and the summary:
 
 The `PASS` in turn 3 is a real `go test` run on your machine, against the file as the model edited it.
 The last lines total the run: 4 model calls, 5,427 tokens in, 569 out, and $0.0008, as recorded from `anthropic/claude-haiku-5.5` in October 2026, one run of the task.
-The input grows with every call, because each request resends the whole conversation, including both files once the model has read them.
+The input grows with every call, because [each request resends the whole conversation](/basics/tokens-and-cost/), including both files once the model has read them.
 
 ## The same task, another model
 
@@ -66,14 +67,14 @@ The detour costs one turn per mistake and stops nothing.
 ## What `run_tests` runs with
 
 The code under test may be code the model wrote, and it runs with your permissions.
-So the tool doesn't pass on your environment.
+So the tool doesn't hand your environment to the tests.
 It builds one from scratch:
 
 ```go include=ch04/agent/gotest.go tag=test-env
 ```
 
 The test process never sees your `OPENROUTER_API_KEY`, or any other secret exported in your shell.
-The settings keep `go test` offline, out of any workspace above the temporary directory, away from your own Go settings, and on the toolchain you have.
+The settings keep `go test` from downloading modules or toolchains, out of any workspace above the temporary directory, away from your own Go settings, and on the toolchain you have.
 One of the package's tests puts an API key in its own environment, then confirms that a test running inside the project finds no trace of it.
 
 A scrubbed environment is not a [sandbox](/glossary/#sandbox): the tests still run as you, and can read your home directory or open network connections.
@@ -92,7 +93,7 @@ What `run_tests` does, from the project in memory to the message the model reads
 $ go run ./ch04 -save run.json
 ```
 
-The file holds every message of the run, in order: each tool call with its arguments, and each tool result.
+Unlike the replay files, which hold only the model's replies, the file `-save` writes holds every message of the run, in order: each tool call with its arguments, and each tool result.
 If a run misbehaves, this file is where you look: you can follow what the model opened, what `go test` reported, and how the model responded.
 
 ## Run it live
@@ -114,7 +115,7 @@ Unset the key to go back to the recorded replies.
 $ go test ./ch04/...
 ```
 
-The tests replay every saved run and check its outcome, compare the client's requests with the saved ones, and check the tools' rules, including the scrubbed environment.
+The tests [replay every saved run](/production/testing-offline/) and check its outcome, compare the client's requests with the saved ones, and check the tools' rules, including the scrubbed environment.
 They run `go test` for real many times, so they take longer than the scripted-loop tests.
 
 ## Key files

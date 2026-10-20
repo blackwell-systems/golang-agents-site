@@ -86,7 +86,7 @@ Here are the four requests from a recorded bug fix, in which a model repairs a f
 | 3 | 1,846 | 245 |
 | 4 | 2,164 | 131 |
 
-Call 3 jumps by about a thousand tokens because turn 2 read two source files, and from then on both files ride along in every request.
+Call 3 jumps by about a thousand tokens because the reply to call 2 asked to read two source files, and from then on both files ride along in every request.
 
 The more surprising number is call 1.
 The task itself is a single sentence of 26 tokens, but the request is 583.
@@ -97,7 +97,7 @@ Measured on the identical first request, `deepseek/deepseek-v4.1-flash` came to 
 
 On a task this small the overhead hardly shows; the whole run cost $0.0008.
 Crash investigation is different, because the agent reads much more.
-A batch of 99 crash reports cost $1.33 in a run with no context policy; with a policy that marks the cache and clears old tool results once a request passes 60,000 tokens, two runs cost $0.06 and $0.42.
+A batch of 99 crash reports cost $1.33 in a run with no context policy; with a policy that turns on prompt caching (explained below) and clears old tool results once a request passes 60,000 tokens, two runs cost $0.06 and $0.42; the second took 62 turns to the first's 30, because the same agent took a longer path through the same batch.
 
 ## Caching changes the bill, not the size
 
@@ -106,7 +106,7 @@ Agents benefit naturally, since each request is the one before it with a little 
 
 In the 20-turn chat, `openai/gpt-5.6-luna` and `deepseek/deepseek-v4.1-flash` cached without being asked and charged a tenth of the normal rate for most of each request; for `deepseek/deepseek-v4.1-flash`, the final turn ended up a little cheaper than the first.
 The default model supports caching as well, but through OpenRouter you have to request it by putting markers in the request.
-One approach adds two markers, one at the end of the part every request starts with (the system prompt and the task) and one at the end of the request. On the largest task in the companion code, the difference was:
+One approach adds two cache markers: one at the end of the fixed start every request shares (the system prompt and the task), and one at the end of the whole request, so the next request can reuse this one's history. On the largest task in the companion code, the difference was:
 
 ```result
 figure: $0.23
@@ -138,7 +138,7 @@ Send more than fits and the provider will usually reject the request with an err
 Quality drops long before that limit.
 A 2023 paper by Liu and others, "Lost in the Middle", found that models reliably found a fact placed near the beginning or end of a long input and often missed the same fact placed in the middle.
 In 2025, Chroma's "Context Rot" report ran 18 models through simple tasks and saw every one of them get less accurate as the input lengthened, well short of its window.
-Length can raise the price per token too: on the default model, once a request passes 100,000 tokens, the whole request is billed at five times the usual rate, and about half the requests in the uncached batch run crossed that line.
+Length can raise the price per token too: on the default model, once a request passes 100,000 tokens, the whole request is billed at five times the usual rate, and about half the requests in the batch run with no context policy crossed that line.
 
 So plan around a budget, not the window.
 A file the agent opened many turns back and doesn't need any more is still billed on each call, and it still takes some of the model's attention away from what matters now.
@@ -146,7 +146,7 @@ A file the agent opened many turns back and doesn't need any more is still bille
 ## What to do about it
 
 - **Count from the first call.** Record the usage that comes back with each reply and total it for the run; the [ch04 example](/run/ch04-first-agent/) does it by wrapping the model.
-- **Bound the spend.** A turn limit catches a loop that won't stop, and a dollar budget checked before every call limits the cost itself.
+- **[Bound the spend](/production/stop-reasons/).** A turn limit catches a loop that won't stop, and a dollar budget checked before every call limits the cost itself.
 - **Keep tool output small.** Whatever a tool returns is resent on every call after it. The `go test` tool in the bug fix reduces 1,767 bytes of JSON events to a 158-byte report.
 - **Keep the start of the request stable.** The cache discount only applies to an identical prefix, so put instructions and tool definitions first and leave them alone during a run.
 - **Decide what the model sees.** Eventually the history needs rules: drop old turns, clear old tool results, or summarize. That is [context management](/build/context-management/), part of building each request.
