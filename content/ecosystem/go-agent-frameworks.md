@@ -19,7 +19,7 @@ A steadier way to judge one is to hold it up against the parts of an agent you c
 This page does exactly that, using a [hand-built agent harness](/build/first-agent/) as the yardstick.
 Chapter 16 of the book makes the full comparison; this page gives the short version.
 The version numbers and facts below come from reading each module's source in October 2026, so they will age; the questions at the end are meant to outlast them.
-A disclosure: the author builds [Bide](https://bide-ai.com), a Go library for durable agents.
+A disclosure: the author builds [Bide](https://bide-ai.com), a Go framework for durable agents.
 It is left out of the comparison so that this page never grades the author's own work.
 
 ## Five frameworks, five central nouns
