@@ -216,8 +216,8 @@
     "hash": "603ea98b8ffad81a6527ac39eb2556c3455af4f6f6d9a8ad60266aa78818f834"
   },
   "og/production.jpg": {
-    "spec": "e47a6c03c4e1635fbc6d4ac0b3b69226221268d3604c0d38e2f9a01be6551055",
-    "hash": "b04604eb35dce8c7acbf7e59377716bf870839718f0c75c5488f0656d9ec0499"
+    "spec": "e100c53d3febba61c536ffb7e55749ecc49418afd592b808fa57c119ae0e45e4",
+    "hash": "38f2e7ad418453d679ca20174a9685e5a87be966270ade656dba62c079082dca"
   },
   "og/production/agent-as-a-service.jpg": {
     "spec": "3659cb71744e332468364613aaf66e0c54ac56a3b53a98ffdc8b557d4286ca83",
@@ -236,8 +236,8 @@
     "hash": "0a49643e09a586763a4b4b320f5392902713d07260ea3d36d111892076991a07"
   },
   "og/production/launch-checklist.jpg": {
-    "spec": "e6bb151c33affba1ed4aaee504a98435f869b8655db858aa9d3332f6e847acf4",
-    "hash": "57135f5b10c67a9fd98d21ad6b2bfa3550383693731f014821fcb109724b8321"
+    "spec": "020cb7e86d11dc1d32a161e86063d3a630b20b76ec3658c167ab2521bb58e427",
+    "hash": "3857972a89cc5edad571448efec01d0c54def57a4b0d3904d1283dc229218388"
   },
   "og/production/prompt-injection.jpg": {
     "spec": "cd47bf61e7e1dab9743d013551f40bc6b3807c8cc0d5ba32c78a9b058b0acf82",

@@ -88,7 +88,7 @@ type section struct {
 var sections = []section{
 	{"basics", "Basics", "", "section-basics", "section-basics"},
 	{"build", "Build", "", "section-build", "section-build"},
-	{"production", "Production", "", "part3", "section-production"},
+	{"production", "Production", "", "section-production", "section-production"},
 	{"ecosystem", "Go ecosystem", "Ecosystem", "ch11", "section-ecosystem"},
 	{"run", "Examples", "", "intro", "section-examples"},
 	{"findings", "Research", "", "ch13", "section-research"},
