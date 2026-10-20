@@ -55,4 +55,19 @@ for name in path-learning path-shipping path-leading path-complete; do
 	done
 done
 
+# The site's own 4:5 plates (sections, guides), from art/ in this
+# repository: every art/*.png that isn't a path card, at the openers'
+# sizes. Their names and alt text are in cmd/build/art.go.
+for in in "$site"/art/*.png; do
+	name=$(basename "$in" .png)
+	case $name in path-*) continue ;; esac
+	for w in 480 720 1080; do
+		png=$tmp/$name-$w.png
+		magick "$in" -alpha off -colorspace sRGB -filter Lanczos -resize "${w}x" -strip "$png"
+		avifenc -q 55 -s 4 "$png" "$out/$name-$w.avif" >/dev/null
+		cwebp -quiet -q 76 -m 6 "$png" -o "$out/$name-$w.webp"
+		magick "$png" -quality 78 -sampling-factor 4:2:0 -interlace JPEG "$out/$name-$w.jpg"
+	done
+done
+
 echo "art: $(ls "$out" | wc -l | tr -d ' ') files in $out"
