@@ -46,7 +46,7 @@ Stopped with a plain `kill`, the agent's process gets SIGTERM alone, so a `go te
 The second is that every kind of waiting needs its own way to stop.
 You can catch the signal yourself, but then something has to reach everything that is blocked: an HTTP request, a child process to kill, a timer to stop, each of your own goroutines waiting on a channel.
 Each has a different mechanism, and before Go 1.7 brought `context` into the standard library, each library had its own; `net/http` still carries one of them, the `Cancel` field on a request, now deprecated in favor of the request's context.
-Threading a different stop signal through every layer, with no way to say why it fired, is the job `context` does once.
+`context` replaces all of those with one stop signal that reaches every layer and says why it fired.
 Every blocking call agrees on it, from `net/http` and `os/exec` to the model providers' SDKs and your own code, and it carries the reason with it.
 
 The rest of this page is that alternative, piece by piece.
@@ -90,7 +90,7 @@ From here the context is passed down, as the first parameter of every function t
 Nothing below `main` makes a fresh `context.Background()`, because a fresh context cuts the chain: whatever ran under it would ignore Ctrl-C.
 
 Passing it as a parameter, never storing it in a struct, keeps each call's context its own.
-A client that stored a context would cancel every later request with the first one's.
+A client that stored one context would cancel every later request when the first request was cancelled.
 
 A server starts its chains elsewhere.
 In an HTTP handler, `r.Context()` is the request's context, and it ends when the client disconnects or the handler returns.
@@ -143,7 +143,7 @@ The loop also checks between turns, so it doesn't start a call it would cancel a
 ```
 
 When cancellation arrives partway through a reply that asked for several tools, some calls have run and some haven't.
-Every tool call in a conversation needs a matching result, or the next request to the model is rejected, so the calls that didn't run get a result that says why:
+Every tool call in a conversation [needs a matching result](/basics/tool-calling/), or the next request to the model is rejected, so the calls that didn't run get a result that says why:
 
 ```go include=ch06/agent/loop.go tag=run-tools
 ```
@@ -180,12 +180,12 @@ Three details here are easy to miss:
 - `cmd.WaitDelay` bounds how long `Run` waits for the output pipes after the process is killed; a test that started a child process can otherwise keep them open.
 - The tool checks `ctx.Err()` before looking at the command's error, because a killed process reports only "signal: killed", and the cause says why it was killed.
 
-A tool written in Go, rather than a process, must check its context itself, by passing it to every call that can block.
+A tool that is a Go function, rather than a separate process, must check its context itself, by passing it to every call that can block.
 A tool that ignores its context can't be stopped: a timeout wrapper around it still has to wait until the tool returns, however late.
 
 Some calls can't take a context at all, such as a read from a connection or a pipe.
 `context.AfterFunc` runs a function when the context is done, and closing the connection there unblocks the read.
-The MCP client starts a server process and talks to it over pipes, and arranges exactly that while it connects:
+The [MCP client](/build/mcp/) starts a server process and talks to it over pipes, and arranges exactly that while it connects:
 
 ```go include=ch15/mcp/client.go lines=533..539 title="ch15/mcp/client.go, starting an MCP server"
 ```
@@ -194,7 +194,7 @@ The `stop` function it returns cancels the arrangement, for when the work finish
 
 ## A timer as a cause: the idle stream
 
-A streamed reply can stop arriving without ending: the connection stays open and nothing comes.
+A [streamed reply](/build/streaming/) can stop arriving without ending: the connection stays open and nothing comes.
 A deadline for the whole call doesn't fit, because a long reply legitimately takes minutes.
 What fits is a timer that is reset every time a piece arrives, and cancels with its own cause when it fires:
 
@@ -243,7 +243,7 @@ It finishes instantly.
 ## Values in a context
 
 A context can also carry values, and the rule is narrow: values that describe the request, which pass through layers that don't know about them, never optional parameters.
-The agent uses one, the tool call a tool is running for, so that logging and tracing wrappers can name the call without every tool passing it along:
+The agent uses one, the ID of the tool call that a tool is running for, so that logging and tracing wrappers can name the call without every tool passing it along:
 
 ```go include=ch12/agent/traced.go lines=12..20 title="ch12/agent/traced.go"
 ```
@@ -254,7 +254,7 @@ The key is an unexported type, `callKey`; since only this package can name that 
 
 - **`context.Background()` deep inside the code.** It cuts the chain, and nothing under it can be cancelled. Take a `ctx` parameter instead.
 - **A context stored in a struct.** Each call should get its own; a stored one outlives the request it belonged to.
-- **A forgotten `cancel`.** Every `WithTimeout`, `WithCancel`, and their `Cause` forms returns one; `defer` it, or the timer and goroutine it holds linger. `go vet` reports a `cancel` that some path never calls.
+- **A forgotten `cancel`.** `WithTimeout`, `WithCancel`, and their `Cause` forms each return one; `defer` it, or the timer and goroutine it holds linger. `go vet` reports a `cancel` that some path never calls.
 - **A timeout with no cause.** "Context deadline exceeded" from somewhere in a run is hard to act on; a cause names the deadline.
 - **A tool that ignores its context.** It can't be stopped, and a run can't finish shutting down while it runs.
 - **Parameters passed as context values.** A value the function needs belongs in its signature; a context value is invisible to the caller and unchecked by the compiler.
