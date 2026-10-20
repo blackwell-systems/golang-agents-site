@@ -14,16 +14,16 @@ An agent narrows the choice quickly, because it needs a few specific things from
 
 ## Reading a model ID
 
-On OpenRouter a model is named by the company that made it and the model's name, such as `anthropic/claude-haiku-5.5` or `deepseek/deepseek-v4.1-flash`.
+On [OpenRouter](/basics/first-model-call/), a service that sends one API's requests to many providers' models, a model is named by the company that made it and the model's name, such as `anthropic/claude-haiku-5.5` or `deepseek/deepseek-v4.1-flash`.
 The [companion code](https://github.com/blackwell-systems/go-agents-book-code) keeps that ID in one setting, `OPENROUTER_MODEL`, so trying another model needs no code change.
 
 One model can be served by several hosting companies, and OpenRouter picks one per call.
 The reply's `provider` field says which.
-Hosts of the same model can differ in speed and in price, so for measurements you want to compare, pin the host as well as the model.
+Hosts of the same model can differ in speed and in price, so for measurements you want to compare, pin the host as well as the model, with the `provider` field of the request ([providers and SDKs](/ecosystem/providers-and-sdks/) shows a pinned run).
 
 ## What an agent needs
 
-- **Tool calling.** An agent works by asking for tools, so the model has to support them. OpenRouter's model list can be filtered to models that do, and each model's page lists the parameters it accepts.
+- **Tool calling.** An agent works by [asking for tools](/basics/tool-calling/), so the model has to support them. OpenRouter's model list can be filtered to models that do, and each model's page lists the parameters it accepts.
 - **Room for a whole run.** Every request carries the conversation so far, and an agent's conversation grows with each turn. The model's context window has to hold the longest run you expect, with room to spare; [tokens, cost, and context](/basics/tokens-and-cost/) explains why the advertised size is a poor planning number.
 - **Reliable tool calls.** A model that sends malformed arguments, calls tools that don't exist, or stops early costs turns. This is the quality the leaderboards measure least and your agent depends on most.
 
@@ -52,13 +52,13 @@ On hard steps that can help; on simple tool calls it mostly adds time and cost.
 
 - **Reasoning is billed as output.** The reply's `usage` reports it in `completion_tokens_details.reasoning_tokens`.
 - **It shares the reply limit.** A low `max_tokens` can be used up entirely by reasoning, leaving no answer; [common first errors](/basics/common-errors/) shows a recorded case.
-- **It may have to go back.** Some providers return the reasoning in a field your program must send back unchanged with the next request, to the same provider, or the model loses its thread. [Providers and SDKs](/ecosystem/providers-and-sdks/) covers how the companion code does that.
+- **It may have to go back.** Some providers return the reasoning in a field your program must send back unchanged with the next request to that same provider; drop it or send it elsewhere and the model loses its thread. [Providers and SDKs](/ecosystem/providers-and-sdks/) covers how the companion code does that.
 
 Where a model lets you set how much it may reason, cap it, and check the usage to see that the cap held.
 
 ## Local models
 
-[Ollama](https://ollama.com) and similar servers run open models on your own machine and accept the same chat completions requests, at an address such as `http://localhost:11434/v1`.
+[Ollama](https://ollama.com) and similar servers run open models on your own machine and accept the same [chat completions](/ecosystem/differences/) requests, at an address such as `http://localhost:11434/v1`.
 The companion code's client takes a base URL, so pointing it at a local server is a configuration change.
 
 A local model costs nothing per call and keeps your data on your machine.
