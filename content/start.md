@@ -34,7 +34,7 @@ step: /build/workflows-vs-agents/
 step: /production/testing-offline/
 step: /findings/the-finished-agent/
 
-For a Go developer who has never built an agent. It starts with setting up and a loop that runs with no model at all, then makes a first real model call, explains messages and roles, adds tools, runs a real agent, and builds one from scratch. After that come what each turn costs, how a model picks its words, choosing a model, tool design, stopping safely, and testing. The last step shows where it all leads: a finished crash-triage agent, and how well it did.
+For a Go developer who has never built an agent: set up, make a first model call, build an agent from scratch, then learn what it costs, how to design its tools, and how to test it.
 ```
 
 ```path
@@ -56,7 +56,7 @@ step: /production/agent-as-a-service/
 step: /ecosystem/libraries/
 step: /findings/the-finished-agent/
 
-For an engineer who already knows the loop and has a deadline. It opens with the decision that shapes everything after it, a workflow or an agent, then the launch checklist and the mistakes behind it, and then one guide for each part of the checklist, in the checklist's order.
+For an engineer who knows the loop and has a deadline: decide between a workflow and an agent, then work down the launch checklist, one guide per item.
 ```
 
 ```path
@@ -72,7 +72,7 @@ step: /production/evals/
 step: /scope/
 step: /ecosystem/why-go/
 
-For whoever decides whether a team spends its time here. It covers what the work costs, what the team ends up able to build, the risks and how they are handled, and what the material leaves out, mostly in pages with no code to read.
+For whoever decides whether a team spends its time here: what the work costs, what the team ends up able to build, the risks and how they're handled, and what's left out, mostly without code.
 ```
 
 ## Browsing instead

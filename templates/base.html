@@ -167,6 +167,37 @@
   update();
 })();
 
+// The start page: its three cards become tabs that show one path at a
+// time, chosen by the address's #fragment so a link can name a path.
+(function () {
+  var cards = document.querySelectorAll(".path-choose a");
+  var paths = document.querySelectorAll(".reading-path");
+  if (!cards.length || !paths.length) return;
+  document.documentElement.classList.add("paths-tabbed");
+  function show(id, scroll) {
+    var found = false;
+    paths.forEach(function (p) {
+      var on = p.getAttribute("aria-labelledby") === id;
+      p.classList.toggle("is-shown", on);
+      found = found || on;
+    });
+    if (!found) return show(paths[0].getAttribute("aria-labelledby"), false);
+    cards.forEach(function (c) {
+      c.setAttribute("aria-current", c.getAttribute("href") === "#" + id ? "true" : "false");
+    });
+    if (scroll) document.querySelector(".path-choose").scrollIntoView({ block: "start" });
+  }
+  cards.forEach(function (c) {
+    c.addEventListener("click", function (e) {
+      e.preventDefault();
+      var id = c.getAttribute("href").slice(1);
+      history.replaceState(null, "", "#" + id);
+      show(id, false);
+    });
+  });
+  show(location.hash.slice(1), false);
+})();
+
 // A copy button on each code listing. For a console listing it copies
 // the commands alone, without the prompts or the output.
 (function () {
