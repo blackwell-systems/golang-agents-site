@@ -370,13 +370,14 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   });
 })();
 
-// Every name in a Go listing shows what it is in a popover: on hover,
+// Every name in a Go listing, and inline code in the prose that names
+// one of them, shows what it is in a popover: on hover,
 // on keyboard focus, or on a tap. Escape closes it; Enter on a focused
 // name opens where it's declared. The build puts each declaration in a
 // hidden element after the page's body (godefs.go), so copying a
 // listing copies only the code.
 (function () {
-  var refs = document.querySelectorAll(".listing .ref[data-def]");
+  var refs = document.querySelectorAll(".ref[data-def]");
   if (!refs.length) return;
   document.documentElement.classList.add("has-refs");
   var pop = document.createElement("div");

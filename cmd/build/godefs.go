@@ -647,6 +647,10 @@ type goRef struct {
 	def      *goDef
 	obj      int  // which object the name is: the same number for every use
 	local    bool // a name declared inside a function
+
+	name string         // the name itself
+	qual string         // the name before it in a selector ("m" in m.Generate), or ""
+	pkg  *types.Package // the package a package name names, or nil
 }
 
 // refs finds the names in ex, an excerpt of rel, and what each refers to.
@@ -704,8 +708,18 @@ func (x *goIndex) refs(rel string, ex excerpt) ([]goRef, error) {
 		if col < 0 || at+len(id.Name) > len(ex.text) || ex.text[at:at+len(id.Name)] != id.Name {
 			return
 		}
-		ref := goRef{off: at, end: at + len(id.Name)}
+		ref := goRef{off: at, end: at + len(id.Name), name: id.Name}
 		ref.def, ref.local = x.def(obj, u.pkg)
+		if at > 0 && ex.text[at-1] == '.' {
+			j := at - 1
+			for j > 0 && isIdentByte(ex.text[j-1]) {
+				j--
+			}
+			ref.qual = ex.text[j : at-1]
+		}
+		if pn, ok := obj.(*types.PkgName); ok {
+			ref.pkg = pn.Imported()
+		}
 		n, ok := x.objIDs[obj]
 		if !ok {
 			n = len(x.objIDs) + 1
@@ -840,10 +854,11 @@ func (r *codeBlocks) linkRefs(code string, refs []goRef) string {
 		if !ok {
 			id = fmt.Sprintf("ref-%d", len(c.popIDs)+1)
 			c.popIDs[ref.def] = id
-			if err := r.writeDef(&c.pops, id, ref.def); err != nil {
+			if err := c.writeDef(&c.pops, id, ref.def); err != nil {
 				c.fail(err)
 			}
 		}
+		c.noteName(ref)
 		open := fmt.Sprintf(`<span class="ref" data-def="%s" data-obj="o%d"`, id, ref.obj)
 		if ref.local || ref.def.rel == "" || ref.def.line == 0 {
 			open += ` data-notab`
@@ -853,9 +868,10 @@ func (r *codeBlocks) linkRefs(code string, refs []goRef) string {
 	return decorate(code, marks)
 }
 
-// takePops returns the popovers the page's listings use, in one hidden
-// element, and starts the next page.
+// takePops returns the popovers the page uses, in one hidden element,
+// and starts the next page.
 func (c *codeRoot) takePops() string {
+	c.names, c.pkgNames = nil, nil
 	if c.pops.Len() == 0 {
 		return ""
 	}
@@ -865,8 +881,155 @@ func (c *codeRoot) takePops() string {
 	return s
 }
 
+// proseName is what a name in the page's listings refers to, for the
+// inline code in its prose (linkProse): every object the name is used
+// for, by object number.
+type proseName map[int]*goDef
+
+// noteName records a name in a listing under the keys inline code may
+// use for it: the name ("byName"), and with the name before it in a
+// selector ("m.Generate").
+func (c *codeRoot) noteName(ref goRef) {
+	if c.names == nil {
+		c.names = map[string]proseName{}
+		c.pkgNames = map[string]*types.Package{}
+	}
+	if ref.pkg != nil {
+		c.pkgNames[ref.pkg.Name()] = ref.pkg
+	}
+	keys := []string{ref.name}
+	if ref.qual != "" {
+		keys = append(keys, ref.qual+"."+ref.name)
+	}
+	for _, k := range keys {
+		if c.names[k] == nil {
+			c.names[k] = proseName{}
+		}
+		c.names[k][ref.obj] = ref.def
+	}
+}
+
+// pick is the one thing a name in the prose means: the object it names
+// on the page, or among several, the first one when they're all
+// declared alike (byName, a local in two functions), or else the only
+// type among them (Message, a type and a field). ok is false when the
+// name stays ambiguous.
+func (n proseName) pick() (def *goDef, obj int, ok bool) {
+	objs := slices.Sorted(maps.Keys(n))
+	sigs := map[string]bool{}
+	for _, o := range objs {
+		sigs[n[o].sig] = true
+	}
+	if len(sigs) == 1 {
+		return n[objs[0]], objs[0], true
+	}
+	for _, o := range objs {
+		if strings.HasPrefix(n[o].sig, "type ") {
+			if def != nil {
+				return nil, 0, false
+			}
+			def, obj = n[o], o
+		}
+	}
+	return def, obj, def != nil
+}
+
+var (
+	// inlineCode is inline code in a page's prose, with no markup inside.
+	inlineCode = regexp.MustCompile(`<code>([^<]+)</code>`)
+	// proseSkip is where inline code keeps no popover: inside a listing,
+	// a link (which already goes somewhere), or a heading.
+	proseSkip = regexp.MustCompile(`(?s)<pre[ >].*?</pre>|<a[ >].*?</a>|<h[1-6][ >].*?</h[1-6]>`)
+	// codeName is inline code that names something: m.Generate,
+	// *Message, ctx.Err(), errors.Is(err, ErrBudget).
+	codeName = regexp.MustCompile(`^[*&]?([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)(?:\(.*\))?$`)
+)
+
+// linkProse gives the inline code in page, a page's HTML, the popover of
+// the name it shows, when the page's listings use that name for one
+// thing only, so prose and code explain each other. A selector names
+// its last two parts ("reply.Message.ToolCalls" is Message.ToolCalls),
+// and a package-qualified name ("context.Cause") resolves in a package
+// the page's listings import even when they don't use that name, as
+// does a package-qualified field or method ("exec.Cmd.WaitDelay"). The
+// builtins are left alone: nil and error read better as plain code.
+func (c *codeRoot) linkProse(page string) string {
+	if len(c.names) == 0 {
+		return page
+	}
+	var b strings.Builder
+	last := 0
+	for _, loc := range append(proseSkip.FindAllStringIndex(page, -1), []int{len(page), len(page)}) {
+		b.WriteString(inlineCode.ReplaceAllStringFunc(page[last:loc[0]], c.proseRef))
+		b.WriteString(page[loc[0]:loc[1]])
+		last = loc[1]
+	}
+	return b.String()
+}
+
+// proseRef is the inline code span s, with a popover when it names
+// something the page shows.
+func (c *codeRoot) proseRef(s string) string {
+	text := html.UnescapeString(inlineCode.FindStringSubmatch(s)[1])
+	m := codeName.FindStringSubmatch(strings.TrimSpace(text))
+	if m == nil {
+		return s
+	}
+	parts := strings.Split(m[1], ".")
+	key := parts[len(parts)-1]
+	if len(parts) > 1 {
+		key = parts[len(parts)-2] + "." + key
+	}
+	var def *goDef
+	var obj int
+	if n := c.names[key]; n != nil {
+		var ok bool
+		if def, obj, ok = n.pick(); !ok {
+			return s
+		}
+	} else if p := c.pkgNames[parts[0]]; p != nil && len(parts) <= 3 && c.gox != nil {
+		o := p.Scope().Lookup(parts[1])
+		if len(parts) == 3 && o != nil { // a field or method: exec.Cmd.WaitDelay
+			if _, isType := o.(*types.TypeName); !isType {
+				return s
+			}
+			o, _, _ = types.LookupFieldOrMethod(o.Type(), true, p, parts[2])
+		}
+		if o == nil || !o.Exported() {
+			return s
+		}
+		def, _ = c.gox.def(o, nil)
+		if obj = c.gox.objIDs[o]; obj == 0 {
+			obj = len(c.gox.objIDs) + 1
+			c.gox.objIDs[o] = obj
+		}
+	} else {
+		return s
+	}
+	if def == nil || def.pkg == "builtin" {
+		return s
+	}
+	id, ok := c.popIDs[def]
+	if !ok {
+		if c.popIDs == nil {
+			c.popIDs = map[*goDef]string{}
+		}
+		id = fmt.Sprintf("ref-%d", len(c.popIDs)+1)
+		c.popIDs[def] = id
+		if err := c.writeDef(&c.pops, id, def); err != nil {
+			c.fail(err)
+		}
+	}
+	return fmt.Sprintf(`<code class="ref" data-def="%s" data-obj="o%d" data-notab>`, id, obj) +
+		s[len("<code>"):]
+}
+
+func isIdentByte(b byte) bool {
+	return b == '_' || '0' <= b && b <= '9' || 'a' <= b && b <= 'z' || 'A' <= b && b <= 'Z'
+}
+
 // writeDef writes the popover for one declaration.
-func (r *codeBlocks) writeDef(w *strings.Builder, id string, d *goDef) error {
+func (c *codeRoot) writeDef(w *strings.Builder, id string, d *goDef) error {
 	sig, err := highlight("go", d.sig+"\n")
 	if err != nil {
 		return err
@@ -883,7 +1046,7 @@ func (r *codeBlocks) writeDef(w *strings.Builder, id string, d *goDef) error {
 		}
 		where = "Documented at pkg.go.dev, " + at
 	case d.rel != "":
-		u, err := r.code.url(d.rel, 0, 0)
+		u, err := c.url(d.rel, 0, 0)
 		if err != nil {
 			return err
 		}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go/types"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,12 +14,14 @@ import (
 // codeRoot is a local copy of the companion code's code/ directory,
 // which excerpts are read from and code links are checked against.
 type codeRoot struct {
-	dir     string
-	errs    []error              // errors from code: links, collected during a conversion
-	counted map[string]codeStats // stats by directory, counted once
-	gox     *goIndex             // the Go declarations, loaded on first use
-	popIDs  map[*goDef]string    // the page's popovers, by declaration
-	pops    strings.Builder      // their contents, written after the page (takePops)
+	dir      string
+	errs     []error                   // errors from code: links, collected during a conversion
+	counted  map[string]codeStats      // stats by directory, counted once
+	gox      *goIndex                  // the Go declarations, loaded on first use
+	popIDs   map[*goDef]string         // the page's popovers, by declaration
+	pops     strings.Builder           // their contents, written after the page (takePops)
+	names    map[string]proseName      // the names in the page's listings, for its prose
+	pkgNames map[string]*types.Package // the packages its listings import, by name
 }
 
 // openCode checks that dir looks like the companion code.

@@ -1193,6 +1193,20 @@ cite { font-style: italic; }
 .has-refs .listing .ref:hover,
 .has-refs .listing .ref.is-open { background: color-mix(in srgb, var(--amber) 26%, transparent); }
 .has-refs .listing .ref:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+/* Inline code in the prose that names something in the page's listings
+   has the same popover; a dotted underline says so. */
+.has-refs .prose code.ref {
+  text-decoration: underline dotted 1px;
+  text-decoration-color: var(--soft);
+  text-underline-offset: 0.25em;
+  cursor: help;
+}
+.has-refs .prose code.ref:hover,
+.has-refs .prose code.ref.is-open,
+.has-refs .prose code.ref.is-same {
+  text-decoration-style: solid;
+  text-decoration-color: var(--amber);
+}
 .listing-hint {
   margin-left: auto;
   margin-right: 0.6rem;

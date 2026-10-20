@@ -438,3 +438,43 @@ func TestFullRefs(t *testing.T) {
 		t.Errorf("helper: function %+v, variable %+v; want different objects, the variable local", fn, v)
 	}
 }
+
+// TestProseRefs checks that inline code in the prose gets the popover of
+// the name it shows, and that ambiguous names, builtins, and code in a
+// link or a heading are left alone.
+func TestProseRefs(t *testing.T) {
+	dir := t.TempDir()
+	writeFiles(t, dir, refCode)
+	c := &codeRoot{dir: dir}
+	md := newMarkdown(c, newPageIndex(nil, nil))
+	src := "## About `reply`\n\n" +
+		"See `reply`, `a.Run(ctx)`, `agent.New`, `fmt.Sprintf`, `*agent.Request`, " +
+		"`helper`, `nil`, `go test`, and [`reply`](https://example.com).\n\n" +
+		"```go include=ch01/main.go tag=run\n```\n"
+	out, err := convert(md, c, []byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(out)
+	body, _, _ := strings.Cut(s, `<div class="ref-defs"`)
+	var linked, plain []string
+	for _, m := range regexp.MustCompile(`<code( class="ref"[^>]*)?>([^<]*)</code>`).FindAllStringSubmatch(body, -1) {
+		if m[1] != "" {
+			linked = append(linked, html.UnescapeString(m[2]))
+		} else {
+			plain = append(plain, html.UnescapeString(m[2]))
+		}
+	}
+	// helper is both a function and a local variable there, declared
+	// differently, and neither is a type, so it stays plain.
+	wantLinked := []string{"reply", "a.Run(ctx)", "agent.New", "fmt.Sprintf", "*agent.Request"}
+	wantPlain := []string{"reply", "helper", "nil", "go test", "reply"}
+	if !slices.Equal(linked, wantLinked) || !slices.Equal(plain, wantPlain) {
+		t.Errorf("linked %q, plain %q; want %q, %q", linked, plain, wantLinked, wantPlain)
+	}
+	for _, m := range regexp.MustCompile(`data-def="([^"]+)"`).FindAllStringSubmatch(body, -1) {
+		if !strings.Contains(s, `<div class="ref-def" id="`+m[1]+`"`) {
+			t.Errorf("no popover %s", m[1])
+		}
+	}
+}

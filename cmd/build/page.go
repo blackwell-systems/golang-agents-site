@@ -323,11 +323,11 @@ func convert(md goldmark.Markdown, code *codeRoot, src []byte) (template.HTML, e
 	if err := md.Convert(src, &buf); err != nil {
 		return "", err
 	}
+	page := code.linkProse(buf.String())
 	if err := code.takeErr(); err != nil {
 		return "", err
 	}
-	buf.WriteString(code.takePops())
-	return template.HTML(buf.String()), nil
+	return template.HTML(page + code.takePops()), nil
 }
 
 // stageNames are the four stages of the agent loop, in order.
