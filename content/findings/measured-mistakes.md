@@ -76,7 +76,7 @@ The fix was to add `issue_read`.
 
 **What to change:** run a cheap tool-choice test with decoys before trusting a tool set; a decoy that wins every time is describing a tool you forgot.
 
-## Splitting the batch across agents bought no time {#fan-out}
+## On one shared batch, splitting across agents bought no time {#fan-out}
 
 ```result
 figure: 25 to 60%

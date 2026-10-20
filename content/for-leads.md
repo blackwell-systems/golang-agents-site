@@ -67,7 +67,7 @@ Runs are saved as they go, and every call that changes something carries an idem
 Runs were crashed at every point a crash could land and then resumed: 910 scenarios, with nothing filed twice and nothing lost.
 
 **More agents than the job needs.**
-Splitting a batch across four agents at once finished no sooner and cost 25 to 60 percent more than one agent; [workflow or agent](/build/workflows-vs-agents/) shows how to pick the simplest shape that does the job.
+On one batch of crash reports from a shared codebase, splitting the work across four agents at once finished no sooner and cost 25 to 60 percent more than one agent; [workflow or agent](/build/workflows-vs-agents/) shows how to pick the simplest shape that does the job.
 
 **Models and prices that change.**
 The model is one setting, the recorded replies keep every test passing after a model is retired, and the finished agent's results table carries its dates and is meant to be measured again whenever any input to it changes.

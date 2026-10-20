@@ -1,5 +1,5 @@
 ---
-title: Four agents at once finished no faster than one and cost 25 to 60 percent more
+title: "Fan-out on one shared codebase: four agents finished no faster than one and cost 25 to 60 percent more"
 short: Fan-out, measured
 description: Chapter 9 triaged a batch of 99 crash reports two ways, with one agent per cause running four at a time and with a single agent over the whole batch. The fan-out took about as long and cost more, though its cost was steadier and its requests stayed small.
 card: One agent per cause, four at a time, against one agent for 99 reports: no faster, and it cost more.
@@ -95,13 +95,14 @@ It is also a single batch, one that a lone agent finished in 30 to 62 turns in r
 
 ## When fan-out pays
 
-There are three cases where fan-out comes out ahead:
+Fan-out comes out ahead when the work splits cleanly:
 
+- **Independent pieces with no shared bottleneck**, such as building separate files of a codebase in parallel, where each agent owns its own files and its own checks, needs little of what the others read, and doesn't queue for a shared resource. That is close to the opposite of this batch, where the agents read the same code and waited on the same two test slots.
 - **Large groups**, where every group takes many turns by itself and the reading the agents have in common is a small part of their work.
 - **Requests one agent couldn't keep small**: a job where a single agent's requests would grow past what a context policy can hold down.
 - **Far more than four agents running at once.**
 
-For a batch like this one, a single agent with a good context policy matched fan-out's time and cost less per run, while fan-out gave the more predictable bill.
+For a batch like this one, crashes in one shared codebase, a single agent with a good context policy matched fan-out's time and cost less per run, while fan-out gave the more predictable bill.
 
 ## The shared budget
 
