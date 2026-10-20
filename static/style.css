@@ -913,14 +913,10 @@ cite { font-style: italic; }
 }
 .meta { font-family: var(--label); font-size: 0.88rem; color: var(--soft); margin: 0; }
 
-/* Text keeps to the measure, about 90 characters a line; code, tables,
-   rows of result cards, and the when-to-use blocks may run wider, up to
-   the column's width. A single result card keeps to the measure, since
-   it is mostly text. */
+/* Text, code, tables, result cards, and diagrams all use the column's
+   full width, so text is never narrower than the code beside it. */
 .prose { max-width: 60rem; }
-.prose > * { max-width: var(--measure); }
-.prose > .listing, .prose > table, .prose > .table-scroll,
-.prose > .result-cards, .prose > .fit, .prose > .loop-stages, .prose > .diagram { max-width: 100%; }
+.prose > * { max-width: 100%; }
 .prose > * + * { margin-top: 0; }
 .prose h2 {
   font-size: clamp(1.4rem, 3.4vw, 1.75rem);

@@ -32,6 +32,7 @@ Here is the loop as the companion code writes it:
 
 Its first line uses a small helper, `index`, to split the tools in two: `defs`, the name, description, and parameters of each tool, which go to the model in every request, and `byName`, a map from each tool's name to the Go code that runs it, which the loop uses to find the tool a call names.
 The other names are plain types and helpers: a `Message` is one entry in the conversation, a `Request` is the messages and tool definitions for one call, `Limits` holds settings such as `MaxTurns`, a `Result` holds the conversation a run ends with, `runTool` runs one call and turns its output (or its error) into a message for the model, and `ErrMaxTurns` is the error a run returns when it hits the turn limit.
+
 It sends the whole conversation on every call, because the model keeps nothing between calls.
 It appends the reply before running its tools, so each tool result answers a call the conversation already holds.
 It stops on an answer, at the turn limit, or when `ctx` is cancelled.
