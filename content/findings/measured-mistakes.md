@@ -11,7 +11,7 @@ weight: 5
 
 Lists of agent pitfalls are easy to write and hard to check.
 This one is built differently: each entry below is something that went wrong in a recorded run, with the number that shows how often, and the method behind that number.
-Most runs used inexpensive models in October 2026, and most cells rest on a handful of runs, so read each count as what happened on that task, those models, and that day, and treat it as evidence about your own agent only after you run the same check on it.
+Most runs used inexpensive models in October 2026, and most entries rest on a handful of runs, so read each count as what happened on that task, those models, and that day, and treat it as evidence about your own agent only after you run the same check on it.
 
 The entries follow roughly the order you meet them while building an agent.
 
@@ -45,6 +45,8 @@ models: the same four as chapter 1
 runs: three per model and wording, with a 20-turn limit
 date: October 2026
 source: Chapter 4
+link: /findings/error-wording/
+more: The finding
 
 Told "the file is locked", three of the four models used a median of 18 to 20 turns. Told the project was read-only for the session and to report the fix instead, every model finished in four or five.
 ```
@@ -70,7 +72,7 @@ source: Chapter 7
 Asked to comment on issue 101, both models picked an extra tool, `issue_lookup`, in every try once the extras were offered.
 ```
 
-The extras barely moved the overall scores, by a point or two.
+The thirty extra tools barely moved the overall scores, by a point or two.
 The one systematic change pointed at a gap: the triage tools had no way to read a single issue by its number, and a model that wanted to read the issue first reached for the tool whose name came closest.
 The fix was to add `issue_read`.
 
@@ -86,11 +88,13 @@ models: `anthropic/claude-haiku-5.5`
 runs: two or three per design, on a shared machine
 date: October 2026
 source: Chapter 9
+link: /findings/fan-out/
+more: The finding
 
 Twenty-three agents, four at a time, finished in about the same wall time as one agent working through the batch, and cost $0.124 per run against the single agent's $0.077 to $0.100.
 ```
 
-Each group agent started from nothing, so the reading a single agent did once happened 23 times: 250 to 265 model calls against 38 to 52, and dozens of test runs queued behind two shared test slots.
+Each group agent started from nothing, so the reading a single agent did once happened 23 times: 250 to 265 model calls against the single agent's 38 to 52, and dozens of test runs queued behind two shared test slots.
 Fan-out did buy a steadier bill and smaller requests.
 
 **What to change:** measure fan-out against one agent with a context policy before assuming it is faster; it pays off with large groups or far more parallel agents than four.
@@ -114,7 +118,7 @@ As the server sent it, the sentence decided the first call in 79 of 80 replies. 
 The tool carrying the sentence hadn't even been called.
 Its description reached the model because every request carries every connected tool's definition.
 
-**What to change:** read a server's descriptions before connecting it, pin a hash of each definition so a changed one stops the run, and treat a label as a small help.
+**What to change:** read a server's descriptions before connecting it, pin a hash of each definition so a changed one stops the run, and treat a label that marks the text as the server's as a partial defense, since it still let 57 of 80 through.
 
 ## A dropped connection ended a 41-turn run {#dropped-connection}
 
@@ -131,7 +135,7 @@ A TLS error from the connection to the API ended a run at turn 41, by which poin
 ```
 
 The harness of the time resent a request once, and only when no reply had started.
-Neither failure had anything to do with the task, and a retry a few seconds later would very likely have worked.
+Neither the stopped run nor the broken streams had anything to do with the task, and a retry a few seconds later would very likely have worked.
 
 **What to change:** classify errors, and retry the transient ones with backoff and jitter, including a stream that broke partway, which has to be requested again from the start.
 Since these failures are rare, test the retries with a transport that injects them on purpose.
@@ -146,6 +150,8 @@ models: `anthropic/claude-haiku-5.5`
 runs: two per task, 20 tasks
 date: October 2026
 source: Chapter 13
+link: /findings/identical-runs/
+more: The finding
 
 The second run scored 15 points above the first, better on 5 tasks, worse on 2, tied on 13. Nothing had changed, and the range around the difference, from -10 to +40, included zero.
 ```
@@ -166,7 +172,7 @@ source: Chapter 13
 The first grading failed every run, because the grader accepted only a bare commit hash or the exact subject line. Every run had answered with a short hash and the subject.
 ```
 
-The third model here, `openai/gpt-6-luna`, is a different model from the `openai/gpt-5.6-luna` in the other entries: it belonged to a prototype agent run over the catalog before the reference agent existed.
+The third model here, `openai/gpt-6-luna`, is a different model from the `openai/gpt-5.6-luna` in the other entries: it belonged to a prototype agent run over the catalog before the reference agent, the one [the finished agent](/findings/the-finished-agent/) reports on, existed.
 
 The answers were right and the grader was wrong.
 It was fixed, given a test of its own, and the runs were graded again.
@@ -189,7 +195,7 @@ In all nine, the agent's reproducer test failed on the original code and passed 
 
 The same blind spot showed on the reference agent.
 On the hard tier, 40 runs of `anthropic/claude-haiku-5.5` with a reviewer, six got a root cause wrong; five of those filed a reproducer, and the gate let every one through.
-A reproducer that exercises the crash site shows only that the crash site changed; whether the cause was found is a separate question.
+A reproducer that exercises the crash site shows only that the crash no longer happens there; whether the cause was found is a separate question.
 
 **What to change:** keep checks the agent never sees (hidden tests) in the eval, and don't read a passing gate as a correct diagnosis.
 
@@ -207,7 +213,7 @@ source: Chapter 13
 Ten of its 26 calls ran out of room: nine after reasoning through all 16,000 tokens without writing a word, one after 65 kilobytes of prose where JSON belonged. At $0.26, the reviewer's calls came to over half the price of the 20 runs they reviewed.
 ```
 
-Capping reasoning at 4,000 tokens and pinning one host cut the reviewer's cost to $0.04, but the host exceeded the cap on 10 of 25 calls, and six of those ran out before answering.
+Capping reasoning at 4,000 tokens and pinning one [host](/glossary/#host), the company OpenRouter sends the requests to, cut the reviewer's cost to $0.04, but the host exceeded the cap on 10 of 25 calls, and six of those ran out before answering.
 
 **What to change:** cap a reasoning model's thinking, check the cap held by reading usage, and treat a review with no verdict as a failure to handle, not an approval.
 
@@ -248,7 +254,7 @@ When the run saved its state once per turn, a crash between the tracker acceptin
 ```
 
 The restarted run saw a tool call with no recorded result and made it again.
-With an idempotency key on every call that changes something, the sweep of the agent's real loop ran 910 scenarios with no duplicates, nothing lost, and no question to a person.
+With an idempotency key on every call that changes something, the [sweep of the agent's real loop](/findings/crash-sweep/) ran 910 scenarios with no duplicates, nothing lost, and no question to a person.
 
 **What to change:** save the model's reply before running its tools, send a key made from the run and call IDs with every side effect, and crash your own loop on purpose at every save point.
 

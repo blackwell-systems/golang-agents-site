@@ -25,7 +25,7 @@ The code is in [`ch11/orsdk`](code:ch11/orsdk) and [`ch11/anthropic`](code:ch11/
 Adding another OpenAI-compatible endpoint would show very little.
 The hand-written client can already reach any such server; you change the base URL and nothing else.
 The real test is a [native API](/glossary/#native-api), meaning a provider's own request and reply format.
-The Messages API differs from chat completions in these ways:
+The Messages API [differs from chat completions](/ecosystem/differences/) in these ways:
 
 - the system prompt goes in its own request field instead of the message list;
 - no message has a `tool` role; tool results travel as blocks inside a user message, with every result from one reply packed into that single message;
@@ -34,7 +34,7 @@ The Messages API differs from chat completions in these ways:
 - stop reasons, usage counts, and error bodies each have their own names and layout.
 
 Because OpenRouter also serves the Messages API, every run recorded here used a single key.
-Change the base URL to `https://api.anthropic.com/v1` and the same client goes to Anthropic directly.
+Change the base URL to `https://api.anthropic.com/v1` and give it an Anthropic key, and the same client goes to Anthropic directly; it already sends the key in the `x-api-key` header that Anthropic's own API reads.
 
 ## An official SDK, behind your own interface
 
@@ -51,15 +51,17 @@ Two settings in the adapter's constructor do most of the work:
 Left unconfigured, this SDK retries all 5xx responses and connection errors with backoff and keeps going for as long as an hour.
 In one test against a local server that returned 503 for every request, a single call with a 10-second deadline tried five times and stopped only when the deadline expired.
 
+Beyond those two settings, the adapter has two more jobs.
+
 **Translate its errors.** When a call fails, the SDK returns one of fourteen error types, and none of them exposes the HTTP status as a field.
 The adapter converts each one into the `*APIError` that the hand-written client already returns.
 Callers go on using [`errors.Is(err, agent.ErrBudget)`](/basics/errors/) and `Retryable()` and never learn which client sent the request.
 Had the adapter passed the SDK's types upward, every caller would have had to import the SDK as well.
 
 **Set each field on every message type.** In this SDK, a message is a union of generated types, one per role.
-The adapter's first version added the cache marker to system and user messages but missed tool messages.
+The adapter's first version added the [cache](/glossary/#prompt-caching) marker, the field that tells the provider where a reusable prefix of the request ends, to system and user messages but missed tool messages.
 In that run the cache supplied just 30 percent of the input, and the run cost $0.0208.
-After the fix, the same task got 91 percent from the cache and cost between $0.0057 and $0.0108.
+After the fix, the same task got 91 percent from the cache and cost about a third as much, as the table below shows.
 
 The SDK also alters a few bytes on the wire.
 Schemas are stored as Go maps, so their properties are sent in alphabetical order, and reasoning records are re-serialized with the fields rearranged.
@@ -81,12 +83,13 @@ OpenRouter can send one model's requests to several hosts, and each host runs un
 An experiment on `anthropic/claude-haiku-5.5`, two runs in October 2026, showed the effect.
 It pinned the first request to one host, Claude Platform on AWS, and then sent the continuation, the block plus a tool result, along five routes, one of them the same host with the block left out.
 Returned to the host that produced it, the block was billed as input at its full size.
+The same host also accepted the continuation with the block left out, and the difference in input tokens between those two requests, 165 in one run and 152 in the other, matched exactly the thinking tokens each first reply had written.
 Routed instead to Anthropic's own API, Azure, or Google Vertex, the request was refused by OpenRouter with a 400 that named the original host.
 The rule that follows: store the origin of every piece of reasoning, and drop the reasoning whenever a conversation moves to a different host or provider.
 
 Editing the history raises a related problem.
 On that model a thinking block stays valid only as long as nothing earlier in the request changes.
-Context policies change earlier content all the time, by clearing an old tool result or dropping old turns, and every thinking block after the edit becomes stale.
+[Context policies](/build/context-management/) change earlier content all the time, by clearing an old tool result or dropping old turns, and every thinking block after the edit becomes stale.
 Rather than leave it to the account's default, the client sends Anthropic's beta setting that discards stale blocks.
 
 ## One task, three clients
@@ -102,7 +105,7 @@ Each client ran the `m1` triage task, one crash report from the [crash catalog](
 All nine runs passed, and on every column the three clients' ranges overlap.
 With three runs each, the numbers can't rank the clients by cost.
 What they do show is that switching clients took nothing away from the agent.
-The Messages API runs used an earlier version of its client; the recording the replay below uses comes from the final one, and finished in 13 turns for $0.0080, with 87.5 percent of its input served from the cache and all 16 checks passed.
+The Messages API runs used an earlier version of its client; the recording replayed below comes from the final one, and finished in 13 turns for $0.0080, with 87.5 percent of its input served from the cache and all 16 checks passed.
 The two formats also come out close in size.
 One request, the last of a recorded `m1` run, was encoded with each client; leaving reasoning aside, the conversation part was 29,695 bytes in chat completions and 29,356 bytes in the Messages API, within about 1 percent.
 
@@ -130,5 +133,5 @@ $ go run ./ch11 -provider anthropic
 $ go run ./ch11 -provider sdk
 ```
 
-Each command replays a recorded `m1` run through the chosen client, runs every tool for real, and prints the tokens, the cost, and the catalog's grade at the end; both recordings pass 16 of 16.
-The service's tests run many times along the way, so give each command a minute or so.
+Each command [replays a recorded `m1` run](/production/testing-offline/) through the chosen client, runs every tool for real, and prints the tokens, the cost, and the catalog's grade at the end, from its 16 checks; both recordings pass all 16.
+The agent runs the `remind` service's tests many times along the way, so give each command a minute or so.

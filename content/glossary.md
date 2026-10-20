@@ -27,7 +27,7 @@ A program that lets a model pick its next action, one turn at a time, looking at
 
 ### Agent event {#agent-event}
 
-A notice the harness emits while a run is in progress, at the moment each thing happens: the model produced some text, a tool call is complete, a tool returned, a turn ended, or the run ended.
+A notice the harness emits while a run is in progress, at the moment each thing happens: the model produced some text, the model finished writing a tool call, a tool returned, a turn ended, or the run ended.
 
 ### Agentic loop {#agentic-loop}
 
@@ -37,6 +37,7 @@ What the harness does each turn, in four steps: assemble the request, send it to
 ### Approval {#approval}
 
 A yes from a person, which the harness records, allowing a single specific action to proceed.
+<span class="cite-line">[Asking a person before a risky tool call](/production/approval/)</span>
 
 ### At least once {#at-least-once}
 
@@ -77,6 +78,7 @@ The rules a specific model uses to flatten a list of messages, plus any tool def
 ### Checkpoint {#checkpoint}
 
 A saved snapshot of a run's state, written in a way that survives a crash at any instant: what's on disk afterward is always a whole snapshot, either the old one or the new one.
+<span class="cite-line">[Durable agent runs: checkpoints, resuming, and doing things exactly once](/production/durable-runs/)</span>
 
 ### Chunk {#chunk}
 
@@ -120,7 +122,7 @@ A set of crash reports with a single underlying cause. Grouping is a judgment ca
 
 ### Crash report {#crash-report}
 
-Everything captured about one crash: the panic message and stack trace, which version of the program crashed, the request it was handling, and the last log lines before it.
+Everything captured about one crash: the panic message and stack trace, the version of the program that crashed, the request it was handling, and the last log lines before it.
 
 ## D {#letter-d .letter}
 
@@ -151,6 +153,7 @@ An embeddings model does the same for a whole text: one vector per passage, plac
 ### Eval {#eval}
 
 An eval measures how well a model, a prompt, or an agent performs a task by running it many times against a real model, scoring each run, and reporting the result as a rate.
+<span class="cite-line">[Evals for an AI agent whose answers vary](/production/evals/)</span>
 
 ### Eval set {#eval-set}
 
@@ -254,7 +257,7 @@ A small protocol for remote method calls carried in JSON. A request has an ID, t
 
 ### Language model {#language-model}
 
-A program that takes text and returns a probability for every possible next piece. To generate, you choose a piece, add it to the end, and ask again, as many times as you want text.
+A program that takes text and returns a probability for every possible next piece; it writes by [next-token prediction](#next-token-prediction).
 
 ### Least privilege {#least-privilege}
 
@@ -269,6 +272,7 @@ For each token the model wrote, the logarithm of the probability it assigned to 
 ### MCP {#mcp}
 
 The Model Context Protocol: an open standard that lets one program expose tools and data, and lets an agent in another process or on another machine find and call them.
+<span class="cite-line">[MCP in Go: a client and a server, both sides](/build/mcp/)</span>
 <span class="cite-line">[One sentence in a tool description decided 79 of 80 first moves](/findings/tool-description-poisoning/)</span>
 
 ### Memory {#memory}
@@ -317,6 +321,7 @@ A program written as nodes, such as a model call, a tool call, or a branch, join
 ### Parallel tool calls {#parallel-tool-calls}
 
 More than one tool call in a single reply. The harness can run them concurrently; the model only asks for them and never executes anything itself.
+<span class="cite-line">[Running an agent's tool calls in parallel with goroutines](/build/parallel-tool-calls/)</span>
 
 ### Pass rate {#pass-rate}
 
@@ -329,6 +334,7 @@ A provider saving the computation it did on the opening tokens of a request, the
 ### Prompt injection {#prompt-injection}
 
 Instructions planted in an agent's input by someone other than its user, which the model then carries out as though its user had given them.
+<span class="cite-line">[Prompt injection and sandboxing: defenses that don't rely on the model](/production/prompt-injection/)</span>
 
 ### Protected path {#protected-path}
 
@@ -410,15 +416,17 @@ The chain of function calls active at the moment a program panicked, listed from
 ### Stop reason {#stop-reason}
 
 The harness's account of why a whole run ended: it got an answer, hit a limit, was cancelled, or failed with an error. Compare the finish reason, which explains only why a single reply ended.
-<span class="cite-line">[The agent loop in Go](/basics/agent-loop/)</span>
+<span class="cite-line">[Why did the agent stop?](/production/stop-reasons/)</span>
 
 ### Structured outputs {#structured-outputs}
 
 An API option that forces the model's reply to fit a JSON Schema, so your code can decode it directly instead of parsing free text.
+<span class="cite-line">[Structured output: an agent's answer in a fixed shape](/build/structured-output/)</span>
 
 ### Sub-agent {#sub-agent}
 
 A separate agent loop that a tool of another agent starts, with its own empty context, to handle one self-contained task and return a report.
+<span class="cite-line">[Sub-agents in Go, and when a fresh context helps](/build/sub-agents/)</span>
 
 ### Supply-chain attack {#supply-chain-attack}
 
@@ -507,6 +515,7 @@ Finding the stored vectors closest to a query vector, usually by [cosine similar
 ### Workflow {#workflow}
 
 A program that calls a model at points its code decides ahead of time. In an agent, by contrast, the model picks the next step.
+<span class="cite-line">[Workflow or agent? The shapes, in Go](/build/workflows-vs-agents/)</span>
 
 ### Workspace {#workspace}
 
