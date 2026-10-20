@@ -89,7 +89,7 @@ var sections = []section{
 	{"basics", "Basics", "", "section-basics", "section-basics"},
 	{"build", "Build", "", "section-build", "section-build"},
 	{"production", "Production", "", "section-production", "section-production"},
-	{"ecosystem", "Go ecosystem", "Ecosystem", "ch11", "section-ecosystem"},
+	{"ecosystem", "Go ecosystem", "Ecosystem", "section-ecosystem", "section-ecosystem"},
 	{"run", "Examples", "", "intro", "section-examples"},
 	{"findings", "Research", "", "ch13", "section-research"},
 }
