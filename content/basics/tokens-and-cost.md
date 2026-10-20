@@ -149,7 +149,7 @@ A file the agent opened many turns back and doesn't need any more is still bille
 - **Bound the spend.** A turn limit catches a loop that won't stop, and a dollar budget checked before every call limits the cost itself.
 - **Keep tool output small.** Whatever a tool returns is resent on every call after it. The `go test` tool in the bug fix reduces 1,767 bytes of JSON events to a 158-byte report.
 - **Keep the start of the request stable.** The cache discount only applies to an identical prefix, so put instructions and tool definitions first and leave them alone during a run.
-- **Decide what the model sees.** Eventually the history needs rules: drop old turns, clear old tool results, or summarize. That is stage 1 of the loop.
+- **Decide what the model sees.** Eventually the history needs rules: drop old turns, clear old tool results, or summarize. That is [context management](/build/context-management/), part of building each request.
 
 ## Run it
 

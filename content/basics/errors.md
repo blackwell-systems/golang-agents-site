@@ -85,8 +85,8 @@ A call retried until the policy gave up returns a `*RetryError`, which says it i
 
 ## Errors the model reads
 
-A tool's error doesn't stop the run.
-It becomes the tool's result, marked as an error, and the model reads it on its next turn.
+Most tool errors don't stop the run.
+Such an error becomes the tool's result, marked as an error, and the model reads it on its next turn.
 The text has to be written for that reader: what was wrong, and how to make the call correctly.
 The agent keeps the text for the model separate from the kind of error the program checks:
 

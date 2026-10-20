@@ -64,7 +64,7 @@ No model did it in the control, so the sentence, not the task, caused the call.
 **The bare server name worked just as well.** When the sentence named only `issue_comment`, the models matched it to `tracker__issue_comment` on their own.
 An attacker doesn't need to know how your client prefixes names.
 
-**The label helped one model a lot and the rest a little.** It cut the default model from 10 to 4 in both namings.
+**The label helped one model a lot and the rest a little.** It cut `claude-haiku-5.5`, the default model in the companion code, from 10 to 4 in both namings.
 Across all four models it brought the total from 79 of 80 down to 57 of 80.
 
 ## What it can't show
@@ -103,7 +103,7 @@ The defense here is a pin: a person reads a server's tools once, and the client 
 The digest covers the name, the title, the description, the schema (with its keys put in a fixed order first), and the annotations.
 A property's description, an enum value, or a default inside the schema reaches the model just like the description does, so the hash covers it as well.
 On later runs, any tool whose hash differs from the recorded one, and any tool that has no recorded hash, makes the client stop with `ErrUnreviewed` before the run starts.
-A server that adds one sentence tomorrow, the change researchers call a rug pull, then stops the run until someone looks.
+A server that adds one sentence tomorrow, the change researchers call a rug pull, then makes the client stop the run until someone looks.
 
 Two limits are worth saying.
 A hash of the definition says nothing about the code behind it, so a server could change what a tool does without changing its text; for that, pin the release or image digest of the server you reviewed.

@@ -41,7 +41,7 @@ The answer is declared as a Go struct, tagged the same way as the argument struc
 
 Fields that code will switch on, the status above all, are enumerations.
 Each field's description explains it to the model, and the descriptions spell out the easy-to-miss points, such as a root cause that "may not be where it crashed".
-A field the model has nothing for is omitted from the JSON; the model never sends `null`.
+A field the model has nothing for is meant to be left out of the JSON rather than sent as `null`.
 There is one `Diagnosis` for each crash group, and the crash catalog's grader reads the same record.
 
 ## How the loop ends on it

@@ -143,7 +143,7 @@ The recordings of the failed runs show most failures in a few patterns:
 - **Out of turns.** Thirteen of DeepSeek's 15 failed runs reached the 40-turn limit; five of those were on tasks whose fix is in a protected file, where the model kept hunting for another way in instead of handing the group to a person.
 - **The whole catalog at once.** One run on the batch, 99 reports from 23 causes, failed: Haiku used 279 turns and $0.18, and got the grouping and the one-issue-per-cause check wrong. One run is a single data point, so the table records it as a count.
 
-A change is proposed for each pattern, with what it would cost to confirm: a search tool that falls back to words alone (a full rerun of the confirmation set, about $1.23 for Luna's three runs per task), more runs of the decoy tasks before changing the reviewer, a test the agent can't edit that checks every route's middleware, and several batch runs at about $0.18 each.
+A change is proposed for four of the five patterns, with what it would cost to confirm: a search tool that falls back to words alone (a full rerun of the confirmation set, about $1.23 for Luna's three runs per task), more runs of the decoy tasks before changing the reviewer, a test the agent can't edit that checks every route's middleware, and several batch runs at about $0.18 each.
 
 ### Gaps in the harness itself
 

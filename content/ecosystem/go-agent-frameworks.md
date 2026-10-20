@@ -37,7 +37,7 @@ It is a single loop, and the model decides what happens on each pass.
 
 ## The parts, mapped
 
-Every cell records one of four answers: the framework has the part, has some of it, relies on an external package for it, or has nothing for it.
+Every cell records what the framework offers for that part, from a built-in feature to an external package, or `none`.
 The comparison ran Eino and Genkit; the other three columns come from their documentation and source, with no run behind them.
 
 | Part | ADK v1.9.0 | Eino v0.9.21 | Genkit v1.13.1 | LangChainGo v0.1.15 | trpc-agent-go v1.11.2 |
@@ -112,7 +112,7 @@ Each version was also run once against a live model, `anthropic/claude-haiku-5.5
 These are things you get from a framework that the hand-built harness never builds:
 
 - **Provider breadth.** Genkit ships plugins for Anthropic's, Google's, and Ollama's APIs; eino-ext covers Claude, Gemini, DeepSeek, Qwen, Ollama, and others.
-- **Context management out of the box**, in the form of Eino's summarization and reduction middleware.
+- **Context management you can switch on**, in the form of Eino's opt-in summarization and reduction middleware.
 - **Development UIs** for stepping through a run, replaying one step, and changing a prompt in place. ADK and Genkit include one, and Eino offers an IDE plugin.
 - **Tracing integrations**: ADK, Genkit, and trpc-agent-go emit OpenTelemetry; Eino has Langfuse and LangSmith handlers.
 - **Small parts done well.** Genkit's retry middleware stops waiting as soon as the context is done. Eino's error wrapper turns tool errors into results without swallowing interrupts. ADK's `retryandreflect` plugin coaches the model after a tool call fails.

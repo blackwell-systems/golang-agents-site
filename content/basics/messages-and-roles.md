@@ -72,10 +72,11 @@ So a rule that matters for safety, such as "never edit this file" or "never spen
 
 ## Rules for the list
 
-The API checks the list's shape and refuses a request that breaks it:
+In the chat completions format, the API checks the list's shape and refuses a request that breaks it:
 
 - The `system` message comes first.
 - Every tool call in an assistant message is answered by exactly one `tool` message, with the call's ID, before the next assistant message.
-- Messages stay in the order they happened. Reordering or dropping one, to save space, can leave a tool result with no call or a call with no result.
+
+The API can't check one more rule, so the program has to: messages stay in the order they happened. Reordering or dropping one, to save space, can leave a tool result with no call or a call with no result, and the API refuses that.
 
 [The agent loop](/basics/agent-loop/) keeps all three by appending the model's reply before running its tools, and [context management](/build/context-management/) covers how to shorten a long list without breaking them.

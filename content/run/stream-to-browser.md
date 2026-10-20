@@ -44,7 +44,7 @@ Here is the handler:
 ```go include=ssebrowser/server.go tag=events
 ```
 
-Three headers make it a stream: `text/event-stream` tells the browser what it is reading, `no-cache` keeps caches out of the way, and `X-Accel-Buffering: no` asks a proxy such as nginx not to hold events back in a buffer.
+Three headers make it a stream: `text/event-stream` tells the browser what it is reading, `Cache-Control: no-cache` keeps caches out of the way, and `X-Accel-Buffering: no` asks a proxy such as nginx not to hold events back in a buffer.
 
 The run gets a context derived from the request's.
 When the browser closes the connection, because the person pressed Stop or closed the tab, the request's context ends, and the run's model call and tools stop with it.
@@ -74,7 +74,7 @@ Each event is a line naming its kind, a line of JSON, and a blank line:
 ```go include=ssebrowser/sse.go tag=encode
 ```
 
-Newlines inside the data would end the event early, and JSON escapes them, so a tool result of any length fits on its single `data:` line.
+A newline inside the data would break its single `data:` line, and a blank line would end the event; JSON escapes newlines, so a tool result of any length fits on its single `data:` line.
 Naming each event lets the page attach one listener per kind instead of parsing a type field out of every message.
 
 ## The page

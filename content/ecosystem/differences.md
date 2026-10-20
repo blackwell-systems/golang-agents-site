@@ -73,7 +73,7 @@ One request, the last of a recorded run, was encoded with each client:
 | OpenRouter's Go SDK, chat completions | 55,227 | 11,156 |
 | The Messages API's | 43,219 | 0 |
 
-Without its reasoning, the chat completions conversation was within about 1 percent of the Messages API's.
+Without its reasoning, the chat completions conversation was within about 2 percent of the Messages API's.
 The Messages API request carried no reasoning because that reasoning came from another client, and sending it would break the rule in the reasoning row above.
 
 ## Other servers that speak chat completions

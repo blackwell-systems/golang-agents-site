@@ -31,7 +31,7 @@ The command saves a new run to disk before doing anything with it: once a run ex
 
 Not all of a run's memory is in the loop's state.
 The tools remember which files the model has read (the patch tool won't edit a file the model never saw) and the agent's notes, in a `tools.json` beside the checkpoint.
-The random boundary put around untrusted text is kept in a file too, since the saved conversation's rules name it.
+The random boundary the agent puts around untrusted text, which [prompt injection](/production/prompt-injection/) explains, is kept in a file too, since the instructions in the saved conversation name it.
 And the approval gate's denials, held in memory during a run, are rebuilt from the audit log on restart when the command runs with `-audit`.
 
 ## Shut down by cancelling
@@ -65,7 +65,7 @@ A key passed with `-e` is worse in two ways.
 Anyone allowed to run Docker commands can read it with `docker inspect`.
 And although the command removes the variable from its own environment at startup, the kernel still holds the environment the first process started with, and any process of the same user can read it from `/proc/1/environ`.
 This was tried with a made-up key, and another process in the container read the key back.
-Test code runs as that same user inside the image, which also means the tests are at sandbox rung 2 at best: Docker's default settings don't allow the namespaces bubblewrap needs, so stronger isolation for the tests means a separate sandbox beside the agent's container.
+Test code runs as that same user inside the image, which also means the tests are at rung 2 of the [sandbox ladder](/production/prompt-injection/) at best: Docker's default settings don't allow the namespaces that bubblewrap, a Linux sandboxing tool, needs, so stronger isolation for the tests means a separate sandbox beside the agent's container.
 
 ## From a command to a service
 

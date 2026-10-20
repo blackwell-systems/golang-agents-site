@@ -8,7 +8,7 @@ updated: 2026-10-18
 Short definitions of the terms this guide uses.
 Where a guide covers a term in depth, its entry links to it.
 
-<ul class="letters"><li><a href="#letter-a">A</a></li><li><a href="#letter-b">B</a></li><li><a href="#letter-c">C</a></li><li><a href="#letter-d">D</a></li><li><a href="#letter-e">E</a></li><li><a href="#letter-f">F</a></li><li><a href="#letter-g">G</a></li><li><a href="#letter-h">H</a></li><li><a href="#letter-i">I</a></li><li><a href="#letter-j">J</a></li><li><a href="#letter-l">L</a></li><li><a href="#letter-m">M</a></li><li><a href="#letter-n">N</a></li><li><a href="#letter-o">O</a></li><li><a href="#letter-p">P</a></li><li><a href="#letter-r">R</a></li><li><a href="#letter-s">S</a></li><li><a href="#letter-t">T</a></li><li><a href="#letter-u">U</a></li><li><a href="#letter-w">W</a></li></ul>
+<ul class="letters"><li><a href="#letter-a">A</a></li><li><a href="#letter-b">B</a></li><li><a href="#letter-c">C</a></li><li><a href="#letter-d">D</a></li><li><a href="#letter-e">E</a></li><li><a href="#letter-f">F</a></li><li><a href="#letter-g">G</a></li><li><a href="#letter-h">H</a></li><li><a href="#letter-i">I</a></li><li><a href="#letter-j">J</a></li><li><a href="#letter-l">L</a></li><li><a href="#letter-m">M</a></li><li><a href="#letter-n">N</a></li><li><a href="#letter-o">O</a></li><li><a href="#letter-p">P</a></li><li><a href="#letter-r">R</a></li><li><a href="#letter-s">S</a></li><li><a href="#letter-t">T</a></li><li><a href="#letter-u">U</a></li><li><a href="#letter-v">V</a></li><li><a href="#letter-w">W</a></li></ul>
 
 ## A {#letter-a .letter}
 

@@ -124,7 +124,7 @@ Two pieces of state, shared by all the agents, keep that in check:
 There is no way to pick a stream up where it broke, so a retry starts the reply from the beginning.
 Anyone watching has already seen part of the first attempt, so before the new attempt's first piece the wrapper sends a reset, and the display clears the partial reply.
 Usage from the failed attempt is carried over and added to the attempt that succeeds, so budgets match the bill.
-A stream reports usage in its final chunk, so a stream that broke reports none.
+A chat completions stream reports usage in its final chunk, so a stream that broke reports none.
 To recover that cost, the client saves each generation's ID, and OpenRouter can report the cost for that ID afterwards.
 The lookup isn't immediate: in a recorded measurement, OpenRouter returned 404 for between about four and a half and eight and a half minutes before the generation appeared.
 

@@ -39,7 +39,7 @@ Each row below is one round trip to the model:
 | 4 | Nothing: an answer explaining the typo | Stopped and showed the answer |
 
 Look at the middle column: it holds nothing but requests.
-The model has no access to the files and never could have, because it is a service on someone else's computer that receives text and replies with text.
+The model has no access to the files and no way to get any: it receives text and replies with text, so everything it knows about the task arrived in the request.
 The right-hand column is where things happen, and all of it is your Go program: the code that gives `read_file` its meaning, runs the tests, applies the edit, and notices that the job is over.
 
 One run proves little, so the task was repeated 40 times: ten runs each on `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, and `deepseek/deepseek-v4.1-flash`.
@@ -70,7 +70,7 @@ The useful question for telling model programs apart is: who chooses the next st
 Nothing in the bug-fix program told the model to open the test file once it had seen the file list.
 The listing prompted that choice, and the test output prompted the edit.
 That is what puts it in the third row.
-The chatbot, workflow, and agent split is the one Anthropic draws in "Building effective agents", and most real systems mix the shapes: a ticket system can send all tickets through a fixed workflow and pass only the odd cases to an agent.
+Anthropic draws the line between workflows and agents in "Building effective agents"; the chatbot is added here as the simplest shape. Most real systems mix the shapes: a ticket system can send all tickets through a fixed workflow and pass only the odd cases to an agent.
 
 Often the workflow is the right answer.
 If you already know the steps, fixing them in code means fewer model calls, the same path on every run, lower cost, and tests that are easy to write.
@@ -80,7 +80,7 @@ An agent pays for itself only when the step after this one can't be known until 
 
 Simon Willison defines an LLM agent as something that runs tools in a loop to achieve a goal.
 That is accurate as far as it goes, but the model runs nothing.
-It produces requests, and some program has to carry them out, hold on to the conversation, and judge when the work is finished.
+It produces requests, and some program has to carry them out and hold on to the conversation.
 That program is the [harness](/glossary/#harness), and it does two jobs:
 
 - **Run the tools the model asks for**, safely, and send back each result.

@@ -45,7 +45,7 @@ A request is made of five parts, and each grows at its own pace.
 The system prompt and the tool definitions are fixed.
 The model's own messages and tool calls add a few hundred tokens per turn.
 Tool results arrive in big steps whenever the agent reads something.
-And reasoning models return encrypted reasoning with each tool call, which has to be sent back and grows as well.
+And many reasoning models return their reasoning with each tool call, often encrypted, which has to be sent back and grows as well.
 
 By turn 10 of the batch run, tool results made up 71 percent of the request.
 By turn 35 the reasoning had caught up: it took about as many bytes as every tool result in the request combined.

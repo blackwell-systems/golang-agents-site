@@ -107,6 +107,6 @@ Three answers on this page change the most code:
 
 - **Where the conversation lives.** Gemini's Interactions API and Bedrock's Responses API can keep it on the server. The loop in these guides resends the whole conversation every turn and saves it for crash recovery; a server-side copy is a second record to keep in step, or a feature to leave off.
 - **How arguments arrive.** Gemini, Ollama's native API, and Bedrock send an object, so an adapter that keeps the model's exact text for the loop has to serialize it.
-- **How the stream ends.** Each one ends differently: an object with `done`, a `messageStop` followed by `metadata`, or server-sent events. Read the final usage from wherever it arrives before treating the reply as complete.
+- **How the stream ends.** Each one ends differently: Ollama's last object has `done` set, Bedrock sends a `messageStop` followed by `metadata`, and the others end with a final server-sent event of their own. Read the final usage from wherever it arrives before treating the reply as complete.
 
 Test each adapter the way the Messages API client is tested: an `httptest` reply for each error and edge case, and a recorded run replayed through it.

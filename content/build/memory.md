@@ -61,7 +61,7 @@ A note is one short fact, the session that saved it, and its embedding, so notes
 ```
 
 Recall sorts the notes by their cosine similarity to the user's message and keeps the closest.
-The store is a slice in memory, saved to a JSON file between runs; a few hundred notes need nothing more.
+The store is a slice in memory, saved to a JSON file between runs; even a few hundred notes would need nothing more, though this program caps the store at 100.
 
 ## Recall at the start of a session
 
@@ -146,7 +146,7 @@ A second layer is a check on each note before it is saved, by code or by a separ
 **Notes go stale.**
 Replacing a note needs the model to notice that a new fact contradicts an old one.
 It did here, because the user said so plainly.
-Store the session or date with each note, so recall can prefer newer notes, and give people a way to see and delete what the assistant remembers.
+Use the session stored with each note, or add a date, so recall can prefer newer notes, and give people a way to see and delete what the assistant remembers.
 
 **Recall by meaning can miss.**
 The five closest notes may not include the one that matters, and they always include five, relevant or not.

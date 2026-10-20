@@ -32,7 +32,7 @@ The batch is 99 crash reports from `remind`, the small Go web service in the com
 Grouped by fingerprint, the reports come from 23 causes.
 
 **Fan-out:** the harness, not the model, decides to start one agent per group.
-Every agent patches its own copy of the code, so they never edit the same files, and all of them spend from one shared pool of money.
+Every agent patches its own copy of the code, so no two agents write to the same working tree, and all of them spend from one shared pool of money.
 When they finish, the harness merges their fixes into a single tree, with a three-way merge wherever two groups touched the same file.
 
 **Single agent:** one agent takes the whole batch, using a context policy of prompt caching, plus clearing or summarizing old turns.

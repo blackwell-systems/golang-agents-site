@@ -57,7 +57,7 @@ The companion code keeps its own types apart from the wire format instead, which
 
 Two fields need a word.
 A tool call's `Arguments` is a string that holds JSON, not a JSON object, so each tool decodes its own.
-`Reasoning` holds the reasoning some models return with a reply; the model expects it back, unchanged, with the next request, and keeping it on the message does that without any extra code.
+`Reasoning` holds the reasoning some models return with a reply; a model that returns it expects it back, unchanged, with the next request, and keeping it on the message does that without any extra code.
 
 A `Tool` has two halves: the name, description, and parameter schema that the model reads, and a Go function, `Run`, that the model never sees.
 

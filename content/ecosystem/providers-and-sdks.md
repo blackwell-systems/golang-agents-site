@@ -91,7 +91,7 @@ Rather than leave it to the account's default, the client sends Anthropic's beta
 
 ## One task, three clients
 
-Each client ran the `m1` triage task three times in October 2026, all through OpenRouter on the default model at its API's default reasoning setting:
+Each client ran the `m1` triage task, one crash report from the [crash catalog](/glossary/#crash-catalog) for the agent to triage, three times in October 2026, all through OpenRouter on the default model at its API's default reasoning setting:
 
 | Client | Turns | From the cache | Cost | Checks passed |
 | --- | --- | --- | --- | --- |

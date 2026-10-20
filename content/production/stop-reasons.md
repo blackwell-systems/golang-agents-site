@@ -56,7 +56,7 @@ So the sentinels are grouped: each specific error wraps a family error with `%w`
 ```
 
 With that tree, `errors.Is(err, ErrBudget)` matches every budget stop, and `errors.Is(err, ErrMaxTurns)` matches only the turn limit.
-The checks keep working after more wrapping, because `errors.Is` walks the full chain; a `main` that returns `fmt.Errorf("run agent: %w", err)` breaks nothing.
+The checks keep working after more wrapping, because `errors.Is` walks the full chain; a caller that returns `fmt.Errorf("run agent: %w", err)` breaks nothing.
 When an error has to carry data, it is a type, and callers pull it out with `errors.AsType` (new in Go 1.26).
 
 Tool errors are the exception: an unknown tool name, or arguments that fail to decode, never reach the caller.

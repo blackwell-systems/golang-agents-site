@@ -110,7 +110,7 @@ A [checkpoint](/glossary/#checkpoint) saves the run so a restart loses nothing, 
 The marker that says "this call went out" is written after the yes, not before the question, so a process that dies while a person is deciding leaves nothing to investigate.
 The gate's denials, which the gate keeps only in memory, are rebuilt from the audit log when the command runs with `-audit`; without it, a refusal doesn't outlive the process.
 And when a crash leaves a call whose outcome nobody knows, the person is asked through the same approver, with a different question: did this take effect?
-The crash sweep includes tools behind the gate, with a crash point while the person decides, and with idempotency keys its 1,063 scenarios made no duplicates and asked nobody about an outcome.
+The crash sweep includes tools behind the gate, with a crash point while the person decides, and with idempotency keys that separate sweep's 1,063 scenarios made no duplicates and asked nobody about an outcome.
 
 ## Keep a log that shows tampering
 
@@ -133,7 +133,7 @@ One task's run would have asked as many as seven times, and the recorded 99-repo
 That volume is why decisions belong in a review queue, where a paused run waits without holding up any other group, approvals carry a deadline (a day by default), and a question about an unknown outcome has no deadline at all, since neither guess is safe.
 
 The OpenAI Agents SDK has the same overall shape: a tool can declare that it needs approval, a run returns with pending interruptions, and the run's state can be serialized and resumed later.
-What this design adds is binding each yes to a hash of the person's view, and keeping each denial per target file.
+What this design adds is binding each yes to a hash of the person's view, and keeping each denial per target.
 
 ## Steps for your own agent
 
