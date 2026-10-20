@@ -249,14 +249,15 @@ func (x *goIndex) depDir(srcDir, importPath string) string {
 
 // listDeps asks go list for the third-party packages that the companion
 // module in dir builds with, tests included, without going to the
-// network: they're in the module cache wherever the code builds. A
-// failure leaves the packages as stand-ins, so it isn't an error.
+// network and without touching the module's go.sum: they're in the
+// module cache wherever the code builds. A failure leaves the packages
+// as stand-ins, so it isn't an error.
 func (x *goIndex) listDeps(dir string) map[string]*goLib {
 	cmd := exec.Command("go", "list", "-e", "-deps", "-test", "-f",
 		"{{if and (not .Standard) (not .ForTest) .Module}}{{.ImportPath}}\t{{.Dir}}\t"+
 			"{{.Module.Path}}\t{{.Module.Version}}{{end}}", "./...")
 	cmd.Dir = dir
-	cmd.Env = append(os.Environ(), "GOPROXY=off", "GOFLAGS=-mod=mod")
+	cmd.Env = append(os.Environ(), "GOPROXY=off", "GOFLAGS=-mod=readonly")
 	out, _ := cmd.Output()
 	deps := map[string]*goLib{}
 	for line := range strings.Lines(string(out)) {
