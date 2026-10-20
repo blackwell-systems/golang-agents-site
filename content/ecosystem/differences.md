@@ -17,7 +17,7 @@ The second is an adapter, and it shows what an adapter for any API has to decide
 This page collects the answers for the two APIs covered here into one table, so you can see the size of the job before you start a third.
 
 Facts below are checked against the companion code, as of October 2026.
-Provider APIs change; each row names the place in the code to check when one does.
+Provider APIs change; each row says where to check in the companion code when one does.
 
 ## The table
 
@@ -34,7 +34,7 @@ Provider APIs change; each row names the place in the code to check when one doe
 | Cost | OpenRouter reports what it billed in each reply | Not reported by Anthropic's API; the client prices each reply from a table kept in configuration (OpenRouter's Messages endpoint does report it) | `prices.json` |
 | Prompt caching | Automatic on some models; Anthropic's models need a `cache_control` marker, which OpenRouter passes on | `cache_control` markers, up to four per request | the companion code |
 | Errors | An HTTP status, or an error object inside a 200 reply | An HTTP status, including 529 when overloaded; an error body in a 200 or an error event mid-stream becomes the same error type | the companion code |
-| Streaming | `data:` lines of chunks; the usage arrives after the finish reason; ends with `data: [DONE]` | Named events per content block; the stop reason and final usage arrive together in `message_delta`; ends with `message_stop` | the companion code |
+| Streaming | `data:` lines of chunks; the usage arrives after the finish reason; ends with `data: [DONE]` | Named [events](/build/streaming/) per content block; the stop reason and final usage arrive together in `message_delta`; ends with `message_stop` | the companion code |
 
 A few rows need more than a cell.
 
@@ -48,11 +48,12 @@ Here is the whole mapping, from the [companion code](code:ch11/anthropic/wire.go
 
 **Reasoning and hosts.**
 OpenRouter routes one Claude model to several hosts, each under its own account.
-In one recorded experiment, a thinking block sent back to the host that wrote it was accepted in both runs, and sent to any of three other hosts it was refused with a 400.
+In one recorded experiment, a thinking block sent back to the host that wrote it was accepted in both runs.
+Sent to any of three other hosts, it was refused with a 400.
 That is why the adapter records where reasoning came from, and why the agent pins one host.
 
 **Stream size.**
-Over the 13 replies of each recorded run of the same task, the Messages API's stream had a median of 64 events per reply, and chat completions' 31; per output token, about 1.2 times as many.
+Over the 13 replies of each recorded run of the same task, the Messages API's stream had a median of 64 events per reply, and chat completions' stream had 31; per output token, the Messages API sent about 1.2 times as many events.
 The adapter turns each event into at most one of the loop's `Delta` values, so the loop never learns which format it is reading.
 
 ```diagram
@@ -80,7 +81,7 @@ The Messages API request carried no reasoning because that reasoning came from a
 
 The chat completions format is the one many servers accept, and the client reads its address from `OPENROUTER_BASE_URL`.
 Point it at a local Ollama server, `http://localhost:11434/v1`, with no other change.
-Two things differ there: the program needs any non-empty key to stop replaying, and fields only OpenRouter sends, such as each call's cost, read as zero, so a dollar budget does nothing.
+Two things differ there: the program needs any non-empty key, since without one it [replays recorded replies](/production/testing-offline/) instead of calling the server, and fields only OpenRouter sends, such as each call's cost, read as zero, so a [dollar budget](/production/stop-reasons/) does nothing.
 [More providers](/ecosystem/more-providers/) lists the native APIs of Gemini, Ollama, Bedrock, and Cohere, with their official documentation.
 
 ## Writing a third adapter

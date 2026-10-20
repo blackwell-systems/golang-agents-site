@@ -29,7 +29,7 @@ Since Go 1.22, each iteration of a `for` loop has its own copy of its variables,
 
 ## Merging several runs into one stream
 
-Running several agents at once, one per group of crash reports, is a fan-out; reading all their events as one stream is a fan-in.
+Running several agents at once, one per group of crash reports, is a [fan-out](/findings/fan-out/); reading all their events as one stream is a fan-in.
 Here is the fan-in, which starts one goroutine per run and sends every event through one channel:
 
 ```go include=ch15/agent/fanin.go tag=merge-start
@@ -58,7 +58,7 @@ In a service that runs agents all day, each abandoned run leaves one behind.
 ## Proving there's no leak
 
 A leak doesn't fail anything; it just accumulates.
-The companion code tests for one with the goroutine leak profile in `runtime/pprof`, which reports goroutines blocked forever on something nothing else can reach:
+The companion code tests for one with the goroutine leak profile in `runtime/pprof`, which reports goroutines blocked forever on a channel or lock that no running code can reach anymore:
 
 ```go include=ch15/agent/shared_test.go tag=test-leak
 ```
@@ -71,7 +71,7 @@ The companion code's checks run every test with it.
 ## Requests in flight: a map behind a mutex
 
 A server that answers several requests at once needs to know which are running, to cancel one when the client asks.
-The MCP server keeps each request's cancel function in a map, and starts each request in its own goroutine:
+The [MCP](/build/mcp/) server keeps each request's cancel function in a map, and starts each request in its own goroutine:
 
 ```go include=ch15/mcp/server.go tag=inflight
 ```
@@ -98,7 +98,8 @@ When the client closes its end, `finish` first gives the requests a short grace 
 ```go include=ch15/mcp/server.go lines=177..188
 ```
 
-The goroutine inside `finish` can outlive the call, when the grace period runs out first; it ends when the last request does, and the cancellation that the deferred calls run next makes sure that is soon.
+The goroutine inside `finish` can outlive the call, when the grace period runs out first; it ends when the last request does.
+The deferred calls cancel the requests' contexts right after, so that happens soon.
 
 ## Limiting how much runs at once
 
