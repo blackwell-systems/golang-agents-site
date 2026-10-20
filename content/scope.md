@@ -30,29 +30,31 @@ The book, *Building AI Agents in Go*, goes further on most of these topics: the 
 The book doesn't cover retrieval; these pages and their example, `rag` in the companion code, are the site's own.
 
 The crash-triage agent itself doesn't use embeddings.
-It finds related crashes by comparing the functions in their stack traces, because the frames every stack shares make up most of each trace, so embeddings would place most crashes close together, while matching functions costs less, needs no network, and its accuracy can be measured on the crash catalog.
+It finds related crashes by comparing the functions in their stack traces.
+The frames every stack shares make up most of each trace, so embeddings would place most crashes close together; matching functions costs less, needs no network, and its accuracy can be measured on the crash catalog.
 Searching and opening files is enough for a service of a few thousand lines; documentation, runbooks, or a long history of incidents are where retrieval earns its place.
 
 **Memory between sessions.**
-[Memory between sessions](/build/memory/) builds notes an agent saves with a tool, replaces when a fact changes, and recalls by meaning at the start of each conversation, and measures them against carrying nothing and carrying the whole conversation.
-The book doesn't cover memory across conversations: within a run, the crash-triage agent keeps notes per crash group and a context policy decides what each request holds; across a crash, a checkpoint restores the run.
+[Memory between sessions](/build/memory/) builds notes that an agent saves with a tool and replaces when a fact changes, and that are found by similar meaning, not exact words, at the start of each conversation.
+It measures them against carrying nothing and carrying the whole conversation.
+The book doesn't cover memory across conversations: within a run, the crash-triage agent keeps notes per crash group and a context policy decides what each request holds; if the process crashes, a [checkpoint](/production/durable-runs/) restores the run.
 
 ## Several agents: what was measured, and what wasn't
 
 The crash-triage agent does use more than one agent, and the recorded runs measure what that buys, so it helps to separate the shapes.
 
-**Measured: agents that code starts.**
+**Measured: extra agents the program starts.**
 One recorded setup starts one agent per crash group from ordinary Go, so the number of agents is fixed before the run, and gives a parent agent sub-agents for questions whose reading would otherwise fill its own context.
-On a batch of 99 crash reports, four agents at once [took about as long as one agent and cost 25 to 60 percent more](/findings/measured-mistakes/#fan-out); what the split bought was a steadier cost and smaller requests.
+On a batch of 99 crash reports, four agents at once [took about as long as one agent and cost 25 to 60 percent more](/findings/fan-out/); what the split bought was a steadier cost and smaller requests.
 A second model reviews each diagnosis and can send it back, and [the finished agent's results](/findings/the-finished-agent/) report how often that review worked.
 
 **Not measured: a model that hands out the work.**
 A lead model that decides during the run how many agents to start, what to ask each, and how to merge what they return is orchestration.
 It has failure modes of its own: deciding between agents that disagree, keeping the total cost bounded, and testing a system in which every part varies.
-The crash-triage setup stops before orchestration on purpose, the table of shapes names it as the last step up, and the framework comparison notes the Go frameworks that offer graphs and multi-agent patterns, if you need them now.
+The crash-triage setup stops before orchestration on purpose, the table of shapes in [workflow or agent](/build/workflows-vs-agents/) names it as the last step up, and the [framework comparison](/ecosystem/go-agent-frameworks/) notes the Go frameworks that offer graphs and multi-agent patterns, if you need them now.
 
 **When it's worth measuring yourself.**
-The research-assistant case study describes the shape where orchestration tends to pay: a question whose answer is spread across many separate sources, where each part can be read in its own context.
+The [research-assistant case study](/beyond-crash-triage/#a-research-assistant) describes the shape where orchestration tends to pay: a question whose answer is spread across many separate sources, where each part can be read in its own context.
 Anthropic's [report on its multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system), which the case study cites, found such a system used about 15 times the tokens of a chat and cut research time by as much as 90 percent on complex questions.
 Crashes in one codebase were rarely independent enough for that, which is why the fan-out bought steadiness rather than speed.
 If your parts are as independent as separate documents, measure the lead-and-helpers shape against one agent on your own tasks, with the same budget for both; [beyond crash triage](/beyond-crash-triage/) sketches the parts it would need.
@@ -78,4 +80,5 @@ HTTP, JSON, concurrency, and machine learning each get the explanation a step ne
 This site is written for Go developers who are new to models and agents: if you can build and run Go code and are at home with structs, interfaces, errors, and packages, you have what it asks; goroutines and `context.Context` are explained at each use. Nothing about models or machine learning is assumed.
 If you already build agents in another language, this site also works as a tour of how each part is done in Go.
 If what you need is on the list above, a framework that ships it, or a book on that subject, will serve you better than these pages.
+If these pages are what you need, [start here](/start/).
 If it isn't, [start here](/start/) and pick the reading path that fits why you came.
