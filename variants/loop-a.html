@@ -1,0 +1,466 @@
+<div class="loopv-a">
+<style>
+.loopv-a {
+  --lva-z: 2.5rem;      /* stage ring */
+  --lva-r: 1.6rem;      /* loop corner radius, and the side gutter */
+  --lva-g: 2rem;        /* gap between stacked cards */
+  --lva-x: 3.6rem;      /* room for the exit below the loop (stacked) */
+  --lva-ny: 2.05rem;    /* ring center from a card's top (stacked) */
+  --lva-h: 12px;        /* arrowhead */
+  --lva-t: 1.3rem;      /* the stop terminal */
+  container: lva / inline-size;
+  margin: 2.25rem 0 2.5rem;
+}
+.loopv-a .lva-row {
+  position: relative;
+  max-width: 34rem;
+  padding: var(--lva-r) var(--lva-r) calc(var(--lva-r) + var(--lva-x)) calc(var(--lva-z) / 2 + 4px);
+}
+.loopv-a .lva-loop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: var(--lva-x);
+  left: calc(var(--lva-z) / 2 + 4px);
+  border: 2px solid var(--amber);
+  border-radius: var(--lva-r);
+  pointer-events: none;
+}
+.loopv-a .lva-stages {
+  --lva-across: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--lva-g);
+}
+.loopv-a .lva-stage { position: relative; margin: 0; padding: 0; }
+.loopv-a .lva-stage::marker { content: none; }
+.loopv-a .lva-card {
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--amber);
+  border-radius: 4px;
+  padding: 1.25rem 1.25rem 1.15rem calc(var(--lva-z) / 2 + 0.9rem);
+  transition: border-color 0.5s ease-out;
+}
+.loopv-a .lva-num {
+  position: absolute;
+  z-index: 3;
+  left: calc(-1px - var(--lva-z) / 2);
+  top: calc(var(--lva-ny) - 1px - var(--lva-z) / 2);
+  width: var(--lva-z);
+  height: var(--lva-z);
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--amber);
+  border-radius: 50%;
+  background: var(--page);
+  color: var(--amber);
+  font-family: var(--label);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1;
+  pointer-events: none;
+  transition: background-color 0.45s ease-out, color 0.45s ease-out;
+}
+.loopv-a .lva-name {
+  margin: 0 0 0.5rem;
+  font-family: var(--label);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ivory);
+}
+.loopv-a .lva-link { color: inherit; text-decoration: none; }
+.loopv-a .lva-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 4px;
+}
+.loopv-a .lva-link:focus-visible { outline: none; }
+.loopv-a .lva-link:focus-visible::after { outline: 3px solid var(--ivory); outline-offset: 4px; }
+.loopv-a .lva-desc { margin: 0; font-size: 0.97rem; line-height: 1.55; color: var(--stone); }
+.loopv-a .lva-more {
+  margin-top: auto;
+  padding-top: 1rem;
+  font-family: var(--label);
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--link);
+}
+.loopv-a .lva-more span { display: inline-block; transition: transform 0.3s ease-out; }
+.loopv-a .lva-card:hover { border-color: var(--amber-dim); border-left-color: var(--amber); }
+.loopv-a .lva-card:hover .lva-more { text-decoration: underline; text-underline-offset: 0.18em; }
+.loopv-a .lva-card:hover .lva-more span { transform: translateX(3px); }
+.loopv-a .lva-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* the moving turn: the stage it is in */
+.loopv-a .is-on .lva-num { background: var(--amber); color: var(--amber-ink); }
+.loopv-a .is-on .lva-card { border-color: var(--amber); }
+/* arrowheads: one shape, turned to face the way the loop runs */
+.loopv-a .lva-ah,
+.loopv-a .lva-stage:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  width: var(--lva-h);
+  height: var(--lva-h);
+  background: var(--amber);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  pointer-events: none;
+}
+.loopv-a .lva-stage:not(:last-child)::after {
+  left: calc(1px - var(--lva-h) / 2);
+  top: calc(100% + var(--lva-g) / 2 - var(--lva-h) / 2);
+  transform: rotate(90deg);
+}
+.loopv-a .lva-ah-b { bottom: calc(-1px - var(--lva-h) / 2); left: 50%; }
+.loopv-a .lva-ah-r1, .loopv-a .lva-ah-r2 { right: calc(-1px - var(--lva-h) / 2); transform: rotate(-90deg); }
+.loopv-a .lva-ah-r1 { top: 72%; }
+.loopv-a .lva-ah-r2 { top: 24%; }
+.loopv-a .lva-ah-t { top: calc(-1px - var(--lva-h) / 2); left: 55%; transform: rotate(180deg); }
+.loopv-a .lva-ah-l, .loopv-a .lva-ah-b2 { display: none; }
+.loopv-a .lva-next {
+  position: absolute;
+  right: -1px;
+  top: 48%;
+  transform: translate(50%, -50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  padding: 0.6rem 0;
+  background: var(--page);
+  font-family: var(--label);
+  font-weight: 500;
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--soft);
+  transition: color 0.5s ease-out;
+}
+.loopv-a .lva-next.is-near { color: var(--amber); }
+/* the way out: from Decide to a stop */
+.loopv-a .lva-exit {
+  position: absolute;
+  left: 1px;
+  top: 100%;
+  width: 0;
+  height: calc(var(--lva-r) + var(--lva-x) * 0.55);
+  pointer-events: none;
+}
+.loopv-a .lva-stub {
+  position: absolute;
+  left: -1px;
+  top: 0;
+  width: 2px;
+  height: calc(100% - var(--lva-t) / 2 - 4px - var(--lva-h) / 2);
+  background: var(--amber);
+}
+.loopv-a .lva-ah-x {
+  left: calc(-1 * var(--lva-h) / 2);
+  top: calc(100% - var(--lva-t) / 2 - 4px - var(--lva-h));
+  transform: rotate(90deg);
+}
+.loopv-a .lva-term {
+  position: absolute;
+  left: calc(-1 * var(--lva-t) / 2);
+  top: calc(100% - var(--lva-t) / 2);
+  width: var(--lva-t);
+  height: var(--lva-t);
+  box-sizing: border-box;
+  border: 2px solid var(--amber);
+  border-radius: 50%;
+  background: var(--page);
+  z-index: 3;
+  transition: background-color 0.45s ease-out;
+}
+.loopv-a .lva-term::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.loopv-a .lva-stop {
+  position: absolute;
+  left: calc(var(--lva-t) / 2 + 0.7rem);
+  top: calc(100% - 0.7em);
+  font-family: var(--label);
+  font-weight: 500;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--soft);
+  transition: color 0.5s ease-out;
+}
+.loopv-a .lva-stop b { font-weight: 600; color: var(--ivory); }
+.loopv-a .is-stop .lva-term { background: var(--amber); }
+.loopv-a .is-stop .lva-stop { color: var(--ivory); }
+/* the marker, one turn travelling the loop */
+.loopv-a .lva-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  box-sizing: border-box;
+  border: 4px solid var(--page);
+  border-radius: 50%;
+  background: var(--amber);
+  pointer-events: none;
+  will-change: transform;
+}
+.loopv-a .lva-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  max-width: 34rem;
+  margin-top: 0.4rem;
+}
+.loopv-a .lva-cap {
+  margin: 0;
+  max-width: 34rem;
+  font-family: var(--label);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--soft);
+}
+.loopv-a .lva-toggle {
+  flex: none;
+  font: 500 0.8rem/1 var(--label);
+  letter-spacing: 0.04em;
+  color: var(--soft);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s ease-out, border-color 0.2s ease-out;
+}
+.loopv-a .lva-toggle:hover { color: var(--ivory); border-color: var(--amber-dim); }
+.loopv-a .lva-toggle:focus-visible { outline: 3px solid var(--ivory); outline-offset: 3px; }
+/* A row across, once there is room for four readable cards. */
+@container lva (min-width: 50rem) {
+  .loopv-a .lva-row {
+    --lva-g: 1.6rem;
+    --lva-e: 4.25rem;   /* room for the exit above the row */
+    --lva-b: 2.6rem;    /* the return track below the row */
+    --lva-nx: 2.4rem;   /* ring center from a card's left */
+    max-width: none;
+    padding: var(--lva-e) var(--lva-r) var(--lva-b);
+  }
+  .loopv-a .lva-loop { top: var(--lva-e); right: 0; bottom: 0; left: 0; }
+  .loopv-a .lva-stages { --lva-across: 1; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--lva-g); }
+  .loopv-a .lva-card {
+    border-left: 1px solid var(--line);
+    border-top: 2px solid var(--amber);
+    padding: calc(var(--lva-z) / 2 + 0.95rem) 1.2rem 1.15rem;
+  }
+  .loopv-a .lva-card:hover { border-left-color: var(--amber-dim); border-top-color: var(--amber); }
+  .loopv-a .is-on .lva-card { border-left-color: var(--amber); }
+  .loopv-a .lva-num {
+    left: calc(var(--lva-nx) - 1px - var(--lva-z) / 2);
+    top: calc(-1px - var(--lva-z) / 2);
+  }
+  .loopv-a .lva-stage:not(:last-child)::after {
+    left: calc(100% + var(--lva-g) / 2 - var(--lva-h) / 2);
+    top: calc(1px - var(--lva-h) / 2);
+    transform: none;
+  }
+  .loopv-a .lva-ah-t { display: none; }
+  .loopv-a .lva-ah-l { display: block; left: calc(-1px - var(--lva-h) / 2); top: 50%; transform: rotate(-90deg); }
+  .loopv-a .lva-ah-r1 { top: 50%; transform: rotate(90deg); }
+  .loopv-a .lva-ah-r2 { display: none; }
+  .loopv-a .lva-ah-b { left: 24%; transform: rotate(180deg); }
+  .loopv-a .lva-ah-b2 { display: block; bottom: calc(-1px - var(--lva-h) / 2); left: 76%; transform: rotate(180deg); }
+  .loopv-a .lva-next {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: -1px;
+    transform: translate(-50%, 50%);
+    writing-mode: horizontal-tb;
+    padding: 0 0.9rem;
+  }
+  .loopv-a .lva-exit {
+    left: var(--lva-nx);
+    top: auto;
+    bottom: calc(100% + var(--lva-z) / 2);
+    height: calc(var(--lva-e) - var(--lva-z) / 2 - 0.9rem);
+  }
+  .loopv-a .lva-stub { top: auto; bottom: 0; }
+  .loopv-a .lva-ah-x { top: calc(var(--lva-t) / 2 + 4px); transform: rotate(-90deg); }
+  .loopv-a .lva-term { top: calc(-1 * var(--lva-t) / 2); }
+  .loopv-a .lva-stop { left: auto; right: calc(var(--lva-t) / 2 + 0.8rem); top: -0.7em; }
+  .loopv-a .lva-foot { max-width: none; padding: 0 var(--lva-r); margin-top: 0.75rem; }
+  .loopv-a .lva-cap { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loopv-a .lva-dot, .loopv-a .lva-toggle { display: none; }
+  .loopv-a *, .loopv-a *::before, .loopv-a *::after { transition: none !important; }
+}
+</style>
+<div class="lva-row">
+<span class="lva-loop" aria-hidden="true"><span class="lva-ah lva-ah-t"></span><span class="lva-ah lva-ah-r1"></span><span class="lva-ah lva-ah-r2"></span><span class="lva-ah lva-ah-b"></span><span class="lva-ah lva-ah-b2"></span><span class="lva-ah lva-ah-l"></span><span class="lva-next">next turn</span></span>
+<ol class="lva-stages">
+<li class="lva-stage"><div class="lva-card"><span class="lva-num" aria-hidden="true">1</span><h3 class="lva-name"><a class="lva-link" href="/build/context-management/">Build the request<span class="lva-vh">: read the guide</span></a></h3><p class="lva-desc">Decide what the model sees: instructions, the conversation so far, tool results, and the tools it may call.</p><span class="lva-more" aria-hidden="true">Read the guide <span>→</span></span></div></li>
+<li class="lva-stage"><div class="lva-card"><span class="lva-num" aria-hidden="true">2</span><h3 class="lva-name"><a class="lva-link" href="/basics/calling-a-model/">Call the model<span class="lva-vh">: read the guide</span></a></h3><p class="lva-desc">Send the request and read the reply, with a deadline and a count of what it cost.</p><span class="lva-more" aria-hidden="true">Read the guide <span>→</span></span></div></li>
+<li class="lva-stage"><div class="lva-card"><span class="lva-num" aria-hidden="true">3</span><h3 class="lva-name"><a class="lva-link" href="/basics/tool-calling/">Run the tools<span class="lva-vh">: read the guide</span></a></h3><p class="lva-desc">Carry out the calls the model asked for, and add each result to the conversation.</p><span class="lva-more" aria-hidden="true">Read the guide <span>→</span></span></div></li>
+<li class="lva-stage"><div class="lva-card"><span class="lva-num" aria-hidden="true">4</span><h3 class="lva-name"><a class="lva-link" href="/production/stop-reasons/">Decide<span class="lva-vh">: read the guide</span></a></h3><p class="lva-desc">Stop with an answer, stop at a limit, or go around again.</p><span class="lva-more" aria-hidden="true">Read the guide <span>→</span></span></div><span class="lva-exit" aria-hidden="true"><span class="lva-stub"></span><span class="lva-ah lva-ah-x"></span><span class="lva-term"></span><span class="lva-stop">answer or limit: <b>stop</b></span></span></li>
+</ol>
+</div>
+<div class="lva-foot"><p class="lva-cap">Then back to stage 1, with everything that just happened in the conversation.</p></div>
+<script>
+(function () {
+  var root = document.currentScript && document.currentScript.closest(".loopv-a");
+  if (!root || !window.requestAnimationFrame || !window.matchMedia) return;
+  var row = root.querySelector(".lva-row");
+  var ol = root.querySelector(".lva-stages");
+  var loop = root.querySelector(".lva-loop");
+  var exit = root.querySelector(".lva-exit");
+  var next = root.querySelector(".lva-next");
+  var term = root.querySelector(".lva-term");
+  var stages = [].slice.call(root.querySelectorAll(".lva-stage"));
+  var nums = stages.map(function (s) { return s.querySelector(".lva-num"); });
+  var NS = "http://www.w3.org/2000/svg";
+  var svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
+  var path = document.createElementNS(NS, "path");
+  svg.appendChild(path);
+  root.appendChild(svg);
+  var dot = document.createElement("span");
+  dot.className = "lva-dot";
+  dot.setAttribute("aria-hidden", "true");
+  row.appendChild(dot);
+  var btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "lva-toggle";
+  btn.textContent = "Pause";
+  root.querySelector(".lva-foot").appendChild(btn);
+  // One cycle: three turns; the first two go around, the third stops.
+  var steps = [];
+  for (var turn = 1; turn <= 3; turn++) {
+    for (var i = 0; i < 4; i++) {
+      steps.push({ k: "at", i: i, d: i === 3 ? 1700 : 1350 });
+      if (i < 3) steps.push({ k: "hop", a: i, b: i + 1, d: 1150 });
+    }
+    steps.push(turn < 3 ? { k: "wrap", d: 3600 } : { k: "exit", d: 1300 });
+  }
+  steps.push({ k: "stop", d: 2600 });
+  var cycle = 0;
+  steps.forEach(function (s) { s.t = cycle; cycle += s.d; });
+  var g = null;
+  function measure() {
+    var o = row.getBoundingClientRect();
+    var b = loop.getBoundingClientRect();
+    var cs = getComputedStyle(loop);
+    var r = parseFloat(cs.borderTopLeftRadius) - 1;
+    var x0 = b.left - o.left + 1, y0 = b.top - o.top + 1;
+    var x1 = b.right - o.left - 1, y1 = b.bottom - o.top - 1;
+    var across = getComputedStyle(ol).getPropertyValue("--lva-across").trim() === "1";
+    var c = nums.map(function (n) {
+      var q = n.getBoundingClientRect();
+      return [q.left + q.width / 2 - o.left, q.top + q.height / 2 - o.top];
+    });
+    var t = term.getBoundingClientRect();
+    var n = next.getBoundingClientRect();
+    var a = " " + r + " " + r + " 0 0 ";
+    var d;
+    if (across) {
+      d = "M" + c[0][0] + " " + y0 + "H" + (x1 - r) + "A" + a + "1 " + x1 + " " + (y0 + r) +
+        "V" + (y1 - r) + "A" + a + "1 " + (x1 - r) + " " + y1 + "H" + (x0 + r) +
+        "A" + a + "1 " + x0 + " " + (y1 - r) + "V" + (y0 + r) + "A" + a + "1 " + (x0 + r) + " " + y0 + "Z";
+    } else {
+      d = "M" + x0 + " " + c[0][1] + "V" + (y1 - r) + "A" + a + "0 " + (x0 + r) + " " + y1 +
+        "H" + (x1 - r) + "A" + a + "0 " + x1 + " " + (y1 - r) + "V" + (y0 + r) +
+        "A" + a + "0 " + (x1 - r) + " " + y0 + "H" + (x0 + r) + "A" + a + "0 " + x0 + " " + (y0 + r) + "Z";
+    }
+    path.setAttribute("d", d);
+    g = {
+      len: path.getTotalLength(),
+      stops: c.map(function (p) { return across ? p[0] - c[0][0] : p[1] - c[0][1]; }),
+      term: [t.left + t.width / 2 - o.left, t.top + t.height / 2 - o.top],
+      next: [n.left + n.width / 2 - o.left, n.top + n.height / 2 - o.top],
+      reach: Math.max(n.width, n.height) / 2 + 24
+    };
+  }
+  function ease(u) { return -(Math.cos(Math.PI * u) - 1) / 2; }
+  function at(s) { var p = path.getPointAtLength(s); return [p.x, p.y]; }
+  function render(clock) {
+    if (!g) return;
+    var t = clock % cycle, s = steps[0];
+    for (var j = steps.length - 1; j >= 0; j--) if (steps[j].t <= t) { s = steps[j]; break; }
+    var e = ease(Math.min(1, (t - s.t) / s.d));
+    var p, on = -1, near = false, stop = false;
+    if (s.k === "at") { p = at(g.stops[s.i]); on = s.i; }
+    else if (s.k === "hop") p = at(g.stops[s.a] + (g.stops[s.b] - g.stops[s.a]) * e);
+    else if (s.k === "wrap") {
+      p = at(g.stops[3] + (g.len - g.stops[3]) * e);
+      near = Math.hypot(p[0] - g.next[0], p[1] - g.next[1]) < g.reach;
+    } else if (s.k === "exit") {
+      var q = at(g.stops[3]);
+      p = [q[0] + (g.term[0] - q[0]) * e, q[1] + (g.term[1] - q[1]) * e];
+    } else { p = g.term; stop = true; }
+    dot.style.transform = "translate(" + p[0] + "px," + p[1] + "px)";
+    stages.forEach(function (st, k) { st.classList.toggle("is-on", k === on); });
+    next.classList.toggle("is-near", near);
+    exit.classList.toggle("is-stop", stop);
+  }
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  var clock = 0, last = 0, raf = 0, paused = false, seen = true;
+  function tick(now) {
+    if (last) clock += Math.min(now - last, 100);
+    last = now;
+    render(clock);
+    raf = requestAnimationFrame(tick);
+  }
+  function sync() {
+    var still = reduce.matches;
+    dot.hidden = still;
+    btn.hidden = still;
+    if (still) {
+      stages.forEach(function (st) { st.classList.remove("is-on"); });
+      next.classList.remove("is-near");
+      exit.classList.remove("is-stop");
+    }
+    var run = !still && !paused && seen;
+    if (run && !raf) { last = 0; raf = requestAnimationFrame(tick); }
+    else if (!run && raf) { cancelAnimationFrame(raf); raf = 0; }
+  }
+  btn.addEventListener("click", function () {
+    paused = !paused;
+    btn.textContent = paused ? "Play" : "Pause";
+    sync();
+  });
+  if (reduce.addEventListener) reduce.addEventListener("change", sync);
+  if (window.IntersectionObserver) {
+    new IntersectionObserver(function (es) { seen = es[0].isIntersecting; sync(); }).observe(row);
+  }
+  function relayout() { measure(); if (!reduce.matches) render(clock); }
+  if (window.ResizeObserver) new ResizeObserver(relayout).observe(row);
+  else window.addEventListener("resize", relayout);
+  relayout();
+  sync();
+})();
+</script>
+</div>
