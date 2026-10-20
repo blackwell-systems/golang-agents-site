@@ -1070,7 +1070,9 @@ On every turn, one pass through these four stages, the harness does the same fou
   bar.setAttribute("aria-label", "Loop section designs");
   ["current", "a", "b", "c"].forEach(function (k) {
     var a = document.createElement("a");
-    a.href = k === "current" ? location.pathname : "?loop=" + k;
+    var q = new URLSearchParams(location.search);
+    if (k === "current") q.delete("loop"); else q.set("loop", k);
+    a.href = location.pathname + (q.toString() ? "?" + q : "");
     a.textContent = k === "current" ? "Current" : k.toUpperCase();
     if (k === v) a.setAttribute("aria-current", "true");
     bar.appendChild(a);

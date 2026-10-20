@@ -1,4 +1,9 @@
 {{define "main" -}}
+<script>
+// Preview of the hero terminal (?hero=terminal). Set before the hero
+// draws, so the ring never flashes in its place.
+if (/[?&]hero=terminal(&|$)/.test(location.search)) document.documentElement.classList.add("hero-terminal-on");
+</script>
 <section class="hero home-hero" aria-labelledby="title">
   <div class="wrap home-hero-grid">
     <div>
@@ -34,8 +39,231 @@
       <text x="200" y="196" class="lf-center">one turn</text>
       <text x="200" y="218" class="lf-sub">until an answer or a limit</text>
     </svg>
+    <figure class="hero-terminal">
+      <div class="ht-window" aria-hidden="true">
+        <div class="ht-bar">
+          <span class="ht-meter"><span>turn <b class="ht-m-turn">4</b> of 4</span><span><b class="ht-m-tok">5,996</b> tokens</span><span><b class="ht-m-cost">$0.0008</b></span></span>
+        </div>
+        <div class="ht-screen">
+          <div class="ht-cmd ht-step"><span class="ht-k">$</span> <span class="ht-text" data-unit="char">go run ./ch04</span></div>
+          <div class="ht-task ht-step"><span class="ht-k">task</span> The tests in this project fail. Find out why and fix it.</div>
+          <div class="ht-turn">
+            <div class="ht-n ht-step" data-turn="1" data-tokens="677" data-cost="$0.0001">1</div>
+            <div class="ht-rows">
+              <div class="ht-call ht-step"><span class="ht-fn">run_tests</span> <span class="ht-p">{}</span></div>
+              <div class="ht-res ht-bad ht-step">duration_test.go:25: Parse("45m") = 45s, want 45m0s …</div>
+              <div class="ht-call ht-step"><span class="ht-fn">list_files</span> <span class="ht-p">{}</span></div>
+              <div class="ht-res ht-step">duration.go, duration_test.go</div>
+            </div>
+          </div>
+          <div class="ht-turn">
+            <div class="ht-n ht-step" data-turn="2" data-tokens="1,610" data-cost="$0.0002">2</div>
+            <div class="ht-rows">
+              <div class="ht-call ht-step"><span class="ht-fn">read_file</span> <span class="ht-p">{</span><span class="ht-key">"path"</span><span class="ht-p">:</span> <span class="ht-str">"duration.go"</span><span class="ht-p">}</span></div>
+              <div class="ht-res ht-step">44 lines</div>
+              <div class="ht-call ht-step"><span class="ht-fn">read_file</span> <span class="ht-p">{</span><span class="ht-key">"path"</span><span class="ht-p">:</span> <span class="ht-str">"duration_test.go"</span><span class="ht-p">}</span></div>
+              <div class="ht-res ht-step">36 lines</div>
+            </div>
+          </div>
+          <div class="ht-turn">
+            <div class="ht-n ht-step" data-turn="3" data-tokens="3,701" data-cost="$0.0005">3</div>
+            <div class="ht-rows">
+              <div class="ht-say ht-step"><span class="ht-text" data-unit="word">The bug is in the unit table: <span class="ht-c">'m'</span> is mapped to <span class="ht-c">time.Second</span> instead of <span class="ht-c">time.Minute</span>. …</span></div>
+              <div class="ht-call ht-step"><span class="ht-fn">edit_file</span> <span class="ht-p">{</span><span class="ht-key">"path"</span><span class="ht-p">:</span> <span class="ht-str">"duration.go"</span><span class="ht-p">, …}</span></div>
+              <div class="ht-diff ht-del ht-step">- 'm': time.Second,</div>
+              <div class="ht-diff ht-add ht-step">+ 'm': time.Minute,</div>
+              <div class="ht-res ht-step">edited duration.go</div>
+              <div class="ht-call ht-step"><span class="ht-fn">run_tests</span> <span class="ht-p">{}</span></div>
+              <div class="ht-res ht-good ht-step">PASS, ok project</div>
+            </div>
+          </div>
+          <div class="ht-turn">
+            <div class="ht-n ht-step" data-turn="4" data-tokens="5,996" data-cost="$0.0008">4</div>
+            <div class="ht-rows">
+              <div class="ht-say ht-answer ht-step"><span class="ht-text" data-unit="word">The tests now pass. The cause was a typo in the unit table in <span class="ht-c">duration.go</span>: the <span class="ht-c">'m'</span> (minute) entry mapped to <span class="ht-c">time.Second</span>. …</span></div>
+            </div>
+          </div>
+          <div class="ht-sum ht-step">4 model calls, 5427 tokens in, 569 out, $0.0008</div>
+        </div>
+      </div>
+      <div class="visually-hidden">
+        <p>The task: The tests in this project fail. Find out why and fix it.</p>
+        <ol>
+          <li>Turn 1: the model calls run_tests, which fails with Parse("45m") = 45s, want 45m0s, and list_files, which lists duration.go and duration_test.go.</li>
+          <li>Turn 2: it reads duration.go, 44 lines, and duration_test.go, 36 lines.</li>
+          <li>Turn 3: it says the bug is in the unit table: 'm' is mapped to time.Second instead of time.Minute. It edits duration.go to map 'm' to time.Minute, and run_tests passes.</li>
+          <li>Turn 4: it answers that the tests now pass, and that the cause was a typo in the unit table in duration.go: the 'm' (minute) entry mapped to time.Second.</li>
+        </ol>
+        <p>In all, 4 model calls, 5427 tokens in, 569 out, $0.0008.</p>
+      </div>
+      <figcaption>A recorded run of <code>anthropic/claude-haiku-5.5</code>, replayed</figcaption>
+    </figure>
   </div>
 </section>
+<script>
+// The hero terminal replays the recorded run a line at a time, holds the
+// end, fades, and starts again. It pauses off screen and in a hidden
+// tab. Without JavaScript, or with reduced motion, the whole transcript
+// shows as it is in the markup.
+(function () {
+  var fig = document.querySelector(".hero-terminal");
+  if (!fig || !document.documentElement.classList.contains("hero-terminal-on")) return;
+  var screen = fig.querySelector(".ht-screen");
+  var still = matchMedia("(prefers-reduced-motion: reduce)");
+  var meter = {
+    turn: fig.querySelector(".ht-m-turn"),
+    tok: fig.querySelector(".ht-m-tok"),
+    cost: fig.querySelector(".ht-m-cost")
+  };
+  var final = { turn: meter.turn.textContent, tok: meter.tok.textContent, cost: meter.cost.textContent };
+  var cursor = document.createElement("span");
+  cursor.className = "ht-cursor";
+
+  // Split typed and streamed text into units: characters for the
+  // command, words for the model's prose.
+  fig.querySelectorAll(".ht-text").forEach(function (el) {
+    var words = el.dataset.unit === "word";
+    var walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    var nodes = [];
+    while (walk.nextNode()) nodes.push(walk.currentNode);
+    nodes.forEach(function (n) {
+      var parts = words ? n.data.match(/\s*\S+\s*|\s+/g) : n.data.split("");
+      if (!parts) return;
+      var frag = document.createDocumentFragment();
+      parts.forEach(function (p) {
+        var s = document.createElement("span");
+        s.className = "ht-u";
+        s.textContent = p;
+        frag.appendChild(s);
+      });
+      n.replaceWith(frag);
+    });
+  });
+
+  // The timeline: each step waits, then shows; its units follow.
+  var wait = { "ht-cmd": 0, "ht-task": 600, "ht-n": 650, "ht-call": 380, "ht-res": 440, "ht-diff": 170, "ht-say": 320, "ht-sum": 650 };
+  var events = [];
+  var t = 500;
+  var prev = null;
+  fig.querySelectorAll(".ht-step").forEach(function (step) {
+    var kind = Object.keys(wait).filter(function (k) { return step.classList.contains(k); })[0];
+    var w = wait[kind] || 380;
+    if (prev && prev.classList.contains("ht-n")) w = 260;
+    t += w;
+    events.push({ at: t, fn: show.bind(null, step) });
+    var text = step.querySelector(".ht-text");
+    if (text) {
+      var per = text.dataset.unit === "word" ? 60 : 55;
+      text.querySelectorAll(".ht-u").forEach(function (u) {
+        t += per;
+        events.push({ at: t, fn: show.bind(null, u) });
+      });
+    }
+    prev = step;
+  });
+  t += 4500;
+  events.push({ at: t, fn: function () { screen.classList.add("ht-fade"); } });
+  t += 700;
+  events.push({ at: t, fn: reset });
+
+  function show(el) {
+    el.classList.add("ht-on");
+    if (el.dataset.turn) {
+      setMeter(el.dataset.turn, el.dataset.tokens, el.dataset.cost);
+      fig.querySelector(".ht-bar").classList.remove("ht-tick");
+      void meter.turn.offsetWidth; // restart the color change
+      fig.querySelector(".ht-bar").classList.add("ht-tick");
+    }
+    if (el.classList.contains("ht-u")) el.after(cursor);
+    else if (el.classList.contains("ht-n")) el.parentElement.appendChild(cursor);
+    else if (el.querySelector(".ht-text")) el.querySelector(".ht-text").prepend(cursor);
+    else el.appendChild(cursor);
+    follow(el);
+  }
+  // On phones the screen is shorter than the transcript and scrolls
+  // like a terminal, keeping the newest line in view.
+  function follow(el) {
+    if (screen.scrollHeight <= screen.clientHeight) return;
+    var pad = parseFloat(getComputedStyle(screen).paddingBottom) || 0;
+    var over = el.getBoundingClientRect().bottom - (screen.getBoundingClientRect().bottom - pad);
+    if (over > 1) screen.scrollTo({ top: screen.scrollTop + over, behavior: "smooth" });
+  }
+  function setMeter(turn, tok, cost) {
+    meter.turn.textContent = turn;
+    meter.tok.textContent = tok;
+    meter.cost.textContent = cost;
+  }
+  function reset() {
+    fig.classList.add("ht-reset"); // no transitions while clearing
+    fig.querySelectorAll(".ht-on").forEach(function (el) { el.classList.remove("ht-on"); });
+    fig.querySelector(".ht-bar").classList.remove("ht-tick");
+    cursor.remove();
+    setMeter("0", "0", "$0.0000");
+    screen.classList.remove("ht-fade");
+    screen.scrollTop = 0;
+    void screen.offsetWidth;
+    fig.classList.remove("ht-reset");
+    clock = 0;
+    next = 0;
+  }
+
+  // A clock that only runs while the window is on screen and the tab is
+  // visible, so a pause resumes where it left off.
+  var clock = 0, next = 0, last = 0, timer = 0, running = false, seen = false;
+  function tick() {
+    var now = performance.now();
+    clock += now - last;
+    last = now;
+    while (next < events.length && events[next].at <= clock + 5) {
+      events[next++].fn();
+    }
+    schedule();
+  }
+  function schedule() {
+    timer = setTimeout(tick, Math.max(0, events[next].at - clock));
+  }
+  function update() {
+    var go = seen && !document.hidden && !still.matches;
+    if (go && !running) {
+      running = true;
+      last = performance.now();
+      schedule();
+    } else if (!go && running) {
+      running = false;
+      clearTimeout(timer);
+      clock += performance.now() - last;
+    }
+  }
+  function start() {
+    if (still.matches) {
+      // Reduced motion: the whole transcript, still.
+      fig.classList.remove("ht-play");
+      cursor.remove();
+      setMeter(final.turn, final.tok, final.cost);
+      screen.classList.remove("ht-fade");
+      fig.querySelectorAll(".ht-on").forEach(function (el) { el.classList.remove("ht-on"); });
+    } else {
+      reset();
+      fig.classList.add("ht-play");
+    }
+    update();
+  }
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      seen = entries[0].isIntersecting;
+      update();
+    }, { threshold: 0.25 }).observe(fig);
+  } else {
+    seen = true;
+  }
+  document.addEventListener("visibilitychange", update);
+  still.addEventListener("change", function () {
+    if (running) { running = false; clearTimeout(timer); }
+    start();
+  });
+  start();
+})();
+</script>
 
 <div class="home-body">
   <div class="wrap">
