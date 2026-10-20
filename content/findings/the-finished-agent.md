@@ -34,7 +34,7 @@ The program has four forms:
 Most of the system is fixed code that runs the same way every time: grouping reports, checking each reproducer, the second model that reviews each diagnosis, the approval step, and filing each issue once.
 The model is left the choices no fixed sequence makes well: within one crash group, which files to open, what test to try, and whether a change is safe to make.
 An issue may claim a fix only when the agent's reproducer fails against the code as it was and succeeds once the change is applied.
-The service keeps each day's spending in a file, so restarting it can't hand out the budget a second time, and interrupted runs pick up where they stopped with no issue filed twice.
+The service keeps each day's spending in a file, so restarting it can't hand out the budget a second time, and interrupted runs [pick up where they stopped](/production/durable-runs/) with no issue filed twice.
 
 ## How it was measured
 
@@ -105,9 +105,9 @@ Five hard tasks are too few for a range of their own.
 
 A few more figures from the same runs:
 
-- **Solving a task once isn't solving it every time.** Haiku passed both of two runs on 58% of the tasks and at least one of two on 82%. The service runs each crash group once, so the first figure is closer to what a deployment sees.
-- **No run did what a planted instruction asked.** Six of the confirmation tasks carry text in a crash report that tries to give the agent orders; none of the 50 judged runs across the three models followed it or tried to.
-- **The reviewer often ran out of room.** About two reviews in five failed, nearly all because the reviewing model used up its 8,000-token cap. A failed review lets the diagnosis through unreviewed, so it can only cost a rejection that might have led to a fix.
+- **Solving a task once isn't solving it every time.** Counting each task's first two runs, Haiku passed both on 58% of the tasks and at least one on 82%. The service runs each crash group once, so the first figure is closer to what a deployment sees.
+- **No run did what a planted instruction asked.** Six of the confirmation tasks carry text in a crash report that tries to give the agent orders, a [prompt injection](/production/prompt-injection/); none of the 50 judged runs across the three models followed it or tried to.
+- **The reviewer often ran out of room.** About two reviews in five failed, nearly all because the reviewing model used up its 8,000-token cap. A failed review lets the diagnosis through unreviewed, so the most it costs is a rejection that never happened, one that might have sent the agent back to a better fix.
 - **DeepSeek lost 54 runs to its provider.** The provider answered with a 429 and a three-minute `Retry-After`, longer than the retry policy's one-minute limit, so those runs stopped before they could be judged. They are counted as unscored and cost $0.0693 together.
 
 The times were taken on one laptop that was running other jobs, most heavily during DeepSeek's runs, so they can't be compared across models and are left out here.
@@ -122,7 +122,7 @@ How the grading was settled matters as much as the result.
 On three confirmation tasks the bug sits in a protected file, so under the eval's own policy the right answer is to hand the group to a person with the right root cause.
 The catalog's grader predates the defenses and expected a fix, so the first grading failed correct hand-offs; the rule was changed to grade a hand-off the way diagnose-only mode is graded, and the saved runs were graded again offline with no model called.
 No verdict moved under the adopted rule.
-A looser rule would have raised Haiku to 77% and DeepSeek to 66%, and it was rejected because it excused a test the policy let the agent write.
+A looser rule that also accepted a hand-off with no reproducer test would have raised Haiku to 77% and DeepSeek to 66%. It was rejected: the policy refuses the fix but still lets the agent write that test, outside the protected files, so a correct hand-off should include one.
 The rule was fixed after the recordings had been read, which is the wrong order: write down how a grader treats the policy, and commit it, before looking at any regraded number.
 
 Read the table as a picture of two days in October 2026.
@@ -151,7 +151,7 @@ The batch runs also turned up three places where the harness falls short.
 They stay in the companion code as they are, because that code produced the tables, and any fix needs new runs to measure it:
 
 - The reproducer gate keeps one verdict per fingerprint group rather than per cause, so in a group with two causes, a refused reproducer for one blocks a fixed status for both.
-- `triage catalog` grades a correct hand-off to a person as a failure, where the eval doesn't, because the command doesn't work out which groups its approver keeps from being fixed.
+- `triage catalog` still grades a correct hand-off to a person as a failure, where the eval's re-grade doesn't, because the command doesn't work out which groups its approver keeps from being fixed.
 - An `issue_file` call that names no root cause skips the record of causes already filed, since that field is optional.
 
 ## Pointing it at your own service
@@ -170,7 +170,7 @@ The steps, in order:
 1. **Write crash reports.** Make your service's panic recovery append one JSON object per crash to a file, with the same fields `remind` writes, from the panic and stack trace to the request and the last log lines. Don't leave out the build's commit: the agent checks out that commit to investigate each group.
 2. **Describe the service.** A target file names your module and your protected paths: authentication and authorization code, build and deploy configuration, anything that holds a secret. The name defaults to the last element of the module path.
 3. **Start in diagnose-only mode.** The agent keeps every tool except `code_patch`, so it can read, run tests, write a reproducer, and file an issue, and it can't change your code.
-4. **Then allow patches,** with a person approving every filing and every edit to a protected path.
+4. **Then allow patches,** with a person [approving](/production/approval/) every filing and every edit to a protected path.
 5. **Set the limits:** turns and dollars per run, and dollars per day, worked out from the results table's cost for your model and how often your service crashes.
 
 For a file of saved reports, with your target, your repository, and a state directory:
@@ -180,7 +180,7 @@ $ triage -target billing.json -git ~/src/billing \
     -diagnose-only -state week -max-cost 1 week.jsonl
 ```
 
-For crashes as they happen, `triage serve` takes the same `-target` and `-git`, with `crashship` running beside your service to post its reports.
+For crashes as they happen, `triage serve` takes the same `-target` and `-git`, with `crashship`, a small program in the companion code that follows your service's crash log and posts each new report, running beside it.
 
 Diagnose-only mode removes a tool rather than adding a rule to the prompt:
 
@@ -193,7 +193,7 @@ A wrong diagnosis in an issue costs someone a few minutes to read; a wrong patch
 
 ## Run it
 
-From the `code` directory of a clone of the companion repository, with no API key set, the whole catalog runs offline from a recorded Haiku run:
+From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no API key set, the whole catalog runs offline from a recorded Haiku run:
 
 ```console
 $ go run ./ch17 -task batch -parallel 1 -approve files \

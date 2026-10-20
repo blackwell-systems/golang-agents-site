@@ -51,13 +51,13 @@ The model call in flight is abandoned and will be made again after the restart; 
 A second signal ends the process at once, for whoever can't wait for the save.
 
 Calls that are already talking to the outside world get a short reprieve.
-A filing whose answer arrives settles the call, while a filing cut off halfway leaves an outcome nobody knows, so a tool wrapper gives calls with side effects five seconds after a shutdown before cancelling them.
+A call that files an issue in the tracker is settled once its answer arrives, while one cut off halfway leaves an outcome nobody knows, so a tool wrapper gives calls with side effects five more seconds after a shutdown before cancelling them.
 It does that with `context.WithoutCancel`, which keeps the call's values, its idempotency key among them, and forwards the cancellation on its own schedule.
 Five seconds sits well inside both platforms' limits, and since the wrapper is applied inside the timeout wrapper, each tool's own time limit keeps working.
 
 ## A container image that keeps the key out of reach
 
-The agent runs `go test` and builds each workspace as a git repository at the crash's commit, so the image needs the Go toolchain and git.
+The agent runs `go test` and creates each workspace as a git checkout at the crash's commit, so the image needs the Go toolchain and git.
 The image is 1.34 GB, almost all toolchain, runs as a user without root (uid 10001), and mounts the state directory as a volume.
 
 Give it the API key as a read-only mounted file named by `OPENROUTER_API_KEY_FILE`, readable by that user alone; the command refuses a key file that its group or others can read.
@@ -87,8 +87,8 @@ The crashing program numbers its reports from 1 in each process, so its IDs repe
 The service files each report under its own key instead, a hash of the ID, the time, the commit, and the service name: a resend repeats all four, and a new crash after a restart can't match the time.
 
 **One run per group.** A run takes its messages at the start and has no inbox, and a second report for the same crash mostly says that it happened again.
-A report that arrives while its group's run is going is saved as late, and when the run ends, the service gathers the late reports into one comment on the group's issue.
-That comment passes through the same egress check and approval policy as the agent's own comments, since its text came from a crash report.
+A report that arrives while its group's run is going is saved as late, and when the run ends, the service gathers the late reports into one comment on the issue the agent filed for that group (each crash group gets one issue in the [tracker](/run/ch10-mcp-tracker/)).
+That comment passes through the same [egress check](/production/prompt-injection/) and [approval policy](/production/approval/) as the agent's own comments, since its text came from a crash report.
 A report for a group whose issue was closed means the crash returned after a fix, and it starts a new run.
 
 ```diagram
@@ -101,8 +101,8 @@ The crash-triage service: fixed workflow in the solid boxes, and the agent, wher
 ## The queue is a directory
 
 The service has no message broker.
-Every file under its state directory is written the way a checkpoint is written, so a crash leaves each file whole, and the writes go in a fixed order: the report, then the run that names it, then the 202 to the shipper.
-On startup the service looks for reports no run names and puts runs that were going back in the queue, where their checkpoints take them from where they were.
+Every file under its state directory is written the way a [checkpoint](/production/durable-runs/) is written, so a crash leaves each file whole, and the writes go in a fixed order: the report, then the run that names it, then the 202 to the shipper.
+On startup the service looks for reports no run names and puts runs that were in progress back in the queue, where their checkpoints take them from where they were.
 Two runs go at once by default, up to twenty wait, and a report that would start a run when the queue is full gets 503 with `Retry-After`.
 
 Each run's workspace checks out the commit that crashed, not the latest, because some crashes come from old builds whose bug is already fixed.
@@ -161,7 +161,7 @@ source: Chapter 17
 Five reports became two runs, two issues (one per cause), and two comments for late reports. The person made six decisions, all approvals. The kill lost nothing: after the restart the review queue held the same two items, and the ledger had counted $0.0096 by the end.
 ```
 
-This run was made to see the parts work together, not to measure them, and its host was chosen by OpenRouter, so its numbers aren't comparable with the eval tables.
+This run was made to see the parts work together, not to measure them, and OpenRouter chose which [host](/glossary/#host) served the model, so its numbers aren't comparable with the [eval tables](/findings/the-finished-agent/).
 
 ## Steps for your own service
 
