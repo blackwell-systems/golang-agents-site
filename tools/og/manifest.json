@@ -168,8 +168,8 @@
     "hash": "6ce66f8aa41c9fb186514317c80c502a2d61f0e8ac52918c010ad247938d6d61"
   },
   "og/findings.jpg": {
-    "spec": "d47dee36a4b01df92ea7036ff683141c8b79c14d6558be03b829cff0e94c881e",
-    "hash": "48771cdf89060e82a33176b4ce43662bda85ceceab91968e5694322e894438b6"
+    "spec": "ce04d2162cbbb33967b3dbde507046ec6b18a9005c00a95ba51007607fa512e5",
+    "hash": "16c7ad6ba35a559f53b1dedf808c7f34cf1e87788cfb9f7804e4c5d5fd67784c"
   },
   "og/findings/crash-sweep.jpg": {
     "spec": "76657b234315e90f5ba2dbe9190993528792f2287e2a723d069e0bd9898feb5d",
@@ -188,8 +188,8 @@
     "hash": "feb1b234e801fbbda7e621ad46198bf4980477986cbf1a14597d6892b08c1f94"
   },
   "og/findings/measured-mistakes.jpg": {
-    "spec": "5fbec13edc4f7dc4973619abc5a80cd7f18e37b434e4f2567566aa6fe9cbc489",
-    "hash": "3a5c18a52647d73869baccf9cafd96f1c7d2b1833db10397b37766f790988346"
+    "spec": "d20463eb83b21d97c1897931bca86dfc8385681b35502e691084c407e5d7ac93",
+    "hash": "5ff2d1d397ae3d9e633fb9319b038f01417e51ba0ae046764f11a82c7bb2238a"
   },
   "og/findings/the-finished-agent.jpg": {
     "spec": "70c74736f4c31add7dc5cb0e4dd30f68db9add136d7c5bf65c200027bd7e7d8d",

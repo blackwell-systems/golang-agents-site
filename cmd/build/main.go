@@ -91,7 +91,7 @@ var sections = []section{
 	{"production", "Production", "", "section-production", "section-production"},
 	{"ecosystem", "Go ecosystem", "Ecosystem", "section-ecosystem", "section-ecosystem"},
 	{"run", "Examples", "", "intro", "section-examples"},
-	{"findings", "Research", "", "ch13", "section-research"},
+	{"findings", "Research", "", "section-research", "section-research"},
 }
 
 // moved maps a section's old directory to its new one. The build writes
