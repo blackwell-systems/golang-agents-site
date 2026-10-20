@@ -171,6 +171,25 @@ var templateFuncs = template.FuncMap{
 		return template.HTML(a)
 	},
 	"picture": picture,
+	"slug":    slug,
+}
+
+// slug turns a group's name into an ID for a link to it: "Go in depth"
+// becomes "go-in-depth".
+func slug(s string) string {
+	var b strings.Builder
+	dash := false
+	for _, r := range strings.ToLower(s) {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
+			b.WriteRune(r)
+			dash = false
+		case !dash && b.Len() > 0:
+			b.WriteByte('-')
+			dash = true
+		}
+	}
+	return strings.TrimSuffix(b.String(), "-")
 }
 
 // chapterText turns "1, 4" into "chapters 1 and 4".

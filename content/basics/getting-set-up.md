@@ -60,17 +60,17 @@ A program decides how to run from one environment variable.
 ## The Go you'll need
 
 You should be comfortable writing Go: structs and interfaces, errors, packages, and starting a goroutine.
-The code also uses some newer parts of the language and standard library, which these guides use without stopping to explain:
+The code also uses some newer parts of the language and standard library. The guides use them without stopping to explain them, and the [Go in depth](/basics/#go-in-depth) pages cover the ones an agent leans on most:
 
 | Feature | Since | Where it shows up |
 | --- | --- | --- |
 | Generics, as in `decodeArgs[T any]` | Go 1.18 | Decoding a tool's arguments into the struct that tool expects |
-| `context.WithTimeoutCause` and `context.Cause` | Go 1.21 | A deadline that records why a call was cancelled |
+| [`context.WithTimeoutCause` and `context.Cause`](/basics/context/) | Go 1.21 | A deadline that records why a call was cancelled |
 | `for range n` over an integer | Go 1.22 | The loop's turn limit |
-| Iterators, `iter.Seq` | Go 1.23 | Reading a streamed reply event by event |
-| `sync.WaitGroup.Go` and `testing/synctest` | Go 1.25 | Running tool calls side by side, and testing timeouts without waiting |
-| `errors.AsType` | Go 1.26 | Checking an error's type in one line |
-| `encoding/json/v2` | Recent | All JSON on the wire |
+| [Iterators, `iter.Seq`](/basics/iterators/) | Go 1.23 | Reading a streamed reply event by event |
+| [`sync.WaitGroup.Go`](/basics/goroutines/) and `testing/synctest` | Go 1.25 | Running tool calls side by side, and testing timeouts without waiting |
+| [`errors.AsType`](/basics/errors/) | Go 1.26 | Checking an error's type in one line |
+| [`encoding/json/v2`](/basics/json-v2/) | Go 1.27 (Go 1.26 with `GOEXPERIMENT=jsonv2`) | All JSON on the wire |
 
 One habit from `encoding/json/v2` matters right away: it matches JSON field names to struct fields exactly, case included, so every field that comes from an API carries an explicit tag such as `` `json:"finish_reason"` ``.
 [Common first errors](/basics/common-errors/) shows what happens when one is missing.

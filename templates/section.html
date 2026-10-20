@@ -17,7 +17,7 @@
     {{- if .Section.Grouped}}
     <div class="section-groups">
       {{- range $gi, $g := .Section.Groups}}
-      <div class="phase">
+      <div class="phase" id="{{slug $g.Name}}">
         <div class="phase-head"><p class="phase-num">Part {{add $gi 1}}</p><h2>{{$g.Name}}</h2></div>
         <ol class="path-steps">
           {{- range $g.Pages}}
