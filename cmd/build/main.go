@@ -143,6 +143,7 @@ func build(cfg config) error {
 	for _, sec := range sections {
 		used = append(used, sec.Art)
 	}
+	used = append(used, bodyArt...)
 	if err := checkArt(cfg.static, used...); err != nil {
 		return err
 	}

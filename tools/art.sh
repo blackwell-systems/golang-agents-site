@@ -42,4 +42,17 @@ for w in 240 480; do
 	magick "$png" -define png:compression-level=9 "$out/gopher-$w.png"
 done
 
+# The cards: the site's own 3:2 art, from art/ in this repository.
+for name in path-learning path-shipping path-leading; do
+	in=$site/art/$name.png
+	[ -f "$in" ] || { echo "art: no $in" >&2; exit 1; }
+	for w in 480 960; do
+		png=$tmp/$name-$w.png
+		magick "$in" -alpha off -colorspace sRGB -filter Lanczos -resize "${w}x" -strip "$png"
+		avifenc -q 55 -s 4 "$png" "$out/$name-$w.avif" >/dev/null
+		cwebp -quiet -q 76 -m 6 "$png" -o "$out/$name-$w.webp"
+		magick "$png" -quality 78 -sampling-factor 4:2:0 -interlace JPEG "$out/$name-$w.jpg"
+	done
+done
+
 echo "art: $(ls "$out" | wc -l | tr -d ' ') files in $out"
