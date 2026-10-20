@@ -194,12 +194,16 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		return ast.WalkStop, err
 	}
 	fmt.Fprintf(w, "<figure class=\"listing\" data-lang=\"%s\">", html.EscapeString(lang))
+	// Every listing gets a title bar: its file or title, or else a
+	// label for what kind of text it holds.
 	switch {
 	case caption != "" && href != "":
 		fmt.Fprintf(w, "<figcaption><a href=\"%s\">%s</a></figcaption>",
 			html.EscapeString(href), html.EscapeString(caption))
 	case caption != "":
 		fmt.Fprintf(w, "<figcaption>%s</figcaption>", html.EscapeString(caption))
+	default:
+		fmt.Fprintf(w, "<figcaption>%s</figcaption>", html.EscapeString(barLabel(lang)))
 	}
 	w.WriteString(code)
 	w.WriteString("</figure>\n")
@@ -270,4 +274,19 @@ func (c *codeRoot) takeErr() error {
 	err := errors.Join(c.errs...)
 	c.errs = nil
 	return err
+}
+
+// barLabel names a listing that has no file or title.
+func barLabel(lang string) string {
+	switch lang {
+	case "console", "sh", "bash":
+		return "terminal"
+	case "text", "":
+		return "output"
+	case "json":
+		return "JSON"
+	case "go":
+		return "Go"
+	}
+	return lang
 }

@@ -195,7 +195,14 @@ cite { font-style: italic; }
 /* Header: the brand, the search link, and the theme toggle, with the
    section nav beside them on wide screens (80rem, where all of it fits)
    and in a scrolling strip below them on narrower ones. */
+/* The header stays at the top while the page scrolls. --header-h is
+   its height, which sticky elements and jump targets keep clear of. */
+:root { --header-h: 6.8rem; }
+@media (min-width: 80rem) { :root { --header-h: 3.9rem; } }
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   border-bottom: 1px solid var(--line-soft);
   background: var(--night);
 }
@@ -643,7 +650,7 @@ cite { font-style: italic; }
 .buy-box .small { margin: 1rem 0 0; }
 @media (min-width: 60rem) {
   .get-grid { grid-template-columns: minmax(0, 1fr) 20rem; }
-  .buy-box { position: sticky; top: 1.5rem; }
+  .buy-box { position: sticky; top: calc(var(--header-h) + 1.5rem); }
 }
 
 /* Sample */
@@ -966,13 +973,39 @@ cite { font-style: italic; }
 .prose dd { margin: 0.2rem 0 1rem 0; }
 
 /* Code listings, highlighted at build time. */
-.listing { margin: 1.5rem 0 1.75rem; }
+/* A listing is a framed window: a title bar with three dots, the file
+   or a label, and the copy button, over the code. */
+.listing {
+  position: relative;
+  margin: 1.5rem 0 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--code-bg);
+  box-shadow: 0 14px 28px -18px var(--shadow);
+}
 .listing figcaption {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.4rem;
+  padding: 0.45rem 5rem 0.45rem 0.9rem;
+  background: var(--night);
+  border-bottom: 1px solid var(--line);
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--soft);
-  margin-bottom: 0.4rem;
   overflow-wrap: anywhere;
+}
+.listing figcaption::before {
+  content: "";
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--line);
+  box-shadow: 0.85rem 0 0 var(--line), 1.7rem 0 0 var(--line);
+  margin-right: 1.9rem;
 }
 .listing figcaption a { color: var(--soft); }
 .listing figcaption a:hover { color: var(--link); }
@@ -981,8 +1014,8 @@ cite { font-style: italic; }
   padding: 1rem 1.1rem;
   overflow-x: auto;
   background: var(--code-bg);
-  border: 1px solid var(--line);
-  border-radius: 4px;
+  border: 0;
+  border-radius: 0;
   font-family: var(--mono);
   font-size: 0.84rem;
   line-height: 1.55;
@@ -990,11 +1023,11 @@ cite { font-style: italic; }
   color: var(--stone);
 }
 .listing pre:focus-visible { outline-offset: 2px; }
-.listing-body { position: relative; }
+.listing-body { position: static; }
 .copy {
   position: absolute;
-  top: 0.45rem;
-  right: 0.45rem;
+  top: 0.4rem;
+  right: 0.5rem;
   padding: 0.2rem 0.6rem;
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -1006,10 +1039,7 @@ cite { font-style: italic; }
   cursor: pointer;
 }
 .copy:hover { color: var(--ivory); border-color: var(--amber-dim); }
-@media (hover: hover) {
-  .copy { opacity: 0; }
-  .listing-body:hover .copy, .copy:focus-visible { opacity: 1; }
-}
+
 .listing code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
 .chroma .line { display: block; }
 .chroma .k, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr, .chroma .ow { color: var(--syn-keyword); }
@@ -1313,7 +1343,7 @@ cite { font-style: italic; }
   padding-bottom: 0.3rem;
   margin-top: 2.75rem;
 }
-:target { scroll-margin-top: 1rem; }
+:target, [id] { scroll-margin-top: calc(var(--header-h) + 1rem); }
 
 /* A guide's map of the loop: the four stages, its own marked. */
 .stage-map { margin-top: 1.25rem; }
@@ -1409,7 +1439,7 @@ cite { font-style: italic; }
   .toc {
     display: block;
     position: sticky;
-    top: 1.5rem;
+    top: calc(var(--header-h) + 1.5rem);
     padding-left: 1rem;
     border-left: 1px solid var(--line);
     font-family: var(--label);
@@ -1445,7 +1475,7 @@ cite { font-style: italic; }
 .work-grid { display: grid; gap: 2.5rem; align-items: start; }
 @media (min-width: 62rem) {
   .work-grid { grid-template-columns: minmax(0, 1fr) 24rem; gap: 4rem; }
-  .contact { position: sticky; top: 1.5rem; }
+  .contact { position: sticky; top: calc(var(--header-h) + 1.5rem); }
 }
 .contact {
   background: var(--panel);
