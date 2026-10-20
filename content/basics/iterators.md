@@ -57,7 +57,7 @@ It stops at the first error, keeping the usage the failed step reported, and it 
 Because a stream is just a function, wrapping one is a function too.
 The cost meter wraps a model's stream, passes each step through, and records what the call used:
 
-```go include=ch15/agent/meter.go tag=metered
+```go include=ch15/agent/meter.go tag=metered highlight=8
 ```
 
 The recording is in a `defer`, so it runs whether the stream ended, failed, or the caller stopped reading partway.

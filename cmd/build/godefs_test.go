@@ -333,3 +333,53 @@ const (
 		t.Errorf("sigs = %q;\nwant %q", got, want)
 	}
 }
+
+func TestLineRanges(t *testing.T) {
+	tests := []struct {
+		spec string
+		want [][2]int
+		ok   bool
+	}{
+		{"", nil, true},
+		{"3", [][2]int{{3, 3}}, true},
+		{"3-5,9", [][2]int{{3, 5}, {9, 9}}, true},
+		{"1-10", [][2]int{{1, 10}}, true},
+		{"0", nil, false},
+		{"5-3", nil, false},
+		{"11", nil, false}, // past the end
+		{"3-", nil, false},
+		{"a", nil, false},
+		{"3,,4", nil, false},
+	}
+	for _, tt := range tests {
+		got, err := lineRanges(tt.spec, 10)
+		if (err == nil) != tt.ok || !slices.Equal(got, tt.want) {
+			t.Errorf("lineRanges(%q) = %v, %v; want %v, ok %v", tt.spec, got, err, tt.want, tt.ok)
+		}
+	}
+}
+
+// TestHighlightLines checks that highlight= marks the lines it names,
+// counted in the excerpt, and only those.
+func TestHighlightLines(t *testing.T) {
+	dir := t.TempDir()
+	writeFiles(t, dir, refCode)
+	c := &codeRoot{dir: dir}
+	md := newMarkdown(c, newPageIndex(nil, nil))
+	out, err := convert(md, c, []byte("```go include=ch01/main.go tag=run highlight=2-3,5\n```\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var marked []int
+	for i, line := range strings.Split(string(out), `<span class="line`)[1:] {
+		if strings.HasPrefix(line, ` hl"`) {
+			marked = append(marked, i+1)
+		}
+	}
+	if want := []int{2, 3, 5}; !slices.Equal(marked, want) {
+		t.Errorf("marked lines %v; want %v", marked, want)
+	}
+	if _, err := convert(md, c, []byte("```go include=ch01/main.go tag=run highlight=40\n```\n")); err == nil {
+		t.Error("highlight past the end: no error")
+	}
+}

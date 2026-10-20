@@ -53,7 +53,7 @@ Where a complete response has a `message`, each chunk has a `delta` instead: onl
 A `bufio.Scanner` plus a handful of rules is enough to parse the format.
 The `sseData` helper hands back the payload of each `data:` line through a [range-over-func iterator](/basics/iterators/), an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
 
-```go include=ch06/openrouter/sse.go tag=sse
+```go include=ch06/openrouter/sse.go tag=sse highlight=10,24-27
 ```
 
 Two lines in this function each head off a real failure.
