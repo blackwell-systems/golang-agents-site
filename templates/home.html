@@ -2,8 +2,10 @@
 <section class="hero home-hero" aria-labelledby="title">
   <div class="wrap home-hero-grid">
     <div>
-    <h1 id="title">{{.Site.Name}}</h1>
-    <div class="ornament" aria-hidden="true"><span></span></div>
+    <div class="title-block">
+      <h1 id="title">{{.Site.Name}}</h1>
+      <div class="ornament" aria-hidden="true"><span></span></div>
+    </div>
     <p class="hook">{{.Page.Description}}</p>
     <p class="hero-measured">Every result here is measured: each number comes from recorded runs and names its task, its models, how many runs, and the date.</p>
     <p class="hero-for">For Go developers new to language models. You should be comfortable writing Go: the code uses Go 1.27, with generics and <code>encoding/json/v2</code>, and no example needs an API key.</p>
