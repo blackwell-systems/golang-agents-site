@@ -63,6 +63,13 @@ The classifier doesn't depend on any client package.
 It asks the error three questions through small interfaces: is it retryable, does it carry a retry delay, and is it a timeout.
 Each client's error types answer them.
 
+```diagram
+name: ch12-do
+alt: A vertical flow: the breaker's Allow, the policy's Wait hook, the attempt under its own deadline, record, then Classify. Classify leads to returning the result as it is for a success or a failure not worth retrying, to a wait and then back to the breaker for a failure worth retrying, or to a *RetryError when the retries have run out.
+
+One model call through the retry policy: the circuit breaker, the wait, the attempt under its own deadline, then the decision to retry or stop.
+```
+
 ## How long to wait
 
 With [backoff](/glossary/#backoff), each retry waits longer than the one before.

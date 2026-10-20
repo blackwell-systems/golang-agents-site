@@ -90,6 +90,13 @@ A report that arrives while its group's run is going is saved as late, and when 
 That comment passes through the same egress check and approval policy as the agent's own comments, since its text came from a crash report.
 A report for a group whose issue was closed means the crash returned after a fix, and it starts a new run.
 
+```diagram
+name: ch17-architecture
+alt: A diagram of the crash-triage system: a shipper sends remind's crash reports to the service, which groups them by fingerprint and queues one run per group; each run is the agent loop wrapped in middleware, with a reproducer gate inside issue_file that each issue must pass to be filed, and a reviewer that reads the diagnosis after filing; pauses go to a review queue that a person answers; each box is labeled with the chapter that built it
+
+The crash-triage service: fixed workflow in the solid boxes, and the agent, where the model decides, in the dashed one.
+```
+
 ## The queue is a directory
 
 The service has no message broker.
@@ -131,6 +138,13 @@ Only the run that asked waits; every other group keeps going.
 An approval has a deadline, a day by default, and a missed one counts as a denial.
 An unknown outcome has none, because a timeout can't know whether the call took effect and either guess risks a duplicate or a lost action; after four hours the item is flagged stale, which decides nothing and tells someone to look at the tracker.
 Answers to the two kinds differ on purpose ("approve" or "deny" for one, "rerun" or "done" for the other), so nobody reruns a side effect by approving out of habit.
+
+```diagram
+name: ch17-review
+alt: A state diagram of a run: queued, running, paused, done, and failed or unresolved, with a pause going to the review queue and back to queued once every item is decided, and a shutdown sending a running run back to queued for the next process
+
+A run's life in the service, including a pause for a person's review.
+```
 
 ## The service, run once for real
 

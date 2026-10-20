@@ -27,6 +27,13 @@ To write a reply, the model repeats that step: choose a token, add it to the end
 That repetition is called next-token prediction.
 Everything a model sends back, a paragraph of advice or a tool call, comes out of it one token at a time.
 
+```diagram
+name: next-token
+alt: A vertical flow: the text "the test failed because it" goes to the tokenizer, which produces token numbers; embeddings turn each into a vector; the transformer's layers of attention and weights produce a score for every token in the vocabulary; softmax, after dividing by the temperature, turns the scores into probabilities; one token is picked, greedily or by sampling; a dashed arrow appends the token " was" to the text and predicts again.
+
+One step of generation: the text becomes tokens, the model scores every possible next token, one is picked, and the step repeats with it added.
+```
+
 ## A model made of counts
 
 The smallest model that works this way just counts.

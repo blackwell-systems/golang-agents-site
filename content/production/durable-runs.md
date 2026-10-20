@@ -114,6 +114,13 @@ For a call that needs approval, the marker is written after the yes, so a crash 
 The triage agent also keeps a refile guard in `issue_file`: a second filing for a cause the run already filed is refused with the number of the existing issue.
 It covers a case keys can't: the model filing one crash a second time through a fresh call, which carries a fresh key.
 
+```diagram
+name: ch15-timeline
+alt: A sequence of three participants: the agent, its checkpoint file, and the tracker. Before the crash, the agent saves the reply with call c2 to issue_file, then an attempt marker for c2 with key k, then asks the tracker to create the issue with Idempotency-Key k. The tracker records issue 1 and answers 201, but the answer is never read, because the process is killed. After the restart, the agent loads the checkpoint and finds c2 with a marker and no result. Without a key, creating the issue again makes issue 2, a duplicate. With key k, the tracker answers 200 with issue 1, the same issue, and the agent saves c2 as answered and drops the marker.
+
+The crash a checkpoint can't cover: the side effect happened, but its result was never saved.
+```
+
 ## The resolution ladder
 
 When a marked call has no saved result, it goes up three steps, each tried only if the one below it can't decide:
@@ -124,6 +131,13 @@ When a marked call has no saved result, it goes up three steps, each tried only 
 
 The third step exists because, for a tool with no key, retrying is a bet that the first call failed, and losing that bet produces the duplicate all of this was built to prevent.
 With keys that the service honors, a call never gets past the first step.
+
+```diagram
+name: ch15-ladder
+alt: A flowchart starting from a call with a marker and no result. First question: is it safe to run again, because it is read-only or idempotent? If yes, rung 1: run it again with the same key. If no, second question: can the other side be asked by key? If the record is found, rung 2 answers the call with what the record says; if the other side is sure there is no record, rung 2 runs the call. If there is no lookup, or it can't tell, as with a search that may lag, rung 3 asks a person through Limits.Approver. Approved means run it again; denied means keep it as done, with the reason as the call's answer; no decision yet means ApprovalPending and the run waits.
+
+What to do with a call whose outcome nobody recorded.
+```
 
 ## Does it work? Crash it everywhere
 

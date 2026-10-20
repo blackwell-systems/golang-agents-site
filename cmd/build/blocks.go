@@ -20,7 +20,7 @@ import (
 //	```path       a reading path on the start page (paths.go)
 
 // blockLangs are the languages that render as blocks.
-var blockLangs = map[string]bool{"result": true, "fit": true, "catalog": true, "path": true}
+var blockLangs = map[string]bool{"result": true, "fit": true, "catalog": true, "path": true, "diagram": true}
 
 // renderBlock writes the block named lang, from body.
 func (r *codeBlocks) renderBlock(w util.BufWriter, lang, body string) error {
@@ -35,6 +35,8 @@ func (r *codeBlocks) renderBlock(w util.BufWriter, lang, body string) error {
 		out, err = r.catalog(body)
 	case "path":
 		out, err = r.path(body)
+	case "diagram":
+		out, err = r.diagram(body)
 	}
 	if err != nil {
 		return fmt.Errorf("%s block: %w", lang, err)

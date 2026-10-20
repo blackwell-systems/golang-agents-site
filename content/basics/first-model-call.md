@@ -20,6 +20,13 @@ Switching models is a change to one string, which makes it easy to compare them.
 
 Calling a provider directly, such as Anthropic or OpenAI, works the same way in principle; [Providers and SDKs](/ecosystem/providers-and-sdks/) covers what changes.
 
+```diagram
+name: route
+alt: Your Go program sends a request to OpenRouter, which forwards it to one of several providers serving the model, trying another if the first fails, and returns the reply with its usage and cost
+
+Your program sends one request to OpenRouter, which passes it to one of the providers that serve the model.
+```
+
 ## An account and a key
 
 1. Create an account at [openrouter.ai](https://openrouter.ai).

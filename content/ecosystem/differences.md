@@ -54,6 +54,13 @@ That is why the adapter records where reasoning came from, and why the agent pin
 Over the 13 replies of each recorded run of the same task, the Messages API's stream had a median of 64 events per reply, and chat completions' 31; per output token, about 1.2 times as many.
 The adapter turns each event into at most one of the loop's `Delta` values, so the loop never learns which format it is reading.
 
+```diagram
+name: ch11-messages
+alt: On the left, chat completions: a system message, a user message, an assistant message with two tool calls whose arguments are strings, and two tool messages. On the right, the Messages API: a system field, a user turn, an assistant turn with a signed thinking block and two tool_use blocks whose input is an object, and one user turn holding two tool_result blocks, one with is_error set.
+
+The same turn in both formats: chat completions on the left, Anthropic's Messages API on the right.
+```
+
 ## Bytes on the wire
 
 Each format writes the same conversation its own way, and the sizes come out close.

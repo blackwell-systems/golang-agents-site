@@ -43,6 +43,13 @@ The routes differed more than the outcomes.
 Two of the models repeated an identical sequence of calls in every run; the other two wandered by a turn.
 In some order, every run surveyed the project, read the source, edited it, and ran the tests to confirm.
 
+```diagram
+name: turn
+alt: Turn 3 in four steps: the request holds the conversation so far and the four tool definitions; the reply holds two calls, call_5 to edit_file and call_6 to run_tests; the harness runs them in order, producing a tool message for each call; the two messages are appended and turn 4 begins.
+
+One turn of the bug fix: the request carries the conversation and the tool definitions, the reply asks for two tools, and their results join the conversation.
+```
+
 ## Three ways to use a model
 
 The useful question for telling model programs apart is: who chooses the next step?

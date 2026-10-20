@@ -65,6 +65,13 @@ A 20-turn chat on the default model was recorded as well.
 By the last turn, a question of roughly twelve words went out inside a 13,785-token request.
 Over all twenty turns the requests added up to 124,673 tokens, nine times the size of the finished conversation, and turn 20 cost ten times what turn 1 did.
 
+```diagram
+name: growing
+alt: Four columns, one per turn of the bug fix, each listing the messages its request sends: one message in turn 1 and ten in turn 4, with the tool definitions at the top of every column. The requests are 583, 834, 1,846, and 2,164 tokens.
+
+The conversation grows by each reply and its tool results, and every request resends all of it.
+```
+
 ## An agent grows faster
 
 People add to a chat a sentence at a time.
@@ -113,6 +120,13 @@ With the markers, 95 percent of the input tokens were read from the cache, the c
 ```
 
 Either way, a cached history costs less while staying exactly as long, and length has a cost of its own, covered next.
+
+```diagram
+name: ch08-cache
+alt: Turn 9's request holds the system prompt and tools, the task, turns 1 to 8, and turn 9. Turn 10's request holds the same parts plus turn 10; every part before turn 10 is marked cached.
+
+Two requests in a row: whatever the second shares with the first, counting from the start, can be read from the cache.
+```
 
 ## The context window, and why it's the wrong number
 

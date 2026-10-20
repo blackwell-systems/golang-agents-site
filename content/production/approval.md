@@ -96,6 +96,13 @@ Resuming takes two things: the conversation from that `Result`, with `Limits.Bef
 The loop runs the pending calls through the gate first, before it makes any model call, and the turns and money already spent count toward the resumed run's limits, so pausing can't be used to reset a budget.
 A caller that slips an extra user message in after the waiting calls gets `ErrBadResume`, because the API expects the tool results to come first.
 
+```diagram
+name: ch14-approval
+alt: A sequence of three participants: the loop, the approval gate, and a person. In one reply the model asks for code_read, run_tests, code_patch to auth/auth.go, and issue_file. The loop runs code_read and run_tests. code_patch goes to the gate, which sends a request with the reason, the old and new text, and the hash to the person; there is no decision yet, so the gate returns ApprovalPending and the loop stops with code_patch and issue_file in Result.Pending. Later, the run resumes with Limits.Approver: the person's decision arrives, approved for this hash; the gate writes the audit log entry, and code_patch runs, followed by issue_file, which goes through the gate in turn.
+
+One reply's calls, where the third needs a person's decision.
+```
+
 ## Make the pause survive a restart
 
 A [checkpoint](/glossary/#checkpoint) saves the run so a restart loses nothing, and three details connect it to approval.

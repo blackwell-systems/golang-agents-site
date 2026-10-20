@@ -76,6 +76,13 @@ The package's tests check this.
 They replay the edit-then-test reply using a deliberately slow fake edit and a fake test tool that reports the version of the code it ran against.
 With every call started at once, the fake tests see the old code; with the staged runner, they see the edited code.
 
+```diagram
+name: ch09-stages
+alt: Five calls in the model's order: code_read, code_read, crash_logs, code_patch, run_tests. Stage 1 runs the first three at once; stage 2 runs code_patch alone; stage 3 runs run_tests alone. The answers go back as five tool messages, in order.
+
+One reply's calls in stages: read-only calls run side by side, every other call runs alone, and the answers go back in the model's order.
+```
+
 ## What it saves on a coding agent
 
 Almost nothing, and the numbers show it.

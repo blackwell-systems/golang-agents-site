@@ -57,6 +57,13 @@ If the server's output stops, each caller still waiting gets `ErrServerGone`, al
 Every call has a timeout, a minute by default, set with `context.WithTimeoutCause` so the error says which limit fired.
 In the `TestCancel` test, a tool that waits on its context saw that context end 100 ms in, under a 100 ms timeout, and the connection kept working for the following call.
 
+```diagram
+name: ch10-wire
+alt: The agent's process on the left holds the calls waiting by request ID, a reader goroutine, and the last lines of the server's standard error. The server's process on the right runs Serve, one goroutine per request, and a logger. Requests go from the agent to the server on standard input, responses come back on standard output, and logs on standard error.
+
+An MCP server over standard input and output: one message per line, and one reader that matches each response to the call waiting for it.
+```
+
 ## Starting and stopping a server
 
 Two details matter more than they look.

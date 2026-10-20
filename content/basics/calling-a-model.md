@@ -82,6 +82,13 @@ Across the recorded runs in the companion code, the longest single call lasted 7
 Two minutes covers the slow reasoning case and still catches a call that is stuck.
 The two official Go SDKs pick very different defaults: `openai-go` has no timeout unless you set one, and `anthropic-sdk-go` allows a non-streaming call ten minutes.
 
+```diagram
+name: call-life
+alt: A sequence diagram: the chat loop calls Generate with its ctx; Generate derives a ctx with a two-minute deadline whose cause is ErrCallTimeout and sends the POST through net/http to OpenRouter, which forwards it to a provider; the reply comes back with usage and cost. If Ctrl-C or the deadline fires first, the request is abandoned and the error carries the kind and the cause.
+
+One call's life: the run's context and the call's own deadline both reach the HTTP request, and whichever ends first cancels it.
+```
+
 ## Reading the reply
 
 There are three distinct ways a call can fail, and the client looks for each one:

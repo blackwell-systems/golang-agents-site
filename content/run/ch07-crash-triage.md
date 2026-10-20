@@ -20,6 +20,13 @@ This program runs one task from the crash catalog, replayed from a run recorded 
 - A reproducer test that must fail on the original code and pass on the fix.
 - A grade from the crash catalog's grader, check by check.
 
+```diagram
+name: triage-env
+alt: The agent in the middle, with arrows to four things: the crash reports, read with the five crash tools; the workspace, a copy of remind at the task's version, read and changed with the code tools and run_tests; the issue tracker, with issue_search, issue_file, and issue_comment; and an untouched copy of remind, used only by submit_diagnosis to check reproducers.
+
+What the triage agent works on; it reads the dashed items but never changes them.
+```
+
 ## Run it
 
 From the `code` directory of a clone of [go-agents-book-code](https://github.com/blackwell-systems/go-agents-book-code), with no `OPENROUTER_API_KEY` set:

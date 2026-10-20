@@ -15,6 +15,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -95,6 +96,7 @@ var movedPages = []struct{ From, To string }{
 }
 
 func build(cfg config) error {
+	diagramDir = filepath.Join(cfg.static, "img", "diagrams")
 	code, err := openCode(cfg.code)
 	if err != nil {
 		return err

@@ -40,6 +40,13 @@ When they finish, the harness merges their fixes into a single tree, with a thre
 Both ran on the default model, `anthropic/claude-haiku-5.5`, in October 2026.
 The machine was shared with other work, and two runs of the same setup could differ by as much as four minutes.
 
+```diagram
+name: ch09-fanout
+alt: The run's context at the top; below it one agent per fingerprint group, each with its own context and workspace, sharing the model's pace, the spending pool, and the test slots; inside each agent the stream's idle timer and run_tests' time limit; at the bottom the harness merges the workspaces, joins diagnoses with one root cause, files the issues, and grades.
+
+One agent per crash group, each with its own context and workspace, merged by the harness.
+```
+
 ## The result
 
 | Runs | Wall time | Model calls | Largest request (tokens) | Cost | Checks passed (of 94) |

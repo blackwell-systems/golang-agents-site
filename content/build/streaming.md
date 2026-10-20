@@ -105,6 +105,13 @@ The reason travels with the context, so the resulting error matches `context.Can
 That lets a caller distinguish a stream that went idle, which is worth retrying, from a person pressing Ctrl-C.
 Cancellation can hit at any moment without corrupting the conversation: a reply still in flight is thrown away, so the history never contains a partial reply or a tool call missing its result.
 
+```diagram
+name: ctx-tree
+alt: A tree of contexts: main's, from signal.NotifyContext with the cause interrupt signal received, at the top; below it the run's, from context.WithCancel in Events; below that, for each reply, the stream's, from context.WithCancelCause, which the idle timer cancels with ErrStreamIdle, and below it the HTTP request; and for each tool call, run_tests's, from context.WithTimeoutCause with ErrTestsTimedOut, and below it the go test command started with exec.CommandContext.
+
+The contexts in a streamed run: ending one ends everything below it, and each records its own reason.
+```
+
 ## The run as an iterator
 
 The model's stream is a detail of the client.

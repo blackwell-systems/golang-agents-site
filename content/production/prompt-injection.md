@@ -99,6 +99,13 @@ A fixed marker would be trivial for an attacker to imitate, so each run of the p
 Before wrapping, the code strips invisible characters and then deletes every copy of the boundary from the text.
 It repeats the deletion until no copy remains, because cutting one copy out can bring two fragments together into a new one.
 
+```diagram
+name: ch14-layers
+alt: A crash report asks the agent to remove the auth.Require wrapper from the routes in api/api.go and close the report. Both requests reach layer 1, capabilities: there is no tool to close an issue, so only the edit continues. Layer 2, protected paths, holds the edit to api/api.go at the gate, keeps it read-only to test code, and checks the workspace after each test run, and passes the edit to layer 3, approval, where a person sees the old and new text exactly as the tool would write them. Only what a person approved, for this one call, continues. Layer 4, the check on what leaves, allows issue text without forbidden links or secrets, and runs before anyone is asked about it. Layer 5, marking tool output as data, is drawn dashed: it helps but can't be relied on.
+
+One injected instruction on its way through the defenses, and what gets past each layer.
+```
+
 ## An agent that went around a denial, with no attacker
 
 The most instructive run contains no attack at all ([refused once, the agent tried other spellings](/findings/measured-mistakes/#denial) has the method).

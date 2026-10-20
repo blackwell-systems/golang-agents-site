@@ -77,6 +77,13 @@ There are limits to what this can catch.
 A test can fail for an unrelated reason, a fix can land in the wrong place, and a flaky test might get through by chance.
 The crash catalog's grader narrows that gap with hidden tests the agent never sees.
 
+```diagram
+name: submit
+alt: A decision flow: do the arguments decode against the generated schema; is every report in exactly one group, with real issues and duplicates; does each fixed group's test fail on the original code with the agent's tests added; does it pass on the agent's code. Every yes leads on, and the last yes is accepted, ending the run with Result.Final holding the answer. Every no becomes an error the model reads, and the run goes on.
+
+What happens to a call to `submit_diagnosis` before its answer is accepted.
+```
+
 ## One run, end to end
 
 `go run ./ch07` replays a recorded run of `anthropic/claude-haiku-5.5` on one catalog task.

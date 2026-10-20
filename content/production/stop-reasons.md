@@ -38,6 +38,13 @@ These are the main stop reasons the hardened loop reports, with the check a call
 | An API error | `errors.AsType[*openrouter.APIError](err)` | Retry when `Retryable()` says so; otherwise fix the key, the credit, or the request |
 | Anything else | None of the checks above match | Read the error, which is usually a dropped connection or a reply that failed to decode |
 
+```diagram
+name: turn-flow
+alt: A decision flow: if ctx is done, stop with the cancellation and its cause; if the cost so far has reached the budget, stop with ErrBudgetExceeded; call the model, adding its usage even if the call failed, and stop on an error; check the reply, stopping with ErrBadReply if it is cut off, filtered, failed, or has a missing or repeated ID; append it; if it has no tool calls, it is the answer; otherwise run the tools, answering every call even if cancelled, and go to the next turn, or stop with ErrMaxTurns after the last allowed one.
+
+One turn of a hardened loop: every check, and the reason each exit reports.
+```
+
 ## An error tree
 
 A caller rarely needs to know exactly which limit fired.

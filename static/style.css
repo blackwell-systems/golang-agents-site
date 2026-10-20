@@ -802,7 +802,7 @@ cite { font-style: italic; }
 .prose { max-width: 60rem; }
 .prose > * { max-width: var(--measure); }
 .prose > .listing, .prose > table, .prose > .table-scroll,
-.prose > .result-cards, .prose > .fit, .prose > .loop-stages { max-width: 100%; }
+.prose > .result-cards, .prose > .fit, .prose > .loop-stages, .prose > .diagram { max-width: 100%; }
 .prose > * + * { margin-top: 0; }
 .prose h2 {
   font-size: clamp(1.4rem, 3.4vw, 1.75rem);
@@ -1291,7 +1291,10 @@ cite { font-style: italic; }
 /* "On this page", beside a guide on wide screens. */
 .toc { display: none; }
 @media (min-width: 72rem) {
-  .guide-body { display: grid; grid-template-columns: minmax(0, 1fr) 14rem; gap: 3rem; align-items: start; }
+  /* The text column has a set width and On this page sits right beside
+     it, so a wide screen leaves its spare room at the edge, not in the
+     middle of the page. */
+  .guide-body { display: grid; grid-template-columns: minmax(0, 50rem) 14rem; gap: 3rem; align-items: start; }
   .toc {
     display: block;
     position: sticky;
@@ -1422,7 +1425,7 @@ cite { font-style: italic; }
 /* Where "On this page" shows, the plate takes the same column, so the
    two line up. */
 @media (min-width: 72rem) {
-  .guide-head.has-art:not(.section-head) { grid-template-columns: minmax(0, 1fr) 14rem; column-gap: 3rem; }
+  .guide-head.has-art:not(.section-head) { grid-template-columns: minmax(0, 50rem) 14rem; column-gap: 3rem; }
   .guide-head.has-art:not(.section-head) .head-text { max-width: 48rem; }
 }
 
@@ -1589,3 +1592,24 @@ cite { font-style: italic; }
 .prose .questions li { margin: 0; padding: 0.75rem 0; border-bottom: 1px solid var(--line-soft); }
 .prose .questions a { display: block; font-family: var(--label); font-weight: 600; font-size: 1.05rem; line-height: 1.35; }
 .prose .questions span { display: block; margin-top: 0.25rem; font-size: 0.95rem; line-height: 1.5; color: var(--soft); }
+
+/* Diagrams: both themes' versions are in the page, and the one that
+   matches the theme shows. A tall diagram is capped so it fits on
+   screen, at its own proportions. */
+.diagram { margin: 1.75rem 0 2rem; }
+.diagram img { display: block; width: auto; max-width: 100%; height: auto; max-height: 80vh; margin: 0 auto; }
+.diagram .diagram-light { display: none; }
+:root[data-theme="light"] .diagram .diagram-light { display: block; }
+:root[data-theme="light"] .diagram .diagram-dark { display: none; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .diagram .diagram-light { display: block; }
+  :root:not([data-theme="dark"]) .diagram .diagram-dark { display: none; }
+}
+.diagram figcaption {
+  max-width: var(--measure);
+  margin: 0.75rem auto 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--soft);
+  text-align: center;
+}

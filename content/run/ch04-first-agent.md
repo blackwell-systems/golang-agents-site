@@ -79,6 +79,13 @@ One of the package's tests puts an API key in its own environment, then confirms
 A scrubbed environment is not a [sandbox](/glossary/#sandbox): the tests still run as you, and can read your home directory or open network connections.
 Real limits on what tool code can touch come later in the companion code, in `ch14/safety`.
 
+```diagram
+name: run-tests
+alt: A vertical flow: the project in memory is written to a fresh temporary directory through os.Root with a go.mod; go test runs with -json and -count=1, a scrubbed environment, a deadline, and an inner timeout; its JSON events become a report holding failed tests' output, build errors, and results last, with timings and paths removed and at most 8 KB; the report becomes a tool message. A dashed arrow shows the directory is always removed.
+
+What `run_tests` does, from the project in memory to the message the model reads.
+```
+
 ## Save a run
 
 ```console

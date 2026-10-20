@@ -136,6 +136,13 @@ Each failed check goes back to the model as a tool message that says what was wr
 The model can fix its call on the next turn, and the run goes on.
 Some APIs can constrain the arguments to match the schema exactly (strict mode, a form of [structured outputs](/glossary/#structured-outputs)), at the price of a restricted schema; even then, a well-formed `path` may still point at a missing file, so the checks in the harness stay on regardless.
 
+```diagram
+name: sendback
+alt: A tool call is checked for a known tool name, arguments that decode, and a tool that succeeded; each failure becomes a tool message marked as an error, and either way the model reads the message on the next turn
+
+Every tool call gets an answer: each kind of failure becomes a tool message marked as an error, so the model can correct the call.
+```
+
 ## Run it
 
 From the `code` directory of a clone of the repository, with no API key set:

@@ -66,6 +66,13 @@ Given the same conversation and state, a policy always produces the same request
 Whatever a policy removes, it removes in whole turns.
 The API requires every tool call in an assistant message to be followed by its result, and every result to follow its call; break that pairing and the request is refused.
 
+```diagram
+name: ch08-policy
+alt: On the left, Result.Messages holds the system prompt and task and turns 1 to 24. A context policy, which holds no state, builds this turn's request on the right: the system prompt and task, a summary of turns 1 to 12 kept in ContextState, turns 13 to 20 with long results cleared, and turns 21 to 24 word for word.
+
+The loop keeps the whole run, and a policy builds each request from it.
+```
+
 ## Five tools, cheapest first
 
 **Prompt caching.**

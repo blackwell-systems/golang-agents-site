@@ -53,6 +53,13 @@ The tasks are also split another way.
 Twelve make up a tuning set, which a change can be tried on while it is developed.
 The other twenty make up a confirmation set, which judges the finished change and is never used for tuning.
 
+```diagram
+name: ch13-tiers
+alt: The regression floor holds 22 tasks, 7 of them in the tuning set; the hard tier holds 10, 5 of them in the tuning set; the batch, 99 reports from 23 causes, is the third tier.
+
+The single tasks in two tiers, plus the batch, with the tuning set drawn from both.
+```
+
 ## Grade with code
 
 A grader runs a list of checks and decides whether a run passed.
@@ -97,6 +104,13 @@ Throw them away without care, and the rate creeps upward: provider failures scal
 Two rules guard against that.
 The pass rate averages each task's own pass fraction, so a task carries equal weight however many of its runs were lost.
 And the runner keeps rerunning a task until it has its full quota of scored runs.
+
+```diagram
+name: ch13-verdicts
+alt: A graded answer counts as pass or fail. Running out of turns or money, or a cut-off, filtered, refused, or malformed reply counts as fail. Provider failures (a retried error that persisted, the provider's own failure, a 401 or an out-of-credit 402) and harness failures (a tool that couldn't run, an outcome nobody knows, a shutdown, a grader check that broke) count as unscored, which is counted, reported, and run again.
+
+Every way a run can end, and what it counts as.
+```
 
 ## Report a rate with its range
 
