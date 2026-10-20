@@ -16,8 +16,8 @@ That is a good deal for a lot of teams.
 The trouble is choosing between frameworks: a list of features per framework is out of date within a few months.
 A steadier way to judge one is to hold it up against the parts of an agent you could write yourself, and ask, part by part, what it does for you, what it does differently, and what is still left for you to write.
 
-This page does exactly that, using a hand-built agent harness as the yardstick.
-It gives the short version.
+This page does exactly that, using a [hand-built agent harness](/build/first-agent/) as the yardstick.
+Chapter 16 of the book makes the full comparison; this page gives the short version.
 The version numbers and facts below come from reading each module's source in October 2026, so they will age; the questions at the end are meant to outlast them.
 A disclosure: the author builds [Bide](https://bide-ai.com), a Go library for durable agents.
 It is left out of the comparison so that this page never grades the author's own work.
@@ -44,10 +44,10 @@ The comparison ran Eino and Genkit; the other three columns come from their docu
 | --- | --- | --- | --- | --- | --- |
 | Turn limit by default | none | 20, then an error | 50, then an error | 5, then an error | none; two opt-in limits |
 | A tool's error goes to the model | has | opt-in wrapper; by default the run ends | none: the run ends | none: the run ends | has |
-| A panicking tool | recovered, sent to the model | recovered, ends the run | crashes the process | not recovered | recovered, sent to the model |
+| A panicking tool | recovered, sent to the model | recovered, ends the run | crashes the process | not recovered: the panic reaches your code | recovered, sent to the model |
 | Context policy | none | opt-in summarization and reduction | none; a hook for trimming history yourself | window and token buffers | session summaries |
 | Retrying model calls | none (a plugin guides the model on failed tools) | opt-in | opt-in middleware, plus the client's own two retries | none | the client's, plus failover |
-| Tracing | OpenTelemetry | handlers in eino-ext | OpenTelemetry | none | OpenTelemetry, Langfuse |
+| Tracing | OpenTelemetry | Langfuse and LangSmith handlers in eino-ext | OpenTelemetry | none | OpenTelemetry, Langfuse |
 | Evals | none in Go | none | evaluators | none | a nested module |
 | Pausing for a person | opt-in tool confirmation | opt-in interrupts | opt-in interrupts, approval middleware | none | opt-in graph interrupts |
 | Saved state to resume from | sessions in memory, a database, or Vertex AI | a checkpoint interface, no store | experimental sessions | conversation memory only | checkpoints in memory, SQLite, or Redis |
@@ -55,21 +55,21 @@ The comparison ran Eino and Genkit; the other three columns come from their docu
 | Development UI | has | an IDE plugin | has | none | none; an AG-UI server for chat front ends |
 
 One cell rests on less than the others.
-Genkit's panic cell comes from its source, where each tool runs in a goroutine Genkit starts, and from one probe run while this table was checked, in which the process exited before the caller's `recover` could run; no test in the companion code panics a tool.
+Genkit's panic cell comes from its source, where each tool runs in a goroutine Genkit starts, so no `recover` in your own goroutine can catch its panic, and from one probe run while this table was checked, in which the process exited; no test in the companion code panics a tool.
 
 The v1 releases of ADK for Go speak only to Gemini models; the v2 line adds an OpenAI-compatible adapter, still marked experimental.
 There is nothing odd about a model provider's framework favoring that provider's models, but if your agent may need to change providers, check this first.
 
 ## One task, three versions, the same replies
 
-For the comparison, one job was taken from the triage agent, diagnosing a single crash group with three tools, and written again in Eino and in Genkit.
+For the comparison, one job was taken from the [triage agent](/run/ch07-crash-triage/), diagnosing a single crash group with three tools, and written again in Eino and in Genkit.
 The job was picked with a hard step on purpose.
-Filing an issue with `issue_file` requires a person to approve it, so each version has to halt, hold its state, and pick up again after the decision.
+Filing an issue with `issue_file` [requires a person to approve it](/production/approval/), so each version has to halt, hold its state, and pick up again after the decision.
 This tilts things toward the hand-built harness, because the approval gate, error handling, and retries are parts that harness supplies.
 A task built around what the frameworks offer and the harness doesn't (many providers, a development UI, a fixed multi-step pipeline) would show their strengths instead.
 
 Eino and Genkit both let you hand them your own `*http.Client`.
-That made it possible to feed all three versions the same scripted replies, written by hand in the harness's replay format, through one transport that also saved a copy of every request each version made.
+That made it possible to feed all three versions the same scripted replies, written by hand in the harness's [replay format](/production/testing-offline/), through one transport that also saved a copy of every request each version made.
 In Eino, the approval is an interrupt raised from inside the tool:
 
 ```go include=ch16/eino/eino.go tag=issue
@@ -99,7 +99,7 @@ Not all of them, though: around 1,500 are the sandbox, egress check, and audit l
 
 The first requests from all three versions were almost identical, within 70 bytes of each other, and neither framework added a prompt of its own.
 Where the versions did differ, each difference traced back to a default that somebody chose, and each default is defensible: ending the run on a tool error or not, retrying a 503 or not, sending a string result as plain text or as a JSON-encoded string, marking schemas strict or not.
-One difference took reading two layers below the framework to find.
+Finding one difference meant reading two layers below the framework.
 Genkit's plugin is built on the OpenAI Go library, and that library waits between retries with `time.Sleep`, which ignores the context.
 When a run was cancelled 100 milliseconds into a retry, Genkit took 421 to 485 milliseconds to return; the hand-built version took 100 to 103.
 A batch job won't notice.
@@ -114,8 +114,8 @@ These are things you get from a framework that the hand-built harness never buil
 - **Provider breadth.** Genkit ships plugins for Anthropic's, Google's, and Ollama's APIs; eino-ext covers Claude, Gemini, DeepSeek, Qwen, Ollama, and others.
 - **Context management you can switch on**, in the form of Eino's opt-in summarization and reduction middleware.
 - **Development UIs** for stepping through a run, replaying one step, and changing a prompt in place. ADK and Genkit include one, and Eino offers an IDE plugin.
-- **Tracing integrations**: ADK, Genkit, and trpc-agent-go emit OpenTelemetry; Eino has Langfuse and LangSmith handlers.
-- **Small parts done well.** Genkit's retry middleware stops waiting as soon as the context is done. Eino's error wrapper turns tool errors into results without swallowing interrupts. ADK's `retryandreflect` plugin coaches the model after a tool call fails.
+- **Tracing integrations**: ADK, Genkit, and trpc-agent-go emit OpenTelemetry, and trpc-agent-go also has a Langfuse handler; Eino has Langfuse and LangSmith handlers.
+- **Small parts done well.** Genkit's own retry middleware stops waiting as soon as the context is done, unlike the OpenAI library beneath it. Eino's error wrapper turns tool errors into results without swallowing interrupts. ADK's `retryandreflect` plugin coaches the model after a tool call fails.
 - **Multi-agent patterns and graphs** that the harness would need several more stages to write.
 
 ## What they cost

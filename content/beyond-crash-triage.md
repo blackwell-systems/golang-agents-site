@@ -6,12 +6,13 @@ layout: page
 ---
 
 The running example on this site is one agent with one job: it triages the crash reports of a small Go web service.
-What the material teaches is the program around the model, the [harness](/glossary/#harness): limits that end a run, tools that report their own mistakes, evals with ranges, a sandbox and a person's approval, and runs that survive a crash.
+What the material teaches is the program around the model, the [harness](/glossary/#harness): limits that end a run, tools that report their own mistakes, [evals](/production/evals/) that report a range around every score, a sandbox and a person's approval, and runs that survive a crash.
 None of that is specific to crashes.
 
-Three case studies follow, each an agent these guides don't build, with each way it could fail tied to the technique that prevents it.
+Three case studies follow.
+Each is an agent these guides don't build, and each way it could fail is tied to the technique that prevents it.
 Here are the three, described briefly.
-Each starts from the same question, which shape the job needs, using the ladder in [workflow or agent](/build/workflows-vs-agents/): fixed code where the steps are known, an agent where the next step depends on what the last one found, and several agents only where the parts are truly independent.
+Each starts by asking what shape the job needs, using the ladder in [workflow or agent](/build/workflows-vs-agents/): fixed code where the steps are known, an agent where the next step depends on what the last one found, and several agents only where the parts are truly independent.
 
 ## A support-ticket resolver
 
@@ -51,7 +52,7 @@ Besides `query`, the agent gets a few tools that describe tables and columns.
 
 **What keeps it safe: three layers of limits, all outside the model.**
 
-- **The database.** The agent logs in as a role allowed to `SELECT` from the tables it needs and nothing more, and each query runs inside a read-only transaction (`sql.TxOptions{ReadOnly: true}` in `database/sql`). Those rules hold no matter what the query text says, even a `SELECT` that calls a function with side effects. A statement timeout on the role kills a query that would sort an enormous table to return ten rows, a case a row cap can't catch.
+- **The database.** The agent logs in as a role allowed to `SELECT` from the tables it needs and nothing more, and each query runs inside a read-only transaction (`sql.TxOptions{ReadOnly: true}` in `database/sql`). Those rules hold no matter what the query text says, even a `SELECT` that calls a function that tries to write. A statement timeout on the role kills a query that would sort an enormous table to return ten rows, a case a row cap can't catch.
 - **The tool.** Before running anything, the tool parses the text and refuses all but a single `SELECT`, with a message explaining the refusal. It also limits how many rows come back and says when it trimmed them, because rows in the conversation are resent, and paid for, on every turn after.
 - **The call.** The tool's context carries a deadline, so a query still running when the agent's time is up is cancelled and reported to the model as an error.
 
@@ -63,7 +64,7 @@ Because the agent can't write, the worst case is an answer that is wrong or reve
 As long as it can only read, it needs no approval step; removing the dangerous action can remove the reason to ask, and [approval](page:/production/approval/) becomes necessary the day a tool that writes is added.
 
 **How to measure it.**
-Most data questions have a correct answer, so code can grade the agent by comparing its result with the output of a reference query, the same way the crash catalog grades a fix with tests the agent never saw.
+Most data questions have a correct answer, so code can grade the agent by comparing its result with the output of a reference query, the same way the [crash catalog](/glossary/#crash-catalog) grades a fix with tests the agent never saw.
 
 ## A research assistant
 
