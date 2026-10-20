@@ -1,7 +1,7 @@
 {
   "og/basics.jpg": {
-    "spec": "d4e8cffd161bacd62f6b9f21e449914bd0e13eba7c6936fdb99900b0419f8e4c",
-    "hash": "692172977550fc9150ad4738ee34ecb0d38f3e8f4d2dc63faec832cf9dfaba8e"
+    "spec": "a004b0b0fced33efd5e573ea38614ce986f0c2e6a794a55bbf6a9c0cc091135c",
+    "hash": "0deb8891d859dea595c943bb29be740ba6377ba00e0191e7596ac567a38725d2"
   },
   "og/basics/agent-loop.jpg": {
     "spec": "06e93cb39804f2909473ce016584be8358cef5fe3a96140c5f7ecdbe5c1551d0",
@@ -14,6 +14,10 @@
   "og/basics/choosing-a-model.jpg": {
     "spec": "bb338fe78e315c56cc1ac5130785da62bbe9adbff52f57aac7031215c2c002e8",
     "hash": "45d327f62eaaa5c6b671e191bd72938e4cf4dc5488475b7d85df952925b761d4"
+  },
+  "og/basics/commands-and-files.jpg": {
+    "spec": "7c0fef9452794f3c0f7e1b610bd85402f1f490ebcce50ed3a3d8d35581f7bfa1",
+    "hash": "d92eca39c40db3d612d1e01bce75d42f3ca96d9655499a86945dd0d12d908539"
   },
   "og/basics/common-errors.jpg": {
     "spec": "7a1c3ca92287cddc9ece7cbe2fe2a1c91aae6f46a5d4db21dda03cb4fdbf6caa",
