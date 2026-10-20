@@ -93,12 +93,16 @@ img { display: block; max-width: 100%; height: auto; }
 
 h1, h2, h3, h4 { color: var(--ivory); line-height: 1.2; margin: 0; text-wrap: balance; }
 
+/* Headings in Space Grotesk, sentence case, so a long title reads as
+   easily as a short one. Cinzel stays for the site's name and the
+   home and book page titles. */
 h1, h2 {
-  font-family: var(--display);
+  font-family: var(--label);
   font-weight: 600;
   font-feature-settings: normal;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
 }
+.home-hero h1, .hero h1 { font-family: var(--display); letter-spacing: 0.01em; }
 h2 { font-size: clamp(1.7rem, 4.2vw, 2.5rem); margin-bottom: 1.25rem; }
 h3 { font-family: var(--label); font-weight: 600; font-size: 1.15rem; }
 h4 { font-family: var(--label); font-weight: 600; font-size: 1.05rem; }

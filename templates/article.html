@@ -10,11 +10,8 @@
       <p class="eyebrow"><a href="/{{.Dir}}/">{{.Title}}</a>{{with $.Page.Kind}}<span aria-hidden="true"> · </span>{{.}}{{end}}</p>
       {{- end}}
       <h1>{{.Page.Title}}</h1>
-      <p class="lede">{{.Page.Description}}</p>
+      <p class="lede">{{.Page.Blurb}}</p>
       <p class="meta">Updated <time datetime="{{.Page.Modified}}">{{date .Page.Modified}}</time></p>
-      {{- with .Page.Stages}}
-      <div class="stage-map"><p class="stage-map-label">{{if eq $.Page.Stage "all"}}This page works on all four stages of the loop{{else}}This page works on one stage of the loop{{end}}</p><ol>{{range .}}<li{{if .On}} class="on"{{end}}><span class="sm-n">{{.N}}</span>{{.Name}}{{if .On}}<span class="visually-hidden"> (this page)</span>{{end}}</li>{{end}}</ol></div>
-      {{- end}}
       </div>
     </header>
     <div class="guide-body">
