@@ -341,6 +341,60 @@
     box.appendChild(b);
   });
 })();
+// Diagrams open larger in a dialog: click, or Enter or Space when the
+// diagram has focus. The dialog shows whichever copy the current theme
+// displays, and closes with Escape, the close button, or a click outside
+// the image.
+(function () {
+  var figs = document.querySelectorAll("figure.diagram");
+  if (!figs.length || !window.HTMLDialogElement) return;
+  var dlg = document.createElement("dialog");
+  dlg.className = "diagram-zoom";
+  dlg.innerHTML = '<button type="button" class="diagram-zoom-close" aria-label="Close">&times;</button>' +
+    '<img alt="" tabindex="-1" autofocus><p class="diagram-zoom-caption"></p>';
+  document.body.appendChild(dlg);
+  var img = dlg.querySelector("img"), cap = dlg.querySelector("p"), back = null;
+  function shown(fig) {
+    var imgs = fig.querySelectorAll("img");
+    for (var i = 0; i < imgs.length; i++) {
+      if (imgs[i].offsetParent !== null) return imgs[i];
+    }
+    return imgs[0];
+  }
+  function open(fig) {
+    var src = shown(fig);
+    img.src = src.currentSrc || src.src;
+    img.alt = src.alt;
+    var fc = fig.querySelector("figcaption");
+    cap.textContent = fc ? fc.textContent : "";
+    cap.hidden = !fc;
+    back = fig;
+    dlg.showModal();
+    // On a phone the diagram is wider than the screen: start at its middle.
+    var center = function () { dlg.scrollLeft = (dlg.scrollWidth - dlg.clientWidth) / 2; };
+    if (img.complete) center(); else img.addEventListener("load", center, { once: true });
+  }
+  dlg.addEventListener("click", function (e) {
+    if (e.target !== img) dlg.close();
+  });
+  dlg.addEventListener("close", function () {
+    img.removeAttribute("src");
+    if (back) back.focus();
+  });
+  figs.forEach(function (fig) {
+    fig.classList.add("is-zoomable");
+    fig.setAttribute("tabindex", "0");
+    fig.setAttribute("role", "button");
+    fig.setAttribute("aria-label", "Open the diagram larger");
+    fig.addEventListener("click", function (e) {
+      if (e.target.closest("a")) return;
+      open(fig);
+    });
+    fig.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(fig); }
+    });
+  });
+})();
 </script>
 </body>
 </html>

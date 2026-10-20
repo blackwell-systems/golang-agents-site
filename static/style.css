@@ -1874,6 +1874,69 @@ cite { font-style: italic; }
 :root[data-theme="tokyo-night"] .diagram img.diagram-tokyo-night,
 :root[data-theme="gruvbox-dark"] .diagram img.diagram-gruvbox-dark,
 :root[data-theme="catppuccin-latte"] .diagram img.diagram-catppuccin-latte { display: block; }
+
+/* A diagram opens larger in a dialog (the script in base.html). */
+.diagram.is-zoomable { cursor: zoom-in; border-radius: 6px; }
+.diagram.is-zoomable:focus-visible { outline: 2px solid var(--amber); outline-offset: 6px; }
+.diagram-zoom {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: clamp(1rem, 4vw, 3rem);
+  border: 0;
+  background: var(--page);
+  color: var(--stone);
+  cursor: zoom-out;
+}
+.diagram-zoom[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.diagram-zoom::backdrop { background: var(--page); }
+.diagram-zoom img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100vh - 9rem);
+  min-width: min(100%, 60rem);
+  object-fit: contain;
+  cursor: default;
+}
+.diagram-zoom-caption { max-width: 60rem; margin: 0; text-align: center; color: var(--soft); font-size: 0.95rem; }
+.diagram-zoom-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--ivory);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.diagram-zoom-close:hover, .diagram-zoom-close:focus-visible { border-color: var(--amber); color: var(--amber); }
+@media (prefers-reduced-motion: no-preference) {
+  .diagram-zoom[open] { animation: diagram-zoom-in 200ms ease-out; }
+}
+@keyframes diagram-zoom-in { from { opacity: 0; transform: scale(0.97); } }
+.diagram-zoom img:focus { outline: none; }
+/* On a phone, fitting the screen barely enlarges a wide diagram, so it
+   opens at nearly twice the screen's width and scrolls. */
+@media (max-width: 48rem) {
+  .diagram-zoom[open] { justify-content: flex-start; align-items: flex-start; overflow: auto; padding-top: 4rem; }
+  .diagram-zoom img { max-width: none; max-height: none; min-width: 0; width: 190vw; }
+  .diagram-zoom-caption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; font-size: 0.9rem; }
+  .diagram-zoom-close { position: fixed; }
+}
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) .diagram img.diagram-light { display: block; }
   :root:not([data-theme]) .diagram img.diagram-dark { display: none; }
