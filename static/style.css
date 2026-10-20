@@ -1795,6 +1795,8 @@ nav.toc { display: none; }
      it, so a wide screen leaves its spare room at the edge, not in the
      middle of the page. */
   .guide-body { display: grid; grid-template-columns: minmax(0, 50rem) 14rem; gap: 3rem; align-items: start; }
+  /* The footer stays as wide as the text column, not the column and On this page. */
+  .guide .guide-body ~ .guide-foot { max-width: 50rem; }
   nav.toc {
     display: block;
     position: sticky;
