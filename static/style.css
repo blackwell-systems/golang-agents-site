@@ -68,6 +68,59 @@
   color-scheme: dark;
 }
 
+/* The type scale and the spacing scale. Every size and gap below comes
+   from these, so the same kind of thing gets the same treatment on every
+   page. They hold no colors, so they are the same in every theme. */
+:root {
+  /* Type: uppercase labels, small print, card text, body, titles. */
+  --fs-label: 0.75rem;      /* 12px, letterspaced capitals */
+  --fs-xs: 0.8125rem;       /* 13px */
+  --fs-sm: 0.875rem;        /* 14px: captions, meta, footers */
+  --fs-md: 0.9375rem;       /* 15px: text in cards and tables */
+  --fs-base: 1.0625rem;     /* 17px: body text */
+  --fs-title: 1.0625rem;    /* a card's title, in Space Grotesk */
+  --fs-lg: 1.15rem;         /* h3 */
+  --fs-xl: clamp(1.125rem, 2.4vw, 1.25rem); /* ledes, definitions */
+  --fs-group: 1.25rem;      /* a group's name on a section or path page */
+  --fs-h2: clamp(1.4rem, 3.4vw, 1.75rem);
+  --fs-h1: clamp(1.8rem, 4.6vw, 2.6rem);
+  --ls-label: 0.16em;
+  --lh-body: 1.65;
+  --lh-snug: 1.5;           /* smaller text in cards, tables, captions */
+  --lh-title: 1.3;          /* card and list titles */
+  /* Space: a step scale; the named gaps below are built from it. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --flow: var(--space-4);              /* after a paragraph or a list */
+  --flow-item: var(--space-2);         /* between list items */
+  --block-before: var(--space-5);      /* a figure, table, or card set: */
+  --block-after: var(--space-6);       /* close to the text that leads in */
+  --h2-before: clamp(2.5rem, 5vw, 3rem);
+  --h3-before: var(--space-6);
+  --heading-after: var(--space-4);
+  --section-gap: clamp(3rem, 7vw, 4rem); /* between a page's sections */
+  /* Panels: result cards, definitions, callouts, and section cards. */
+  --panel-py: 1.25rem;
+  --panel-px: 1.5rem;
+  --card-py: 1rem;          /* the compact cards in a grid */
+  --card-px: 1.25rem;
+  --accent-w: 3px;          /* a panel's amber edge */
+  --radius: 4px;
+  --radius-window: 8px;     /* code listings and the hero terminal */
+  /* Inline code: a wash of the text color, so it reads on any surface. */
+  --code-inline-bg: color-mix(in srgb, var(--ivory) 8%, transparent);
+}
+@media (max-width: 30rem) {
+  :root { --panel-px: 1.125rem; --card-px: 1rem; }
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
@@ -83,8 +136,8 @@ body {
   background: var(--page);
   color: var(--stone);
   font-family: var(--body);
-  font-size: 1.0625rem;
-  line-height: 1.65;
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
   font-feature-settings: "cv11", "ss01";
   overflow-wrap: break-word;
 }
@@ -104,10 +157,10 @@ h1, h2 {
 }
 .home-hero h1, .hero h1 { font-family: var(--display); letter-spacing: 0.01em; }
 h2 { font-size: clamp(1.7rem, 4.2vw, 2.5rem); margin-bottom: 1.25rem; }
-h3 { font-family: var(--label); font-weight: 600; font-size: 1.15rem; }
-h4 { font-family: var(--label); font-weight: 600; font-size: 1.05rem; }
+h3 { font-family: var(--label); font-weight: 600; font-size: var(--fs-lg); }
+h4 { font-family: var(--label); font-weight: 600; font-size: var(--fs-title); }
 
-p { margin: 0 0 1rem; }
+p { margin: 0 0 var(--flow); }
 
 a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 a:hover { text-decoration-thickness: 2px; }
@@ -120,11 +173,13 @@ a:hover { text-decoration-thickness: 2px; }
 
 code {
   font-family: var(--mono);
-  font-size: 0.9em;
+  font-size: 0.875em;
   color: var(--ivory);
-  background: var(--panel);
+  background: var(--code-inline-bg);
   border-radius: 3px;
-  padding: 0.1em 0.3em;
+  padding: 0.125em 0.35em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 a code { color: inherit; }
 
@@ -156,10 +211,10 @@ cite { font-style: italic; }
   font-family: var(--label);
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: var(--ls-label);
   color: var(--amber);
 }
-.eyebrow { font-size: 0.8rem; margin-bottom: 0.75rem; }
+.eyebrow { font-size: var(--fs-xs); margin-bottom: var(--space-3); }
 
 /* The cover's ring ornament between two hairlines. */
 .ornament {
@@ -449,8 +504,8 @@ cite { font-style: italic; }
   border-bottom: 1px solid var(--line-soft);
 }
 .big { font-size: clamp(1.08rem, 2.2vw, 1.2rem); }
-.note { color: var(--soft); font-size: 0.95rem; margin-top: 1.5rem; }
-.small { font-size: 0.875rem; color: var(--soft); }
+.note { color: var(--soft); font-size: var(--fs-md); margin-top: var(--space-5); }
+.small { font-size: var(--fs-sm); color: var(--soft); }
 
 /* The four stages */
 .stages-title { margin: 2.5rem 0 1.25rem; }
@@ -483,7 +538,7 @@ cite { font-style: italic; }
   margin-bottom: 0.75rem;
 }
 .stages h4 { margin-bottom: 0.4rem; }
-.stages p { margin: 0; font-size: 0.97rem; }
+.stages p { margin: 0; font-size: var(--fs-md); }
 @media (max-width: 39.99rem) {
   .stages li {
     display: grid;
@@ -511,7 +566,7 @@ cite { font-style: italic; }
   border-radius: 4px;
   padding: 1.5rem;
 }
-.part-label { font-size: 0.75rem; margin-bottom: 0.4rem; }
+.part-label { font-size: var(--fs-label); margin-bottom: var(--space-2); }
 .parts h3 {
   font-family: var(--display);
   font-feature-settings: normal;
@@ -579,8 +634,8 @@ cite { font-style: italic; }
   color: var(--stone);
 }
 .findings h3 { font-size: 1.12rem; line-height: 1.4; margin-bottom: 0.75rem; }
-.findings p { font-size: 0.97rem; }
-.findings .cite { font-size: 0.72rem; margin: auto 0 0; padding-top: 0.5rem; }
+.findings p { font-size: var(--fs-md); }
+.findings .cite { font-size: var(--fs-label); margin: auto 0 0; padding-top: var(--space-2); }
 
 /* Contents */
 .toc { display: grid; gap: 1.25rem; margin-top: 1rem; }
@@ -596,7 +651,7 @@ cite { font-style: italic; }
   font-size: 1.6rem;
   margin-bottom: 0.3rem;
 }
-.toc-head p:last-child { color: var(--soft); font-size: 0.9rem; margin: 0; }
+.toc-head p:last-child { color: var(--soft); font-size: var(--fs-sm); margin: 0; }
 .toc-list {
   margin: 0;
   padding: 0;
@@ -625,8 +680,8 @@ cite { font-style: italic; }
   color: var(--amber);
   line-height: 1.35;
 }
-.toc-list h4 { font-size: 1.05rem; margin-bottom: 0.2rem; }
-.toc-list p { margin: 0; color: var(--soft); font-size: 0.95rem; }
+.toc-list h4 { font-size: var(--fs-title); line-height: var(--lh-title); margin-bottom: var(--space-1); }
+.toc-list p { margin: 0; color: var(--soft); font-size: var(--fs-md); line-height: var(--lh-snug); }
 @media (min-width: 52rem) {
   .toc-part { grid-template-columns: 14rem minmax(0, 1fr); }
 }
@@ -653,7 +708,7 @@ cite { font-style: italic; }
 }
 .formats li.wide { grid-column: 1 / -1; }
 .formats h3 { margin-bottom: 0.4rem; }
-.formats p { margin: 0; font-size: 0.97rem; }
+.formats p { margin: 0; font-size: var(--fs-md); }
 .buy-box {
   background: var(--panel);
   border: 1px solid var(--amber-dim);
@@ -669,7 +724,7 @@ cite { font-style: italic; }
   color: var(--ivory);
   margin-bottom: 0.3rem;
 }
-.buy-formats { color: var(--soft); font-size: 0.95rem; }
+.buy-formats { color: var(--soft); font-size: var(--fs-md); }
 .price {
   margin: 1.25rem 0;
   font-family: var(--display);
@@ -698,8 +753,8 @@ cite { font-style: italic; }
   border-radius: 0 4px 4px 0;
   padding: 1rem 1.25rem;
 }
-.sample-list h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
-.sample-list p { margin: 0; font-size: 0.97rem; }
+.sample-list h3 { font-size: var(--fs-title); margin-bottom: var(--space-1); }
+.sample-list p { margin: 0; font-size: var(--fs-md); }
 
 /* Author */
 .author .ornament { margin: 0 0 1.5rem; }
@@ -722,7 +777,7 @@ cite { font-style: italic; }
   position: relative;
   font-family: var(--label);
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: var(--fs-title);
   color: var(--ivory);
 }
 .faq summary::-webkit-details-marker { display: none; }
@@ -745,7 +800,7 @@ cite { font-style: italic; }
   background: var(--night);
   border-top: 1px solid var(--line);
   padding: 2.5rem 0 3rem;
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
   color: var(--soft);
 }
 .site-footer p { margin: 0 0 0.5rem; }
@@ -931,76 +986,102 @@ cite { font-style: italic; }
 
 /* Guides, section pages, and the glossary */
 .guide, .section-page { padding: clamp(2.25rem, 6vw, 4rem) 0 clamp(3rem, 7vw, 5rem); }
-.guide-head { max-width: 44rem; margin-bottom: 2.25rem; }
+.guide-head { max-width: 44rem; margin-bottom: var(--space-7); }
 .guide-head .lede { max-width: none; }
 .guide-head .eyebrow a { color: inherit; text-decoration: none; }
 .guide-head .eyebrow a:hover { text-decoration: underline; }
 .guide-head h1 {
-  font-size: clamp(1.8rem, 4.6vw, 2.6rem);
+  font-size: var(--fs-h1);
   line-height: 1.15;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 .guide-head .lede {
-  font-size: clamp(1.08rem, 2.4vw, 1.22rem);
+  font-size: var(--fs-xl);
   line-height: 1.55;
   color: var(--ivory);
 }
-.meta { font-family: var(--label); font-size: 0.88rem; color: var(--soft); margin: 0; }
+.meta { font-family: var(--label); font-size: var(--fs-sm); color: var(--soft); margin: 0; }
 
 /* Text, code, tables, result cards, and diagrams all use the column's
    full width, so text is never narrower than the code beside it. */
 .prose { max-width: 60rem; }
 .prose > * { max-width: 100%; }
 .prose > * + * { margin-top: 0; }
+
+/* The vertical rhythm. Text flows with one gap after each paragraph and
+   list. A block (a listing, a table, a diagram, a card) sits a little
+   closer to the sentence that introduces it than to the text after it.
+   A heading keeps more room above than below, so it belongs to its
+   section; right under a heading, a block keeps only the heading's gap. */
 .prose h2 {
-  font-size: clamp(1.4rem, 3.4vw, 1.75rem);
-  margin: 2.75rem 0 1rem;
+  font-size: var(--fs-h2);
+  margin: var(--h2-before) 0 var(--heading-after);
 }
-.prose h3 { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
-.prose h2 + h3 { margin-top: 1rem; }
-.prose ul, .prose ol { padding-left: 1.4rem; margin: 0 0 1.1rem; }
-.prose li { margin-bottom: 0.4rem; }
+.prose h3 { font-size: var(--fs-lg); margin: var(--h3-before) 0 var(--space-3); }
+.prose h4 { font-size: var(--fs-title); margin: var(--space-5) 0 var(--space-2); }
+.prose h2 + h3 { margin-top: var(--heading-after); }
+.prose ul, .prose ol { padding-left: 1.4rem; margin: 0 0 var(--flow); }
+.prose li { margin: 0; }
+.prose li + li { margin-top: var(--flow-item); }
+.prose li > ul, .prose li > ol { margin: var(--flow-item) 0 0; }
+.prose li > p { margin-bottom: var(--flow-item); }
+.prose li > p:last-child { margin-bottom: 0; }
 .prose li::marker { color: var(--amber); }
+.prose > :is(.listing, table, .table-wrap, .table-scroll, .diagram, .result, .result-cards,
+  .definition, .fit, blockquote, .loop-stages, hr) {
+  margin-top: var(--block-before);
+  margin-bottom: var(--block-after);
+}
+.prose > :is(h2, h3, h4) + :is(.listing, table, .table-wrap, .table-scroll, .diagram, .result,
+  .result-cards, .definition, .fit, blockquote, .loop-stages) { margin-top: 0; }
+.prose > :first-child { margin-top: 0; }
 .prose strong { color: var(--ivory); font-weight: 600; }
-.prose hr { border: 0; border-top: 1px solid var(--line); margin: 2.5rem 0; }
-.prose img { margin: 1.5rem 0; }
+.prose hr { border: 0; border-top: 1px solid var(--line); }
+.prose img { margin: var(--space-5) 0; }
 .prose blockquote {
-  margin: 1.5rem 0;
-  padding: 1rem 1.25rem;
+  padding: var(--panel-py) var(--panel-px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-left: 3px solid var(--amber);
-  border-radius: 0 4px 4px 0;
+  border-left: var(--accent-w) solid var(--amber);
+  border-radius: 0 var(--radius) var(--radius) 0;
 }
 .prose blockquote > :last-child { margin-bottom: 0; }
+
+/* Tables: hairline rows across the column, the header set off by an
+   amber rule. Without JavaScript a table scrolls on its own; with it,
+   a wrapper scrolls and the table fills the column's width. */
 .prose table {
   display: block;
   max-width: 100%;
   overflow-x: auto;
   border-collapse: collapse;
-  margin: 1.5rem 0;
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: var(--fs-md);
+  line-height: var(--lh-snug);
+  font-variant-numeric: tabular-nums;
 }
+.table-wrap { max-width: 100%; overflow-x: auto; }
+.prose .table-wrap > table { display: table; width: 100%; margin: 0; overflow: visible; }
 .prose th, .prose td {
   text-align: left;
   vertical-align: top;
-  padding: 0.55rem 0.9rem 0.55rem 0;
+  padding: 0.625rem 1rem 0.625rem 0;
   border-bottom: 1px solid var(--line);
 }
+.prose :is(th, td):last-child { padding-right: 0; }
 .prose th {
   font-family: var(--label);
   font-weight: 600;
   color: var(--ivory);
+  vertical-align: bottom;
   border-bottom-color: var(--amber-dim);
 }
 .prose td code, .prose th code { white-space: nowrap; }
 .prose th.num, .prose td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .prose td.num { white-space: nowrap; }
 .prose th.num + th, .prose td.num + td { padding-left: 1.25rem; }
-.prose dl { margin: 0 0 1.25rem; }
+.prose dl { margin: 0 0 var(--flow); }
 .prose dt { font-family: var(--label); font-weight: 600; color: var(--ivory); }
-.prose dd { margin: 0.2rem 0 1rem 0; }
+.prose dd { margin: var(--space-1) 0 var(--flow) 0; }
 
 /* Code listings, highlighted at build time. */
 /* A listing is a framed window: a title bar with three dots, the file
@@ -1102,11 +1183,11 @@ cite { font-style: italic; }
   margin: 0;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-top: 3px solid var(--amber);
-  border-radius: 4px;
-  padding: 0.9rem 1rem 0.85rem;
-  font-size: 0.95rem;
-  line-height: 1.45;
+  border-top: var(--accent-w) solid var(--amber);
+  border-radius: var(--radius);
+  padding: var(--card-py) var(--card-px);
+  font-size: var(--fs-md);
+  line-height: var(--lh-snug);
 }
 .loop-stages li::before {
   content: counter(stage);
@@ -1125,19 +1206,19 @@ cite { font-style: italic; }
 .loop-stages strong { display: block; font-family: var(--label); margin-bottom: 0.2rem; }
 .loop-back {
   font-family: var(--label);
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
   color: var(--soft);
-  margin-top: -0.75rem;
+  margin-top: calc(-1 * var(--space-5));
 }
 
 /* A measured result, set apart. */
 .result {
-  margin: 1.75rem 0;
-  padding: 1.25rem 1.4rem;
+  margin: var(--block-before) 0 var(--block-after);
+  padding: var(--panel-py) var(--panel-px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-left: 3px solid var(--amber);
-  border-radius: 4px;
+  border-left: var(--accent-w) solid var(--amber);
+  border-radius: var(--radius);
 }
 .result .figure {
   font-family: var(--display);
@@ -1146,12 +1227,12 @@ cite { font-style: italic; }
   font-size: clamp(2rem, 6vw, 2.6rem);
   line-height: 1;
   color: var(--amber);
-  margin-bottom: 0.6rem;
+  margin-bottom: var(--space-3);
 }
 .result .figure span {
   font-family: var(--label);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stone);
@@ -1161,35 +1242,35 @@ cite { font-style: italic; }
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: 0.2rem 0.9rem;
-  margin: 0.9rem 0 0.75rem;
-  padding-top: 0.75rem;
+  margin: var(--space-4) 0 var(--space-3);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--line);
-  font-size: 0.88rem;
-  line-height: 1.45;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
 }
 .result .method div, .findings .method div { display: contents; }
 .result .method dt, .findings .method dt {
   font-family: var(--label);
   font-weight: 600;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: var(--fs-label);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--soft);
-  padding-top: 0.15rem;
+  padding-top: 0.1rem;
 }
 .result .method dd, .findings .method dd { margin: 0; color: var(--stone); }
 .findings .method { margin-top: auto; }
 .findings .method + .cite { margin-top: 0; }
 .result-source {
   font-family: var(--label);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   letter-spacing: 0.04em;
   color: var(--soft);
 }
 .result-cards {
   display: grid;
-  gap: 1rem;
-  margin: 1.5rem 0 2rem;
+  gap: var(--space-4);
+  margin: var(--block-before) 0 var(--block-after);
 }
 .result-cards .result { margin: 0; display: flex; flex-direction: column; }
 .prose > .result-cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
@@ -1206,57 +1287,60 @@ cite { font-style: italic; }
 /* When to use a design, and when not to. */
 .fit {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-  margin: 1.75rem 0;
+  margin: var(--block-before) 0 var(--block-after);
 }
 .fit > div {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-top: 3px solid var(--amber);
-  border-radius: 4px;
-  padding: 1rem 1.2rem 0.4rem;
+  border-top: var(--accent-w) solid var(--amber);
+  border-radius: var(--radius);
+  padding: var(--panel-py) var(--card-px);
 }
+.fit > div > :last-child { margin-bottom: 0; }
 .fit > .fit-leave { border-top-color: var(--soft); }
 .fit-title {
   font-family: var(--label);
   font-weight: 600;
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
   color: var(--ivory);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-3);
 }
-.fit ul { padding-left: 1.1rem; font-size: 0.95rem; line-height: 1.5; }
-.fit li { margin-bottom: 0.5rem; }
+.fit ul { padding-left: 1.1rem; font-size: var(--fs-md); line-height: var(--lh-snug); }
 
 /* The examples catalog. */
-.table-scroll { max-width: 100%; overflow-x: auto; margin: 1.5rem 0; }
+.table-scroll { max-width: 100%; overflow-x: auto; margin: var(--block-before) 0 var(--block-after); }
 .table-scroll:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-.prose .table-scroll table { display: table; margin: 0; overflow: visible; }
+.prose .table-scroll table { display: table; width: 100%; margin: 0; overflow: visible; }
 .catalog .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .catalog th[scope="row"] { font-family: inherit; font-weight: 400; white-space: nowrap; border-bottom-color: var(--line); }
 .catalog td code { white-space: nowrap; }
 .catalog .none { color: var(--soft); }
 
 /* The end of a guide */
-.guide-foot { max-width: var(--measure); margin-top: 3rem; }
+.guide-foot { max-width: var(--measure); margin-top: var(--space-8); }
 /* The one mention of the book on a guide: a quiet line under the text. */
 .book-line {
-  padding-top: 1rem;
+  padding-top: var(--space-4);
   border-top: 1px solid var(--line);
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
   color: var(--soft);
 }
 .book-line p { margin: 0; }
 .pager {
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-3);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-  margin-top: 1.5rem;
+  margin-top: var(--space-5);
 }
 .pager a {
   display: block;
-  padding: 0.9rem 1.1rem;
+  padding: var(--card-py) var(--card-px);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius);
+  line-height: var(--lh-title);
   background: var(--panel);
   color: var(--ivory);
   font-family: var(--label);
@@ -1267,11 +1351,11 @@ cite { font-style: italic; }
 .pager span {
   display: block;
   font-weight: 500;
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--amber);
-  margin-bottom: 0.2rem;
+  margin-bottom: var(--space-2);
 }
 .pager-next { text-align: right; }
 .pager-prev:only-child { grid-column: 1; }
@@ -1280,43 +1364,43 @@ cite { font-style: italic; }
 /* Lists of pages */
 .cards {
   list-style: none;
-  margin: 0 0 2.5rem;
+  margin: 0 0 var(--space-7);
   padding: 0;
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
 }
 .cards a {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 1.25rem 1.35rem;
+  padding: var(--panel-py) var(--card-px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-top: 3px solid var(--amber);
-  border-radius: 4px;
+  border-top: var(--accent-w) solid var(--amber);
+  border-radius: var(--radius);
   color: var(--stone);
   text-decoration: none;
 }
 .cards a:hover { border-color: var(--amber-dim); border-top-color: var(--amber); }
 .card-kind, .card-cite {
   font-family: var(--label);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--amber);
 }
-.card-kind { margin-bottom: 0.35rem; }
+.card-kind { margin-bottom: var(--space-2); }
 .card-title {
   font-family: var(--label);
   font-weight: 600;
-  font-size: 1.12rem;
-  line-height: 1.3;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-title);
   color: var(--ivory);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
 }
 .cards a:hover .card-title { text-decoration: underline; text-underline-offset: 0.18em; }
-.card-desc { font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.75rem; }
+.card-desc { font-size: var(--fs-md); line-height: var(--lh-snug); margin-bottom: var(--space-3); }
 .card-cite { margin-top: auto; color: var(--soft); }
 
 /* The home page */
@@ -1331,30 +1415,34 @@ cite { font-style: italic; }
 .home-hero .title-block h1 { font-size: clamp(2rem, 11cqi, 4rem); white-space: nowrap; }
 .home-hero .title-block { width: fit-content; max-width: 100%; }
 .home-hero .title-block .ornament { max-width: none; width: 100%; }
-.home-body { padding: clamp(2rem, 5vw, 3.5rem) 0 1rem; }
-.home-body .prose h2:first-child { margin-top: 0; }
-.home-sections { padding: 1.5rem 0 clamp(3.5rem, 8vw, 5.5rem); }
-.home-sections h2 { font-size: clamp(1.4rem, 3.4vw, 1.75rem); }
+/* The home page is a run of sections, each opened by an h2 with the
+   same gap above it, whether the h2 is in the Markdown or the template. */
+.home-body { padding: var(--section-gap) 0 0; }
+.home-body .prose h2 { margin-top: var(--section-gap); }
+.home-body .prose > h2:first-child { margin-top: 0; }
+.home-body .prose > :last-child { margin-bottom: 0; }
+.home-sections { padding: var(--section-gap) 0 clamp(3.5rem, 8vw, 5.5rem); }
+.home-sections h2 { font-size: var(--fs-h2); }
 .paths {
   list-style: none;
-  margin: 1.5rem 0 0;
+  margin: var(--space-5) 0 0;
   padding: 0;
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
 }
 .paths > li {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 1.25rem 1.35rem;
+  border-radius: var(--radius);
+  padding: var(--panel-py) var(--panel-px);
 }
-.paths h3 { font-family: var(--display); font-feature-settings: normal; font-size: 1.3rem; margin-bottom: 0.5rem; }
+.paths h3 { font-family: var(--display); font-feature-settings: normal; font-size: 1.3rem; line-height: var(--lh-title); margin-bottom: var(--space-3); }
 .paths h3 a { color: var(--ivory); text-decoration: none; }
 .paths h3 a:hover { text-decoration: underline; }
-.paths p { font-size: 0.95rem; margin-bottom: 0.75rem; }
-.paths ul { margin: 0; padding-left: 1.1rem; font-size: 0.95rem; }
-.paths ul li { margin-bottom: 0.25rem; }
+.paths p { font-size: var(--fs-md); line-height: var(--lh-snug); margin-bottom: var(--space-3); }
+.paths ul { margin: 0; padding-left: 1.1rem; font-size: var(--fs-md); line-height: var(--lh-snug); }
+.paths ul li + li { margin-top: var(--space-1); }
 .paths ul li::marker { color: var(--amber); }
 .paths > li > :last-child { margin-bottom: 0; }
 
@@ -1370,12 +1458,12 @@ cite { font-style: italic; }
   flex-wrap: wrap;
   gap: 0.35rem;
   list-style: none;
-  margin: 0 0 1.5rem;
-  padding: 0.7rem 0;
+  margin: 0 0 var(--space-5);
+  padding: var(--space-3) 0;
   background: var(--page);
   border-bottom: 1px solid var(--line-soft);
 }
-.glossary .letters li { margin: 0; }
+.glossary .prose .letters li { margin: 0; }
 .glossary .letters li::marker { content: none; }
 .glossary .letters a {
   display: inline-grid;
@@ -1383,20 +1471,20 @@ cite { font-style: italic; }
   width: 2rem;
   height: 2rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-family: var(--label);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--fs-sm);
   color: var(--stone);
   text-decoration: none;
 }
 .glossary .letters a:hover { color: var(--ivory); border-color: var(--amber); }
-.glossary .gl-letter { margin: 2.25rem 0 0; }
+.glossary .gl-letter { margin: var(--space-7) 0 0; }
 .glossary .prose h2.letter {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
   padding: 0;
   border: 0;
   font-family: var(--display);
@@ -1406,26 +1494,30 @@ cite { font-style: italic; }
 .glossary .prose h2.letter::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .glossary .gl-terms {
   display: grid;
-  gap: 0.9rem;
+  gap: var(--space-4);
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
 }
 .glossary .gl-term {
   display: flex;
   flex-direction: column;
-  padding: 1rem 1.15rem 0.9rem;
+  padding: var(--card-py) var(--card-px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius);
 }
 .glossary .gl-term:has(h3:target) { border-color: var(--amber); }
-.glossary .prose .gl-term h3 { margin: 0 0 0.4rem; font-size: 1.05rem; line-height: 1.3; color: var(--ivory); }
-.glossary .gl-term p { margin: 0; font-size: 0.95rem; line-height: 1.55; display: flex; flex-direction: column; flex: 1; }
+.glossary .prose .gl-term h3 { margin: 0 0 var(--space-2); font-size: var(--fs-title); line-height: var(--lh-title); color: var(--ivory); }
+.glossary .gl-term p { margin: 0; font-size: var(--fs-md); line-height: var(--lh-snug); flex: 1; }
+/* The "read more" line sits at the card's foot. The paragraph becomes a
+   column to push it there only when the line is its one element, since
+   a column would set each inline link in the text on its own line. */
+.glossary .gl-term p:not(:has(> :not(.cite-line))) { display: flex; flex-direction: column; }
 .glossary .cite-line {
   display: block;
   margin-top: auto;
-  padding-top: 0.6rem;
+  padding-top: var(--space-3);
   font-family: var(--label);
-  font-size: 0.82rem;
+  font-size: var(--fs-sm);
   color: var(--soft);
 }
 .glossary .cite-line a::after { content: " \2192"; }
@@ -1437,11 +1529,11 @@ cite { font-style: italic; }
 .stage-map { margin-top: 1.25rem; }
 .stage-map-label {
   font-family: var(--label);
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--soft);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
 }
 .stage-map ol {
   list-style: none;
@@ -1457,9 +1549,9 @@ cite { font-style: italic; }
   gap: 0.5rem;
   padding: 0.4rem 0.65rem;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-family: var(--label);
-  font-size: 0.86rem;
+  font-size: var(--fs-sm);
   color: var(--soft);
 }
 .stage-map li.on { color: var(--ivory); border-color: var(--amber); background: var(--accent-wash); }
@@ -1586,7 +1678,7 @@ cite { font-style: italic; }
 .ht-say { color: var(--ivory); margin: 0.1rem 0 0.25rem; }
 .ht-c { color: var(--syn-type); }
 .ht-sum { margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px solid var(--line); color: var(--soft); }
-.hero-terminal figcaption { margin-top: 0.7rem; font-family: var(--label); font-size: 0.85rem; color: var(--soft); }
+.hero-terminal figcaption { margin-top: var(--space-3); font-size: var(--fs-sm); line-height: var(--lh-snug); color: var(--soft); }
 .hero-terminal figcaption code { font-family: var(--mono); font-size: 0.92em; color: var(--stone); background: none; border: 0; padding: 0; }
 /* Playing: steps fade in, typed and streamed text shows a unit at a time. */
 .ht-play .ht-step { opacity: 0; transition: opacity 0.3s ease; }
@@ -1625,38 +1717,39 @@ cite { font-style: italic; }
 }
 @media (max-width: 40rem) {
   .listing pre { font-size: 0.78rem; padding: 0.85rem 0.9rem; }
-  .prose table { font-size: 0.9rem; }
+  .prose table { font-size: var(--fs-sm); }
 }
 
-/* "On this page", beside a guide on wide screens. */
-.toc { display: none; }
+/* "On this page", beside a guide on wide screens. Scoped to the nav, so
+   it never touches the book page's table of contents, also .toc. */
+nav.toc { display: none; }
 @media (min-width: 72rem) {
   /* The text column has a set width and On this page sits right beside
      it, so a wide screen leaves its spare room at the edge, not in the
      middle of the page. */
   .guide-body { display: grid; grid-template-columns: minmax(0, 50rem) 14rem; gap: 3rem; align-items: start; }
-  .toc {
+  nav.toc {
     display: block;
     position: sticky;
     top: calc(var(--header-h) + 1.5rem);
     padding-left: 1rem;
     border-left: 1px solid var(--line);
     font-family: var(--label);
-    font-size: 0.88rem;
+    font-size: var(--fs-sm);
   }
-  .toc p {
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
+  nav.toc p {
+    font-size: var(--fs-label);
+    letter-spacing: var(--ls-label);
     text-transform: uppercase;
     color: var(--amber);
     margin-bottom: 0.6rem;
   }
-  .toc ol { list-style: none; margin: 0; padding: 0; }
-  .toc li { position: relative; margin-bottom: 0.45rem; line-height: 1.35; }
-  .toc a { color: var(--soft); text-decoration: none; }
-  .toc a:hover { color: var(--ivory); text-decoration: underline; }
-  .toc a[aria-current="true"] { color: var(--ivory); }
-  .toc a[aria-current="true"]::before {
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { position: relative; margin-bottom: 0.45rem; line-height: 1.35; }
+  nav.toc a { color: var(--soft); text-decoration: none; }
+  nav.toc a:hover { color: var(--ivory); text-decoration: underline; }
+  nav.toc a[aria-current="true"] { color: var(--ivory); }
+  nav.toc a[aria-current="true"]::before {
     content: "";
     position: absolute;
     left: calc(-1rem - 1px);
@@ -1668,7 +1761,7 @@ cite { font-style: italic; }
 }
 
 /* A guide's closing line about consulting, quieter than the book line. */
-.work-line { margin: 0.75rem 0 0; font-size: 0.9rem; color: var(--soft); }
+.work-line { margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--soft); }
 
 /* Work with me: the services beside the contact form on wide screens. */
 .work-grid { display: grid; gap: 2.5rem; align-items: start; }
@@ -1679,19 +1772,19 @@ cite { font-style: italic; }
 .contact {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-top: 3px solid var(--amber);
-  border-radius: 4px;
-  padding: 1.5rem;
+  border-top: var(--accent-w) solid var(--amber);
+  border-radius: var(--radius);
+  padding: var(--panel-px);
 }
-.contact h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-.contact > p { font-size: 0.95rem; }
-.field { margin-bottom: 1rem; }
+.contact h2 { font-size: 1.5rem; margin-bottom: var(--space-2); }
+.contact > p { font-size: var(--fs-md); line-height: var(--lh-snug); }
+.field { margin-bottom: var(--space-4); }
 .field label {
   display: block;
-  margin-bottom: 0.3rem;
+  margin-bottom: var(--space-1);
   font-family: var(--label);
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: var(--fs-sm);
   color: var(--ivory);
 }
 .field input, .field textarea {
@@ -1711,10 +1804,10 @@ cite { font-style: italic; }
 .turnstile { min-height: 65px; margin: 0.25rem 0 1rem; }
 .contact .button { width: 100%; }
 .contact .button:disabled { opacity: 0.7; cursor: wait; }
-.contact-status { min-height: 1.5em; margin: 0.75rem 0 0; font-size: 0.95rem; }
+.contact-status { min-height: 1.5em; margin: var(--space-3) 0 0; font-size: var(--fs-md); }
 .contact-status.ok { color: var(--syn-string); }
 .contact-status.error { color: var(--syn-constant); }
-.contact-alt { margin: 1rem 0 0; font-size: 0.92rem; color: var(--soft); }
+.contact-alt { margin: var(--space-4) 0 0; font-size: var(--fs-sm); color: var(--soft); }
 @media (max-width: 26rem) {
   .contact { padding: 1.25rem 1rem; }
 }
@@ -1797,12 +1890,12 @@ cite { font-style: italic; }
 
 /* The home page: the measured claim and the author under the hook. */
 .hero-measured { color: var(--ivory); max-width: 40rem; margin-top: 1.25rem; }
-.hero-for { color: var(--soft); max-width: 40rem; font-size: 0.97rem; }
-.byline { max-width: 40rem; font-size: 0.9rem; color: var(--soft); margin: 0; }
-.home-start { padding: clamp(2.5rem, 6vw, 4rem) 0 0; }
-.home-start h2, .home-sections h2 { font-size: clamp(1.4rem, 3.4vw, 1.75rem); }
+.hero-for { color: var(--soft); max-width: 40rem; font-size: var(--fs-md); }
+.byline { max-width: 40rem; font-size: var(--fs-sm); color: var(--soft); margin: 0; }
+.home-start { padding: var(--section-gap) 0 0; }
+.home-start h2, .home-sections h2 { font-size: var(--fs-h2); margin-bottom: var(--heading-after); }
 .live-count { color: var(--soft); max-width: var(--measure); }
-.paths .held { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--soft); }
+.paths .held { margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--soft); }
 .held-note { color: var(--soft); max-width: var(--measure); margin: -1rem 0 2.5rem; }
 
 /* The start page's reading paths: numbered steps, drafts unlinked. */
@@ -1823,30 +1916,30 @@ cite { font-style: italic; }
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 0.85rem 1rem 0.95rem;
+  padding: var(--card-py) var(--card-px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius);
   text-decoration: none;
 }
 .path-steps a:hover { border-color: var(--amber-dim); }
 .path-steps li.pending { opacity: 0.7; border-style: dashed; }
 .path-steps a::before, .path-steps li.pending::before {
   content: counter(step, decimal-leading-zero);
-  margin-bottom: 0.35rem;
+  margin-bottom: var(--space-2);
   font-family: var(--label);
-  font-size: 0.78rem;
+  font-size: var(--fs-label);
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--amber);
 }
-.step-title { display: block; font-family: var(--label); font-weight: 600; color: var(--ivory); line-height: 1.3; }
+.step-title { display: block; font-family: var(--label); font-weight: 600; font-size: var(--fs-title); color: var(--ivory); line-height: var(--lh-title); }
 .path-steps a:hover .step-title { color: var(--link); }
-.step-desc { display: block; font-size: 0.9rem; line-height: 1.45; color: var(--soft); margin-top: 0.3rem; }
+.step-desc { display: block; font-size: var(--fs-sm); line-height: var(--lh-snug); color: var(--soft); margin-top: var(--space-1); }
 .step-tag {
-  margin-left: 0.5rem;
+  margin-left: var(--space-2);
   font-family: var(--label);
-  font-size: 0.72rem;
+  font-size: var(--fs-label);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--soft);
@@ -1896,14 +1989,14 @@ cite { font-style: italic; }
 .path-choose .art-card { display: block; margin: -1.1rem -1.2rem 0.9rem; }
 .path-choose .art-card img { display: block; width: 100%; height: auto; margin: 0; border-radius: 3px 3px 0 0; }
 .path-choose a:hover { border-color: var(--amber-dim); border-top-color: var(--amber); }
-.choose-title { display: block; font-family: var(--label); font-weight: 600; font-size: 1.05rem; color: var(--ivory); margin-bottom: 0.3rem; }
-.choose-desc { display: block; font-size: 0.93rem; line-height: 1.45; color: var(--soft); }
+.choose-title { display: block; font-family: var(--label); font-weight: 600; font-size: var(--fs-title); line-height: var(--lh-title); color: var(--ivory); margin-bottom: var(--space-1); }
+.choose-desc { display: block; font-size: var(--fs-md); line-height: var(--lh-snug); color: var(--soft); }
 
 /* A page's place on the reading paths, above the pager. */
-.path-nav { margin-top: 1.5rem; font-family: var(--label); font-size: 0.92rem; }
+.path-nav { margin-top: var(--space-5); font-family: var(--label); font-size: var(--fs-sm); }
 .path-nav-title {
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--amber);
   margin-bottom: 0.5rem;
@@ -1939,30 +2032,30 @@ cite { font-style: italic; }
 }
 .search-row input:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
 .search-row .button { flex: none; }
-.search-help { font-size: 0.88rem; color: var(--soft); margin: 0.5rem 0 0; }
+.search-help { font-size: var(--fs-sm); color: var(--soft); margin: var(--space-2) 0 0; }
 .search-status { min-height: 1.5em; color: var(--soft); max-width: var(--measure); }
 .search-list { list-style: none; padding: 0; margin: 0 0 2rem; max-width: var(--measure); display: grid; gap: 1rem; }
-.search-list > li { padding: 0.9rem 1.1rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
-.result-title { font-family: var(--label); font-weight: 600; font-size: 1.05rem; }
+.search-list > li { padding: var(--card-py) var(--card-px); border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.result-title { font-family: var(--label); font-weight: 600; font-size: var(--fs-title); }
 .result-section {
   display: block;
   font-family: var(--label);
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--amber);
-  margin-top: 0.15rem;
+  margin-top: var(--space-1);
 }
-.result-desc { font-size: 0.93rem; line-height: 1.5; margin: 0.35rem 0 0; }
-.result-headings { margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; }
+.result-desc { font-size: var(--fs-md); line-height: var(--lh-snug); margin: var(--space-2) 0 0; }
+.result-headings { margin: var(--space-2) 0 0; padding-left: 1.1rem; font-size: var(--fs-sm); }
 .result-headings li::marker { color: var(--amber); }
 .site-index { max-width: var(--measure); }
-.site-index h2 { font-size: clamp(1.4rem, 3.4vw, 1.75rem); margin-top: 1rem; }
-.site-index h3 { margin: 1.5rem 0 0.5rem; }
+.site-index h2 { font-size: var(--fs-h2); margin-top: var(--space-4); }
+.site-index h3 { margin: var(--space-5) 0 var(--space-2); }
 .site-index h3 a { color: var(--ivory); }
 .site-index ul { margin: 0; padding-left: 1.1rem; }
-.site-index li { margin-bottom: 0.5rem; }
-.site-index li span { display: block; font-size: 0.9rem; line-height: 1.45; color: var(--soft); }
+.site-index li { margin: 0 0 var(--space-2); }
+.site-index li span { display: block; font-size: var(--fs-sm); line-height: var(--lh-snug); color: var(--soft); }
 
 /* The home page's common questions: each a link to its guide, with one
    line under it; two columns on wide screens. */
@@ -1970,19 +2063,19 @@ cite { font-style: italic; }
 .prose .questions {
   list-style: none;
   padding: 0;
-  margin: 1.25rem 0 2rem;
+  margin: var(--space-5) 0 var(--space-6);
   display: grid;
-  gap: 0.25rem 2.5rem;
+  gap: 0 var(--space-7);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
 }
-.prose .questions li { margin: 0; padding: 0.75rem 0; border-bottom: 1px solid var(--line-soft); }
-.prose .questions a { display: block; font-family: var(--label); font-weight: 600; font-size: 1.05rem; line-height: 1.35; }
-.prose .questions span { display: block; margin-top: 0.25rem; font-size: 0.95rem; line-height: 1.5; color: var(--soft); }
+.prose .questions li { margin: 0; padding: var(--space-4) 0; border-bottom: 1px solid var(--line-soft); }
+.prose .questions a { display: block; font-family: var(--label); font-weight: 600; font-size: var(--fs-title); line-height: var(--lh-title); }
+.prose .questions span { display: block; margin-top: var(--space-1); font-size: var(--fs-md); line-height: var(--lh-snug); color: var(--soft); }
 
 /* Diagrams: both themes' versions are in the page, and the one that
    matches the theme shows. A tall diagram is capped so it fits on
    screen, at its own proportions. */
-.diagram { margin: 1.75rem 0 2rem; }
+.diagram { margin: var(--block-before) 0 var(--block-after); }
 .diagram img { display: block; width: auto; max-width: 100%; height: auto; max-height: 80vh; margin: 0 auto; }
 .diagram img.diagram-theme { display: none; }
 .diagram img.diagram-dark { display: block; }
@@ -2026,7 +2119,7 @@ cite { font-style: italic; }
   object-fit: contain;
   cursor: default;
 }
-.diagram-zoom-caption { max-width: 60rem; margin: 0; text-align: center; color: var(--soft); font-size: 0.95rem; }
+.diagram-zoom-caption { max-width: 60rem; margin: 0; text-align: center; color: var(--soft); font-size: var(--fs-md); }
 .diagram-zoom-close {
   position: absolute;
   top: 1rem;
@@ -2052,7 +2145,7 @@ cite { font-style: italic; }
 @media (max-width: 48rem) {
   .diagram-zoom[open] { justify-content: flex-start; align-items: flex-start; overflow: auto; padding-top: 4rem; }
   .diagram-zoom img { max-width: none; max-height: none; min-width: 0; width: 190vw; }
-  .diagram-zoom-caption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; font-size: 0.9rem; }
+  .diagram-zoom-caption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; font-size: var(--fs-sm); }
   .diagram-zoom-close { position: fixed; }
 }
 @media (prefers-color-scheme: light) {
@@ -2061,34 +2154,34 @@ cite { font-style: italic; }
 }
 .diagram figcaption {
   max-width: var(--measure);
-  margin: 0.75rem auto 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  margin: var(--space-3) auto 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
   color: var(--soft);
   text-align: center;
 }
 
 /* A definition the site stands on, set apart from the text around it. */
 .definition {
-  margin: 1.75rem 0;
-  padding: 1.1rem 1.4rem 1.2rem;
+  margin: var(--block-before) 0 var(--block-after);
+  padding: var(--panel-py) var(--panel-px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-left: 4px solid var(--amber);
-  border-radius: 4px;
+  border-left: var(--accent-w) solid var(--amber);
+  border-radius: var(--radius);
 }
 .definition-label {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--space-2);
   font-family: var(--label);
-  font-size: 0.75rem;
+  font-size: var(--fs-label);
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--amber);
 }
 .definition-text {
   margin: 0;
-  font-size: clamp(1.1rem, 2.4vw, 1.25rem);
+  font-size: var(--fs-xl);
   line-height: 1.55;
   color: var(--ivory);
 }
@@ -2096,27 +2189,27 @@ cite { font-style: italic; }
 
 /* A path in phases: a row each, the phase on the left and its steps on
    the right; on a narrow screen the phase sits above its steps. */
-.path-phases { margin-top: 1.5rem; }
+.path-phases { margin-top: var(--space-5); }
 .phase {
   display: grid;
-  gap: 0.75rem 2rem;
-  padding: 1.5rem 0;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-5) 0;
   border-top: 1px solid var(--line);
 }
 @media (min-width: 52rem) {
   .phase { grid-template-columns: 13rem minmax(0, 1fr); }
 }
 .phase-num {
-  margin: 0 0 0.25rem;
+  margin: 0 0 var(--space-1);
   font-family: var(--label);
-  font-size: 0.75rem;
+  font-size: var(--fs-label);
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--amber);
 }
-.prose .phase-head h3 { margin: 0 0 0.35rem; font-size: 1.2rem; line-height: 1.25; }
-.phase-goal { margin: 0; font-size: 0.93rem; line-height: 1.45; color: var(--soft); }
+.prose .phase-head h3 { margin: 0 0 var(--space-2); font-size: var(--fs-group); line-height: var(--lh-title); }
+.phase-goal { margin: 0; font-size: var(--fs-md); line-height: var(--lh-snug); color: var(--soft); }
 .prose .phase .path-steps { margin: 0; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); }
 /* The start page uses the full width, so a phase's steps fit in a row. */
 .prose:has(.reading-path) { max-width: none; }
@@ -2124,8 +2217,8 @@ cite { font-style: italic; }
 
 /* A section page in groups: the same rows as the reading paths, with
    the guides numbered straight through the section. */
-.section-intro { margin-bottom: 0.5rem; }
-.section-groups { counter-reset: step; margin: 0.5rem 0 1rem; }
+.section-intro { margin-bottom: var(--space-2); }
+.section-groups { counter-reset: step; margin: var(--space-2) 0 var(--space-4); }
 .section-groups .path-steps {
   list-style: none;
   padding: 0;
@@ -2135,4 +2228,4 @@ cite { font-style: italic; }
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
 }
 .section-groups .path-steps li { counter-increment: step; margin: 0; }
-.section-groups .phase-head h2 { margin: 0; font-size: 1.25rem; line-height: 1.25; }
+.section-groups .phase-head h2 { margin: 0; font-size: var(--fs-group); line-height: var(--lh-title); }
