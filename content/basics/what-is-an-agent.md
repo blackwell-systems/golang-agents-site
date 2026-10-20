@@ -11,7 +11,13 @@ art: ch01
 ---
 
 "Agent" now gets attached to nearly anything that calls a model.
-A Go programmer needs a definition narrow enough to implement and test, so here is the one this site uses: an agent is a program that lets a model pick its next action, one turn at a time, looking at the results of the actions so far, and keeps going until the job is finished or a limit ends the run.
+A Go programmer needs a definition narrow enough to implement and test, so this site uses this one:
+
+```definition
+term: agent
+
+An **agent** is a program that lets a model pick its next action, one turn at a time, looking at the results of the actions so far, and keeps going until the job is finished or a limit ends the run.
+```
 
 Rather than argue for that definition, this page shows one agent working and then names the pieces you would write to build it.
 

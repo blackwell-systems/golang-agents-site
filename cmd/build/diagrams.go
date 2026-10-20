@@ -72,3 +72,26 @@ func (r *codeBlocks) diagram(body string) (string, error) {
 	fmt.Fprintf(&b, "<figcaption>%s</figcaption></figure>\n", c)
 	return b.String(), nil
 }
+
+// definition sets a term's definition apart from the text around it:
+//
+//	```definition
+//	term: agent
+//
+//	An **agent** is ..., in Markdown.
+//	```
+func (r *codeBlocks) definition(body string) (string, error) {
+	f, text, err := fields(body, "term")
+	if err != nil {
+		return "", err
+	}
+	if len(f["term"]) != 1 || text == "" {
+		return "", fmt.Errorf("definition: want one term: line and the definition after it")
+	}
+	t, err := r.inline(text)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf(`<aside class="definition" aria-label="Definition of %s"><p class="definition-label">Definition</p>`+
+		`<p class="definition-text">%s</p></aside>`+"\n", html.EscapeString(f["term"][0]), t), nil
+}

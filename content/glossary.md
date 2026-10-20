@@ -22,7 +22,7 @@ A thin layer that lets code written against one interface use something with a d
 
 ### Agent {#agent}
 
-A program where the model picks the next tool to call, one turn at a time, using what earlier tool calls returned, and keeps going until the job is finished or the harness hits a limit.
+A program that lets a model pick its next action, one turn at a time, looking at the results of the actions so far, and keeps going until the job is finished or a limit ends the run.
 <span class="cite-line">[The agent loop in Go](/basics/agent-loop/)</span>
 
 ### Agent event {#agent-event}

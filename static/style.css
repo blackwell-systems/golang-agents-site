@@ -1728,3 +1728,29 @@ cite { font-style: italic; }
   color: var(--soft);
   text-align: center;
 }
+
+/* A definition the site stands on, set apart from the text around it. */
+.definition {
+  margin: 1.75rem 0;
+  padding: 1.1rem 1.4rem 1.2rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--amber);
+  border-radius: 4px;
+}
+.definition-label {
+  margin: 0 0 0.5rem;
+  font-family: var(--label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.definition-text {
+  margin: 0;
+  font-size: clamp(1.1rem, 2.4vw, 1.25rem);
+  line-height: 1.55;
+  color: var(--ivory);
+}
+.definition strong { color: var(--amber); }
