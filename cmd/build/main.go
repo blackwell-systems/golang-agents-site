@@ -126,6 +126,9 @@ func build(cfg config) error {
 		if err := p.render(md, code); err != nil {
 			return err
 		}
+		if p.Layout == "glossary" {
+			p.Body = glossaryCards(p.Body)
+		}
 	}
 	site, err := newSite(pages, held, paths, cfg.static)
 	if err != nil {

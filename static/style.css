@@ -1321,29 +1321,80 @@ cite { font-style: italic; }
 .paths ul li::marker { color: var(--amber); }
 .paths > li > :last-child { margin-bottom: 0; }
 
-/* The glossary: each term a small heading, linkable by its id. */
-.glossary .prose h3 { font-size: 1.1rem; margin: 1.75rem 0 0.35rem; }
-.glossary .cite-line { display: block; margin-top: 0.3rem; font-family: var(--label); font-size: 0.85rem; color: var(--soft); }
+/* The glossary: a sticky A to Z bar, and each letter's terms as cards
+   in a grid. */
+.glossary .prose, .glossary .prose > * { max-width: none; }
+.glossary .prose > p:first-child { max-width: var(--measure); }
 .glossary .letters {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.9rem;
+  gap: 0.35rem;
   list-style: none;
-  padding: 0;
-  margin: 0 0 2rem;
+  margin: 0 0 1.5rem;
+  padding: 0.7rem 0;
+  background: var(--page);
+  border-bottom: 1px solid var(--line-soft);
+}
+.glossary .letters li { margin: 0; }
+.glossary .letters li::marker { content: none; }
+.glossary .letters a {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
   font-family: var(--label);
   font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--stone);
+  text-decoration: none;
 }
-.glossary .letters li::marker { content: none; }
+.glossary .letters a:hover { color: var(--ivory); border-color: var(--amber); }
+.glossary .gl-letter { margin: 2.25rem 0 0; }
 .glossary .prose h2.letter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
   font-family: var(--display);
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: var(--amber);
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 0.3rem;
-  margin-top: 2.75rem;
 }
+.glossary .prose h2.letter::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.glossary .gl-terms {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+}
+.glossary .gl-term {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.15rem 0.9rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.glossary .gl-term:has(h3:target) { border-color: var(--amber); }
+.glossary .prose .gl-term h3 { margin: 0 0 0.4rem; font-size: 1.05rem; line-height: 1.3; color: var(--ivory); }
+.glossary .gl-term p { margin: 0; font-size: 0.95rem; line-height: 1.55; display: flex; flex-direction: column; flex: 1; }
+.glossary .cite-line {
+  display: block;
+  margin-top: auto;
+  padding-top: 0.6rem;
+  font-family: var(--label);
+  font-size: 0.82rem;
+  color: var(--soft);
+}
+.glossary .cite-line a::after { content: " \2192"; }
+.glossary .gl-term:has(h3:target) h3 { color: var(--amber); }
 :target, [id] { scroll-margin-top: calc(var(--header-h) + 1rem); }
+.glossary [id] { scroll-margin-top: calc(var(--header-h) + 4.5rem); }
 
 /* A guide's map of the loop: the four stages, its own marked. */
 .stage-map { margin-top: 1.25rem; }
