@@ -11,6 +11,23 @@
       <p class="lede">{{.Page.Description}}</p>
       </div>
     </header>
+    <div class="prose section-intro">
+{{.Page.Body}}
+    </div>
+    {{- if .Section.Grouped}}
+    <div class="section-groups">
+      {{- range $gi, $g := .Section.Groups}}
+      <div class="phase">
+        <div class="phase-head"><p class="phase-num">Part {{add $gi 1}}</p><h2>{{$g.Name}}</h2></div>
+        <ol class="path-steps">
+          {{- range $g.Pages}}
+          <li><a href="{{.URL}}"><span class="step-title">{{.Name}}</span><span class="step-desc">{{.Blurb}}</span></a></li>
+          {{- end}}
+        </ol>
+      </div>
+      {{- end}}
+    </div>
+    {{- else}}
     {{- with .Section.Pages}}
     <ol class="cards">
       {{- range .}}
@@ -27,9 +44,7 @@
     {{- with .Section.Held}}
     <p class="held-note">{{if eq . 1}}One more guide for this section is written and being reviewed, and will be listed here once it’s published.{{else}}{{.}} more guides for this section are written and being reviewed, and will be listed here once they’re published.{{end}}</p>
     {{- end}}
-    <div class="prose">
-{{.Page.Body}}
-    </div>
+    {{- end}}
   </div>
 </div>
 {{- end}}

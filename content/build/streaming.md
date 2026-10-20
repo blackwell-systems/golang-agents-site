@@ -3,6 +3,7 @@ title: Streaming model replies in Go
 short: Streaming replies
 description: A streamed chat completion arrives as server-sent events. This page reads one with a bufio.Scanner and an iterator, reassembles tool calls from their fragments, and stops a stream that stops sending.
 card: Reading server-sent events with bufio and an iterator, and rebuilding tool calls from fragments.
+group: Tools and output
 chapters: 6
 stage: 2
 date: 2026-10-18

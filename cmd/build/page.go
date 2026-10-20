@@ -39,6 +39,7 @@ type Meta struct {
 	Short       string // a shorter title for nav and lists; defaults to Title
 	Description string // one or two sentences for search results and lists
 	Card        string // one line for a section page's card; defaults to Description
+	Group       string // the group a section page lists it under, such as "Get oriented"
 	Layout      string // home, section, article, book, glossary, page, work, or search
 	Chapters    string // the book chapters the page draws on, such as "1, 4"
 	Date        string // first published, as 2006-01-02
@@ -234,6 +235,8 @@ func (m *Meta) set(key, val string) error {
 		m.Description = val
 	case "card":
 		m.Card = val
+	case "group":
+		m.Group = val
 	case "layout":
 		m.Layout = val
 	case "chapters":

@@ -3,6 +3,7 @@ title: "Messages, roles, and the system prompt"
 short: Messages and roles
 description: A conversation with a model is an ordered list of messages, each with a role. What system, user, assistant, and tool messages are for and who writes each, the Go type that holds them, and how to write a system prompt for an agent, with a real one taken apart.
 card: The four roles in a conversation, the Go type that holds them, and how to write a system prompt.
+group: Talk to a model
 chapters: 1, 2, 7
 stage: 1
 date: 2026-10-19

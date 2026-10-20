@@ -3,6 +3,7 @@ title: "Your first LLM API call: a key, one request, and the reply"
 short: Your first model call
 description: Before an agent, one call. Create an OpenRouter account and API key, send a single request with curl, and read every part of the reply that comes back, from the answer itself to what it cost.
 card: An API key, one request with curl, and every part of the reply, including what it cost.
+group: Talk to a model
 chapters: 2
 stage: 2
 date: 2026-10-19

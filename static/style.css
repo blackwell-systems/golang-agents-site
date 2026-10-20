@@ -1896,3 +1896,18 @@ cite { font-style: italic; }
 /* The start page uses the full width, so a phase's steps fit in a row. */
 .prose:has(.reading-path) { max-width: none; }
 .prose:has(.reading-path) > p { max-width: var(--measure); }
+
+/* A section page in groups: the same rows as the reading paths, with
+   the guides numbered straight through the section. */
+.section-intro { margin-bottom: 0.5rem; }
+.section-groups { counter-reset: step; margin: 0.5rem 0 1rem; }
+.section-groups .path-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+}
+.section-groups .path-steps li { counter-increment: step; margin: 0; }
+.section-groups .phase-head h2 { margin: 0; font-size: 1.25rem; line-height: 1.25; }

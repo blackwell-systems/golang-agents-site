@@ -3,6 +3,7 @@ title: Designing tools a model uses well
 short: Designing tools
 description: The caller of an agent's tools reads a name, a description, and a schema, and never your code. This page covers task-shaped tools, short results, schemas generated from Go structs, strict argument checks, useful errors, and a cheap test of tool choice.
 card: What the model sees of a tool, and how to write names, schemas, results, and errors it uses well.
+group: Tools and output
 chapters: 7, 4, 3
 stage: 3
 date: 2026-10-18

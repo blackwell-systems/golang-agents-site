@@ -3,6 +3,7 @@ title: Asking a person before a risky tool call
 short: Human approval
 description: How to put a person in front of an agent's risky calls. A gate in tool middleware that the model can't route around, raw evidence shown safely, a yes tied to a hash of exactly what was shown, denials that hold for the whole run, runs that pause and resume instead of blocking, and an audit log that reveals edits.
 card: Putting a person in front of risky tool calls, with a gate the model can't route around.
+group: Safety
 chapters: 14, 15, 17
 stage: 3
 date: 2026-10-18

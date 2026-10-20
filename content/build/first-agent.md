@@ -3,6 +3,7 @@ title: "Build your first AI agent in Go, start to finish"
 short: Build your first agent
 description: A complete agent in standard-library Go, in a handful of short files. The message types, a client for a chat completions API, the loop, two tools confined to one directory, and a system prompt; run it offline from a recorded run, then live on your own files.
 card: A complete agent in a few short files of standard-library Go, run offline and then on your own files.
+group: Start building
 chapters: 1, 2, 4
 stage: all
 date: 2026-10-19

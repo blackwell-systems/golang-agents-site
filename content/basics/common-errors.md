@@ -3,6 +3,7 @@ title: "Common first errors when calling an LLM API from Go"
 short: Common first errors
 description: The errors a first agent usually runs into, what each one looks like, and the fix. A missing key, no credit, a bad model ID, rate limits and server errors, a reply cut off partway, a reasoning model that spent its whole reply thinking, and two Go traps.
 card: A missing key, no credit, a bad model ID, rate limits, cut-off replies, and two Go traps.
+group: Talk to a model
 chapters: 2, 5, 12
 stage: 2
 date: 2026-10-19

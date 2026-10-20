@@ -3,6 +3,7 @@ title: What an AI agent is, in terms a Go programmer can build
 short: What an agent is
 description: An agent is a program where the model picks each next step and your Go code carries it out. This page follows one agent through a failing test, compares it with chatbots and workflows, and lists the parts you write.
 card: What makes a program an agent, followed through one run that fixes a failing test.
+group: Get oriented
 chapters: 1
 stage: all
 date: 2026-10-18

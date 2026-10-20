@@ -3,6 +3,7 @@ title: "Why did the agent stop? Limits, budgets, and errors a caller can check"
 short: Why the agent stopped
 description: A production agent loop names every way a run can end. API errors become a type that says whether to retry, sentinels form a tree checked with errors.Is, a dollar budget is checked before each call, replies are checked before they are kept, and cancellation still answers every tool call.
 card: Naming every way a run can end: typed errors, budgets, reply checks, and cancellation.
+group: Reliability
 chapters: 5
 stage: 4
 date: 2026-10-18

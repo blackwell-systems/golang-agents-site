@@ -3,6 +3,7 @@ title: "Prompt injection and sandboxing: defenses that don't rely on the model"
 short: Prompt injection and sandboxing
 description: An agent that reads strangers' text, holds keys, edits code, and sends text out is an attractive target. A one-page threat model, a ladder of sandboxes for the code the agent runs, and five layers of defense from strongest to weakest, with what 237 measured runs could and couldn't show.
 card: A threat model, a ladder of sandboxes, and five layers of defense against prompt injection.
+group: Safety
 chapters: 14
 stage: 3
 date: 2026-10-18

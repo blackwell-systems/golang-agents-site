@@ -3,6 +3,7 @@ title: How a language model picks its next token
 short: How models pick the next token
 description: A language model gives every possible next token a probability and picks one. A toy model in Go shows why answers vary, why temperature matters, why fluent text can be false, why code costs more tokens than English, and why a tool call is text the model writes.
 card: A toy model in Go shows why answers vary, what temperature does, and why a tool call is text.
+group: Tools and the model
 chapters: 3
 stage: 2
 date: 2026-10-18

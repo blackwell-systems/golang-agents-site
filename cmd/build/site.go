@@ -35,6 +35,30 @@ type Section struct {
 	Held                 int     // drafts in the section, held back from this build
 }
 
+// Group is a run of a section's pages that share a group: line.
+type Group struct {
+	Name  string
+	Pages []*Page
+}
+
+// Groups splits the section's pages, in order, into runs that share a
+// group; a section whose pages name no group is one unnamed group.
+func (s *Section) Groups() []Group {
+	var out []Group
+	for _, p := range s.Pages {
+		if len(out) == 0 || out[len(out)-1].Name != p.Group {
+			out = append(out, Group{Name: p.Group})
+		}
+		out[len(out)-1].Pages = append(out[len(out)-1].Pages, p)
+	}
+	return out
+}
+
+// Grouped reports whether the section's pages are in named groups.
+func (s *Section) Grouped() bool {
+	return len(s.Pages) > 0 && s.Pages[0].Group != ""
+}
+
 // newSite groups pages into sections and versions the stylesheet, so a
 // new style.css is never served from a stale cache. Guides runs through
 // the sections in nav order, so the last guide of one section leads to
@@ -135,6 +159,7 @@ var templateFuncs = template.FuncMap{
 		return t.Format("January 2, 2006")
 	},
 	"chapters": chapterText,
+	"add":      func(a, b int) int { return a + b },
 	"picture":  picture,
 }
 

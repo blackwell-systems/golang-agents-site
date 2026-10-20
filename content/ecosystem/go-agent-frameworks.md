@@ -3,6 +3,7 @@ title: "Go agent frameworks compared: ADK, Eino, Genkit, LangChainGo, and trpc-a
 short: Go agent frameworks compared
 description: Five Go agent frameworks set against the parts of an agent harness, as their source stood in October 2026, plus one approval-gated task ported to Eino and Genkit, what the code measured, and eight questions to put to any framework.
 card: Five Go agent frameworks set against the parts of a harness, with one task ported and measured.
+group: Libraries and frameworks
 chapters: 16
 stage: all
 date: 2026-10-18

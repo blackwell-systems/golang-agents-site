@@ -3,6 +3,7 @@ title: Keeping a long agent run's context in check
 short: Context management
 description: Each turn, an agent resends everything so far, so long runs get expensive and then hard for the model to follow. This page shows five context policies in Go (prompt caching, clearing old tool results, trimming turns, compaction, and notes) and what each did on a 99-report batch.
 card: Five ways to keep a long run affordable and on task, and what each did on a 99-report batch.
+group: Scale up
 chapters: 8
 stage: 1
 date: 2026-10-18

@@ -3,6 +3,7 @@ title: Running an agent's tool calls in parallel with goroutines
 short: Parallel tool calls
 description: A single model reply often requests several tools. This page covers which of those calls can safely overlap, a runner built on sync.WaitGroup.Go and a semaphore that returns answers in the model's order, and why the time it saves on a coding agent is measured in milliseconds.
 card: Which tool calls can safely overlap, a runner that keeps the model's order, and what it saves.
+group: Scale up
 chapters: 9
 stage: 3
 date: 2026-10-18

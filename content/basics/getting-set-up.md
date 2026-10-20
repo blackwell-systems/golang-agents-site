@@ -3,6 +3,7 @@ title: "Getting set up to build AI agents in Go"
 short: Getting set up
 description: What you need before the first example runs. Go 1.27, the companion code and how it is laid out, the switch between offline replays and a live model, and the newer Go features the code relies on.
 card: Go 1.27, the companion code, offline and live runs, and the newer Go features the code uses.
+group: Get oriented
 chapters: 1, 2
 date: 2026-10-19
 weight: 5

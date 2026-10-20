@@ -3,6 +3,7 @@ title: "Choosing a model for an AI agent"
 short: Choosing a model
 description: What an agent needs from a model, how to read a model ID, why the price per token misleads and the cost per finished task doesn't, what reasoning models add and cost, when a local model makes sense, and how to compare candidates on your own task.
 card: Tool support, cost per finished task, reasoning models, local models, and how to compare.
+group: Tools and the model
 chapters: 2, 11, 13, 17
 date: 2026-10-19
 weight: 70
