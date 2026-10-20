@@ -20,12 +20,12 @@ Providers also retire models, so a test written against one of them stops workin
 In the companion code, all tests run without a network, and each example program falls back to recorded replies when it finds no API key.
 This page walks through how that works, using [`ch02/replay`](code:ch02/replay) and the tests that use it.
 
-## Three kinds of model and what each one shows
+## Three sources of model replies and what each one shows
 
 | Kind | What it tests | What it can't |
 | --- | --- | --- |
 | A scripted model | The loop's rules, exactly and for free | Anything about choosing tools |
-| Recorded replies | The client and the tools against real JSON, real token counts, and real mistakes, with no network | How a model behaves on a new input |
+| Recorded replies | The client and the tools against real JSON, real token counts, and the model's real mistakes, with no network | How a model behaves on a new input |
 | Live runs | How a model actually behaves | Anything exact: they vary and cost money |
 
 The test suite uses only the first two rows.
@@ -42,7 +42,7 @@ A `Fake` implements it with a list of canned replies:
 To choose which reply comes next, `Fake` counts how many assistant messages the request already holds.
 A real model also sees nothing but the request, so this keeps the fake honest.
 It also turns the fake into a check on the loop: drop a message or put two in the wrong order, and the fake answers with the wrong reply, so the test fails.
-That is enough to pin down each rule of the loop with its own test.
+That is enough to pin down each rule of the [loop](/basics/agent-loop/) with its own test.
 An answer ends the run.
 So does reaching the turn limit.
 Each tool call gets one tool message, never zero or two.
@@ -83,8 +83,8 @@ There is no way to ask the API for a 503, or to get a model to reuse a tool-call
 The alternative is to write those saved runs by hand.
 Each is a short list of turns, and each turn is either an HTTP status or a reply: some text, some tool calls, an odd finish reason, or two calls sharing an ID.
 An opt-in test turns the lists into recordings.
-It serves each one from an `httptest` server that speaks OpenRouter's format, points the real program at that server, and captures the traffic with the recording transport, so the saved requests match what the client really sends.
-That produces a saved run for every stop reason and for every status code, and a table test replays each one and checks that the error belongs to the expected family.
+It serves each one from an `httptest` server that speaks the chat completions format OpenRouter uses, points the real program at that server, and captures the traffic with the recording transport, so the saved requests match what the client really sends.
+That produces a saved run for every [stop reason](/production/stop-reasons/) and for every status code, and a table test replays each one and checks that the error belongs to the expected family.
 
 ## Check outcomes, not transcripts
 
@@ -112,7 +112,7 @@ The test's transport never responds; it just waits on the request's context.
 Inside the bubble, the two-minute deadline arrives immediately.
 The test then checks the returned error and confirms that the fake clock moved forward by exactly two minutes, and the whole test takes a few milliseconds.
 
-The same approach works for streams that stop sending and for retries with backoff.
+The same approach works for [streams that stop sending](/build/streaming/) and for [retries with backoff](/production/retries-and-observability/).
 Streams get one extra test that is worth borrowing.
 The network can split a response into pieces at any byte, so the test feeds one recorded stream to the reader again and again, split at every possible position, and expects the same result each time.
 
@@ -130,7 +130,7 @@ The following are all tested with no network calls:
 
 ## How rare the failures are
 
-Recorded evidence runs show how often live runs produce the replies these fixtures fake.
+How often do live runs produce the rare replies these hand-written fixtures stand in for? In the recorded evidence runs, never.
 Across those runs that set no token limit, 686 replies carried 617 tool calls, and none of the replies was truncated, blocked by a filter, broken off by its provider, or missing or repeating an ID.
 That is why the fixtures are written by hand: a test that waits for the real thing never runs, and the handling code it should cover is the code most likely to be wrong when the day comes.
 
@@ -161,6 +161,6 @@ $ go test ./ch05/...
 $ go run ./ch05 -replay dup-id
 ```
 
-The first command runs every test for the hardened agent without a network or a key; the `run_tests` tool runs the real `go test`, so expect it to take a minute or two on a cold build cache.
+The first command runs every test for chapter 5's agent, the loop hardened against bad replies, without a network or a key; the `run_tests` tool runs the real `go test`, so expect it to take a minute or two on a cold build cache.
 The second replays a hand-written failure: a reply whose two tool calls share an ID.
-Making a recording of your own is the one step that needs a key and spends money: the example program takes `-record` with a directory and `-replay` with a name for the script, and writes each call as a numbered file under that name.
+Making a recording of your own is the one step that needs a key and spends money: `-record` names a directory to save the calls in and `-replay` names the run, so the calls are saved as `<name>-01.json`, `<name>-02.json`, and so on.

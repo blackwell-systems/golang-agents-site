@@ -21,7 +21,7 @@ Both gaps close with two pieces: [`ch15/durable`](code:ch15/durable), which stor
 
 ## What to save
 
-[Run state](/glossary/#run-state) is whatever a later process needs in order to carry on: the messages so far, tokens and dollars spent, the turn count, the context policy's summary, any calls waiting on a person, and a phase recording the loop's next move.
+[Run state](/glossary/#run-state) is whatever a later process needs in order to carry on: the messages so far, tokens and dollars spent, the turn count, the [context policy's](/build/context-management/) summary, any calls waiting on a person, and a phase recording the loop's next move.
 This loop uses four phases: `model` when a model call comes next, `tools` once a reply's calls are fixed but not all answered, `paused` while a person decides, and `done` once the answer exists.
 
 Spending and turn counts are in the state for a reason that is easy to miss.
@@ -63,7 +63,7 @@ The usual fix has four steps, written out in the companion code:
 The temporary file goes in the same directory because a rename can't cross file systems, and the rename is what swaps old for new in one step.
 Syncing the file first keeps the new name from pointing at data that never reached the disk; syncing the directory afterwards keeps the rename itself from vanishing in a power cut.
 On macOS, Go's `File.Sync` also asks the drive to empty its own cache.
-On an M1 Pro, a recorded batch run made 142 saves, with a median of 8 to 12 ms across seven measurements, against model calls whose median was over two seconds.
+On an M1 Pro, a recorded batch run made 142 saves, with medians between 8 and 12 ms across seven measurements, against model calls whose median was over two seconds.
 The temporary file is created with permissions 0600, which matters because a checkpoint contains every tool result, and tool results contain whatever the agent read.
 
 Three smaller choices are worth copying:
@@ -104,7 +104,7 @@ A hash of the run ID and the tool-call ID has both properties, since save point 
 ```
 
 The run ID carries the uniqueness, so it must never be reused; the triage command builds one from the task, the time, and eight random characters.
-The key travels in the harness's channel, an `Idempotency-Key` header over HTTP or `_meta` over MCP, never in arguments the model writes.
+The harness sends the key itself, in an `Idempotency-Key` header over HTTP or in `_meta` over [MCP](/build/mcp/), never in arguments the model writes.
 Keys expire on real services (Stripe's v1 API may drop one after 24 hours), so a keyed tool declares how long its service keeps them, and an expired key is treated as no key.
 
 **An attempt marker** needs nothing from the receiver.
@@ -128,7 +128,7 @@ When a marked call has no saved result, it goes up three steps, each tried only 
 
 1. **Run it again** when a repeat is harmless: the tool only reads, is idempotent, or sent a key the service still remembers.
 2. **Ask the service** through the tool's lookup, such as a search by key. A lookup may answer "no such record" only when it is certain; a search index that lags behind writes has to return an error and pass the question up.
-3. **Ask a person**, through the same approver used for tool approvals, with its own answers: "rerun" if it didn't happen, or "done" with what they found, which becomes the call's result.
+3. **Ask a person**, through the same approver used for [tool approvals](/production/approval/), with its own answers: "rerun" if it didn't happen, or "done" with what they found, which becomes the call's result.
 
 The third step exists because, for a tool with no key, retrying is a bet that the first call failed, and losing that bet produces the duplicate all of this was built to prevent.
 With keys that the service honors, a call never gets past the first step.
@@ -164,7 +164,7 @@ The sweep has these limits: a panic is not a power loss, the syncs are off so it
 
 ## Steps for your own agent
 
-1. Define a state type that holds the conversation, usage, turns, phase, pending calls, and markers, and test that no field of your result type is left out of it.
+1. Define a state type that holds the conversation, usage, turns, phase, pending calls, and markers, and test that no field of the loop's `Result` type is left out of it.
 2. Save at the five points, with a write, sync, rename, and directory sync, and save with a context that ignores cancellation.
 3. Lock each run, count restarts before doing anything, and never reuse a run ID.
 4. Send an idempotency key made from the run and call IDs with every call that changes something, and ask the services you call to honor it.
@@ -193,6 +193,6 @@ $ go test ./ch15/durable/
 
 The first command sends itself SIGKILL as soon as the first `code_patch` returns, before its result is saved.
 Open the `.json` file in `/tmp/triage-state`: its `Phase` is `tools`, `Turns` is 8, and `Attempts` holds a marker for the patch.
-The second command resumes that run; the ladder's second step finds the patch already in the workspace, the replay continues, and the run finishes with all 16 of the catalog's checks passed.
+The second command resumes that run; the ladder's second step finds the patch already in the workspace, the replay continues, and the run finishes with all 16 of the [crash catalog's](/glossary/#crash-catalog) checks passed.
 `-approve off` is there because the restart would otherwise stop and ask you to approve the issue it files.
 The third runs the crash sweep, which takes about a minute, and compares its table with the saved copy in `ch15/durable/testdata/sweep.txt`.

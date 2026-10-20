@@ -23,19 +23,19 @@ Twenty-three agents, four at a time, took about as long as one agent working thr
 ```
 
 Splitting a batch across several agents that run at the same time, called [fan-out](/glossary/#fan-out), sounds like the obvious way to get through it sooner.
-In Go it is also little code: start a goroutine for each agent, give them one budget to share, and collect their events on a channel.
+In Go it also takes little code: start a goroutine for each agent, give them one budget to share, and collect their events on a channel.
 The measurements below race that design against a single agent.
 
 ## What was tested
 
 The batch is 99 crash reports from `remind`, the small Go web service in the companion code.
-Grouped by fingerprint, the reports come from 23 causes.
+Grouped by [fingerprint](/glossary/#fingerprint), a short identifier meant to be shared by crashes with one cause, the reports come from 23 causes.
 
 **Fan-out:** the harness, not the model, decides to start one agent per group.
 Every agent patches its own copy of the code, so no two agents write to the same working tree, and all of them spend from one shared pool of money.
 When they finish, the harness merges their fixes into a single tree, with a three-way merge wherever two groups touched the same file.
 
-**Single agent:** one agent takes the whole batch, using a context policy of prompt caching, plus clearing or summarizing old turns.
+**Single agent:** one agent takes the whole batch, using a [context policy](/build/context-management/) of prompt caching, plus clearing or summarizing old turns.
 
 Both ran on the default model, `anthropic/claude-haiku-5.5`, in October 2026.
 The machine was shared with other work, and two runs of the same setup could differ by as much as four minutes.
@@ -48,6 +48,8 @@ One agent per crash group, each with its own context and workspace, merged by th
 ```
 
 ## The result
+
+The last column counts the crash catalog's checks on this batch, 94 in all: for each of the 23 causes, whether it was found and its status and root cause were right, plus checks on the run as a whole, such as one issue per new cause.
 
 | Runs | Wall time | Model calls | Largest request (tokens) | Cost | Checks passed (of 94) |
 | --- | --- | --- | --- | --- | --- |
@@ -69,12 +71,12 @@ The single agent did that reading once, and what it had read was enough to fix s
 
 The tools did more work too.
 Across a batch, the group agents ran the test suite 46 to 58 times, where a single agent ran it 2 to 4 times.
-Every group agent drew from the same two test slots, so four agents running together often queued for them; that queueing is one reason the speedup over one at a time stopped well short of four.
+Every group agent drew from the same two test slots, a limit of two `go test` runs at a time across all agents, so four agents running together often queued for them; that queueing is one reason the speedup over one at a time stopped well short of four.
 
 The extra spending went to two things a single agent does less of.
 Each of the 23 agents wrote its own cached prefix, about 400,000 tokens of cache writes in all, against 170,000 to 260,000 for one agent.
 The group agents also produced more output: roughly 95,000 tokens, where one agent produced 55,000 to 62,000.
-Total input tokens were close, 2.5 to 3.2 million in both designs, since the cache served most of each request.
+Total input tokens, counting those the cache served, were close, 2.5 to 3.2 million in both designs: the group agents sent five times as many requests, but each was a fraction of the size.
 
 ## What fan-out did buy
 
@@ -82,7 +84,7 @@ Total input tokens were close, 2.5 to 3.2 million in both designs, since the cac
 With the same model and policy, single-agent runs recorded across these guides cost anywhere from $0.06 to $0.42.
 
 **Small requests.** No group agent sent a request larger than 28,275 tokens.
-Each single-agent run came within 4 percent of the model's 100,000-token price tier at least once, and one run crossed it; past that tier, the whole request is billed at a higher rate.
+Each single-agent run came within 4 percent of the model's 100,000-token price tier at least once, and one run crossed it; past that tier, the whole request is billed at a higher rate ([tokens and cost](/basics/tokens-and-cost/) covers the tiers).
 
 **Isolated failures.** If one group's agent fails or runs out of turns, only that group is affected, and every group's fix is checked by itself before the merge.
 
@@ -91,7 +93,7 @@ Each single-agent run came within 4 percent of the model's 100,000-token price t
 Each row is two or three runs on one model, on a shared machine.
 The times overlap, so "about as long" is the fair reading; calling fan-out slower would go beyond the data.
 Checks passed shift by a few points between runs of one setup, so that column doesn't rank the designs.
-It is also a single batch, one that a lone agent finished in 30 to 62 turns in recorded runs.
+It is also a single batch, one that a lone agent finished in 30 to 62 turns across all its recorded runs, including those of the [context management](/build/context-management/) guide.
 
 ## When fan-out pays
 
@@ -125,4 +127,4 @@ $ go run ./ch09 -task g3-mixed-batch -groups -parallel 4
 ```
 
 This replays a smaller recorded batch with five group agents.
-Their calls appear interleaved, each line tagged with its group, followed by the merge, the filed issues, and the crash catalog's grade.
+Their calls appear interleaved, each line tagged with its group, followed by the merge, the filed issues, and the [crash catalog's](/glossary/#crash-catalog) grade.
