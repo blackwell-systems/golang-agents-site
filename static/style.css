@@ -63,8 +63,17 @@
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --gutter: clamp(1rem, 4vw, 2.5rem);
-  --page-max: 80rem; /* the widest the page grows */
-  --measure: 38rem; /* body text: about 72 characters a line */
+  /* Two widths. Everything you read (titles, intros, text, code,
+     tables, diagrams, cards) sits in one centered column, --read wide.
+     The frame (header, hero, footer) is the column plus a sidebar: on a
+     guide with On this page, the column and the sidebar fill it, so the
+     text lines up with the logo and the sidebar with the end of the nav. */
+  --read: 60rem;
+  --side: 14rem;
+  --side-gap: 4rem;
+  --frame: calc(var(--read) + var(--side-gap) + var(--side));
+  --page-max: calc(var(--frame) + 2 * var(--gutter)); /* the frame with its gutters */
+  --measure: var(--read);
   color-scheme: dark;
 }
 
@@ -191,7 +200,10 @@ cite { font-style: italic; }
   margin: 0 auto;
   padding: 0 var(--gutter);
 }
-.narrow > * { max-width: 44rem; }
+/* The reading column: a wrap that holds only things to read. */
+:is(.guide, .section-page, .home-body, .home-start, .home-sections, .section) > .wrap {
+  max-width: calc(var(--read) + 2 * var(--gutter));
+}
 
 .skip {
   position: absolute;
@@ -993,7 +1005,7 @@ cite { font-style: italic; }
 
 /* Guides, section pages, and the glossary */
 .guide, .section-page { padding: clamp(2.25rem, 6vw, 4rem) 0 clamp(3rem, 7vw, 5rem); }
-.guide-head { max-width: 44rem; margin-bottom: var(--space-7); }
+.guide-head { margin-bottom: var(--space-7); }
 .guide-head .lede { max-width: none; }
 .guide-head .eyebrow a { color: inherit; text-decoration: none; }
 .guide-head .eyebrow a:hover { text-decoration: underline; }
@@ -1011,7 +1023,7 @@ cite { font-style: italic; }
 
 /* Text, code, tables, result cards, and diagrams all use the column's
    full width, so text is never narrower than the code beside it. */
-.prose { max-width: 60rem; }
+.prose { max-width: var(--read); }
 .prose > * { max-width: 100%; }
 .prose > * + * { margin-top: 0; }
 
@@ -1360,12 +1372,7 @@ cite { font-style: italic; }
 .prose > .result-cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
 .result-cards .result-source { margin-top: auto; }
 @media (min-width: 60rem) {
-  /* Wider than the prose column, as wide as the page's grid. */
-  .home-body .result-cards {
-    max-width: none;
-    grid-template-columns: repeat(3, 1fr);
-    width: min(calc(100vw - 2 * var(--gutter) - 1rem), calc(var(--page-max) - 2 * var(--gutter)));
-  }
+  .home-body .result-cards { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* When to use a design, and when not to. */
@@ -1405,7 +1412,7 @@ cite { font-style: italic; }
 
 /* The end of a guide */
 /* As wide as the text column above it (.prose). */
-.guide-foot { max-width: 60rem; margin-top: var(--space-8); }
+.guide-foot { margin-top: var(--space-8); }
 /* The one mention of the book on a guide: a quiet line under the text. */
 .book-line {
   padding-top: var(--space-4);
@@ -1806,12 +1813,17 @@ cite { font-style: italic; }
    it never touches the book page's table of contents, also .toc. */
 nav.toc { display: none; }
 @media (min-width: 72rem) {
-  /* The text column has a set width and On this page sits right beside
-     it, so a wide screen leaves its spare room at the edge, not in the
-     middle of the page. */
-  .guide-body { display: grid; grid-template-columns: minmax(0, 50rem) 14rem; gap: 3rem; align-items: start; }
-  /* The footer stays as wide as the text column, not the column and On this page. */
-  .guide .guide-body ~ .guide-foot { max-width: 50rem; }
+  /* A guide with On this page takes the whole frame: the column, then
+     the sidebar. The footer stays as wide as the column. */
+  .guide:has(nav.toc) > .wrap { max-width: var(--page-max); }
+  .guide-body:has(nav.toc) {
+    display: grid;
+    grid-template-columns: minmax(0, var(--read)) var(--side);
+    gap: var(--side-gap);
+    align-items: start;
+  }
+  .guide:has(nav.toc) .guide-foot,
+  .guide:has(nav.toc) .guide-head:not(.has-art) { max-width: var(--read); }
   nav.toc {
     display: block;
     position: sticky;
@@ -1847,10 +1859,13 @@ nav.toc { display: none; }
 /* A guide's closing line about consulting, quieter than the book line. */
 .work-line { margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--soft); }
 
-/* Work with me: the services beside the contact form on wide screens. */
+/* Work with me: the services beside the contact form on wide screens,
+   which, like a guide with On this page, take the whole frame. */
 .work-grid { display: grid; gap: 2.5rem; align-items: start; }
 @media (min-width: 62rem) {
-  .work-grid { grid-template-columns: minmax(0, 1fr) 24rem; gap: 4rem; }
+  .work-page > .wrap { max-width: var(--page-max); }
+  .work-page .guide-head { max-width: var(--read); }
+  .work-grid { grid-template-columns: minmax(0, 1fr) 24rem; gap: var(--side-gap); }
   .contact { position: sticky; top: calc(var(--header-h) + 1.5rem); }
 }
 .contact {
@@ -1920,7 +1935,7 @@ nav.toc { display: none; }
 @media (min-width: 48rem) {
   .section-head.has-art {
     max-width: none;
-    grid-template-columns: minmax(0, var(--measure)) 15rem;
+    grid-template-columns: minmax(0, 1fr) 15rem;
     column-gap: 2.5rem;
     align-items: center;
   }
@@ -1935,17 +1950,19 @@ nav.toc { display: none; }
   .guide-head.has-art:not(.section-head) {
     display: grid;
     max-width: none;
-    grid-template-columns: minmax(0, 44rem) 10rem;
+    grid-template-columns: minmax(0, 1fr) 10rem;
     column-gap: 2.5rem;
     align-items: start;
   }
   .guide-head .art-guide { float: none; width: auto; margin: 0.25rem 0 0; grid-column: 2; grid-row: 1; }
 }
-/* Where "On this page" shows, the plate takes the same column, so the
-   two line up. */
+/* Where "On this page" shows, the plate takes its column, so the two
+   line up. */
 @media (min-width: 72rem) {
-  .guide-head.has-art:not(.section-head) { grid-template-columns: minmax(0, 50rem) 14rem; column-gap: 3rem; }
-  .guide-head.has-art:not(.section-head) .head-text { max-width: 48rem; }
+  .guide:has(nav.toc) .guide-head.has-art:not(.section-head) {
+    grid-template-columns: minmax(0, var(--read)) var(--side);
+    column-gap: var(--side-gap);
+  }
 }
 
 /* The Gopher badge, on the 404 page. */
@@ -2203,7 +2220,7 @@ nav.toc { display: none; }
   object-fit: contain;
   cursor: default;
 }
-.diagram-zoom-caption { max-width: 60rem; margin: 0; text-align: center; color: var(--soft); font-size: var(--fs-md); }
+.diagram-zoom-caption { max-width: var(--read); margin: 0; text-align: center; color: var(--soft); font-size: var(--fs-md); }
 .diagram-zoom-close {
   position: absolute;
   top: 1rem;
@@ -2288,7 +2305,7 @@ nav.toc { display: none; }
 .prose .phase .path-steps { margin: 0; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); }
 /* The start page uses the full width, so a phase's steps fit in a row. */
 .prose:has(.reading-path) { max-width: none; }
-.prose:has(.reading-path) > p { max-width: 60rem; }
+.prose:has(.reading-path) > p { max-width: var(--read); }
 
 /* A section page in groups: the same rows as the reading paths, with
    the guides numbered straight through the section. */

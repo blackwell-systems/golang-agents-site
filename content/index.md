@@ -157,8 +157,11 @@ On every turn, one pass through these four stages, the harness does the same fou
 }
 @media (min-width: 48rem) {
   .loopv-c {
-    /* Wider than the text column where the page has room. */
-    width: max(100%, min(calc(80rem - 2 * var(--gutter)), calc(100vw - 2 * var(--gutter) - 20px)));
+    /* As wide as the frame where the page has room, centered on the
+       text column. */
+    --lvc-w: max(100%, min(var(--frame), calc(100vw - 2 * var(--gutter) - 20px)));
+    width: var(--lvc-w);
+    margin-left: calc((100% - var(--lvc-w)) / 2);
     grid-template-columns: minmax(0, 1fr) minmax(18rem, min(29rem, 42%));
     column-gap: clamp(1.5rem, 3.5vw, 3.5rem);
     row-gap: 0.4rem;
