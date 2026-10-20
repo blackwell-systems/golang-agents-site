@@ -101,7 +101,7 @@ The three main strategies side by side:
 | Backoff from 100 ms, no jitter | 550 | 32.7 s |
 | Backoff from 100 ms, full jitter | 411 (401 to 425) | 2.3 s (1.3 to 6.2) |
 
-A fixed short wait gets everyone served quickly, at a price of 46 requests per client.
+A fixed short wait gets everyone served quickly, at a price of 46 requests for each of the 100 clients.
 Plain backoff cuts the request count sharply but is slow: every retry wave hits the provider at once, and the windows between waves sit idle.
 Full jitter sends the fewest requests and is done in about two seconds.
 Marc Brooker's AWS experiment, the source of full jitter, saved more requests than this.

@@ -11,7 +11,7 @@ weight: 5
 
 Very little of an agent is machine learning.
 The model lives behind an HTTP API; the program you write sends requests, waits, runs tools, keeps a budget, and decides when to stop.
-That is the kind of program Go was built for, and the companion code, with its measurements, makes the case better than a list of language features would.
+That is the kind of program Go was built for, and the [companion code](https://github.com/blackwell-systems/go-agents-book-code), with its measurements, makes the case better than a list of language features would.
 
 Below are the places where Go fits that job, most with numbers from recorded runs, and then the costs of choosing Go, since a fair comparison names both.
 

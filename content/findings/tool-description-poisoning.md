@@ -129,5 +129,5 @@ $ go test ./ch10/mcptools/ -run TestPins
 ```
 
 The first prints the tracker's four digests.
-The second runs the recorded triage with those pins checked.
+The second runs the crash triage from its recorded replies, with those pins checked.
 Change one word of a tool's description in `ch10/triage/issuetools.go` and run the second command again to watch the run refuse to start.

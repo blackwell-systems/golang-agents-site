@@ -12,7 +12,7 @@ work: true
 ---
 
 The agent ends up as one Go program, `triage`, that reads the crash reports a web service writes, sorts them into groups with one cause each, reproduces each cause in a test, fixes it when a fix is safe to make, and files one issue per cause.
-Its practice target is `remind`, a reminders service of about 4,800 lines that ships with the companion code with bugs planted in it.
+Its practice target is `remind`, a reminders service of about 4,800 lines that ships with the [companion code](https://github.com/blackwell-systems/go-agents-book-code) with bugs planted in it.
 This page reports how the finished agent did on three models, how those numbers were produced, what went wrong in the runs that failed, and what it takes to run the agent against your own code.
 The results here come from the run records behind the tables below.
 

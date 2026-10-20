@@ -29,7 +29,7 @@ With an inexpensive model, live runs are cheap, and recorded runs show what each
 | Each passing run of the finished agent on `anthropic/claude-haiku-5.5` | $0.0165 |
 | Every run behind the finished agent's results tables, three models | $3.89 |
 
-Live calls go through OpenRouter on prepaid credit, so the worst case has a ceiling: when the credit runs out, calls fail rather than adding to a bill.
+Live calls go through OpenRouter on prepaid credit ([getting set up](/basics/getting-set-up/) covers the key), so the worst case has a ceiling: when the credit runs out, calls fail rather than adding to a bill.
 The agent's own budgets are a second ceiling: each run has a turn limit and a cost limit, and the finished service keeps a daily budget on disk, so a restart doesn't reset it.
 
 ## What the team will be able to build

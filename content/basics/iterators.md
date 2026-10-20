@@ -87,7 +87,7 @@ Go 1.23 added iterators across the standard library, and they combine with the o
 - `maps.Keys(m)` and `maps.Values(m)` iterate over a map.
 - `slices.Collect(seq)` gathers an iterator into a slice, and `slices.Sorted(seq)` gathers and sorts it.
 - `slices.All`, `slices.Values`, and `slices.Backward` iterate over a slice.
-- `iter.Pull` turns an iterator into a `next` function, for code that has to step through two sequences at once.
+- `iter.Pull` turns an iterator into a `next` function and a `stop` function, for code that has to step through two sequences at once; call `stop` when you finish early, or the iterator is never released.
 
 The agent's tool lookup uses two of them in one line, `slices.Sorted(maps.Keys(byName))`, to list the real tools in a stable order for the error the model reads; the [errors page](/basics/errors/#errors-the-model-reads) shows it.
 

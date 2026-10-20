@@ -78,3 +78,4 @@ HTTP, JSON, concurrency, and machine learning each get the explanation a step ne
 This site is written for Go developers who are new to models and agents: if you can build and run Go code and are at home with structs, interfaces, errors, and packages, you have what it asks; goroutines and `context.Context` are explained at each use. Nothing about models or machine learning is assumed.
 If you already build agents in another language, this site also works as a tour of how each part is done in Go.
 If what you need is on the list above, a framework that ships it, or a book on that subject, will serve you better than these pages.
+If it isn't, [start here](/start/) and pick the reading path that fits why you came.

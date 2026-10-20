@@ -18,7 +18,7 @@ Running the agent with a single component removed, next to the complete agent, s
 
 ### Adapter {#adapter}
 
-A thin layer that lets code written against one interface use something with a different one. In the companion code, an adapter makes each tool an MCP server offers look like an ordinary agent tool, so the loop needs no changes.
+A thin layer that lets code written against one interface use something with a different one. In the [companion code](https://github.com/blackwell-systems/go-agents-book-code), an adapter makes each tool an MCP server offers look like an ordinary agent tool, so the loop needs no changes.
 
 ### Agent {#agent}
 

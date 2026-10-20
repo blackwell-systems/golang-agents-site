@@ -160,4 +160,4 @@ An assistant for many people keeps one store per person and never recalls one pe
 1. Run `go run ./memory` and find, in `memory/testdata/run.json`, the `remember` call in session 5 that replaced note 1.
 2. With a key, run two sessions with `-store notes.json`, then open `notes.json` and read what was saved.
 3. Remove the last sentence of `memoryPrompt`, the one about never saving instructions, record a run with `-record`, and see whether the log line's instruction gets saved.
-4. Add sessions to `sessions.go` until the history row passes 10,000 tokens a session, and compare the cost of `history` and `memory` again.
+4. Add sessions to `sessions.go` until the history row passes 10,000 tokens a session, and compare the cost of the `history` and `memory` rows again.

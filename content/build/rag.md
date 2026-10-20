@@ -166,4 +166,4 @@ Splitting by heading suits documentation; for text without headings, split by pa
 1. Run `go run ./rag` and read `testdata/run.json` for one question: the embedding request, the four passages in the chat request, and the answer.
 2. With a key, ask a question whose answer spans two documents, such as which setting turns webhooks on and which metric counts failed deliveries, and see whether four chunks are enough.
 3. Change `topK` in `answer.go` to 2, record a run with `-record`, and compare the scores and the cost.
-4. Change `embedDims` to 1,024, and compare the size of the recording and the answers.
+4. Change `embedDims` in `retrieve.go` to 1,024, and compare the size of the recording and the answers.

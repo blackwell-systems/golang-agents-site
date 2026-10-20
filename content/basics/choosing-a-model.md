@@ -15,7 +15,7 @@ An agent narrows the choice quickly, because it needs a few specific things from
 ## Reading a model ID
 
 On OpenRouter a model is named by the company that made it and the model's name, such as `anthropic/claude-haiku-5.5` or `deepseek/deepseek-v4.1-flash`.
-The companion code keeps that ID in one setting, `OPENROUTER_MODEL`, so trying another model needs no code change.
+The [companion code](https://github.com/blackwell-systems/go-agents-book-code) keeps that ID in one setting, `OPENROUTER_MODEL`, so trying another model needs no code change.
 
 One model can be served by several hosting companies, and OpenRouter picks one per call.
 The reply's `provider` field says which.
