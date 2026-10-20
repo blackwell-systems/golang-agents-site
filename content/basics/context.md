@@ -1,7 +1,7 @@
 ---
 title: "context.Context in a Go agent: cancellation, deadlines, and causes"
 short: context.Context in an agent
-description: How an AI agent in Go uses context.Context. Stopping a run on Ctrl-C, a deadline for each model call, saying why a run stopped with WithTimeoutCause and context.Cause, cancelling the commands tools start, an idle timer on a stream, work that must finish with WithoutCancel, testing timeouts with synctest, and the common mistakes.
+description: How context.Context works and how an AI agent in Go uses it. The interface and the tree of contexts, stopping a run on Ctrl-C, waiting on ctx.Done in your own code, a deadline for each model call, saying why a run stopped with WithTimeoutCause and context.Cause, cancelling the commands tools start, an idle timer on a stream, work that must finish with WithoutCancel, testing timeouts with synctest, and the common mistakes.
 card: Stop a run, give each call a deadline, say why it stopped, and let the work that must finish still finish.
 group: Go foundations
 chapters: 1, 2, 5, 6, 12, 15
@@ -34,6 +34,33 @@ Several of the tools are recent additions to Go, so here is what each needs:
 
 The companion code needs Go {{code go-version}}; with an older toolchain, `go` downloads the right one when it reads the module's `go.mod`.
 
+## How a context works
+
+`context.Context` is an interface with four methods:
+
+- `Done()` returns a channel that is closed when the context ends, for use in a `select`.
+- `Err()` is `nil` while the context is live, then `context.Canceled` or `context.DeadlineExceeded`.
+- `Deadline()` reports when the context will end on its own, if it has a deadline.
+- `Value(key)` returns a value stored in the context, or `nil`.
+
+A context is never changed.
+Functions such as `context.WithCancel` and `context.WithTimeout` take a parent and return a new child, with a function that cancels it, so the contexts in a program form a tree with `context.Background()` at the root.
+Cancellation travels down the tree and never up:
+
+```diagram
+name: ctx-cancel
+alt: A tree of contexts. main, made with signal.NotifyContext, derives the run; the run derives a model call, a tool call, and, through a dashed link labeled values only, no cancellation, a checkpoint save made with WithoutCancel. The model call derives its HTTP request. The model call and its request are highlighted: the call's deadline passed, and the request ended with it, while the run above and the tool call beside them go on.
+
+When a model call's deadline passes, the call and the HTTP request under it end; the run above it and the tool call beside it go on. Cancelling the run would end every context under it except the save, which kept the run's values and dropped its cancellation.
+```
+
+Two more rules complete the picture.
+The first cancellation wins: once a context is done, later calls to its cancel function change nothing, including its cause.
+And `context.Cause` always has an answer: the cause given when the context was cancelled, the parent's cause when cancellation came from above, and `Err()` itself when nobody gave one.
+
+`context.Background()` is the root for `main`, for `init`, and for anything that starts a whole operation.
+`context.TODO()` is the same empty context under another name, a marker for code that should be passed a context and isn't yet; linters and readers can find it.
+
 ## One context, from main down
 
 The context starts in `main`, and the first thing it is good for is Ctrl-C:
@@ -48,6 +75,10 @@ Nothing below `main` makes a fresh `context.Background()`, because a fresh conte
 Passing it as a parameter, never storing it in a struct, keeps each call's context its own.
 A client that stored a context would cancel every later request with the first one's.
 
+A server starts its chains elsewhere.
+In an HTTP handler, `r.Context()` is the request's context, and it ends when the client disconnects or the handler returns.
+An agent run started from a handler derives its context from it, so a person who closes the browser tab stops the run; the [browser streaming example](/run/stream-to-browser/) is built that way.
+
 ## A deadline for each model call
 
 A model call that hangs should fail on its own, without waiting for a person to notice.
@@ -61,6 +92,10 @@ The derived context ends at whichever comes first: the caller's cancellation, or
 
 The run has limits of its own above this, a turn limit and a cost budget, so a deadline for the whole run is rarely needed.
 When it is, wrap the run's context the same way, and each call's shorter deadline still applies inside it.
+`context.WithDeadline` does the same with a time instead of a duration.
+
+Code can also read the time left: `deadline, ok := ctx.Deadline()` reports the deadline, if there is one, and `time.Until(deadline)` how long remains.
+An agent can use it to skip starting work that can't finish in time, such as a model call that usually takes 40 seconds when 10 remain, and stop with a clear reason instead of a timeout partway through.
 
 ## Say why it stopped
 
@@ -95,6 +130,24 @@ Every tool call in a conversation needs a matching result, or the next request t
 
 ```go include=ch06/agent/loop.go tag=run-tools
 ```
+
+## Waiting in your own code
+
+The standard library's blocking calls take a context and stop on their own.
+Code that waits on its own channels and timers has to watch the context itself, with a `select` on `ctx.Done()` beside whatever it is waiting for.
+The agent limits how many tool calls run at once with a buffered channel of slots, and waiting for a slot gives up when the context ends:
+
+```go include=ch15/agent/slots.go tag=slots
+```
+
+A rate limiter that waits on a timer does the same, and stops the timer when it leaves early:
+
+```go include=ch09/agent/ratelimit.go tag=wait
+```
+
+Both return the cause, so a caller sees why the wait ended.
+Without the `ctx.Done()` case, a goroutine blocked on a full channel waits forever after its run is gone: a goroutine leak, which in a long-running service adds up one stopped run at a time.
+Every goroutine needs an owner and a way to stop, and for most of them the way to stop is a context.
 
 ## Tools that start processes
 
