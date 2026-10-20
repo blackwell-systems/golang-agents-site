@@ -310,6 +310,37 @@ cite { font-style: italic; }
   .brand { font-size: 0.95rem; }
   .site-nav ul { gap: 1rem; }
 }
+/* On wide screens, with JavaScript, one bar marks the section: it rests
+   under the current section's link and glides, after a short pause, to
+   the link under the pointer or keyboard focus. It takes the place of
+   that link's border, so it has the border's color and thickness. The
+   script sets its left, top, and width from the link it marks.
+   Without JavaScript, the border marks the section as before. */
+.nav-bar { display: none; }
+@media (min-width: 80rem) and (forced-colors: none) {
+  .site-nav.nav-glide { position: relative; }
+  .site-nav.nav-glide a[aria-current="page"] { border-bottom-color: transparent; }
+  .nav-bar {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 2px; /* the links' border-bottom */
+    background: var(--amber);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      left 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 200ms ease-out;
+  }
+  .nav-bar.is-on { opacity: 1; }
+  .nav-bar.is-instant { transition: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-bar { transition: none; }
+}
 
 /* Hero: the cover's navy, flat. */
 .hero {
@@ -1732,7 +1763,17 @@ cite { font-style: italic; }
   border-radius: 6px;
   text-decoration: none;
 }
-.art-wide { display: block; max-width: 40rem; }
+.art-wide { display: block; max-width: 40rem; margin-inline: auto; }
+.prose > .art-wide { margin-left: auto; margin-right: auto; }
+/* The Start page's closing section is centered on the same axis as the
+   path cards above it: the heading, the art, and the paragraph under it. */
+.prose h2#at-the-end-of-a-path { text-align: center; }
+.prose:has(.reading-path) > p:has(> .art-wide) { max-width: none; }
+.prose:has(.reading-path) > p:has(> .art-wide) + p {
+  max-width: 46rem;
+  margin-inline: auto;
+  text-align: center;
+}
 .art-wide img { border-radius: 6px; border: 1px solid var(--line); }
 .path-choose .art-card { display: block; margin: -1.1rem -1.2rem 0.9rem; }
 .path-choose .art-card img { display: block; width: 100%; height: auto; margin: 0; border-radius: 3px 3px 0 0; }
@@ -1898,7 +1939,7 @@ cite { font-style: italic; }
 .prose .phase .path-steps { margin: 0; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); }
 /* The start page uses the full width, so a phase's steps fit in a row. */
 .prose:has(.reading-path) { max-width: none; }
-.prose:has(.reading-path) > p { max-width: var(--measure); }
+.prose:has(.reading-path) > p { max-width: 60rem; }
 
 /* A section page in groups: the same rows as the reading paths, with
    the guides numbered straight through the section. */

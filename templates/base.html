@@ -139,6 +139,111 @@
   }
 })();
 
+// The section nav's bar (wide screens; the stylesheet hides it on narrow
+// ones). It rests under the current section, glides to the link under
+// the pointer or keyboard focus after a short pause, follows the pointer
+// from link to link, and glides back when the pointer leaves.
+(function () {
+  var nav = document.querySelector(".site-nav");
+  if (!nav || !nav.querySelector("a")) return;
+  var rest = nav.querySelector('a[aria-current="page"]');
+  var bar = document.createElement("span");
+  bar.className = "nav-bar";
+  bar.setAttribute("aria-hidden", "true");
+  nav.appendChild(bar);
+  var hovered = null, shown = null, timer = 0;
+  function target() {
+    var f = document.activeElement;
+    if (hovered) return hovered;
+    if (f && f.tagName === "A" && nav.contains(f) && f.matches(":focus-visible")) return f;
+    return rest;
+  }
+  // Where a link's bottom border is, relative to the nav. The bar is
+  // placed with left and top, not a transform, so the browser rounds
+  // it to device pixels exactly as it rounds the border.
+  function place(a) {
+    var n = nav.getBoundingClientRect(), r = a.getBoundingClientRect();
+    var b = parseFloat(getComputedStyle(a).borderBottomWidth) || 0;
+    return { x: r.left - n.left, y: r.bottom - b - n.top, w: r.width };
+  }
+  function draw(p, w) {
+    bar.style.left = p.x + "px";
+    bar.style.top = p.y + "px";
+    bar.style.width = w + "px";
+  }
+  function show(a, instant) {
+    if (instant) bar.classList.add("is-instant");
+    if (a) {
+      var p = place(a);
+      if (!shown && !instant) {
+        // Coming from nowhere: grow out from the link's middle.
+        bar.classList.add("is-instant");
+        draw({ x: p.x + p.w / 2, y: p.y }, 0);
+        void bar.offsetWidth;
+        bar.classList.remove("is-instant");
+      }
+      draw(p, p.w);
+      bar.classList.add("is-on");
+    } else {
+      if (shown) {
+        var q = place(shown);
+        draw({ x: q.x + q.w / 2, y: q.y }, 0);
+      }
+      bar.classList.remove("is-on");
+    }
+    shown = a;
+    if (instant) {
+      void bar.offsetWidth;
+      bar.classList.remove("is-instant");
+    }
+  }
+  function settle(delay) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      var t = target();
+      if (t !== shown) show(t, false);
+    }, delay);
+  }
+  function redraw() { show(shown, true); }
+  show(rest, true);
+  nav.classList.add("nav-glide");
+  nav.addEventListener("mouseover", function (e) {
+    var a = e.target.closest("a");
+    if (!a || a === hovered) return;
+    // A short pause when the pointer first arrives; once it is moving
+    // along the nav, the bar follows it from link to link.
+    var moving = hovered !== null;
+    hovered = a;
+    settle(moving ? 0 : 80);
+  });
+  nav.addEventListener("mouseleave", function () {
+    hovered = null;
+    settle(100);
+  });
+  nav.addEventListener("focusin", function () { settle(0); });
+  nav.addEventListener("focusout", function () { settle(0); });
+  // The links move when the window's width changes, including when a
+  // scroll bar appears.
+  var queued = false, width = 0;
+  function resized() {
+    var w = document.documentElement.clientWidth;
+    if (queued || w === width) return;
+    queued = true;
+    requestAnimationFrame(function () { queued = false; width = w; redraw(); });
+  }
+  addEventListener("resize", resized);
+  if (window.ResizeObserver) new ResizeObserver(resized).observe(document.documentElement);
+  if (document.fonts) document.fonts.ready.then(redraw);
+  // Back from another page, the pointer has gone and the bar may still
+  // be under the link that was followed.
+  addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;
+    hovered = null;
+    clearTimeout(timer);
+    show(target(), true);
+  });
+})();
+
 // "On this page": mark the section being read.
 (function () {
   var toc = document.querySelector("nav.toc");
