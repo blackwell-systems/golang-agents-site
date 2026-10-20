@@ -31,7 +31,8 @@
     </div>
     <footer class="guide-foot">
       <div class="book-line">
-        {{- if .Page.BookHTML}}{{.Page.BookHTML}}{{else}}
+        {{- if .Page.BookHTML}}{{.Page.BookHTML}}{{else if .Page.Beyond}}
+        <p>This topic goes beyond <a href="/book/"><cite>Building AI Agents in Go</cite></a>, which doesn't cover it; the code here is in the same companion repository.</p>{{else}}
         <p><a href="/book/"><cite>Building AI Agents in Go</cite></a> covers this step by step, with tests{{with .Page.Chapters}}, in {{chapters .}}{{end}}.</p>
         {{- end}}
       </div>
