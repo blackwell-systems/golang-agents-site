@@ -57,7 +57,11 @@ Here is `Run`:
 
 Read it stage by stage.
 
-**Build the request.** Every call sends `msgs` in full.
+**Build the request.** Before the loop starts, `index(tools)` splits the tools in two.
+`defs` holds each tool's definition (its name, description, and parameter schema), which is all the model ever sees of a tool, and goes into every request.
+`byName` maps each name to the `Tool` itself, so when a reply asks for `run_tests`, the loop can find the Go function to call.
+`index` panics if two tools share a name, since the model could never say which one it meant; that is a mistake in the program, caught before the first call.
+Every call sends `msgs` in full.
 A model carries no state from one call to the next, so the only thing it knows on a given call is what that request contains.
 That means the requests keep getting bigger as the run goes on; [tool calling on the wire](/basics/tool-calling/) shows how many tokens the first request already takes before the task is read.
 `Run` calls `slices.Clone` before it appends anything, so the caller's slice and its backing array stay as they were.

@@ -23,6 +23,7 @@ Here is the loop as the companion code writes it:
 ```go include=ch01/agent/loop.go tag=run
 ```
 
+Its first line uses a small helper, `index`, to split the tools in two: `defs`, the name, description, and parameters of each tool, which go to the model in every request, and `byName`, a map from each tool's name to the Go code that runs it, which the loop uses to find the tool a call names.
 It sends the whole conversation on every call, because the model keeps nothing between calls.
 It appends the reply before running its tools, so each tool result answers a call the conversation already holds.
 It stops on an answer, at the turn limit, or when `ctx` is cancelled.
