@@ -1,6 +1,6 @@
 ---
 title: Examples
-description: Every chapter's program from the companion repository, with what it shows, its size and test count computed from the code, and the command that runs it offline from recorded model replies.
+description: Every chapter's program from the companion repository, and the examples beyond the chapters, with what each shows, its size and test count computed from the code, and the command that runs it offline from recorded model replies.
 ---
 
 Every example runs without an API key.
@@ -21,7 +21,7 @@ Their pages, [ch01](/run/ch01-scripted-loop/) and [ch04](/run/ch04-first-agent/)
 ## Every chapter's program
 
 Each chapter's directory is a full snapshot of the agent at that point, so any row runs without the ones above it.
-The last three rows are examples beyond the chapter snapshots: the workflow shapes `ch05` names and an agent's progress streamed to a browser, both built on `ch06`'s agent, and a standalone first agent that a tutorial builds from scratch.
+The last four rows are examples beyond the chapter snapshots: the workflow shapes `ch05` names and an agent's progress streamed to a browser, both built on `ch06`'s agent, a standalone first agent that a tutorial builds from scratch, and retrieval over a set of documents, which the book doesn't cover.
 The counts are computed from the code each time this site is built: Go files, lines in those files, and top-level test functions, leaving out the fixtures under `testdata`.
 In all, the repository holds {{code files}} Go files and {{code tests}} test functions in {{code packages}} packages.
 
@@ -49,6 +49,7 @@ remind | The practice service, with bugs seeded on purpose (its own module) | `c
 shapes | The workflow shapes: a chain, a router, a vote, and check and revise | `go run ./shapes` | /build/workflows-vs-agents/
 ssebrowser | An agent's events streamed to a browser page | `go run ./ssebrowser` | /run/stream-to-browser/
 firstagent | A standalone first agent: questions about the files in a directory | `go run ./firstagent` | /build/first-agent/
+rag | Retrieval (RAG) compared with search as a tool and with reading the files | `go run ./rag` | /build/rag/
 ```
 
 ## What each one prints

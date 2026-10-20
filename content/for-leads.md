@@ -79,7 +79,8 @@ The [launch checklist](/production/launch-checklist/) collects these into items 
 
 ## What it leaves out
 
-Retrieval over large document sets, memory kept across unrelated tasks, and a model that plans work and hands it to other agents at run time are all out of scope, along with user interfaces and fine-tuning.
+Memory kept across unrelated tasks and a model that plans work and hands it to other agents at run time are out of scope, along with user interfaces and fine-tuning.
+Retrieval from a team's own documents is covered on the site, beyond the book: [RAG in Go](/build/rag/), and [a measured comparison](/build/rag-or-agentic-search/) with agentic search.
 [What this covers](/scope/) gives the reason for each and the signs that a team's task needs one.
 
 ## Getting a team started

@@ -1,7 +1,7 @@
 ---
 title: What this guide and the book leave out, and why
 short: Scope
-description: The ground this site and Building AI Agents in Go cover, the topics both leave out on purpose, such as retrieval, memory across runs, and multi-agent planning, and why, so you can tell before reading whether they answer your question.
+description: The ground this site and Building AI Agents in Go cover, the topics the site covers beyond the book, such as retrieval, the topics both leave out on purpose, such as memory across runs and multi-agent planning, and why, so you can tell before reading whether they answer your question.
 layout: page
 ---
 
@@ -14,13 +14,24 @@ This site follows one agent built in Go, from an empty loop to a service you can
 The site is organized by what you want to do, one question per page:
 
 - **[Basics](/basics/):** what an agent is, the loop at its center, calling a model from Go, tool calls on the wire, tokens and cost, and what happens inside the model, from tokens to sampling.
-- **[Build](/build/):** a workflow or an agent, tools a model uses well, streaming, answers in a fixed shape, keeping a long run's context in check, parallel tool calls, sub-agents, and MCP on both sides.
+- **[Build](/build/):** a workflow or an agent, tools a model uses well, streaming, answers in a fixed shape, keeping a long run's context in check, parallel tool calls, sub-agents, MCP on both sides, and retrieval from your own documents.
 - **[Production](/production/):** stop reasons and budgets, retries, traces and cost, offline tests and evals, sandboxing and prompt injection, a person's approval, and runs that survive a crash. The [launch checklist](/production/launch-checklist/) sums these up.
 - **[Go ecosystem](/ecosystem/):** why Go, the chat completions API and Anthropic's Messages API in depth, official SDKs, and five Go agent frameworks compared on one task.
 - **[Examples](/run/):** every program in the companion code, with the command that runs it offline.
 - **[Research](/findings/):** measured results from recorded runs, each with its method, including [the mistakes](/findings/measured-mistakes/) and [the finished agent across three models](/findings/the-finished-agent/).
 
-The book, *Building AI Agents in Go*, goes further on every topic: the full build with its tests, the reasoning behind each decision, and the exercises.
+The book, *Building AI Agents in Go*, goes further on most of these topics: the full build with its tests, the reasoning behind each decision, and the exercises.
+
+## Covered here, beyond the book
+
+**Retrieval (RAG), embeddings, and vector search.**
+[RAG in Go](/build/rag/) builds retrieval with the standard library: documents split into chunks, embedded through an API, and searched in memory.
+[RAG or agentic search?](/build/rag-or-agentic-search/) measures it against search as a tool and against an agent that reads the files, on the same 16 questions.
+The book doesn't cover retrieval; these pages and their example, `rag` in the companion code, are the site's own.
+
+The crash-triage agent itself doesn't use embeddings.
+It finds related crashes by comparing the functions in their stack traces, because the frames every stack shares make up most of each trace, so embeddings would place most crashes close together, while matching functions costs less, needs no network, and its accuracy can be measured on the crash catalog.
+Searching and opening files is enough for a service of a few thousand lines; documentation, runbooks, or a long history of incidents are where retrieval earns its place.
 
 ## Several agents: what was measured, and what wasn't
 
@@ -44,18 +55,12 @@ If your parts are as independent as separate documents, measure the lead-and-hel
 
 ## Out of scope here
 
-**Retrieval (RAG), embeddings, and vector stores.**
-The agent in the companion code finds related crashes by comparing the functions in their stack traces, not by embedding them.
-The reason for the choice is that the frames every stack shares make up most of each trace, so embeddings would place most crashes close together, while matching functions costs less, needs no network, and its accuracy can be measured on the crash catalog.
-Searching and opening files is enough for a service of a few thousand lines; a codebase many times that size, or a long history of incidents, calls for a searchable index that is kept up to date and evaluated as carefully as any tool, and this site doesn't build one.
-The sign you need it: the material the agent must consult is too large to search with tools inside one run.
-
 **Memory across unrelated runs.**
 Within a run, the agent keeps notes per crash group and a context policy decides what each request holds; across a crash, a checkpoint restores the run; the finished service shares a record of filed issues between runs.
 A store the agent writes to and recalls from across unrelated tasks, with rules for what to forget and how to keep untrusted text out of it, isn't built on this site.
 The sign you need it: what one task learns must change how a different task is done later, rather than be looked up again.
 
-If your agent needs either, the rest of the guidance still applies unchanged: the turn and cost limits, retries, evals with ranges, the sandbox and approval, and durable runs work the same way around a retrieval tool or a memory store as around any other tool, and a retrieval tool needs its own eval like the rest.
+If your agent needs a memory store, the rest of the guidance still applies unchanged: the turn and cost limits, retries, evals with ranges, the sandbox and approval, and durable runs work the same way around a memory store as around a retrieval tool or any other tool.
 
 **A user interface.**
 The agent is a command and an HTTP service with a review queue for approvals.

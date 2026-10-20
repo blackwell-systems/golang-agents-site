@@ -78,6 +78,10 @@ The rules a specific model uses to flatten a list of messages, plus any tool def
 
 A saved snapshot of a run's state, written in a way that survives a crash at any instant: what's on disk afterward is always a whole snapshot, either the old one or the new one.
 
+### Chunk {#chunk}
+
+A piece of a document small enough to search and to send to a model on its own, such as the text under one heading. Retrieval embeds and searches chunks rather than whole documents. See [RAG in Go](/build/rag/).
+
 ### Circuit breaker {#circuit-breaker}
 
 A guard placed in front of a dependency. After a string of consecutive failures it trips and fails calls immediately without sending them; after a pause it allows a single probe call through to find out whether the dependency is back.
@@ -93,6 +97,10 @@ The code that decides which parts of the full conversation go into each request.
 ### Context window {#context-window}
 
 The text a model can take into account on one call, and its maximum size in tokens. The prompt and the reply share it, so a long prompt leaves less room for the answer.
+
+### Cosine similarity {#cosine-similarity}
+
+A measure of how closely two vectors point the same way, ignoring their length: 1 for the same direction, near 0 for unrelated ones. Retrieval uses it to find the chunks whose embeddings are closest to a question's.
 
 ### Cost budget {#cost-budget}
 
@@ -133,6 +141,8 @@ Anything that flows out of a system. For the crash-triage agent in these guides,
 ### Embedding {#embedding}
 
 A vector, a list of numbers, that represents a token. Training adjusts the vectors so tokens that appear in similar contexts end up with similar vectors. Production models use a few thousand numbers per vector.
+
+An embeddings model does the same for a whole text: one vector per passage, placed so that passages about similar things are close together. [Retrieval](#rag) compares those vectors to find the passages that match a question.
 
 ### Eval {#eval}
 
@@ -322,6 +332,10 @@ A date that identifies a revision of MCP, for example `2026-07-28`. Starting wit
 
 ## R {#letter-r .letter}
 
+### RAG {#rag}
+
+Retrieval-augmented generation: search a set of documents for the passages closest to a question, then send them to the model with the question and ask it to answer from them alone. See [RAG in Go](/build/rag/) and [RAG or agentic search?](/build/rag-or-agentic-search/).
+
 ### Range {#range}
 
 The interval of plausible values for a measured number, allowing for how far chance could have moved it. These guides use the central 95 percent of results the measurement would give if repeated on a new sample of the same kind.
@@ -469,6 +483,12 @@ A run cut short by a failure in the harness or at the provider, so its result te
 
 The token counts the API returns with each reply: input tokens, output tokens, and on OpenRouter the dollar cost of the call.
 <span class="cite-line">[Tool calling in Go, on the wire](/basics/tool-calling/)</span>
+
+## V {#letter-v .letter}
+
+### Vector search {#vector-search}
+
+Finding the stored vectors closest to a query vector, usually by [cosine similarity](#cosine-similarity). For a few thousand vectors, comparing the query with every one is fast enough; larger sets use a vector index, which finds close vectors without comparing them all.
 
 ## W {#letter-w .letter}
 
