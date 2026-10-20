@@ -267,6 +267,10 @@ For each token the model wrote, the logarithm of the probability it assigned to 
 The Model Context Protocol: an open standard that lets one program expose tools and data, and lets an agent in another process or on another machine find and call them.
 <span class="cite-line">[One sentence in a tool description decided 79 of 80 first moves](/findings/tool-description-poisoning/)</span>
 
+### Memory {#memory}
+
+What an agent keeps from one conversation to the next: text saved outside the conversation, and a rule for which of it goes into the next one. A common form is short notes the agent saves with a tool and that are recalled by meaning. See [memory between sessions](/build/memory/).
+
 ### Message {#message}
 
 A single entry in a conversation with a model, tagged with a role for its sender: `system` for instructions, `user` for whoever is asking, `assistant` for the model, and `tool` for a tool's output. The conversation is the ordered list of messages so far.

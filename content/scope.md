@@ -1,7 +1,7 @@
 ---
 title: What this guide and the book leave out, and why
 short: Scope
-description: The ground this site and Building AI Agents in Go cover, the topics the site covers beyond the book, such as retrieval, the topics both leave out on purpose, such as memory across runs and multi-agent planning, and why, so you can tell before reading whether they answer your question.
+description: The ground this site and Building AI Agents in Go cover, the topics the site covers beyond the book, such as retrieval and memory between sessions, the topics both leave out on purpose, such as multi-agent planning, and why, so you can tell before reading whether they answer your question.
 layout: page
 ---
 
@@ -33,6 +33,10 @@ The crash-triage agent itself doesn't use embeddings.
 It finds related crashes by comparing the functions in their stack traces, because the frames every stack shares make up most of each trace, so embeddings would place most crashes close together, while matching functions costs less, needs no network, and its accuracy can be measured on the crash catalog.
 Searching and opening files is enough for a service of a few thousand lines; documentation, runbooks, or a long history of incidents are where retrieval earns its place.
 
+**Memory between sessions.**
+[Memory between sessions](/build/memory/) builds notes an agent saves with a tool, replaces when a fact changes, and recalls by meaning at the start of each conversation, and measures them against carrying nothing and carrying the whole conversation.
+The book doesn't cover memory across conversations: within a run, the crash-triage agent keeps notes per crash group and a context policy decides what each request holds; across a crash, a checkpoint restores the run.
+
 ## Several agents: what was measured, and what wasn't
 
 The crash-triage agent does use more than one agent, and the recorded runs measure what that buys, so it helps to separate the shapes.
@@ -54,13 +58,6 @@ Crashes in one codebase were rarely independent enough for that, which is why th
 If your parts are as independent as separate documents, measure the lead-and-helpers shape against one agent on your own tasks, with the same budget for both; [beyond crash triage](/beyond-crash-triage/) sketches the parts it would need.
 
 ## Out of scope here
-
-**Memory across unrelated runs.**
-Within a run, the agent keeps notes per crash group and a context policy decides what each request holds; across a crash, a checkpoint restores the run; the finished service shares a record of filed issues between runs.
-A store the agent writes to and recalls from across unrelated tasks, with rules for what to forget and how to keep untrusted text out of it, isn't built on this site.
-The sign you need it: what one task learns must change how a different task is done later, rather than be looked up again.
-
-If your agent needs a memory store, the rest of the guidance still applies unchanged: the turn and cost limits, retries, evals with ranges, the sandbox and approval, and durable runs work the same way around a memory store as around a retrieval tool or any other tool.
 
 **A user interface.**
 The agent is a command and an HTTP service with a review queue for approvals.

@@ -51,7 +51,7 @@ const (
 	author   = "Dayna Blackwell"
 	ogImage  = "/og-v3.jpg"
 	repoURL  = "https://github.com/blackwell-systems/go-agents-book-code"
-	codeRef  = "v1.3" // the tag (or branch) code links point at: v1.3 added rag
+	codeRef  = "v1.4" // the tag (or branch) code links point at: v1.4 added memory
 	storeURL = "https://blackwellsystems.gumroad.com/l/go-agents"
 )
 

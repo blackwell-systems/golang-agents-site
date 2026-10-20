@@ -21,7 +21,7 @@ Their pages, [ch01](/run/ch01-scripted-loop/) and [ch04](/run/ch04-first-agent/)
 ## Every chapter's program
 
 Each chapter's directory is a full snapshot of the agent at that point, so any row runs without the ones above it.
-The last four rows are examples beyond the chapter snapshots: the workflow shapes `ch05` names and an agent's progress streamed to a browser, both built on `ch06`'s agent, a standalone first agent that a tutorial builds from scratch, and retrieval over a set of documents, which the book doesn't cover.
+The last five rows are examples beyond the chapter snapshots: the workflow shapes `ch05` names and an agent's progress streamed to a browser, both built on `ch06`'s agent, a standalone first agent that a tutorial builds from scratch, and retrieval over a set of documents and memory between sessions, which the book doesn't cover.
 The counts are computed from the code each time this site is built: Go files, lines in those files, and top-level test functions, leaving out the fixtures under `testdata`.
 In all, the repository holds {{code files}} Go files and {{code tests}} test functions in {{code packages}} packages.
 
@@ -50,6 +50,7 @@ shapes | The workflow shapes: a chain, a router, a vote, and check and revise | 
 ssebrowser | An agent's events streamed to a browser page | `go run ./ssebrowser` | /run/stream-to-browser/
 firstagent | A standalone first agent: questions about the files in a directory | `go run ./firstagent` | /build/first-agent/
 rag | Retrieval (RAG) compared with search as a tool and with reading the files | `go run ./rag` | /build/rag/
+memory | Memory between sessions compared with none and with the whole history | `go run ./memory` | /build/memory/
 ```
 
 ## What each one prints
