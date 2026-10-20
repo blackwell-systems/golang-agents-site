@@ -14,14 +14,14 @@ $ cd go-agents-book-code/code
 
 Or download the repository as a [zip of the main branch](https://github.com/blackwell-systems/go-agents-book-code/archive/refs/heads/main.zip) and run the same commands from its `code` directory.
 
-New here? Run `ch01` first: it is the whole loop with a scripted model, and it finishes in a few seconds.
+New here? Run `ch01` first: it is the whole [agent loop](/basics/agent-loop/) with a scripted model, and it finishes in a few seconds.
 Then run `ch04`, the same task with a real model's recorded replies and a real `go test`.
 Their pages, [ch01](/run/ch01-scripted-loop/) and [ch04](/run/ch04-first-agent/), explain each line of the output.
 
 ## Every chapter's program
 
 Each chapter's directory is a full snapshot of the agent at that point, so any row runs without the ones above it.
-The last five rows are examples beyond the chapter snapshots: the workflow shapes `ch05` names and an agent's progress streamed to a browser, both built on `ch06`'s agent, a standalone first agent that a tutorial builds from scratch, and retrieval over a set of documents and memory between sessions, which the book doesn't cover.
+The last five rows are examples beyond the chapter snapshots: the [workflow shapes](/build/workflows-vs-agents/) `ch05` names and an agent's [progress streamed to a browser](/run/stream-to-browser/), both built on `ch06`'s agent, a standalone [first agent](/build/first-agent/) that a tutorial builds from scratch, and [retrieval over a set of documents](/build/rag/) and [memory between sessions](/build/memory/), which the book doesn't cover.
 The counts are computed from the code each time this site is built: Go files, lines in those files, and top-level test functions, leaving out the fixtures under `testdata`.
 In all, the repository holds {{code files}} Go files and {{code tests}} test functions in {{code packages}} packages.
 
@@ -78,7 +78,7 @@ runtime rather than the operating system. ...
 [43 tokens in, 122 out, $0.000065; total $0.000065]
 ```
 
-**`ch03 toy`** shows how temperature reshapes the toy model's choices, then writes text greedily and by sampling:
+**`ch03 toy`** shows how [temperature](/basics/how-models-work/) reshapes the choices of a toy model, a small table of next-word probabilities in the code, then writes text greedily and by sampling:
 
 ```text
 After "the model", the next word can be:
@@ -94,7 +94,7 @@ After "the model", the next word can be:
 duration.go was changed.
 ```
 
-**`ch05`** and **`ch06`** replay failures on purpose and exit with the error they demonstrate, a reply the loop refuses and a stream cut off partway:
+**`ch05`** and **`ch06`** replay failures on purpose, and each exits with the error it demonstrates: `ch05` a reply the loop refuses, `ch06` a stream cut off partway:
 
 ```text
 stopped: a reply the loop can't use
@@ -121,7 +121,7 @@ graded against the catalog: 12 of 16 checks passed
   failed: duplicate of N2A: answered issue 0, want 102
 ```
 
-**`ch08 -task batch`** replays a recorded run over the 99-report batch and grades it, which takes a few minutes. The recorded run missed some checks, and the grade shows which:
+**`ch08 -task batch`** replays a recorded run over the 99-report batch and grades it against the [crash catalog's](/glossary/#crash-catalog) checks, which takes a few minutes. The recorded run missed some checks, and the grade shows which:
 
 ```text
 graded against the catalog: 82 of 94 checks passed
@@ -139,7 +139,7 @@ graded against the catalog: 22 of 22 checks passed
 spent $0.0235 in all
 ```
 
-**`ch10`** and **`ch11`** replay the same triage run, through an MCP tracker and then through `ch11`'s provider layer, and it now catches both duplicates:
+**`ch10`** and **`ch11`** replay the same triage run, through an [MCP](/build/mcp/) tracker and then through `ch11`'s [provider layer](/ecosystem/providers-and-sdks/), and it now catches both duplicates:
 
 ```text
 diagnosis:
@@ -175,9 +175,9 @@ The program shows the call, its arguments, and the crash report behind it, then 
 type "yes 93761f" to approve:
 ```
 
-Type that line and the run finishes and is graded, 16 of 16; press Ctrl-D instead and the run stops with the call left waiting.
+Type that line and the run finishes and is graded, 16 of 16 checks; press Ctrl-D instead and the run stops with the call left waiting.
 
-**`ch15`**'s crash sweep crashes the agent at every save point and counts the runs left with a duplicate, for each of five designs:
+**`ch15`**'s [crash sweep](/findings/crash-sweep/) crashes the agent at every save point and counts the runs left with a duplicate, for each of five designs:
 
 ```text
 crash point            v1     v2     v3     v4     v5
@@ -195,7 +195,7 @@ tool returned           3      3      0      0      0
 issues filed 1, diagnosis submitted true
 ```
 
-**`catalog`**, **`tracker`**, and **`remind`** are test suites, so they print one `ok` line per package; `remind` passes its own tests with its bugs still in place.
+**`catalog`**, **`tracker`**, and **`remind`** are test suites, so they print one `ok` line per package; `remind`, the practice service the agent triages, passes its own tests with its seeded bugs still in place.
 
 **`shapes`** runs each workflow shape against a scripted model, including a vote that reaches its quorum and one that doesn't:
 

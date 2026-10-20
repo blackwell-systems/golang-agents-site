@@ -12,12 +12,12 @@ art: ch10
 
 The tracker is the one part of the triage job that lives in another program, with its own data.
 In this example the agent reaches it only through [MCP](/glossary/#mcp): the program starts the tracker's MCP server as a child process, lists its tools, and offers them to the model under prefixed names such as `tracker__issue_search`.
-The model's replies are recorded; the server, the protocol, and every tool run for real.
+The model's replies are recorded, but the server, the protocol, and every tool call run for real.
 
 ## What it shows
 
 - A hand-written MCP client and server in Go, newline-delimited JSON-RPC over standard input and output. [MCP in Go](/build/mcp/) explains both sides.
-- Server tools adapted into agent tools, with names prefixed by the server's name, descriptions labeled as the server's, and untrusted hints ignored.
+- Server tools adapted into agent tools, with names prefixed by the server's name, descriptions labeled as the server's, and the server's hints about its tools, such as which ones only read, ignored unless the server is trusted.
 - A server whose tool definitions can be pinned by hash, so a change stops the run before it starts.
 
 ## Run it
@@ -28,20 +28,20 @@ From the `code` directory of a clone of [go-agents-book-code](https://github.com
 $ go run ./ch10
 ```
 
-It replays a 13-turn run of the same task as the [ch07 example](/run/ch07-crash-triage/), four crash reports with two already filed.
+It replays a 13-turn run of the same task as the [ch07 example](/run/ch07-crash-triage/), a batch of four crash reports, two of which already have issues filed.
 Notice the tool names in the second turn:
 
 ```text include=ch10/testdata/out/m1-mcp.txt lines=8..18 title="go run ./ch10, turn 2"
 ```
 
 `tracker__issue_search` is the server's `issue_search`, reached over the protocol.
-On this run the agent marked both already-filed crashes as duplicates of their existing issues, filed one new issue through the server, and scored 16 out of 16 on the catalog's checks, for $0.0055:
+On this run the agent marked both already-filed crashes as duplicates of their existing issues, filed one new issue through the server, and scored 16 out of 16 on the [crash catalog's](/glossary/#crash-catalog) checks, for $0.0055:
 
 ```text include=ch10/testdata/out/m1-mcp.txt lines=139..149 title="The end of the run"
 ```
 
-The prompt had changed since that earlier run, which is where the duplicates came from; the protocol didn't change what the agent could do.
-In three runs each way on the default model, the agent worked with the server's tools as readily as with its own hand-written ones, and every run passed every check.
+The agent caught the duplicates this time because the prompt had changed since that earlier run; the protocol didn't change what the agent could do.
+In three runs each way on the default model, `anthropic/claude-haiku-5.5`, the agent worked with the server's tools as readily as with its own hand-written ones, and every run passed every check.
 
 ## Serve the tracker to anything
 
@@ -64,7 +64,7 @@ $ go run ./ch10 -tracker-pins pins.json
 ```
 
 The first prints the four tools' digests; the second runs the replay with them checked.
-Next, edit a single word in the description of `issue_search` in `ch10/triage/issuetools.go`, then repeat the second command.
+Next, edit a single word in the description of `issue_search` in `ch10/triage/issuetools.go`, which defines the tools the server serves, then repeat the second command.
 The run stops before it starts, with an error naming the tool, its new digest, and the pinned one.
 
 ## Run the tests
@@ -73,7 +73,7 @@ The run stops before it starts, with an error naming the tool, its new digest, a
 $ go test ./ch10/mcp/ ./ch10/mcptools/
 ```
 
-They cover the protocol (discovery, pagination, cancellation at a timeout, falling back to the older handshake for servers that need it), launching and shutting down a server process in the sequence the protocol requires, keeping the agent's API key out of the server's environment, and the trust rules: hidden characters removed, descriptions labeled, and pins that fail on any change to a description or a schema.
+They cover the protocol (discovery, pagination, cancellation at a timeout, falling back to the older `initialize` handshake for servers that need it), launching and shutting down a server process in the sequence the protocol requires, keeping the agent's API key out of the server's environment, and the trust rules: hidden characters removed, descriptions labeled, and pins that fail on any change to a description or a schema.
 
 ## Key files
 
