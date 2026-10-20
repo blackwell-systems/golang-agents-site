@@ -1487,61 +1487,17 @@ cite { font-style: italic; }
 .prose .loop-stages li { margin: 0; }
 .prose .loop-stages li::marker { content: none; }
 
-/* The home page's loop figure */
+/* The home page's hero: the text, and the terminal beside it. */
 .home-hero-grid { display: grid; gap: 2rem; align-items: center; }
-.loop-figure { display: none; width: 100%; max-width: 380px; justify-self: center; overflow: visible; }
-@media (min-width: 60rem) {
-  .home-hero-grid { grid-template-columns: minmax(0, 1fr) 380px; }
-  .loop-figure { display: block; }
-}
-/* Previewing the loop section's design C (?loop=c), which carries the
-   ring itself, so the hero drops its copy and takes one column. */
-.loopv-hero-off .home-hero .loop-figure { display: none; }
-.loopv-hero-off .home-hero-grid { grid-template-columns: minmax(0, 1fr); }
-/* The design picker shown while previewing (?loop=a, b, or c). */
-.loopv-picker {
-  position: fixed;
-  left: 50%;
-  bottom: 1rem;
-  transform: translateX(-50%);
-  z-index: 50;
-  display: flex;
-  gap: 0.25rem;
-  padding: 0.3rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--panel);
-  font-family: var(--label);
-  font-size: 0.9rem;
-}
-.loopv-picker a { padding: 0.35rem 0.85rem; border-radius: 999px; color: var(--ivory); text-decoration: none; }
-.loopv-picker a:hover { color: var(--amber); }
-.loopv-picker a[aria-current] { background: var(--amber); color: var(--page); }
-.lf-ring { fill: none; stroke: var(--line); stroke-width: 1.5; }
-.lf-arc { fill: none; stroke: var(--amber); stroke-width: 2; }
-.lf-head { fill: var(--amber); }
-.lf-node circle { fill: var(--page); stroke: var(--amber); stroke-width: 2; }
-.lf-node text { fill: var(--amber); font-family: var(--label); font-weight: 600; font-size: 16px; text-anchor: middle; }
-.lf-label { fill: var(--ivory); font-family: var(--label); font-weight: 600; font-size: 17px; text-anchor: middle; }
-.lf-center { fill: var(--ivory); font-family: var(--display); font-size: 22px; text-anchor: middle; }
-.lf-sub { fill: var(--soft); font-family: var(--label); font-size: 13px; text-anchor: middle; letter-spacing: 0.06em; }
-.lf-label.lf-start { text-anchor: start; }
-.lf-label.lf-end { text-anchor: end; }
-@media (min-width: 60rem) {
-  .home-hero-grid { grid-template-columns: minmax(0, 1fr) 440px; }
-  .loop-figure { max-width: 440px; }
-}
 
-/* The hero terminal, previewed with ?hero=terminal: a recorded run of
+/* The hero terminal: a recorded run of
    go run ./ch04, replayed turn by turn in a listing's window. It takes
-   the ring's place on wide screens and sits under the text on phones.
+   the right of the hero on wide screens and sits under the text on phones.
    The markup holds the whole transcript; the script hides the lines
    (.ht-play) and shows them in turn (.ht-on). */
-.hero-terminal { display: none; margin: 0; min-width: 0; }
-.hero-terminal-on .hero-terminal { display: block; }
-.hero-terminal-on .home-hero .loop-figure { display: none; }
+.hero-terminal { display: block; margin: 0; min-width: 0; }
 @media (min-width: 60rem) {
-  .hero-terminal-on .home-hero-grid {
+  .home-hero-grid {
     grid-template-columns: minmax(0, 1fr) clamp(27rem, 40vw, 34rem);
     column-gap: clamp(2.5rem, 4.5vw, 4.5rem);
   }

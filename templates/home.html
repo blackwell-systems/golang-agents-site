@@ -1,9 +1,4 @@
 {{define "main" -}}
-<script>
-// Preview of the hero terminal (?hero=terminal). Set before the hero
-// draws, so the ring never flashes in its place.
-if (/[?&]hero=terminal(&|$)/.test(location.search)) document.documentElement.classList.add("hero-terminal-on");
-</script>
 <section class="hero home-hero" aria-labelledby="title">
   <div class="wrap home-hero-grid">
     <div>
@@ -20,25 +15,6 @@ if (/[?&]hero=terminal(&|$)/.test(location.search)) document.documentElement.cla
     </div>
     <p class="byline">By <a href="/work-with-me/#background">{{.Site.Author}}</a>, who builds AI agent infrastructure in Go at Blackwell Systems.</p>
     </div>
-    <svg class="loop-figure" viewBox="-80 10 560 380" role="img" aria-labelledby="loop-figure-title">
-      <title id="loop-figure-title">The agent loop: build the request, call the model, run the tools, decide, and back to building the request</title>
-      <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="lf-head"/></marker></defs>
-      <circle cx="200" cy="200" r="120" class="lf-ring"/>
-      <path d="M232 84 A120 120 0 0 1 316 168" class="lf-arc" marker-end="url(#arrow)"/>
-      <path d="M316 232 A120 120 0 0 1 232 316" class="lf-arc" marker-end="url(#arrow)"/>
-      <path d="M168 316 A120 120 0 0 1 84 232" class="lf-arc" marker-end="url(#arrow)"/>
-      <path d="M84 168 A120 120 0 0 1 168 84" class="lf-arc" marker-end="url(#arrow)"/>
-      <g class="lf-node"><circle cx="200" cy="80" r="17"/><text x="200" y="86">1</text></g>
-      <g class="lf-node"><circle cx="320" cy="200" r="17"/><text x="320" y="206">2</text></g>
-      <g class="lf-node"><circle cx="200" cy="320" r="17"/><text x="200" y="326">3</text></g>
-      <g class="lf-node"><circle cx="80" cy="200" r="17"/><text x="80" y="206">4</text></g>
-      <text x="200" y="44" class="lf-label">Build the request</text>
-      <text x="347" y="206" class="lf-label lf-start">Call the model</text>
-      <text x="200" y="366" class="lf-label">Run the tools</text>
-      <text x="53" y="206" class="lf-label lf-end">Decide</text>
-      <text x="200" y="196" class="lf-center">one turn</text>
-      <text x="200" y="218" class="lf-sub">until an answer or a limit</text>
-    </svg>
     <figure class="hero-terminal">
       <div class="ht-window" aria-hidden="true">
         <div class="ht-bar">
@@ -107,7 +83,7 @@ if (/[?&]hero=terminal(&|$)/.test(location.search)) document.documentElement.cla
 // shows as it is in the markup.
 (function () {
   var fig = document.querySelector(".hero-terminal");
-  if (!fig || !document.documentElement.classList.contains("hero-terminal-on")) return;
+  if (!fig) return;
   var screen = fig.querySelector(".ht-screen");
   var still = matchMedia("(prefers-reduced-motion: reduce)");
   var meter = {
