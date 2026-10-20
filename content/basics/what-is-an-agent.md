@@ -72,7 +72,7 @@ The listing prompted that choice, and the test output prompted the edit.
 That is what puts it in the third row.
 Anthropic draws the line between workflows and agents in "Building effective agents"; the chatbot is added here as the simplest shape. Most real systems mix the shapes: a ticket system can send all tickets through a fixed workflow and pass only the odd cases to an agent.
 
-Often the workflow is the right answer.
+Often the [workflow](/build/workflows-vs-agents/) is the right answer.
 If you already know the steps, fixing them in code means fewer model calls, the same path on every run, lower cost, and tests that are easy to write.
 An agent pays for itself only when the step after this one can't be known until this one has run.
 
@@ -87,7 +87,7 @@ That program is the [harness](/glossary/#harness), and it does two jobs:
 - **Decide what the model sees on every call.** A model remembers nothing from one call to the next. Every request has to include the conversation so far, so whatever you put in the request is the model's entire knowledge of the task. It also means every turn's request is bigger than the last, and every token of it is billed again; [Tokens, cost, and the context window](/basics/tokens-and-cost/) follows that growth through a run.
 
 The second job is every bit as important as the first.
-Later pages cover it under the name context management: deciding, as a run gets longer, what stays in the request, what gets cut, and what gets summarized.
+Later pages cover it under the name [context management](/build/context-management/): deciding, as a run gets longer, what stays in the request, what gets cut, and what gets summarized.
 
 ## Tools have two sides
 
@@ -111,8 +111,8 @@ The companion code uses [`encoding/json/v2`](/basics/json-v2/), part of the stan
 An agent in Go comes down to a handful of plain pieces:
 
 - **A model interface** with one method, `Generate(ctx, req)`, so a scripted fake and a real HTTP client are interchangeable.
-- **Messages**: the conversation as a slice, each with a role (`system`, `user`, `assistant`, or `tool`).
-- **Tools**: a definition the model reads and a function the harness calls.
+- **[Messages](/basics/messages-and-roles/)**: the conversation as a slice, each with a role (`system`, `user`, `assistant`, or `tool`).
+- **[Tools](/basics/tool-calling/)**: a definition the model reads and a function the harness calls.
 - **The loop**: assemble a request, send it, act on any tool calls in the reply, then either finish or take another turn. [The agent loop in Go](/basics/agent-loop/) shows it in about 30 lines.
 - **Limits**: a cap on turns from the very first version, and later a cap on spending, since nothing else stops a loop that never gets an answer.
 
@@ -126,7 +126,7 @@ Each turn is a network call that takes seconds and is billed.
 An early mistake carries forward, since every later turn builds on what the model concluded from it.
 And the same task can follow a different route on a different run, so an agent is harder to test than a function that always does the same thing.
 When you can list the steps before the program starts, build a workflow.
-Use an agent for problems where you only learn the next step by taking the current one.
+When you can't, an agent is worth its extra cost and harder testing.
 
 ## Try it
 

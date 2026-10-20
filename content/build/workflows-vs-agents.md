@@ -1,7 +1,7 @@
 ---
 title: "Workflow or agent? The shapes, in Go"
 short: Workflow or agent?
-description: Programs that call a model come in five shapes, from a fixed sequence of calls to several cooperating agents. Pick the simplest one that handles the task, go further only when the task forces you to, and mix shapes when a task has a routine part and an open-ended part.
+description: Programs that call a model come in five main shapes, from a fixed sequence of calls to several cooperating agents. Pick the simplest one that handles the task, go further only when the task forces you to, and mix shapes when a task has a routine part and an open-ended part.
 card: Five shapes of program that call a model, and how to pick the simplest one that handles the task.
 group: Start building
 chapters: 1, 5, 6, 13
@@ -18,7 +18,7 @@ In others the model makes it on every turn, after seeing what the previous step 
 Handing the model more of those decisions makes the program able to do more, and it also makes it slower, more expensive, and harder to test.
 
 The shapes below come from Anthropic's ["Building effective agents"](https://www.anthropic.com/engineering/building-effective-agents), which names them.
-One task was built both ways and measured.
+One task, a small bug fix, was built both ways and measured.
 This page covers both, and shows the workflow shapes as small Go functions from the companion code's [`shapes` example](code:shapes).
 
 ## Five shapes
@@ -39,7 +39,7 @@ Pick the highest row that can do the job, and go lower only when the task leaves
 ## The workflow shapes in Go
 
 The `shapes` example builds the workflow rows, plus one shape the table leaves out, and each fits in one function.
-All of them take `agent.Model`, so any model client plugs in, and all of them treat a reply the model didn't finish (a `finish_reason` of `length`, `content_filter`, or `error`) as an error, never as an answer, which is the rule a hardened loop follows.
+All of them take `agent.Model`, so any model client plugs in, and all of them treat a reply the model didn't finish (a `finish_reason` of `length`, `content_filter`, or `error`) as an error, never as an answer, which is the rule a [hardened loop](/production/stop-reasons/) follows.
 
 **A fixed chain** runs its steps in order, each step's prompt built from the previous step's output, and checks each reply in code before the next step sees it:
 
@@ -52,7 +52,7 @@ A chain costs one call per step, made one after another, so its latency is the s
 
 **A router** asks a small, cheap model for the input's kind and hands the input to that kind's handler, which can be a large model, a small one, or plain code ([`route.go`](code:shapes/route.go)).
 It adds one short call in front of every input, and an input it misfiles gets the wrong treatment, so measure the classifier on inputs someone has labeled before you trust it.
-The input also reaches the classifier's prompt, so a crafted input can choose its own kind: no handler should hold a power the worst input mustn't reach.
+The input also reaches the classifier's prompt, so a crafted input, a [prompt injection](/production/prompt-injection/), can choose its own kind: no handler should have a permission that the worst possible input must never get.
 
 **Parallel calls with a vote** ask several voters the same question at once and return the first answer a quorum of them gives:
 
@@ -64,7 +64,7 @@ A vote costs one call per voter and takes about as long as the slowest call it w
 It only buys something if the voters can disagree: one model at temperature 0 gives the same answer every time.
 Answers are compared as strings after trimming space, so ask for a word or a fixed label; in the example's demo, `Yes` and `yes` count as two different answers.
 
-**Check and revise** is the shape the table leaves out, one model judging another's output, also used for evals.
+**Check and revise** is the shape the table leaves out, one model judging another's output, also used for [evals](/production/evals/).
 A writer drafts, a critic judges the draft, and the critic's notes go back to the writer, up to a limit:
 
 ```go include=shapes/revise.go tag=revise-loop
@@ -81,7 +81,7 @@ As an agent, the model decided for itself how to use four tools.
 As a workflow, the program followed three hard-coded steps: run the tests and read the two files involved, ask the model for a single edit in JSON, then apply it and rerun the tests.
 
 On every model the workflow's cost was between one sixth and one quarter of the agent's.
-Its single model call finished in somewhere between under one second and 2.5 seconds; the agent's runs took 7.5 to 13.5 seconds.
+Its single model call took from under a second to 2.5 seconds; the agent's runs took 7.5 to 13.5 seconds.
 The agent passed all 40 runs and the workflow passed 39.
 [Measured mistakes](/findings/measured-mistakes/#workflow-tab) has the failed run and its method.
 That failure is worth a look: the model put a literal tab character inside a JSON string, so the edit failed to decode, and the workflow had no step that could send the error back and ask again.
@@ -101,7 +101,7 @@ There's no fixed list of files to read, since the right one depends on the stack
 
 ## Agents need more machinery
 
-Each row you move down also shifts responsibility into the harness.
+Each row you move down also shifts responsibility into the [harness](/glossary/#harness), the program around the model.
 A workflow can only do what its code spells out.
 An agent can keep going indefinitely unless you add limits:
 
@@ -116,7 +116,7 @@ The [production](/production/) pages cover all of that.
 
 In practice the shapes mix, and a good design often nests one row inside another.
 
-One case study resolves support tickets.
+One case study, from [beyond crash triage](/beyond-crash-triage/#a-support-ticket-resolver), resolves support tickets.
 The outer layer is routing: one model call labels each ticket, and ordinary code handles the common categories with fixed handlers that send a password reset link, fetch an invoice from billing, or fill in a reply template.
 Tickets that don't fit a category are passed to an agent.
 It can look up orders, payments, and shipments with three read-only tools, and it has one tool that changes something, `issue_refund`.
@@ -125,7 +125,7 @@ Putting the router in front means most tickets cost a single model call, and tho
 The two halves also get measured in different ways.
 The router's accuracy is a number a program can compute against tickets someone has labeled.
 Whether a given refund should have been issued is a business decision, so it takes a human reviewer or a model acting as judge.
-And because `issue_refund` moves money, a person approves each call before it runs, and the call carries an idempotency key so a refund that went out just before a crash isn't paid twice.
+And because `issue_refund` moves money, a person [approves each call](/production/approval/) before it runs, and the call carries an [idempotency key](/production/durable-runs/) so a refund that went out just before a crash isn't paid twice.
 
 ## When to use it
 
@@ -140,11 +140,11 @@ leave: Waiting matters. The workflow's single call took at most 2.5 seconds; eac
 
 ## A checklist
 
-- **Can you write the steps down?** Use a fixed chain. Wrap each model step in a retry; the workflow's single failure above was a decoding error that one more attempt, with the error shown to the model, might have fixed.
+- **Can you write the steps down?** Use a fixed chain. Wrap each model step in a [retry](/production/retries-and-observability/); the workflow's single failure above was a decoding error that one more attempt, with the error shown to the model, might have fixed.
 - **Do inputs fall into kinds?** Route them, and give each kind the simplest shape that handles it.
 - **Are the pieces independent?** Call the model for each piece in parallel and merge the results in code.
 - **Does each step depend on what the last one found?** Use an agent, and give it a turn limit, a cost budget, and validated tool calls from the start.
-- **Does the task split into large independent parts?** Several agents may help, but measure first: on a recorded 99-report batch, [fan-out finished no faster than one agent](/findings/measured-mistakes/#fan-out) and cost more.
+- **Does the task split into large independent parts?** Several agents may help, but measure first: on a recorded 99-report batch, [fan-out finished no faster than one agent](/findings/fan-out/) and cost more.
 
 ## Try it
 
