@@ -30,6 +30,7 @@ type Page struct {
 	Body     template.HTML
 	BookHTML template.HTML // BookLine, rendered
 	TOC      []TOCItem     // the h2 headings, for guides
+	Share    *shareCard    // its share image in static/og/, or nil for the generic one
 }
 
 // Meta is a page's front matter: "key: value" lines between two "---"

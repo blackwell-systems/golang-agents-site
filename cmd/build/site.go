@@ -312,7 +312,7 @@ func jsonLD(s *Site, p *Page) (template.JS, error) {
 			"datePublished":    p.Date,
 			"dateModified":     p.Modified(),
 			"mainEntityOfPage": p.Abs(),
-			"image":            s.URL + ogImage,
+			"image":            p.ShareImage(),
 			"inLanguage":       "en",
 			"isPartOf":         map[string]any{"@type": "WebSite", "name": s.Name, "url": s.URL + "/"},
 		}
