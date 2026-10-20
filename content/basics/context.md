@@ -3,7 +3,7 @@ title: "context.Context in a Go agent: cancellation, deadlines, and causes"
 short: context.Context in an agent
 description: How context.Context works and how an AI agent in Go uses it. The interface and the tree of contexts, stopping a run on Ctrl-C, waiting on ctx.Done in your own code, a deadline for each model call, saying why a run stopped with WithTimeoutCause and context.Cause, cancelling the commands tools start, an idle timer on a stream, work that must finish with WithoutCancel, testing timeouts with synctest, and the common mistakes.
 card: Stop a run, give each call a deadline, say why it stopped, and let the work that must finish still finish.
-group: Go foundations
+group: Go in depth
 chapters: 1, 2, 5, 6, 12, 15
 stage: all
 date: 2026-10-19

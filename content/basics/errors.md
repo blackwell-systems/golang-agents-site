@@ -3,7 +3,7 @@ title: "Errors in a Go agent: wrapping, sentinel families, errors.AsType, and wh
 short: Errors in an agent
 description: Error handling in an AI agent written in Go. Wrapping with what each function was doing, sentinel errors grouped into families, error types that carry data and behavior, errors.AsType, errors.Join, the errors a model reads and fixes versus the ones that stop the run, panics recovered at the tool boundary, and the common mistakes.
 card: Errors for two readers: the program, which decides what to do, and the model, which fixes its next call.
-group: Go foundations
+group: Go in depth
 chapters: 2, 5, 7, 9, 12
 stage: all
 date: 2026-10-19
