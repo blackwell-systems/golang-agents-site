@@ -129,7 +129,7 @@ func TestRefs(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		refs, err := c.refs(tt.file, ex)
+		refs, err := c.refs(tt.file, ex, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -151,7 +151,7 @@ func TestRefDefs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	refs, err := c.refs("ch01/main.go", ex)
+	refs, err := c.refs("ch01/main.go", ex, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,7 +199,7 @@ func TestInterfaceMethodDef(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	refs, err := c.refs("ch01/agent/agent.go", ex)
+	refs, err := c.refs("ch01/agent/agent.go", ex, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -381,5 +381,70 @@ func TestHighlightLines(t *testing.T) {
 	}
 	if _, err := convert(md, c, []byte("```go include=ch01/main.go tag=run highlight=40\n```\n")); err == nil {
 		t.Error("highlight past the end: no error")
+	}
+}
+
+func TestFullRefs(t *testing.T) {
+	dir := t.TempDir()
+	writeFiles(t, dir, refCode)
+	c := &codeRoot{dir: dir}
+	ex, err := c.excerpt("ch01/main.go", "run", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	refs, err := c.refs("ch01/main.go", ex, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	type use struct {
+		name string
+		ref  goRef
+	}
+	var uses []use
+	for _, r := range refs {
+		uses = append(uses, use{ex.text[r.off:r.end], r})
+	}
+	find := func(name string, nth int) goRef {
+		t.Helper()
+		for _, u := range uses {
+			if u.name == name {
+				if nth == 0 {
+					return u.ref
+				}
+				nth--
+			}
+		}
+		t.Fatalf("%s: not found", name)
+		return goRef{}
+	}
+	tests := []struct {
+		name          string
+		sig, pkg, anc string
+		local         bool
+	}{
+		{name: "ctx", sig: "var ctx context.Context", local: true},
+		{name: "reply", sig: "var reply agent.Reply", local: true},
+		{name: "context", sig: `package context ("context")`, pkg: "context"},
+		{name: "Context", pkg: "context", anc: "Context"},
+		{name: "Println", sig: "func Println(a ...any) (n int, err error)", pkg: "fmt", anc: "Println"},
+		{name: "len", sig: "func len(v Type) int", pkg: "builtin", anc: "len"},
+		{name: "string", pkg: "builtin", anc: "string"},
+		{name: "Messages", sig: "field Messages []string"},
+	}
+	for _, tt := range tests {
+		r := find(tt.name, 0)
+		d := r.def
+		if tt.sig != "" && d.sig != tt.sig || d.pkg != tt.pkg || d.anchor != tt.anc || r.local != tt.local {
+			t.Errorf("%s = %q, %s#%s, local %v; want %q, %s#%s, local %v", tt.name,
+				d.sig, d.pkg, d.anchor, r.local, tt.sig, tt.pkg, tt.anc, tt.local)
+		}
+	}
+	// Every use of an object shares its number; the local variable
+	// that shadows helper is a different object from the function.
+	if a, b := find("ctx", 0), find("ctx", 1); a.obj != b.obj {
+		t.Errorf("ctx uses have objects %d and %d; want the same", a.obj, b.obj)
+	}
+	if fn, v := find("helper", 0), find("helper", 1); fn.obj == v.obj || fn.local || !v.local {
+		t.Errorf("helper: function %+v, variable %+v; want different objects, the variable local", fn, v)
 	}
 }

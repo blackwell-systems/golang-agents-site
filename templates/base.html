@@ -390,9 +390,25 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   refs.forEach(function (r) {
     var id = r.getAttribute("data-def");
     r.setAttribute("aria-describedby", id + "-text");
-    // One tab stop per declaration in each listing.
-    if (!seen[id]) { seen[id] = true; r.tabIndex = 0; }
+    // One tab stop per declaration in each listing; none for a full
+    // listing's local names, which would make tabbing past it long.
+    if (!seen[id] && !r.hasAttribute("data-local")) { seen[id] = true; r.tabIndex = 0; }
   });
+  // A full listing (hover=full) says how to use it in its title bar.
+  var canHover = window.matchMedia("(hover: hover)").matches;
+  document.querySelectorAll(".listing.is-full .listing-hint").forEach(function (h) {
+    h.textContent = canHover ? "Hover any name" : "Tap any name";
+  });
+  // In a full listing, every use of the shown name on the page is marked.
+  var same = [];
+  function mark(r) {
+    same.forEach(function (s) { s.classList.remove("is-same"); });
+    same = [];
+    var o = r && r.getAttribute("data-obj");
+    if (!o) return;
+    same = Array.prototype.slice.call(document.querySelectorAll('.ref[data-obj="' + o + '"]'));
+    same.forEach(function (s) { s.classList.add("is-same"); });
+  }
   function place(r) {
     var gap = 6, edge = 8;
     var a = r.getBoundingClientRect();
@@ -415,6 +431,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     if (current) current.classList.remove("is-open");
     current = r;
     r.classList.add("is-open");
+    mark(r);
     pop.innerHTML = def.innerHTML;
     var t = pop.querySelector(".ref-text");
     if (t) t.remove();
@@ -427,6 +444,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     pop.hidden = true;
     if (current) current.classList.remove("is-open");
     current = null;
+    mark(null);
   }
   function later(fn, ms) { clearTimeout(hideTimer); hideTimer = setTimeout(fn, ms); }
   refs.forEach(function (r) {

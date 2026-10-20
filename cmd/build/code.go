@@ -17,6 +17,7 @@ type codeRoot struct {
 	errs    []error              // errors from code: links, collected during a conversion
 	counted map[string]codeStats // stats by directory, counted once
 	gox     *goIndex             // the Go declarations, loaded on first use
+	goxFull *goIndex             // the same with the standard library, for hover=full
 }
 
 // openCode checks that dir looks like the companion code.

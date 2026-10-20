@@ -179,7 +179,7 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		}
 		return ast.WalkSkipChildren, nil
 	}
-	caption, href := attrs["title"], ""
+	caption, href, full := attrs["title"], "", attrs["hover"] == "full"
 	var refs []goRef
 	if file := attrs["include"]; file != "" {
 		if body.Len() > 0 {
@@ -197,7 +197,7 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 			return ast.WalkStop, err
 		}
 		if lang == "go" && strings.HasSuffix(file, ".go") {
-			if refs, err = r.code.refs(file, ex); err != nil {
+			if refs, err = r.code.refs(file, ex, full); err != nil {
 				return ast.WalkStop, err
 			}
 		}
@@ -212,17 +212,24 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 	}
 	r.listings++
 	code, defs := r.linkRefs(code, refs)
-	fmt.Fprintf(w, "<figure class=\"listing\" data-lang=\"%s\">", html.EscapeString(lang))
+	class, hint := "listing", ""
+	if full && len(refs) > 0 {
+		// A full listing says so in its title bar; the script shows the
+		// hint only where popovers work (base.html).
+		class += " is-full"
+		hint = `<span class="listing-hint" aria-hidden="true"></span>`
+	}
+	fmt.Fprintf(w, "<figure class=\"%s\" data-lang=\"%s\">", class, html.EscapeString(lang))
 	// Every listing gets a title bar: its file or title, or else a
 	// label for what kind of text it holds.
 	switch {
 	case caption != "" && href != "":
-		fmt.Fprintf(w, "<figcaption><a href=\"%s\">%s</a></figcaption>",
-			html.EscapeString(href), html.EscapeString(caption))
+		fmt.Fprintf(w, "<figcaption><a href=\"%s\">%s</a>%s</figcaption>",
+			html.EscapeString(href), html.EscapeString(caption), hint)
 	case caption != "":
-		fmt.Fprintf(w, "<figcaption>%s</figcaption>", html.EscapeString(caption))
+		fmt.Fprintf(w, "<figcaption>%s%s</figcaption>", html.EscapeString(caption), hint)
 	default:
-		fmt.Fprintf(w, "<figcaption>%s</figcaption>", html.EscapeString(barLabel(lang)))
+		fmt.Fprintf(w, "<figcaption>%s%s</figcaption>", html.EscapeString(barLabel(lang)), hint)
 	}
 	w.WriteString(code)
 	w.WriteString(defs)
@@ -252,6 +259,11 @@ func parseInfo(info string) (string, map[string]string, error) {
 		}
 		switch key {
 		case "include", "tag", "lines", "title", "highlight":
+			attrs[key] = val
+		case "hover":
+			if val != "full" {
+				return "", nil, fmt.Errorf("code block %q: hover takes only full", info)
+			}
 			attrs[key] = val
 		default:
 			return "", nil, fmt.Errorf("code block %q: unknown attribute %q", info, key)

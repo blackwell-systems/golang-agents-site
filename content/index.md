@@ -272,19 +272,19 @@ When an agent misbehaves, the stage tells you where to look: one that never stop
 
 The loop talks to the model through one small interface:
 
-```go include=ch01/agent/types.go tag=model
+```go include=ch01/agent/types.go tag=model hover=full
 ```
 
 Anything with a `Generate` method is a `Model`: a scripted list of replies for tests, or a client for a real model's API.
 The loop calls `m.Generate` once per turn and never needs to know which one it has.
 Here is the loop as the [companion code](https://github.com/blackwell-systems/go-agents-book-code) writes it:
 
-```go include=ch01/agent/loop.go tag=run
+```go include=ch01/agent/loop.go tag=run hover=full
 ```
 
 Its first line calls `index`, which splits the tools in two: `defs`, the definitions that go to the model in every request, and `byName`, which the loop uses to find the Go code for the tool a call names:
 
-```go include=ch01/agent/loop.go lines=49..63
+```go include=ch01/agent/loop.go lines=49..63 hover=full
 ```
 
 The other names are plain types and helpers: a `Message` is one entry in the conversation, a `Request` is the messages and tool definitions for one call, `Limits` holds settings such as `MaxTurns`, a `Result` holds the conversation a run ends with, `runTool` runs one call and turns its output (or its error) into a message for the model, and `ErrMaxTurns` is the error a run returns when it hits the turn limit.
