@@ -1,0 +1,298 @@
+{
+  "og/basics.jpg": {
+    "spec": "d4e8cffd161bacd62f6b9f21e449914bd0e13eba7c6936fdb99900b0419f8e4c",
+    "hash": "692172977550fc9150ad4738ee34ecb0d38f3e8f4d2dc63faec832cf9dfaba8e"
+  },
+  "og/basics/agent-loop.jpg": {
+    "spec": "06e93cb39804f2909473ce016584be8358cef5fe3a96140c5f7ecdbe5c1551d0",
+    "hash": "2260d63186310de648feda41e645cefab60c41abe6214a61cc4e1f99b736397a"
+  },
+  "og/basics/calling-a-model.jpg": {
+    "spec": "370d97f220392527a0e563b4aaee20c107112c6f2e6a0d142d46e48977721a84",
+    "hash": "c64d0782dc18e942031ec7d40977a0d6c89406ba02cb1cdbfc3c70dfedb5d24b"
+  },
+  "og/basics/choosing-a-model.jpg": {
+    "spec": "bb338fe78e315c56cc1ac5130785da62bbe9adbff52f57aac7031215c2c002e8",
+    "hash": "45d327f62eaaa5c6b671e191bd72938e4cf4dc5488475b7d85df952925b761d4"
+  },
+  "og/basics/common-errors.jpg": {
+    "spec": "7a1c3ca92287cddc9ece7cbe2fe2a1c91aae6f46a5d4db21dda03cb4fdbf6caa",
+    "hash": "edb3de17e89e8296bd5d1a2712075cc69e703c3855927ac7ebc4a25f0e088cbd"
+  },
+  "og/basics/context.jpg": {
+    "spec": "5652e169dd1119a603d7f19e1a46bb983442e9dea524c0381cb9fabad578e3c0",
+    "hash": "b8c1bc9ac62b08edaf00f88ee12cfcd3442cec6793e8e1055bd1f968476930fa"
+  },
+  "og/basics/errors.jpg": {
+    "spec": "2c0844f15a731621328945b1eb8e219333015f66959c0c9c9bcfc1f61fc9c3c5",
+    "hash": "4b709a4534c352bea0aa13f284348012749281f76a42e2b7025e0dcc133299aa"
+  },
+  "og/basics/first-model-call.jpg": {
+    "spec": "e1028c26710fb8c4546f2cd720ab9397675618fa18fbe92b8d16ab22c8f00bd9",
+    "hash": "0eeaf08b0153685ebfc5063421b3eba4a604a31f77cf2e8ad85899e093472a38"
+  },
+  "og/basics/getting-set-up.jpg": {
+    "spec": "758f14b21efc2cbb46d4f7f2abb42281be9fc314e34158ebeac13d19b21599e2",
+    "hash": "c518892c03ff951a5f941034a57dec6131a1bf883d25defa42dc88fc9710c13c"
+  },
+  "og/basics/goroutines.jpg": {
+    "spec": "6ea2d26a7582b991307b25eaf58213e85b7215be85be5c0459152e2a58fea953",
+    "hash": "e749a459febbd8a430aaaeab4394cccde7299a044e2f2ff91bb4f39a5da8e99e"
+  },
+  "og/basics/how-models-work.jpg": {
+    "spec": "6de04c12a56255398814842d812ce0abada720eca303cd9f72c0068721c59249",
+    "hash": "5da1565a6775072b6a9134251681f9ee3c3236890259b6d71a887bf0b5b8e70e"
+  },
+  "og/basics/http-client.jpg": {
+    "spec": "26474d9bb52fc29dda1607d11e89e9bfdccfc02c2973eb79a87758a412ec48b9",
+    "hash": "b0b67f0456b91af6bdd596666b5a5849ae037e6a045139380c3738875f685a14"
+  },
+  "og/basics/iterators.jpg": {
+    "spec": "599ed49c99a3f58ed12ac0020e679057ed5ac39e81e839ff5bc1e5bddc422d00",
+    "hash": "8750bd916d16afdd900ccd9c029c2bd0f85a8dde3705e1496f8439a82ac107a7"
+  },
+  "og/basics/json-v2.jpg": {
+    "spec": "1ebd2379902ef801afc255b7044687013bd5f750eaaa0dc93a9823a75f06d9dd",
+    "hash": "6b3ca50de75c6e5ef6ac5acddec4835fe2795e741d0c88768aef86866a6e7c9d"
+  },
+  "og/basics/messages-and-roles.jpg": {
+    "spec": "f29f47c85b936edf5c7c7ac8252d8b0d2ab8ef39801bf56bde6e338b99c5ca37",
+    "hash": "f69ac5d1eb5ff5f981e9443d002ebc2e3c4e73a0c6f03aabec2f0e4b371901a9"
+  },
+  "og/basics/tokens-and-cost.jpg": {
+    "spec": "254f0985fbdcb7adec708a5a4f38a6a919db8be5f2db1f548c46500bb703106c",
+    "hash": "a435d4b7b13a80f24fe6e194cf6b44501aaba2fc990cf2e17b239a06ba66b2c7"
+  },
+  "og/basics/tool-calling.jpg": {
+    "spec": "8e6d7ce9a155669b6cbdb6f86f7a9c861d0e03bf741f78e38b44c75b224cd3cb",
+    "hash": "81d65d42111c678101fe99264e8c8c3047b174f483d1a87dfea41efaccf59120"
+  },
+  "og/basics/what-is-an-agent.jpg": {
+    "spec": "17aee92f5be5c8c72ae93beafecd13088f14e519aceb5fc80870eaf7902d914a",
+    "hash": "fdd4d1689c8bbb9e185065eaaccb2f4da45f17d5c2a57bcb6f92c474ad3de6a8"
+  },
+  "og/beyond-crash-triage.jpg": {
+    "spec": "68dd304c0895c9729c65ddf85543d9e404e98e5f6b9ae7f20d66192982ab7527",
+    "hash": "91a1779085f2758fbddc596db7180f161e2752f9631779a1318f0ee1887e819f"
+  },
+  "og/book.jpg": {
+    "spec": "62b70a84368f41d3dd1db8b487baa683513425dd70dc657074c634d08e51c611",
+    "hash": "51128ef6fbf76c7b4e01b559aff33b7b0796c7c7d65dab150dafece980f6120d"
+  },
+  "og/build.jpg": {
+    "spec": "d936232399d6a4aeb9fafedb66b5943eadacc8f895dd217349be49c033c30f21",
+    "hash": "7e29ba5cfc13205e9ac5c3b96121cb86191d7832abfe5bd84ffbc3764bf8ed58"
+  },
+  "og/build/context-management.jpg": {
+    "spec": "658d13a80a97de1b87915f4f0374be8623ef996c4ea8009a776f81213aa29517",
+    "hash": "3deb3b8e16cef25a4d2c4a71493a313ba93e34da44ec944ab07e77a875caaf5c"
+  },
+  "og/build/first-agent.jpg": {
+    "spec": "62004b208ed810768a14e4d6a27d8356c000dacba46978b2689ed273172e2cf1",
+    "hash": "8ca81022e4cf97eaa3f4caea0d815d08221e4844c5e186f4cbacafdf8367d32f"
+  },
+  "og/build/mcp.jpg": {
+    "spec": "dd70ebcdf22c2ca97e9b669fbe36c07371a43ddb4d74cae2c6987827187b1c30",
+    "hash": "c01b42cd0f35867666a2eb99c6741df6adcbe1f40965f89ed8d1ee297392e94f"
+  },
+  "og/build/memory.jpg": {
+    "spec": "eebc7beb70aee97d42a60130f2604c1ec5ff9fe92c5687af5d62d44746e05cf4",
+    "hash": "f64172b5d5465ae53528a1771848fb51b035c545a08b2ce8f28da2542da0c3fe"
+  },
+  "og/build/parallel-tool-calls.jpg": {
+    "spec": "aaa81cc803c20a15e52ae0aaf3bb6ca9028329f81f331b3777f7163eeaa3e406",
+    "hash": "6c5756c95768ca606ac0442e62e507ddd9145f6c68deaa215f5d707b39575134"
+  },
+  "og/build/patterns-by-name.jpg": {
+    "spec": "cd65441b50a267799caf044e086069b60cee7fdd2dc58d21742457b60ebbcaa2",
+    "hash": "56cbdcbbc0d2d4ebe99565bcd1ac2f36a81508b6e9b46f9f234929202eaefd50"
+  },
+  "og/build/rag-or-agentic-search.jpg": {
+    "spec": "a9716df7be823d8c9f2cf67038adaaf693dfbc01ec3c120c1af8629f690a3309",
+    "hash": "893d8e3c3c3a0a0fb4c58c1a24d17a2e37f13111e95c1f41e37aeacd7322b0b3"
+  },
+  "og/build/rag.jpg": {
+    "spec": "6e3f57b19eaea507c3ede50dd80842506ca888cdba70e0c7662967ff9983aeb2",
+    "hash": "e21406de55fa1d129d865564ca2a5f3b4000394e480a5248c4c479061bb4af11"
+  },
+  "og/build/streaming.jpg": {
+    "spec": "3dbd5771bb7e85d20746ca4124418f53431cace5002e1d72a7577aec71b9be86",
+    "hash": "252c33fa0eeeb1efcb574e7cf86e353ed6c6c3580e8e1b018ba311072e4c647f"
+  },
+  "og/build/structured-output.jpg": {
+    "spec": "88a9b78b127194053cd1e75df2602b6ba0103929c9b3fd1bf57769c0243b5c11",
+    "hash": "90fa3a6c8a27b541438062ff717ab4e30353170a1180e2850f7c2d658662d5c6"
+  },
+  "og/build/sub-agents.jpg": {
+    "spec": "d288c06aea023b8294048582ffbcc52a83de2ce027ab0004eb4a54d761a8e014",
+    "hash": "b6e047d71ed04c622ca1ef59ee061d177a38ada0db231a201bfc4b1950d78ba5"
+  },
+  "og/build/tool-design.jpg": {
+    "spec": "83be6f8a66bf115a3a5b51496433fdc4e17cc8aa3b21d21863dd6c7be5f0778f",
+    "hash": "a6d90190909936950b8d86da67a00ca608e275f40e7370cdea4ebcab352eaf54"
+  },
+  "og/build/workflows-vs-agents.jpg": {
+    "spec": "e215db38026a3241332de2ff9ce960030c00bdad8b015ac8a47894cea3ad00f0",
+    "hash": "aab3971d5dbd94967130cb0a7ab4758100dd20dedc3ab7293a59ec3980a1111f"
+  },
+  "og/ecosystem.jpg": {
+    "spec": "fc17a8f8d81e9cc70d14f90644751619143891382a27bbb64d9ead0f9a0d6b11",
+    "hash": "41cf629df52d940a92d337c1373f917a99217b437a31b5d9ff567af976e717a4"
+  },
+  "og/ecosystem/differences.jpg": {
+    "spec": "81a031716ca28d8be2fd4eceeb188b0640503a02a7630826ef33bc4b53b5ea99",
+    "hash": "da854b23f8db907d9955347bb5d22dd241f56d7304271a48b38ead01fc317483"
+  },
+  "og/ecosystem/go-agent-frameworks.jpg": {
+    "spec": "bdf2127b7e0b8c7198c418088d5986a3acf2c07fc15961a650eaea32568e9e2d",
+    "hash": "519c584716cb7f8b14008b291a6c8f7b750610427ae19aae043415cd56b14eb8"
+  },
+  "og/ecosystem/libraries.jpg": {
+    "spec": "bfb05906fb9c171c85d64d93a2c05b12f2e32e51ce6cfe095aaac066250852a4",
+    "hash": "5e2be7a6b9a19f2d60a7c66e1f13ed5b747beb8aae1ecac9b27ab5835c7d8114"
+  },
+  "og/ecosystem/more-providers.jpg": {
+    "spec": "478bb5ac6969898f2bd7d87c7a7cec3ccf6eed47dd8f9fad6ca7005e71fe8fb5",
+    "hash": "0fcaed5af08eb024c630784bc24b54171c94d9aedcd7b7838e803cfc416f6e66"
+  },
+  "og/ecosystem/providers-and-sdks.jpg": {
+    "spec": "6ced4d406cafc50692d390b8d89b195310126aecc7188914e7c5979be1e851cc",
+    "hash": "70580c2ae4e11b173d34ad88cbdd207b1eb4b10d841664763f0f27f2695e5978"
+  },
+  "og/ecosystem/why-go.jpg": {
+    "spec": "11d27d7bc0f00e28815ef06f5a59c2fdf01adbbddf121c5e55ceaed9938ad3f1",
+    "hash": "76b6cb26faee7f761b88fecfd39096ea6cb6ca2294dce0a5152e3af73f401241"
+  },
+  "og/findings.jpg": {
+    "spec": "d47dee36a4b01df92ea7036ff683141c8b79c14d6558be03b829cff0e94c881e",
+    "hash": "48771cdf89060e82a33176b4ce43662bda85ceceab91968e5694322e894438b6"
+  },
+  "og/findings/crash-sweep.jpg": {
+    "spec": "76657b234315e90f5ba2dbe9190993528792f2287e2a723d069e0bd9898feb5d",
+    "hash": "6afb0a1dfcba40ad61f15457762b7ac8df84d57604520b853ee1258233f02353"
+  },
+  "og/findings/error-wording.jpg": {
+    "spec": "364f51cdb94944c2066c1cb10b8893d68e498f8cfa11e24b141d34ca66508122",
+    "hash": "d987330a6b5dac9401346d4076e22e9d25929b0faa1d6e769f3e9b7746760f3c"
+  },
+  "og/findings/fan-out.jpg": {
+    "spec": "e9fe59656bbc2b827656ee38c2aaf74aefa45c776adc103d456c643169a153fb",
+    "hash": "0c7a0302dd45a6d148ebfea2ddaaa1e04698969a44637a5b4f38f09f4e9dd1dc"
+  },
+  "og/findings/identical-runs.jpg": {
+    "spec": "ca40f20a4a8ee9270700a2247908b0c125c29b7499c51c077c4668844ab35511",
+    "hash": "feb1b234e801fbbda7e621ad46198bf4980477986cbf1a14597d6892b08c1f94"
+  },
+  "og/findings/measured-mistakes.jpg": {
+    "spec": "5fbec13edc4f7dc4973619abc5a80cd7f18e37b434e4f2567566aa6fe9cbc489",
+    "hash": "3a5c18a52647d73869baccf9cafd96f1c7d2b1833db10397b37766f790988346"
+  },
+  "og/findings/the-finished-agent.jpg": {
+    "spec": "70c74736f4c31add7dc5cb0e4dd30f68db9add136d7c5bf65c200027bd7e7d8d",
+    "hash": "9b50feedce50ef8730fcd415247a80b0fe623f89dc0a006b397dbcf6a4cabfd6"
+  },
+  "og/findings/tool-description-poisoning.jpg": {
+    "spec": "76a98a3c694d48882f7ec9f6d26ea28a812dfacea3a61bf87865f68d4acf2274",
+    "hash": "07d54cbc2d659275d92c26ab961d5ac3a17ed9af22fc49f30c0566b4a45588ee"
+  },
+  "og/findings/workflow-vs-agent.jpg": {
+    "spec": "657aacd02dc0cf57d72b7119720e0c603f4012c73a386c2d50b1bcf85b7d81df",
+    "hash": "6d3472345d3c66b05b03e9b3fa11fab71e1918af4020482e47557bc8c9adecb9"
+  },
+  "og/for-leads.jpg": {
+    "spec": "a4a0d998187cdf646dc16071f7872fc5176f23ba312a3f2100817577680c84ca",
+    "hash": "38689b4d4c167301a6e357a76c37c3d23cf15f161460bb3d14d89ec1291e20a4"
+  },
+  "og/glossary.jpg": {
+    "spec": "1bfcc9b90714c3ba7e613a74a26dd22cd0374a6bde6d8eaf06ee3073c96e3b90",
+    "hash": "f8ae94003430cc64b502d853595bc60a631f43adc5477479791a05873838c29c"
+  },
+  "og/home.jpg": {
+    "spec": "1e8d61c9526f11d6b4512df593dab5362d74802f74a80138869ae3fbb9f23f7c",
+    "hash": "603ea98b8ffad81a6527ac39eb2556c3455af4f6f6d9a8ad60266aa78818f834"
+  },
+  "og/production.jpg": {
+    "spec": "e47a6c03c4e1635fbc6d4ac0b3b69226221268d3604c0d38e2f9a01be6551055",
+    "hash": "b04604eb35dce8c7acbf7e59377716bf870839718f0c75c5488f0656d9ec0499"
+  },
+  "og/production/agent-as-a-service.jpg": {
+    "spec": "3659cb71744e332468364613aaf66e0c54ac56a3b53a98ffdc8b557d4286ca83",
+    "hash": "f58ff1e3046e5764f3c026c2726f588e6b64ed99a58d83ecc2cb8a4c9a2cf21d"
+  },
+  "og/production/approval.jpg": {
+    "spec": "1947546e2c51a9234e541a95a0ce16bfec92837e6696ab88018fb8a59c1d586e",
+    "hash": "4f22ef42e123cda2d6007389a5f43a65e108b2dac5439291aa54f9fdcf2655ae"
+  },
+  "og/production/durable-runs.jpg": {
+    "spec": "d25e5ca735b2e6b69ba978809185acd7c82ce414b3c7fca5d60202f543335469",
+    "hash": "b7a562cc6e8c0cf6fe87188607156fe1e5706dc758937941ad4fe217ddfd951a"
+  },
+  "og/production/evals.jpg": {
+    "spec": "19d999d6a5121bb2788f9ea535adaa968afaa00fac12cbd93b607c1a1a0d1f07",
+    "hash": "0a49643e09a586763a4b4b320f5392902713d07260ea3d36d111892076991a07"
+  },
+  "og/production/launch-checklist.jpg": {
+    "spec": "e6bb151c33affba1ed4aaee504a98435f869b8655db858aa9d3332f6e847acf4",
+    "hash": "57135f5b10c67a9fd98d21ad6b2bfa3550383693731f014821fcb109724b8321"
+  },
+  "og/production/prompt-injection.jpg": {
+    "spec": "cd47bf61e7e1dab9743d013551f40bc6b3807c8cc0d5ba32c78a9b058b0acf82",
+    "hash": "6d81b762e10ec8477784adebc10642f8c238eec56a694baf46d228c4d593e6ed"
+  },
+  "og/production/retries-and-observability.jpg": {
+    "spec": "0167131367f9ae313abf052ac1faef3bf6454af05e0140ef8830dd948cdd8c12",
+    "hash": "9c25c1328ed3eb3380ec811e763b69dff1f9fb248b50006dc16bd08881c72a73"
+  },
+  "og/production/stop-reasons.jpg": {
+    "spec": "2478deba9eb5bb3269522d29e7da6acf2ca435ff1380b596c22942b015719a98",
+    "hash": "a693e361e3c7cad4a2cc9a62f6ab0fe9d2adc8d86185aa44586142f995c512f5"
+  },
+  "og/production/testing-offline.jpg": {
+    "spec": "f97c4654b3b8d6743d5126413bec5d9d8d1c446ab079e1b7400b2408b9b48603",
+    "hash": "57ffa1a23222265f16ac4ce3bacc5028496f6707b95125caf22c0b4bf571978c"
+  },
+  "og/run.jpg": {
+    "spec": "73e117d834e5f6141d7972919cdf4425343ac409ec7ee7a209b4d12e5b3fde3c",
+    "hash": "8b128144c2c3512dee234a4b599c60c548e29f0f315854293558ee139e06169e"
+  },
+  "og/run/ch01-scripted-loop.jpg": {
+    "spec": "36cef00229b2ba14bcd563f5ac295606168a95a936625bc2269c152edae2a434",
+    "hash": "602c4bbe08653f28fa394b64f743d6ec3c7228f03a9d9368e59eab4331d04144"
+  },
+  "og/run/ch04-first-agent.jpg": {
+    "spec": "123468fe37f48311a70c740486b8a0676bc2177eccb4c7c3cead1c0d7855e0eb",
+    "hash": "7e10111d9edb7f142a2464bd56c60aa2efa05a863f999e92682ccac6803fb9d6"
+  },
+  "og/run/ch07-crash-triage.jpg": {
+    "spec": "d6bfa1f11ce503b0c0a010854943d119ba7902bc8bafd0477c4cb6edc3f584d6",
+    "hash": "833d08ae7c3ad3f79a19684805a79586d41cc3a7bf6c78a161391d50080d192e"
+  },
+  "og/run/ch10-mcp-tracker.jpg": {
+    "spec": "5c3eeeddb80abfe0a8239a2ef927d4ac4dae2180210ed70ff5a06410bae2b549",
+    "hash": "a42bfd0bf68e64de1f6f24e2924418b182c6360cd6e5a68d9a24a4058d4e0e52"
+  },
+  "og/run/ch16-framework-ports.jpg": {
+    "spec": "20721c34a6a26e959e1649cba5ae70d440cae05641e048dff9aa473ef3a22983",
+    "hash": "c4f0e18b21a2933be77e75b7b3c69390a635f6a400f790f7f080f36a8da8f0d1"
+  },
+  "og/run/stream-to-browser.jpg": {
+    "spec": "45b33b9cf6afa3a4aee118e07e4a414e411f8d390b5e00b7b2179779ccef08fd",
+    "hash": "b77115c32cd8e13b91f0586438ede7d39705e31bc258c8efb6e84e0d84dd61ef"
+  },
+  "og/scope.jpg": {
+    "spec": "5029e39cefb86bcea06bac137339405a51fa62e58a6a9240e5a1c053816b50e8",
+    "hash": "3f8b437dfec1580670dcd945b648ac9e0eef8382cae747f9d5c71e55993f2ce4"
+  },
+  "og/search.jpg": {
+    "spec": "7ee204c6e3c606887aa0f311a0fc9b7eeb6656077668adfd92762a82a562e5fc",
+    "hash": "a65b7c5e423188dc0f53ad0eece8b317928f259f131f79a1a716bcb39c8d6a8d"
+  },
+  "og/start.jpg": {
+    "spec": "7c33e8469abcc41907cc9fae1cd58bdcd7f3b75c23b9f5d85af7e7d2734d2dc6",
+    "hash": "26749e24c24729dc3c2b2de3ab488154964af7095c1fa826f1a0162c70da92f5"
+  },
+  "og/work-with-me.jpg": {
+    "spec": "052d311ff6dbc59473ce2163445655946ad19a41db0b8f1032e73ab0211d61c4",
+    "hash": "0e7e8614142ccedbb957c2d418acfab0776b0f613d0f16416f34919180e34520"
+  }
+}

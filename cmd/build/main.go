@@ -30,8 +30,16 @@ func main() {
 		"the book's chapters, for the copy check; empty skips the check")
 	flag.BoolVar(&cfg.drafts, "drafts", false,
 		"build draft pages too, for review; never deploy such a build")
+	flag.StringVar(&cfg.ogSpec, "og-spec", "",
+		"write the share cards' descriptions as JSON to this file (- for stdout) and stop; tools/og renders them")
+	flag.StringVar(&cfg.ogManifest, "og-manifest", "tools/og/manifest.json",
+		"the share card renderer's manifest, to report cards that are out of date")
 	flag.Parse()
-	if err := build(cfg); err != nil {
+	run := build
+	if cfg.ogSpec != "" {
+		run = shareSpec
+	}
+	if err := run(cfg); err != nil {
 		fmt.Fprintln(os.Stderr, "build:", err)
 		os.Exit(1)
 	}
@@ -40,7 +48,20 @@ func main() {
 // config holds the build's directories.
 type config struct {
 	content, templates, static, out, code, book string
-	drafts                                      bool // build pages marked draft
+	drafts                                      bool   // build pages marked draft
+	ogSpec                                      string // write the share cards' descriptions here, and build nothing
+	ogManifest                                  string // tools/og's manifest of rendered cards
+}
+
+// shareSpec writes the share cards' descriptions for tools/og. It reads
+// only the pages' front matter and Markdown, so it needs no companion
+// code and runs in a moment.
+func shareSpec(cfg config) error {
+	pages, _, err := loadPages(cfg.content, cfg.drafts)
+	if err != nil {
+		return err
+	}
+	return writeShareSpec(cfg.ogSpec, shareCards(pages), pages)
 }
 
 // The site's fixed values.
@@ -115,6 +136,10 @@ func build(cfg config) error {
 		if err := checkCopy(runs, pages); err != nil {
 			return err
 		}
+	}
+	cards := shareCards(pages) // from the Markdown, before it renders
+	if err := attachShareCards(cfg.static, cfg.ogManifest, cards, pages); err != nil {
+		return err
 	}
 	ix := newPageIndex(pages, held)
 	paths, err := sitePaths(pages, ix) // from the start page's Markdown, before it renders
