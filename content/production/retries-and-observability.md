@@ -129,7 +129,7 @@ Anyone watching has already seen part of the first attempt, so before the new at
 Whatever usage a failed attempt did report is carried over and added to the attempt that succeeds, so budgets match the bill.
 A chat completions stream reports usage in its final chunk, so a stream that broke usually reports none.
 To recover that cost, the client saves each generation's ID, and OpenRouter can report the cost for that ID afterwards.
-The lookup isn't immediate: in a recorded measurement, OpenRouter returned 404 for about four and a half to eight and a half minutes before the generation appeared.
+The lookup isn't immediate: in a recorded measurement, the generation took between 4.5 and 8.5 minutes to appear, and OpenRouter answered 404 until it did.
 
 ## Tools: timeouts, and retries only when safe
 
