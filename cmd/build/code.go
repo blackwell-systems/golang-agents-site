@@ -16,6 +16,7 @@ type codeRoot struct {
 	dir     string
 	errs    []error              // errors from code: links, collected during a conversion
 	counted map[string]codeStats // stats by directory, counted once
+	gox     *goIndex             // the Go declarations, loaded on first use
 }
 
 // openCode checks that dir looks like the companion code.
@@ -53,7 +54,14 @@ func (c *codeRoot) url(rel string, first, last int) (string, error) {
 // excerpt is part of a file, ready to show.
 type excerpt struct {
 	text        string
-	first, last int // the lines it came from, 1-based
+	first, last int   // the lines it came from, 1-based; 0 for a whole file
+	src         []int // the source line of each line of text
+	indent      int   // the bytes of indent removed from each line
+}
+
+// shows reports whether the excerpt holds source line n.
+func (ex excerpt) shows(n int) bool {
+	return len(ex.src) > 0 && n >= ex.src[0] && n <= ex.src[len(ex.src)-1]
 }
 
 var (
@@ -138,7 +146,9 @@ func (c *codeRoot) excerpt(rel, tag, spec string) (excerpt, error) {
 		}
 	}
 	var sb strings.Builder
+	src := make([]int, 0, len(kept))
 	for _, k := range kept {
+		src = append(src, k.n)
 		t := k.text
 		if len(t) >= indent {
 			t = t[indent:]
@@ -146,7 +156,8 @@ func (c *codeRoot) excerpt(rel, tag, spec string) (excerpt, error) {
 		sb.WriteString(strings.TrimRight(t, " \t"))
 		sb.WriteByte('\n')
 	}
-	ex := excerpt{text: sb.String(), first: kept[0].n, last: kept[len(kept)-1].n}
+	ex := excerpt{text: sb.String(), first: kept[0].n, last: kept[len(kept)-1].n,
+		src: src, indent: indent}
 	if tag == "" && spec == "" {
 		ex.first, ex.last = 0, 0 // a whole file links without a range
 	}

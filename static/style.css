@@ -1040,8 +1040,9 @@ cite { font-style: italic; }
 .listing figcaption a { color: var(--soft); }
 .listing figcaption a:hover { color: var(--link); }
 .listing pre {
+  --pad-x: 1.1rem;
   margin: 0;
-  padding: 1rem 1.1rem;
+  padding: 1rem var(--pad-x);
   overflow-x: auto;
   background: var(--code-bg);
   border: 0;
@@ -1085,6 +1086,57 @@ cite { font-style: italic; }
 .chroma .gp { color: var(--amber); user-select: none; }
 .chroma .go { color: var(--stone); }
 .chroma .err { color: inherit; background: none; }
+
+/* Names the companion code declares: a dotted underline, and on hover,
+   focus, or a tap, a popover with the declaration (base.html). The
+   underline appears only when the script that shows popovers runs. */
+.has-refs .listing .ref {
+  text-decoration: underline dotted 1px;
+  text-decoration-color: var(--soft);
+  text-underline-offset: 0.22em;
+  cursor: help;
+  border-radius: 2px;
+}
+.has-refs .listing .ref:hover, .has-refs .listing .ref.is-open {
+  text-decoration-color: var(--amber);
+  text-decoration-style: solid;
+}
+.has-refs .listing .ref:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+.ref-pop {
+  position: absolute;
+  z-index: 60;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(34rem, calc(100vw - 16px));
+  padding: 0.6rem 0.75rem 0.55rem;
+  background: var(--panel-deep);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--stone);
+  font-family: var(--body);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  text-align: left;
+}
+.ref-pop[hidden] { display: none; }
+.ref-pop pre {
+  margin: 0 0 0.45rem;
+  padding: 0 0 0.1rem;
+  overflow-x: auto;
+  background: none;
+  border: 0;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  tab-size: 4;
+  white-space: pre;
+  color: var(--stone);
+}
+.ref-pop code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
+.ref-pop p { margin: 0; }
+.ref-pop .ref-doc { margin-bottom: 0.35rem; color: var(--ivory); }
+.ref-pop .ref-at { font-family: var(--mono); font-size: 0.74rem; }
+.ref-pop .ref-at a { color: var(--link); }
 
 /* The four stages, as a cycle. */
 .loop-stages {
@@ -1624,7 +1676,7 @@ cite { font-style: italic; }
   .site-nav ul { padding-right: 2.5rem; }
 }
 @media (max-width: 40rem) {
-  .listing pre { font-size: 0.78rem; padding: 0.85rem 0.9rem; }
+  .listing pre { --pad-x: 0.9rem; font-size: 0.78rem; padding: 0.85rem var(--pad-x); }
   .prose table { font-size: 0.9rem; }
 }
 

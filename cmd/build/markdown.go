@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/chroma/v2"
@@ -133,12 +134,18 @@ func (t pageLinks) Transform(doc *ast.Document, _ text.Reader, _ parser.Context)
 //
 // tag= picks the lines between "// tag::run[]" and "// end::run[]";
 // lines=2..-1 picks a range of a whole file. title= names the listing
-// in its caption; without it, the caption is the file's path. A block
-// whose language is in blockLangs is a layout instead (blocks.go).
+// in its caption; without it, the caption is the file's path. Any
+// block may take highlight=3-5,9, which marks those lines, counted
+// from the listing's first. A block whose language is in blockLangs is
+// a layout instead (blocks.go).
+//
+// In an included Go listing, the names that refer to declarations in
+// the companion code show those declarations in a popover (godefs.go).
 type codeBlocks struct {
-	code  *codeRoot
-	pages *pageIndex        // the site's pages, for path blocks
-	md    goldmark.Markdown // the converter, for the Markdown inside blocks
+	code     *codeRoot
+	pages    *pageIndex        // the site's pages, for path blocks
+	md       goldmark.Markdown // the converter, for the Markdown inside blocks
+	listings int               // listings rendered, for unique ids
 }
 
 func (r *codeBlocks) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
@@ -173,6 +180,7 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		return ast.WalkSkipChildren, nil
 	}
 	caption, href := attrs["title"], ""
+	var refs []goRef
 	if file := attrs["include"]; file != "" {
 		if body.Len() > 0 {
 			return ast.WalkStop, fmt.Errorf("include %s: the block must be empty", file)
@@ -188,11 +196,22 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		if href, err = r.code.url(file, ex.first, ex.last); err != nil {
 			return ast.WalkStop, err
 		}
+		if lang == "go" && strings.HasSuffix(file, ".go") {
+			if refs, err = r.code.refs(file, ex); err != nil {
+				return ast.WalkStop, err
+			}
+		}
 	}
-	code, err := highlight(lang, body.String())
+	marked, err := lineRanges(attrs["highlight"], strings.Count(body.String(), "\n"))
+	if err != nil {
+		return ast.WalkStop, fmt.Errorf("code block %q: %w", info, err)
+	}
+	code, err := highlight(lang, body.String(), marked...)
 	if err != nil {
 		return ast.WalkStop, err
 	}
+	r.listings++
+	code, defs := r.linkRefs(code, refs)
 	fmt.Fprintf(w, "<figure class=\"listing\" data-lang=\"%s\">", html.EscapeString(lang))
 	// Every listing gets a title bar: its file or title, or else a
 	// label for what kind of text it holds.
@@ -206,6 +225,7 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		fmt.Fprintf(w, "<figcaption>%s</figcaption>", html.EscapeString(barLabel(lang)))
 	}
 	w.WriteString(code)
+	w.WriteString(defs)
 	w.WriteString("</figure>\n")
 	return ast.WalkSkipChildren, nil
 }
@@ -231,7 +251,7 @@ func parseInfo(info string) (string, map[string]string, error) {
 			val, rest, _ = strings.Cut(after, " ")
 		}
 		switch key {
-		case "include", "tag", "lines", "title":
+		case "include", "tag", "lines", "title", "highlight":
 			attrs[key] = val
 		default:
 			return "", nil, fmt.Errorf("code block %q: unknown attribute %q", info, key)
@@ -245,9 +265,10 @@ func parseInfo(info string) (string, map[string]string, error) {
 // highlighted block suits both the dark and the light theme.
 var formatter = chromahtml.New(chromahtml.WithClasses(true))
 
-// highlight returns code as highlighted HTML, in a <pre>. A language
-// chroma doesn't know is shown as plain text.
-func highlight(lang, code string) (string, error) {
+// highlight returns code as highlighted HTML, in a <pre>, with the
+// lines in marked (1-based, inclusive ranges) marked. A language chroma
+// doesn't know is shown as plain text.
+func highlight(lang, code string, marked ...[2]int) (string, error) {
 	lexer := lexers.Get(lang)
 	if lang == "" || lexer == nil {
 		lexer = lexers.Get("plaintext")
@@ -257,8 +278,12 @@ func highlight(lang, code string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("highlight %s: %w", lang, err)
 	}
+	f := formatter
+	if len(marked) > 0 {
+		f = chromahtml.New(chromahtml.WithClasses(true), chromahtml.HighlightLines(marked))
+	}
 	var buf bytes.Buffer
-	if err := formatter.Format(&buf, styles.Fallback, it); err != nil {
+	if err := f.Format(&buf, styles.Fallback, it); err != nil {
 		return "", fmt.Errorf("highlight %s: %w", lang, err)
 	}
 	return buf.String(), nil
@@ -289,4 +314,29 @@ func barLabel(lang string) string {
 		return "Go"
 	}
 	return lang
+}
+
+// lineRanges parses a highlight= value such as "3-5,9" into ranges of
+// lines, checking each against n, the number of lines in the listing.
+func lineRanges(spec string, n int) ([][2]int, error) {
+	if spec == "" {
+		return nil, nil
+	}
+	var out [][2]int
+	for part := range strings.SplitSeq(spec, ",") {
+		lo, hi, isRange := strings.Cut(part, "-")
+		if !isRange {
+			hi = lo
+		}
+		a, err1 := strconv.Atoi(lo)
+		b, err2 := strconv.Atoi(hi)
+		if err1 != nil || err2 != nil || a < 1 || b < a {
+			return nil, fmt.Errorf("highlight %q: want lines such as 3-5,9", spec)
+		}
+		if b > n {
+			return nil, fmt.Errorf("highlight %q: line %d is past the listing's %d lines", spec, b, n)
+		}
+		out = append(out, [2]int{a, b})
+	}
+	return out, nil
 }
