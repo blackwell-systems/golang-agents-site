@@ -21,21 +21,21 @@ The code is in [`ch14/safety`](code:ch14/safety) and [`ch14/agent`](code:ch14/ag
 ## Put the gate in the harness
 
 In the companion code, [approval](/glossary/#approval) is a wrapper around a tool, the same kind of middleware used for retries and timeouts.
-It sits outside those wrappers, so time spent waiting for a person never counts against a tool's time limit and is never retried; only the check on outgoing text sits further out.
+It sits outside those wrappers, so time spent waiting for a person never counts against a tool's time limit and is never retried; only the [egress check](/production/prompt-injection/), which inspects text the agent is about to send out of the machine, wraps it in turn.
 
 The alternative, a tool such as `ask_permission` that the model calls before acting, puts the choice to ask in the model's hands.
-A model can skip the call by mistake, and an injected instruction can tell it to skip the call on purpose.
-A tool for asking a person a question is still worth having, for questions.
+A model can skip the call by mistake, and an injected instruction, a [prompt injection](/production/prompt-injection/), can tell it to skip the call on purpose.
+A tool for asking a person a question is still worth having, for questions rather than for permission.
 Permission has to come from code the model can't route around.
 
 ## Decide which calls need a person
 
 A policy marks the calls that wait.
-The default policy in the companion code covers two kinds: anything that puts text in front of people (filing an issue or adding a comment, whether through the agent's built-in tools or the MCP server in front of the tracker), and any write to a [protected path](/glossary/#protected-path) such as the authorization package or an existing test.
+The default policy in the companion code covers two kinds: anything that puts text in front of people (filing an issue or adding a comment, whether through the agent's built-in tools or the [MCP server](/build/mcp/) in front of the tracker), and any write to a [protected path](/glossary/#protected-path) such as the authorization package or an existing test.
 Each tool reports what a call would change, its targets, because only the tool knows which of its arguments names a file.
 
 Read-only tools stay ungated.
-A call that has to wait for a decision runs in a stage by itself, so gating reads would give up parallel reads and buy nothing.
+A call that has to wait for a decision runs alone, outside the batch of a reply's calls that [run in parallel](/build/parallel-tool-calls/), so gating reads would give up parallel reads and buy nothing.
 
 ## Show the evidence, made safe to read
 
@@ -93,7 +93,7 @@ So an approver with nothing to report returns `ErrNoDecision`, and the run stops
 The calls that came before the waiting one in the same reply have already run.
 The waiting call and everything after it go into `Result.Pending` with no answers yet, since the later calls may depend on it.
 
-Resuming takes two things: the conversation from that `Result`, with `Limits.Before` set to the `Result` itself, and `Limits.Approver` set to something that returns the decisions.
+Resuming takes two things: the conversation from that `Result`, and `Limits` with `Before` set to the `Result` itself and `Approver` set to something that returns the decisions.
 The loop runs the pending calls through the gate first, before it makes any model call, and the turns and money already spent count toward the resumed run's limits, so pausing can't be used to reset a budget.
 A caller that slips an extra user message in after the waiting calls gets `ErrBadResume`, because the API expects the tool results to come first.
 
@@ -106,11 +106,11 @@ One reply's calls, where the third needs a person's decision.
 
 ## Make the pause survive a restart
 
-A [checkpoint](/glossary/#checkpoint) saves the run so a restart loses nothing, and three details connect it to approval.
+A [checkpoint](/production/durable-runs/) saves the run so a restart loses nothing, and three details connect it to approval.
 The marker that says "this call went out" is written after the yes, not before the question, so a process that dies while a person is deciding leaves nothing to investigate.
 The gate's denials, which the gate keeps only in memory, are rebuilt from the audit log when the command runs with `-audit`; without it, a refusal doesn't outlive the process.
 And when a crash leaves a call whose outcome nobody knows, the person is asked through the same approver, with a different question: did this take effect?
-The crash sweep includes tools behind the gate, with a crash point while the person decides, and with idempotency keys that separate sweep's 1,063 scenarios made no duplicates and asked nobody about an outcome.
+The [crash sweep](/findings/crash-sweep/) has a separate case for tools behind the gate, with a crash point while the person decides: with idempotency keys, its 1,063 scenarios made no duplicates and asked nobody about an outcome.
 
 ## Keep a log that shows tampering
 
@@ -128,11 +128,11 @@ For a record other teams must rely on, have the harness sign each line with a ke
 The default policy was replayed offline against 30 recorded runs.
 It would have held 104 calls for a decision, roughly 3.5 per run: 78 were filings and comments, and 26 were protected writes.
 Of the 15 writes into `auth/`, 14 were the agent fixing an already-filed bug outside its task, exactly what a person should catch.
-One task's run would have asked as many as seven times, and the recorded 99-report batch 22 times.
+One task's run would have asked as many as seven times, and the recorded run over a batch of 99 crash reports 22 times.
 
 That volume is why decisions belong in a review queue, where a paused run waits without holding up any other group, approvals carry a deadline (a day by default), and a question about an unknown outcome has no deadline at all, since neither guess is safe.
 
-The OpenAI Agents SDK has the same overall shape: a tool can declare that it needs approval, a run returns with pending interruptions, and the run's state can be serialized and resumed later.
+The OpenAI Agents SDK has the same overall shape (the [frameworks page](/ecosystem/go-agent-frameworks/) compares the Go ones): a tool can declare that it needs approval, a run returns with pending interruptions, and the run's state can be serialized and resumed later.
 What this design adds is binding each yes to a hash of the person's view, and keeping each denial per target.
 
 ## Steps for your own agent

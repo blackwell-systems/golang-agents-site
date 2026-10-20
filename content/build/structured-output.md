@@ -17,15 +17,15 @@ Code that scrapes those facts out of prose works until the model words things di
 The answer needs a shape the program can decode.
 
 Below, the triage agent gets such a shape.
-Here are the two available approaches, the one used by default in the companion code, and the part that counts for more than the format, which is verifying what the answer claims.
+This page covers both approaches, says which one the companion code uses by default, and then turns to what matters more than the format: verifying what the answer claims.
 
 ## Two ways to get structure
 
 **A constrained reply.** [Structured outputs](/glossary/#structured-outputs) is a request option, `response_format`, that tells the API to make the reply conform to a JSON Schema.
 Support varies by model and by provider.
-On OpenRouter, leaving out `require_parameters` allows routing to a provider that doesn't honor the option.
+On OpenRouter, leaving out `require_parameters` allows routing to a provider that doesn't honor `response_format`.
 Many providers also won't apply it in a turn that offers tools.
-Reserve it for single calls that use no tools, for example condensing the early turns of a long conversation.
+Reserve it for single calls that use no tools, for example [condensing the early turns](/build/context-management/) of a long conversation.
 
 **A final tool.** Give the agent an extra tool, `submit_diagnosis` in this case, and make its arguments the answer.
 Nothing about it is special: the schema comes from the same generator as every other tool's, the arguments go through the same decoder and checks, and a rejected call produces an ordinary tool error.
@@ -42,11 +42,11 @@ The answer is declared as a Go struct, tagged the same way as the argument struc
 Fields that code will switch on, the status above all, are enumerations.
 Each field's description explains it to the model, and the descriptions spell out the easy-to-miss points, such as a root cause that "may not be where it crashed".
 A field the model has nothing for is meant to be left out of the JSON rather than sent as `null`.
-There is one `Diagnosis` for each crash group, and the crash catalog's grader reads the same record.
+There is one `Diagnosis` for each crash group, and the grader of the [crash catalog](/glossary/#crash-catalog), the set of seeded crashes the agent is tested on, reads the same record.
 
 ## How the loop ends on it
 
-Marking a tool `Final` changes the loop's stopping rule.
+Marking a tool `Final` changes the [loop's](/basics/agent-loop/) stopping rule.
 When a call to that tool succeeds, the run is over and the call's arguments are the run's result:
 
 ```go include=ch07/agent/final.go tag=final-finished
@@ -87,7 +87,7 @@ What happens to a call to `submit_diagnosis` before its answer is accepted.
 
 ## One run, end to end
 
-`go run ./ch07` replays a recorded run of `anthropic/claude-haiku-5.5` on one catalog task.
+`go run ./ch07` [replays a recorded run](/production/testing-offline/) of `anthropic/claude-haiku-5.5` on one catalog task ([the example's page](/run/ch07-crash-triage/)).
 The task has four crash reports: two are crashes already in the tracker, and two come from a bug located away from the line that crashed.
 
 The agent got the difficult part right.
@@ -97,7 +97,7 @@ Guarding against nil in `owned` would have ended the panic while leaving every o
 Because the answer was typed, its error was easy to see too.
 The catalog's grader checked it against the expected answer 16 ways, and 12 passed.
 All four failures came from one mistake: the agent marked the two crashes already in the tracker as `fixed` when they should have been duplicates of the existing issues.
-The first system prompt gave no instruction for a crash that matches a filed issue, and revising the prompt begins with that.
+The system prompt gave no instruction for a crash that matches a filed issue, so the first revision of the prompt adds one.
 In a prose answer the mistake would have been one clause in a paragraph; in a struct it shows up as failed checks.
 The run used 17 turns and cost $0.034.
 
@@ -119,5 +119,5 @@ From the `code` directory of a clone of the [companion repository](https://githu
 $ go run ./ch07
 ```
 
-This replays the run described above against a fresh copy of the service; every tool really executes, the reproducer check's `go test` runs included, and the grader's checks print at the end.
+This replays the run described above against a fresh copy of the `remind` service, which the command sets up itself; every tool really executes, including the reproducer check's `go test` runs, and the grader's checks print at the end.
 The final tool and its checks are in [`ch07/triage/diagnosis.go`](code:ch07/triage/diagnosis.go).
