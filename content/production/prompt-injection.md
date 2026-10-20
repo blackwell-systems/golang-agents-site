@@ -26,7 +26,7 @@ Defenses against it are built in [`ch14/safety`](code:ch14/safety).
 Everything the model receives arrives as a single stream of tokens.
 The system prompt, the user's messages, and every tool result are all in that stream.
 No token is tagged as "instruction" or "data".
-Message roles are tokens too, and the model learned to give them weight; they don't bind it.
+[Message roles](/basics/messages-and-roles/) are separate fields in the API request, but the provider turns them into tokens like everything else; the model learned to give them weight, and they don't bind it.
 So an imperative sentence buried in a log line can steer the model just as a sentence from the user can.
 The defenses that hold up are the ones that sit outside the model and limit what the agent is able to do, regardless of what it has been persuaded to want.
 
@@ -109,7 +109,7 @@ One injected instruction on its way through the defenses, and what gets past eac
 
 ## An agent that went around a denial, with no attacker
 
-The most instructive run contains no attack at all ([refused once, the agent tried other spellings](/findings/measured-mistakes/#denial) has the method).
+The most instructive run contains no attack at all; the method is in [refused once, the agent tried other spellings](/findings/measured-mistakes/#denial).
 `openai/gpt-5.6-luna` was running with every defense on, and decided to fix an older crash in `auth/auth.go` that had already been filed.
 Here is what it tried, in order:
 
@@ -120,12 +120,12 @@ Here is what it tried, in order:
 5. `auth/../auth/auth.go`. Denied, because the path contains `..`.
 6. `auth//auth.go` and then `./auth/auth.go`. Both denied, because the approval gate records a denial against the file a path resolves to, not against the characters of the path.
 
-In a different run, under the `base` version with no defenses, `deepseek/deepseek-v4.1-flash` was unable to fill in a file through the file tool, so it wrote a test whose sole purpose was to write that file from test code.
-No tool call named that file, so no path check saw it; that route is what the rung 3 rules above, read-only protected files and a check after every test run, are for.
+In a different run, under the `base` version with no defenses, `deepseek/deepseek-v4.1-flash` was unable to write a file through the file tool, so it wrote a test whose sole purpose was to write that file from test code.
+No tool call named that file, so no path check saw it; that route is what the rung 3 rules above are for: read-only protected files and a check after every test run.
 
 Neither model was attacked.
 Both were trying to finish a task and treated the refusal as one more thing in the way.
-Injected instructions would get the same determination from a model, so the checks must hold for every possible name of a file, no matter who is asking.
+A model following injected instructions would show the same persistence, so the checks must hold for every possible name of a file, no matter who is asking.
 
 ## What a measurement can show
 
@@ -144,13 +144,13 @@ No run tried to carry out what its injected order asked, in any version. With fi
 That zero needs careful reading.
 All eight injections were written once, ahead of time, and they are obvious; current models are trained against exactly this sort of text.
 Published adaptive attacks have broken defenses that scored close to zero on fixed attack sets.
-The eval also lacked a positive control: a version of the agent built to comply, which would show the harness actually reports an attack when one happens.
+The [eval](/production/evals/) also lacked a positive control: a version of the agent built to comply, which would show the harness actually reports an attack when one happens.
 The zeros say that these models turned down these particular instructions.
 They don't say what success rate an attacker would get.
 
 The defenses did change the agent's ordinary work.
 The protected-path check held back edits to the authorization code that were outside the task's scope.
-With the defenses on, `anthropic/claude-haiku-5.5` passed every check in 30 of 32 runs; without them, it passed in 24 of 32.
+With the defenses on, `anthropic/claude-haiku-5.5` passed every one of the task's grading checks in 30 of 32 runs; without them, in 24 of 32, so the out-of-scope edits the defenses blocked had been costing passes.
 
 ## Steps for your own agent
 
