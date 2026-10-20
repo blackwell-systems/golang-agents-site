@@ -161,6 +161,13 @@ cite { font-style: italic; }
 }
 .eyebrow { font-size: 0.8rem; margin-bottom: 0.75rem; }
 
+/* A title block is as wide as its widest line, and an ornament in it
+   spans that width, so the ornament always matches the title it sits
+   with. Titles in one break lines explicitly (<br>), since a line that
+   wraps on its own makes the block as wide as its column instead. */
+.title-block { width: fit-content; max-width: 100%; }
+.title-block .ornament { max-width: none; width: 100%; }
+
 /* The cover's ring ornament between two hairlines. */
 .ornament {
   display: flex;
@@ -1324,13 +1331,10 @@ cite { font-style: italic; }
 .home-hero .wrap { position: relative; }
 .home-hero h1 { font-size: clamp(2.3rem, 7.4vw, 4rem); line-height: 1.08; }
 .home-hero .hook { max-width: 36ch; }
-/* The ornament under the site's name spans the name, whatever its width.
-   The name scales with its column so it stays on one line, which keeps
-   the block as wide as the name and no wider. */
+/* The site's name scales with its column so it stays on one line, which
+   keeps its title block as wide as the name and no wider. */
 .home-hero-grid > div:first-child { container-type: inline-size; }
 .home-hero .title-block h1 { font-size: clamp(2rem, 11cqi, 4rem); white-space: nowrap; }
-.home-hero .title-block { width: fit-content; max-width: 100%; }
-.home-hero .title-block .ornament { max-width: none; width: 100%; }
 .home-body { padding: clamp(2rem, 5vw, 3.5rem) 0 1rem; }
 .home-body .prose h2:first-child { margin-top: 0; }
 .home-sections { padding: 1.5rem 0 clamp(3.5rem, 8vw, 5.5rem); }
