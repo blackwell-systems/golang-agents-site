@@ -34,6 +34,23 @@ Several of the tools are recent additions to Go, so here is what each needs:
 
 The companion code needs Go {{code go-version}}; with an older toolchain, `go` downloads the right one when it reads the module's `go.mod`.
 
+## Without a context
+
+Take the context away and two things go wrong.
+
+The first is Ctrl-C.
+By default, a Go program that gets an interrupt exits on the spot, and its deferred functions never run.
+For an agent, that means a model call dropped partway, which the provider may bill anyway; a tool stopped in the middle of an action, such as writing a file or filing an issue; no checkpoint saved, so the run can't resume; and no report of what it spent or why it ended.
+Stopped with a plain `kill`, the agent's process gets SIGTERM alone, so a `go test` or a tool server it started can keep running on its own.
+
+The second is that every kind of waiting needs its own way to stop.
+You can catch the signal yourself, but then something has to reach everything that is blocked: an HTTP request, a child process to kill, a timer to stop, each of your own goroutines waiting on a channel.
+Each has a different mechanism, and before Go 1.7 brought `context` into the standard library, each library had its own; `net/http` still carries one of them, the `Cancel` field on a request, now deprecated in favor of the request's context.
+Threading a different stop signal through every layer, with no way to say why it fired, is the job `context` does once.
+Every blocking call agrees on it, from `net/http` and `os/exec` to the model providers' SDKs and your own code, and it carries the reason with it.
+
+The rest of this page is that alternative, piece by piece.
+
 ## How a context works
 
 `context.Context` is an interface with four methods:
