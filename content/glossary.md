@@ -383,6 +383,10 @@ Limits on what code may read, write, or connect to, enforced from outside that c
 
 A library a provider publishes for using its API from a particular language. It typically includes request and response types and a client, and often helpers for retries and streaming.
 
+### Sentinel error {#sentinel-error}
+
+An exported error value that callers compare against with `errors.Is`, such as `io.EOF` or an agent's `ErrMaxTurns`. Sentinels can be grouped into families by wrapping one in another, so a caller can check a whole family at once. See [errors in an agent](/basics/errors/).
+
 ### Server-sent events {#server-sent-events}
 
 A simple format for streaming messages from a server over an HTTP response that stays open. A message travels on lines beginning `data:` and ends at a blank line; a line beginning with a colon is a comment.

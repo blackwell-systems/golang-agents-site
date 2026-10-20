@@ -21,6 +21,18 @@ A **`context.Context`** carries a cancellation signal, an optional deadline, and
 ```
 
 This page goes through the ways an agent uses one, each with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested.
+Several of the tools are recent additions to Go, so here is what each needs:
+
+| Feature | Since |
+| --- | --- |
+| `signal.NotifyContext` | Go 1.16 |
+| `context.Cause`, `context.WithCancelCause`, `exec.Cmd.WaitDelay` | Go 1.20 |
+| `context.WithTimeoutCause`, `context.WithoutCancel`, `context.AfterFunc` | Go 1.21 |
+| `testing.T.Context` | Go 1.24 |
+| `testing/synctest` | Go 1.25 |
+| `errors.AsType` | Go 1.26 |
+
+The companion code needs Go {{code go-version}}; with an older toolchain, `go` downloads the right one when it reads the module's `go.mod`.
 
 ## One context, from main down
 
@@ -101,6 +113,15 @@ Three details here are easy to miss:
 A tool written in Go, rather than a process, must check its context itself, by passing it to every call that can block.
 A tool that ignores its context can't be stopped: a timeout wrapper around it still has to wait until the tool returns, however late.
 
+Some calls can't take a context at all, such as a read from a connection or a pipe.
+`context.AfterFunc` runs a function when the context is done, and closing the connection there unblocks the read.
+The MCP client starts a server process and talks to it over pipes, and arranges exactly that while it connects:
+
+```go include=ch15/mcp/client.go lines=533..539 title="ch15/mcp/client.go, starting an MCP server"
+```
+
+The `stop` function it returns cancels the arrangement, for when the work finishes first.
+
 ## A timer as a cause: the idle stream
 
 A streamed reply can stop arriving without ending: the connection stays open and nothing comes.
@@ -147,14 +168,26 @@ A test for a two-minute timeout shouldn't take two minutes.
 
 The test checks both the cause and the kind of error, and that the call gave up after exactly two minutes of fake time.
 It finishes instantly.
+`t.Context()` is a context that is cancelled when the test ends, so anything the test starts with it stops with the test.
+
+## Values in a context
+
+A context can also carry values, and the rule is narrow: values that describe the request, which pass through layers that don't know about them, never optional parameters.
+The agent uses one, the tool call a tool is running for, so that logging and tracing wrappers can name the call without every tool passing it along:
+
+```go include=ch12/agent/traced.go lines=12..20 title="ch12/agent/traced.go"
+```
+
+The key is an unexported type, `callKey`; since only this package can name that type, only this package can set or read the value, and `CallFrom` hands it out with its real type.
 
 ## Mistakes to avoid
 
 - **`context.Background()` deep inside the code.** It cuts the chain, and nothing under it can be cancelled. Take a `ctx` parameter instead.
 - **A context stored in a struct.** Each call should get its own; a stored one outlives the request it belonged to.
-- **A forgotten `cancel`.** Every `WithTimeout`, `WithCancel`, and their `Cause` forms returns one; `defer` it, or the timer and goroutine it holds linger.
+- **A forgotten `cancel`.** Every `WithTimeout`, `WithCancel`, and their `Cause` forms returns one; `defer` it, or the timer and goroutine it holds linger. `go vet` reports a `cancel` that some path never calls.
 - **A timeout with no cause.** "Context deadline exceeded" from somewhere in a run is hard to act on; a cause names the deadline.
 - **A tool that ignores its context.** It can't be stopped, and a run can't finish shutting down while it runs.
+- **Parameters passed as context values.** A value the function needs belongs in its signature; a context value is invisible to the caller and unchecked by the compiler.
 - **Comparing error strings.** Check `errors.Is(err, context.Canceled)` and your own causes with `errors.Is`; the text of a cancellation error differs between transports.
 
 ## Try it
