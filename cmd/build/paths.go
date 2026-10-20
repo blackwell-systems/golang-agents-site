@@ -232,7 +232,7 @@ func (r *codeBlocks) path(body string) (string, error) {
 		if s.Live {
 			fmt.Fprintf(&b, `<li><a href="%s"><span class="step-title">%s</span>`+
 				`<span class="step-desc">%s</span></a></li>`,
-				html.EscapeString(s.Page.URL), html.EscapeString(s.Page.Name()), html.EscapeString(s.Page.Description))
+				html.EscapeString(s.Page.URL), html.EscapeString(s.Page.Name()), html.EscapeString(s.Page.Blurb()))
 			continue
 		}
 		// A draft's description hasn't passed the copy check, so only

@@ -7,8 +7,9 @@ layout: page
 This site is for Go developers who want to build AI agents and understand what happens inside them.
 It assumes you can write and run Go code; nothing about models or machine learning is assumed, and none of the examples needs an API key.
 
-Pick the path that matches why you're here.
-Each one is a list of guides in the order they build on each other, and every guide on a path links to the step before and after it, so you can follow it without coming back to this page.
+Pick the path that matches why you're here; every guide on it links to the next step.
+
+<ul class="path-choose"><li><a href="#newcomer"><span class="choose-title">Learning how agents work</span><span class="choose-desc">You write Go and have never built an agent.</span></a></li><li><a href="#builder"><span class="choose-title">Shipping an agent at work</span><span class="choose-desc">You know the loop and have a deadline.</span></a></li><li><a href="#lead"><span class="choose-title">Leading a team</span><span class="choose-desc">You decide whether a team spends its time here.</span></a></li></ul>
 
 ```path
 id: newcomer

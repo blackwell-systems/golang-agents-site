@@ -1658,46 +1658,42 @@ cite { font-style: italic; }
 .held-note { color: var(--soft); max-width: var(--measure); margin: -1rem 0 2.5rem; }
 
 /* The start page's reading paths: numbered steps, drafts unlinked. */
-.reading-path { margin: 2.5rem 0; }
-.prose .reading-path h2 { margin-top: 0; }
-.path-count {
-  font-family: var(--label);
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  color: var(--soft);
-}
-.prose .path-steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
-.prose .path-steps li { counter-increment: step; position: relative; margin: 0; padding-left: 2.6rem; }
+/* Steps as a numbered timeline: slim rows, one line each. */
+.prose .path-steps { list-style: none; counter-reset: step; padding: 0; margin: 1rem 0 0; }
+.prose .path-steps li { counter-increment: step; position: relative; margin: 0; padding-left: 2.75rem; }
 .prose .path-steps li::before {
   content: counter(step);
   position: absolute;
   left: 0;
-  top: 0.75rem;
+  top: 0.65rem;
+  z-index: 1;
   display: grid;
   place-items: center;
   width: 1.8rem;
   height: 1.8rem;
   border: 1.5px solid var(--amber);
   border-radius: 50%;
+  background: var(--page);
   font-family: var(--label);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--amber);
 }
-.path-steps a { display: block; }
-.path-steps a, .path-steps li.pending {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--panel);
-  text-decoration: none;
+.prose .path-steps li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(0.9rem - 0.75px);
+  top: 2.45rem;
+  bottom: -0.65rem;
+  width: 1.5px;
+  background: var(--line);
 }
-.path-steps li.pending { padding-left: 3.6rem; background: transparent; border-style: dashed; }
-.prose .path-steps li.pending::before { left: 1rem; border-color: var(--line); color: var(--soft); }
-.path-steps a:hover { border-color: var(--amber-dim); }
+.path-steps a, .path-steps li.pending { display: block; padding: 0.6rem 0.75rem; border-radius: 4px; text-decoration: none; }
+.path-steps a:hover { background: var(--panel); }
+.path-steps li.pending { opacity: 0.7; }
 .step-title { display: block; font-family: var(--label); font-weight: 600; color: var(--ivory); }
-.step-desc { display: block; font-size: 0.93rem; line-height: 1.5; color: var(--stone); margin-top: 0.2rem; }
-.path-steps li.pending .step-title { display: inline; color: var(--soft); font-weight: 500; }
+.path-steps a:hover .step-title { color: var(--link); }
+.step-desc { display: block; font-size: 0.93rem; line-height: 1.45; color: var(--soft); margin-top: 0.1rem; }
 .step-tag {
   margin-left: 0.5rem;
   font-family: var(--label);
@@ -1707,6 +1703,34 @@ cite { font-style: italic; }
   color: var(--soft);
   white-space: nowrap;
 }
+.reading-path { margin: 3rem 0; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.prose .reading-path h2 { margin: 0 0 0.5rem; }
+.reading-path > p { color: var(--soft); max-width: var(--measure); }
+
+/* The start page's three cards, one per path. */
+.prose > .path-choose { max-width: 100%; }
+.prose .path-choose {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 1rem;
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+.prose .path-choose li { margin: 0; }
+.path-choose a {
+  display: block;
+  height: 100%;
+  padding: 1.1rem 1.2rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--amber);
+  border-radius: 6px;
+  text-decoration: none;
+}
+.path-choose a:hover { border-color: var(--amber-dim); border-top-color: var(--amber); }
+.choose-title { display: block; font-family: var(--label); font-weight: 600; font-size: 1.05rem; color: var(--ivory); margin-bottom: 0.3rem; }
+.choose-desc { display: block; font-size: 0.93rem; line-height: 1.45; color: var(--soft); }
 
 /* A page's place on the reading paths, above the pager. */
 .path-nav { margin-top: 1.5rem; font-family: var(--label); font-size: 0.92rem; }
