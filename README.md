@@ -21,6 +21,8 @@ To review drafts, build them into a separate directory with `go run ./cmd/build 
 
 The build also runs a copy check: no published page may share a run of 10 or more consecutive words with the book's chapters, since there is no free web edition of the book. It reads the chapters from `../go-agents-book/book/chapters` (set `-book` to another path; `-book ""` skips the check with a warning). Code blocks, inline code, table rows, HTML tags, and link targets are left out, and so are the author's bio and copyright page. The threshold is `copyRun` in `cmd/build/copycheck.go`.
 
+Each page's social share image is its own card in `static/og/`, rendered separately by `go run ./tools/og` (see `tools/og/README.md`). The build warns when a page has no card or its card no longer matches the page.
+
 `go test ./...` tests the generator.
 
 ## Deploy
@@ -38,8 +40,9 @@ go run ./cmd/build && npx wrangler deploy
 | `content/` | The pages, in Markdown with front matter. `content/PLAN.md` is the content plan, not a page |
 | `content/<section>/_index.md` | A section's own page; the other files in the directory are its guides |
 | `templates/` | `base.html` (head, header, footer, and the reading-path links) and one file per layout: `home`, `section`, `article`, `book`, `glossary`, `page`, `work` (the Work with me page and its contact form), `search` |
-| `static/` | Copied as is: `style.css`, `fonts/`, `img/`, `sample/`, the icons, and `og-v3.jpg` |
+| `static/` | Copied as is: `style.css`, `fonts/`, `img/`, `sample/`, the icons, `og/` (each page's share card), and `og-v3.jpg` (the generic share image) |
 | `cmd/build/` | The generator: goldmark for Markdown, chroma for highlighting, `html/template` for layouts |
+| `tools/og/` | Renders the share cards into `static/og/`; see its README |
 | `dist/` | The built site (not committed) |
 
 The sections are fixed in `cmd/build/main.go`: The loop (`/loop/`), Design (`/design/`), Production, Run it (`/run/`), Providers and frameworks (`/providers/`), and Findings. Four of them were renamed on 2026-10-18 from Foundations, Patterns, Examples, and Ecosystem; `moved` in the same file lists the old directories, and the build writes `dist/_redirects`, which Cloudflare reads to send every old URL to its new one with a 301.
