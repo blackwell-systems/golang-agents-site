@@ -804,8 +804,8 @@ cite { font-style: italic; }
 
 /* Footer */
 .site-footer {
+  position: relative; /* its top edge is a rule (.site-footer > .rule) */
   background: var(--night);
-  border-top: 1px solid var(--line);
   padding: 2.5rem 0 3rem;
   font-size: var(--fs-sm);
   color: var(--soft);
@@ -2239,15 +2239,6 @@ nav.toc { display: none; }
   border-left: var(--accent-w) solid var(--amber);
   border-radius: var(--radius);
 }
-.definition-label {
-  margin: 0 0 var(--space-2);
-  font-family: var(--label);
-  font-size: var(--fs-label);
-  font-weight: 600;
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: var(--amber);
-}
 .definition-text {
   margin: 0;
   font-size: var(--fs-xl);
@@ -2298,3 +2289,81 @@ nav.toc { display: none; }
 }
 .section-groups .path-steps li { counter-increment: step; margin: 0; }
 .section-groups .phase-head h2 { margin: 0; font-size: var(--fs-group); line-height: var(--lh-title); }
+
+/* Icons: engraved line work from static/img/icons.svg, drawn with
+   <svg class="icon"><use href="..."></svg> (icon in cmd/build/icons.go).
+   Strokes take the text color and details take --icon-accent, so every
+   icon follows the theme; --icon-sw keeps the line weight when an icon
+   is drawn larger than its 24px grid. */
+.icon {
+  display: inline-block;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: middle;
+  color: var(--amber);
+  --icon-accent: var(--amber);
+  overflow: visible;
+}
+
+/* Rules: the ring between stepped stones, with a hairline either side. */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  color: var(--amber);
+}
+.rule::before, .rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--amber-dim);
+}
+.rule-mark { flex: none; display: block; width: 94px; height: 24px; overflow: visible; }
+.rule-small { max-width: 14rem; }
+.rule-small .rule-mark { width: 45px; }
+
+/* Where the rules stand: between the home page's major sections, and
+   across the footer's top edge, where the small rule is the border. */
+.home-start > .wrap > .rule, .home-sections > .wrap > .rule { margin-bottom: var(--section-gap); }
+.site-footer > .rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -12px;
+  height: 25px; /* odd, so the hairlines fall on whole pixels */
+  max-width: none;
+  --rule-ground: var(--night);
+}
+.site-footer > .rule::before, .site-footer > .rule::after { background: var(--line); }
+
+/* Icons beside labels and titles. */
+.eyebrow .icon { width: 1.125rem; height: 1.125rem; margin: -0.2em 0.5rem 0 0; }
+.block-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-family: var(--label);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.block-label .icon { width: 1.25rem; height: 1.25rem; }
+.result .block-label { margin-bottom: var(--space-3); }
+.fit-title { display: flex; align-items: center; gap: var(--space-2); }
+.fit-title .icon { width: 1.25rem; height: 1.25rem; }
+.fit-leave .fit-title .icon { color: var(--soft); --icon-accent: var(--soft); }
+.prose h2.has-icon { display: flex; align-items: center; gap: 0.6rem; }
+.prose h2.has-icon .icon { width: 1.1em; height: 1.1em; margin-left: -0.12em; --icon-sw: 1.15; }
+.paths h3.has-icon a { display: inline-flex; align-items: center; gap: 0.6rem; }
+.paths h3.has-icon .icon { width: 1.75rem; height: 1.75rem; --icon-sw: 1.3; }
+.pager span .icon { width: 1rem; height: 1rem; margin: -0.2em 0.4rem 0 0; transform: scaleX(-1); }
+.pager-next span .icon { margin: -0.2em 0 0 0.4rem; transform: none; }
+.copy { display: inline-flex; align-items: center; gap: 0.3rem; }
+.copy .icon { width: 0.95rem; height: 0.95rem; color: currentColor; --icon-accent: currentColor; }

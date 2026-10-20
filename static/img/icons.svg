@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+<!--
+  The site's icons and dividers, drawn as engraved line work to match the
+  ring ornament and the loop figure: 1.5 strokes on a 24 grid, round caps
+  and joins, and a few solid accents.
+
+  Use one with <svg class="icon"><use href="/img/icons.svg#name"/></svg>
+  (the build's icon helper writes this, with a version). Colors come from
+  the page: strokes are currentColor, accents are the custom property
+  icon-accent (falling back to currentColor), and the stroke width is the
+  custom property icon-sw, so a larger icon can keep the same line weight.
+  Nothing here names a color. (XML comments can't hold two hyphens in a
+  row, so the properties are named without theirs.)
+-->
+
+<!-- The loop's four stages -->
+
+<!-- Build the request: the layers of context, gathered into one request. -->
+<symbol id="stage-build" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M12 3.75 20 8.25 12 12.75 4 8.25Z"/>
+  <path d="M4 12.25 12 16.75 20 12.25"/>
+  <path d="M4 16.25 12 20.75 20 16.25"/>
+  <circle cx="12" cy="8.25" r="1.5" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- Call the model: a request sent into the model, drawn as the ring. -->
+<symbol id="stage-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <circle cx="15" cy="12" r="6"/>
+  <circle cx="15" cy="12" r="2.25" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+  <path d="M2.75 12h4.75"/>
+  <path d="M5.25 9.5 7.75 12 5.25 14.5"/>
+</symbol>
+
+<!-- Run the tools: a wrench. -->
+<symbol id="stage-tools" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M12.35 13.92A5.25 5.25 0 0 0 19.42 6.85L16.31 9.96 14.04 7.69 17.15 4.58A5.25 5.25 0 0 0 10.08 11.65L5.49 16.25A1.6 1.6 0 0 0 7.75 18.51Z"/>
+  <circle cx="7.75" cy="16.25" r="0.9" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- Decide: one path that branches: an answer, or another turn. -->
+<symbol id="stage-decide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M12 20.5V13.5"/>
+  <path d="M12 13.5C12 9.5 6.5 9.75 6.5 4.5"/>
+  <path d="M12 13.5C12 9.5 17.5 9.75 17.5 4.5"/>
+  <path d="M4.25 6.5 6.5 4.25 8.75 6.5"/>
+  <path d="M15.25 6.5 17.5 4.25 19.75 6.5"/>
+  <circle cx="12" cy="13.5" r="2" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- The sections -->
+
+<!-- Basics: a column, what the rest stands on. -->
+<symbol id="section-basics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M4.5 3.75h15v2.5h-15Z"/>
+  <path d="M6.75 6.25c0 1.4.9 2 2 2h6.5c1.1 0 2-.6 2-2"/>
+  <path d="M8.75 8.25v9M15.25 8.25v9"/>
+  <path d="M12 9.75v6" style="stroke:var(--icon-accent,currentColor)"/>
+  <path d="M6.5 17.25h11M4.5 20.25h15"/>
+  <path d="M6.5 17.25 4.5 20.25M17.5 17.25 19.5 20.25"/>
+</symbol>
+
+<!-- Build: a drafting compass. -->
+<symbol id="section-build" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M12 2.5v1.25"/>
+  <path d="M10.75 7.25 5.25 20.5"/>
+  <path d="M13.25 7.25 18.75 20.5"/>
+  <path d="M6.9 16.5A10 10 0 0 0 17.1 16.5"/>
+  <circle cx="12" cy="5.75" r="2" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- Production: a shield with the ring at its center. -->
+<symbol id="section-production" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M12 3 19.25 5.75V11.25C19.25 15.6 16.3 19.1 12 20.75 7.7 19.1 4.75 15.6 4.75 11.25V5.75Z"/>
+  <circle cx="12" cy="11.5" r="3.25"/>
+  <circle cx="12" cy="11.5" r="1.25" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- Ecosystem: a hub and the packages around it. -->
+<symbol id="section-ecosystem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <circle cx="12" cy="13" r="2.75"/>
+  <circle cx="12" cy="13" r="1" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+  <circle cx="12" cy="5" r="2"/>
+  <circle cx="5.07" cy="17" r="2"/>
+  <circle cx="18.93" cy="17" r="2"/>
+  <path d="M12 10.25V7M9.62 14.38 6.8 16M14.38 14.38 17.2 16"/>
+</symbol>
+
+<!-- Examples: a terminal, ready for a command. -->
+<symbol id="section-examples" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <rect x="3" y="4.5" width="18" height="15" rx="2"/>
+  <path d="M7 9.5 10 12 7 14.5"/>
+  <path d="M12.5 14.75h4.5" style="stroke:var(--icon-accent,currentColor)"/>
+</symbol>
+
+<!-- Research: a flask, with a measure of liquid. -->
+<symbol id="section-research" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M9 3.5h6"/>
+  <path d="M10.25 3.5V9L5.1 18.1A1.6 1.6 0 0 0 6.5 20.5h11A1.6 1.6 0 0 0 18.9 18.1L13.75 9V3.5"/>
+  <path d="M8.2 15.25h7.6L18 19.1v.4H6v-.4Z" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- Content blocks -->
+
+<!-- A key term: an open book with a ribbon. -->
+<symbol id="block-definition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M12 6.75C10 5.25 7 4.75 3.5 5.25v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5.25c-3.5-.5-6.5 0-8.5 1.5Z"/>
+  <path d="M12 6.75V20"/>
+  <path d="M15 4.9v5.35l1.5-1.25 1.5 1.25V4.75Z" style="fill:var(--icon-accent,currentColor)"/>
+</symbol>
+
+<!-- A measured result: a gauge. -->
+<symbol id="block-result" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M4 15A8 8 0 0 1 20 15"/>
+  <path d="M7.93 10.93 6.88 9.88M12 9.25V7.75M16.07 10.93 17.12 9.88"/>
+  <path d="M12 15 15 10.75"/>
+  <path d="M3.5 18.75h17"/>
+  <circle cx="12" cy="15" r="1.75" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- When to use it: a balance, reasons weighed both ways. -->
+<symbol id="block-fit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M12 5.5v14.25M8.5 19.75h7"/>
+  <path d="M5 7.5h14"/>
+  <path d="M5 7.5 2.75 13.25M5 7.5l2.25 5.75M19 7.5l-2.25 5.75M19 7.5l2.25 5.75"/>
+  <path d="M2.5 13.25h5a2.5 2.5 0 0 1-5 0ZM16.5 13.25h5a2.5 2.5 0 0 1-5 0Z"/>
+  <circle cx="12" cy="4.5" r="1.75" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- Reach for it: the ring, checked. -->
+<symbol id="block-reach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <circle cx="12" cy="12" r="8.25"/>
+  <path d="M8.25 12.25 10.75 14.75 15.75 9.5" style="stroke:var(--icon-accent,currentColor)"/>
+</symbol>
+
+<!-- Leave it out: the ring, struck through. -->
+<symbol id="block-leave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <circle cx="12" cy="12" r="8.25"/>
+  <path d="M8.25 12h7.5" style="stroke:var(--icon-accent,currentColor)"/>
+</symbol>
+
+<!-- Try it: the ring, with a run mark. -->
+<symbol id="block-try" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <circle cx="12" cy="12" r="8.25"/>
+  <path d="M10.25 8.75v6.5L15.25 12Z" style="fill:var(--icon-accent,currentColor);stroke:var(--icon-accent,currentColor)"/>
+</symbol>
+
+<!-- Watch out: a warning triangle. -->
+<symbol id="block-watch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M10.7 4.75a1.5 1.5 0 0 1 2.6 0l7.6 13.25a1.5 1.5 0 0 1-1.3 2.25H4.4a1.5 1.5 0 0 1-1.3-2.25Z"/>
+  <path d="M12 9.5v4.25"/>
+  <circle cx="12" cy="16.75" r="1.1" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- In production: two servers in a rack, both running. -->
+<symbol id="block-production" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <rect x="3.75" y="4.25" width="16.5" height="6.75" rx="1.5"/>
+  <rect x="3.75" y="13" width="16.5" height="6.75" rx="1.5"/>
+  <path d="M11.5 7.625h5.25M11.5 16.375h5.25"/>
+  <circle cx="7.5" cy="7.625" r="1.1" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+  <circle cx="7.5" cy="16.375" r="1.1" style="fill:var(--icon-accent,currentColor);stroke:none"/>
+</symbol>
+
+<!-- Utility -->
+
+<!-- A link that leaves the site. -->
+<symbol id="external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M17.5 13.5V18a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 18V8A1.5 1.5 0 0 1 6 6.5h4.5"/>
+  <path d="M14 4.5h5.5V10M19.5 4.5 11 13"/>
+</symbol>
+
+<!-- Copy. -->
+<symbol id="copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <rect x="8.5" y="8.5" width="11" height="11" rx="1.75"/>
+  <path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>
+</symbol>
+
+<!-- Source code in a repository: a branch. -->
+<symbol id="source" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <circle cx="7" cy="5.5" r="2"/>
+  <circle cx="7" cy="18.5" r="2"/>
+  <circle cx="17" cy="7.5" r="2" style="fill:var(--icon-accent,currentColor)"/>
+  <path d="M7 7.5v9"/>
+  <path d="M17 9.5c0 4.5-10 2.5-10 7"/>
+</symbol>
+
+<!-- An arrow, pointing on. Flip it with CSS for back. -->
+<symbol id="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:var(--icon-sw,1.5)">
+  <path d="M4.5 12h15"/>
+  <path d="M13.5 6 19.5 12 13.5 18"/>
+</symbol>
+
+<!-- Dividers: the middle of a rule; the page draws the hairlines on
+     either side, so the rule can be any width. -->
+
+<!-- The section rule: stepped stones either side of the ring. -->
+<symbol id="rule" viewBox="5 0 94 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="52" cy="12" r="8" style="stroke-width:2"/>
+  <circle cx="52" cy="12" r="3"  style="fill:currentColor;stroke:none"/>
+  <path d="M33 12 36.5 8.5 40 12 36.5 15.5Z" style="fill:currentColor;stroke:none"/>
+  <path d="M71 12 67.5 8.5 64 12 67.5 15.5Z" style="fill:currentColor;stroke:none"/>
+  <path d="M22.5 12 25 9.5 27.5 12 25 14.5Z" style="fill:currentColor;stroke:none"/>
+  <path d="M81.5 12 79 9.5 76.5 12 79 14.5Z" style="fill:currentColor;stroke:none"/>
+  <circle cx="14.5" cy="12" r="1.25" style="fill:currentColor;stroke:none"/>
+  <circle cx="89.5" cy="12" r="1.25" style="fill:currentColor;stroke:none"/>
+  <circle cx="6.5" cy="12" r="0.75" style="fill:currentColor;stroke:none"/>
+  <circle cx="97.5" cy="12" r="0.75" style="fill:currentColor;stroke:none"/>
+</symbol>
+
+<!-- The small rule: the ring between two stones. The ring can stand on
+     a disc of the custom property rule-ground, where it sits across an
+     edge between two colors. -->
+<symbol id="rule-small" viewBox="1.5 0 45 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="24" cy="12" r="7" style="fill:var(--rule-ground,none);stroke:none"/>
+  <circle cx="24" cy="12" r="6" style="stroke-width:1.5"/>
+  <circle cx="24" cy="12" r="2.25" style="fill:currentColor;stroke:none"/>
+  <path d="M8 12 10.5 9.5 13 12 10.5 14.5Z" style="fill:currentColor;stroke:none"/>
+  <path d="M40 12 37.5 9.5 35 12 37.5 14.5Z" style="fill:currentColor;stroke:none"/>
+  <circle cx="3" cy="12" r="0.9" style="fill:currentColor;stroke:none"/>
+  <circle cx="45" cy="12" r="0.9" style="fill:currentColor;stroke:none"/>
+</symbol>
+</svg>

@@ -292,7 +292,7 @@ func (p *Page) render(md goldmark.Markdown, code *codeRoot) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", p.Source, err)
 	}
-	p.Body = body
+	p.Body = markHeadings(body)
 	if p.Guide() {
 		p.TOC = contents(body)
 	}

@@ -106,6 +106,7 @@
 </main>
 
 <footer class="site-footer">
+  {{template "rule-small"}}
   <div class="wrap footer-grid">
     <div>
       <p class="footer-title">{{.Site.Name}}</p>
@@ -332,6 +333,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
 // the commands alone, without the prompts or the output.
 (function () {
   if (!navigator.clipboard) return;
+  var copyIcon = {{icon "copy"}};
   function commands(pre) {
     var out = [], more = false;
     pre.querySelectorAll(".line").forEach(function (line) {
@@ -350,15 +352,16 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     box.className = "listing-body";
     b.type = "button";
     b.className = "copy";
-    b.textContent = "Copy";
+    b.innerHTML = copyIcon + "<span>Copy</span>";
+    var label = b.lastChild;
     b.addEventListener("click", function () {
       var text = pre.querySelector(".gp") ? commands(pre) : pre.textContent;
       navigator.clipboard.writeText(text).then(function () {
-        b.textContent = "Copied";
+        label.textContent = "Copied";
       }, function () {
-        b.textContent = "Copy failed";
+        label.textContent = "Copy failed";
       }).then(function () {
-        setTimeout(function () { b.textContent = "Copy"; }, 1500);
+        setTimeout(function () { label.textContent = "Copy"; }, 1500);
       });
     });
     pre.parentNode.insertBefore(box, pre);
@@ -534,6 +537,16 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
 </body>
 </html>
 {{end}}
+
+{{/* The dividers: the ring between stepped stones, from the icon
+sprite, with hairlines either side. Decorative, so hidden from screen
+readers. */}}
+{{define "rule" -}}
+<div class="rule" aria-hidden="true"><svg class="rule-mark" focusable="false"><use href="{{sprite}}#rule"></use></svg></div>
+{{- end}}
+{{define "rule-small" -}}
+<div class="rule rule-small" aria-hidden="true"><svg class="rule-mark" focusable="false"><use href="{{sprite}}#rule-small"></use></svg></div>
+{{- end}}
 
 {{/* Where a page stands on the reading paths, with the steps either
 side of it; drafts on a path are skipped. */}}

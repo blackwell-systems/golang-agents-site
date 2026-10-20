@@ -77,20 +77,21 @@ const (
 )
 
 // section is one part of the site, with a directory under content/.
-// Nav is the shorter name the header uses, when Title is too long, and
-// Art the illustration beside the section's introduction.
+// Nav is the shorter name the header uses, when Title is too long, Art
+// the illustration beside the section's introduction, and Icon its
+// symbol in static/img/icons.svg.
 type section struct {
-	Dir, Title, Nav, Art string
+	Dir, Title, Nav, Art, Icon string
 }
 
 // sections are the site's sections, in the order the nav lists them.
 var sections = []section{
-	{"basics", "Basics", "", "part1"},
-	{"build", "Build", "", "part2"},
-	{"production", "Production", "", "part3"},
-	{"ecosystem", "Go ecosystem", "Ecosystem", "ch11"},
-	{"run", "Examples", "", "intro"},
-	{"findings", "Research", "", "ch13"},
+	{"basics", "Basics", "", "part1", "section-basics"},
+	{"build", "Build", "", "part2", "section-build"},
+	{"production", "Production", "", "part3", "section-production"},
+	{"ecosystem", "Go ecosystem", "Ecosystem", "ch11", "section-ecosystem"},
+	{"run", "Examples", "", "intro", "section-examples"},
+	{"findings", "Research", "", "ch13", "section-research"},
 }
 
 // moved maps a section's old directory to its new one. The build writes
@@ -118,6 +119,9 @@ var movedPages = []struct{ From, To string }{
 
 func build(cfg config) error {
 	diagramDir = filepath.Join(cfg.static, "img", "diagrams")
+	if err := loadIcons(cfg.static); err != nil {
+		return err
+	}
 	code, err := openCode(cfg.code)
 	if err != nil {
 		return err

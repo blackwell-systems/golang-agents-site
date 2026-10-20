@@ -92,6 +92,6 @@ func (r *codeBlocks) definition(body string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf(`<aside class="definition" aria-label="Definition of %s"><p class="definition-label">Definition</p>`+
-		`<p class="definition-text">%s</p></aside>`+"\n", html.EscapeString(f["term"][0]), t), nil
+	return fmt.Sprintf(`<aside class="definition" aria-label="Definition of %s"><p class="block-label">%sDefinition</p>`+
+		`<p class="definition-text">%s</p></aside>`+"\n", html.EscapeString(f["term"][0]), icon("block-definition"), t), nil
 }

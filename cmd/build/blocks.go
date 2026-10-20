@@ -116,6 +116,7 @@ func (r *codeBlocks) result(body string) (string, error) {
 	}
 	var b strings.Builder
 	b.WriteString(`<div class="result">`)
+	fmt.Fprintf(&b, `<p class="block-label">%sMeasured result</p>`, icon("block-result"))
 	fmt.Fprintf(&b, `<p class="figure">%s`, html.EscapeString(f["figure"][0]))
 	if u := f["unit"]; len(u) > 0 {
 		fmt.Fprintf(&b, ` <span>%s</span>`, html.EscapeString(u[0]))
@@ -178,7 +179,8 @@ func (r *codeBlocks) fit(body string) (string, error) {
 	for _, col := range []struct{ key, title string }{
 		{"reach", "Reach for it"}, {"leave", "Leave it out"},
 	} {
-		fmt.Fprintf(&b, `<div class="fit-%s"><p class="fit-title">%s</p><ul>`, col.key, col.title)
+		fmt.Fprintf(&b, `<div class="fit-%s"><p class="fit-title">%s%s</p><ul>`,
+			col.key, icon("block-"+col.key), col.title)
 		for _, reason := range f[col.key] {
 			t, err := r.inline(reason)
 			if err != nil {

@@ -102,7 +102,7 @@ func TestBlocks(t *testing.T) {
 			"<dt>Date</dt><dd>October 2026</dd>", `<a href="/findings/x/">Read more</a>`}, false},
 		{strings.Replace(result, "date: October 2026\n", "", 1), nil, true}, // no method date
 		{strings.Replace(result, "One sentence decided it.\n", "", 1), nil, true},
-		{fit, []string{`<p class="fit-title">Reach for it</p><ul><li>many groups (chapter 9)</li></ul>`, "Leave it out"}, false},
+		{fit, []string{`Reach for it</p><ul><li>many groups (chapter 9)</li></ul>`, `#block-reach"></use></svg>Reach for it`, "Leave it out"}, false},
 		{"```fit\nreach: x (chapter 9)\n```\n", nil, true}, // no leave
 	}
 	for _, tt := range tests {
@@ -302,4 +302,54 @@ func TestHeadings(t *testing.T) {
 	if len(got) != 2 || got[0][0] != "agent" || got[0][1] != "Agent x" || got[1][1] != "Tools & calls" {
 		t.Errorf("headings = %q", got)
 	}
+}
+
+func TestCheckLinksSprite(t *testing.T) {
+	out := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(out, "img"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	sprite := `<svg xmlns="http://www.w3.org/2000/svg"><symbol id="arrow" viewBox="0 0 24 24"/></svg>`
+	if err := os.WriteFile(filepath.Join(out, "img", "icons.svg"), []byte(sprite), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	code := &codeRoot{dir: t.TempDir()}
+	for _, tt := range []struct {
+		page string
+		bad  bool
+	}{
+		{`<svg><use href="/img/icons.svg?v=1#arrow"></use></svg>`, false},
+		{`<svg><use href="/img/icons.svg#nowhere"></use></svg>`, true},
+	} {
+		if err := os.WriteFile(filepath.Join(out, "index.html"), []byte(tt.page), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		_, err := checkLinks(out, code)
+		if (err != nil) != tt.bad {
+			t.Errorf("checkLinks(%s): error %v, want an error: %v", tt.page, err, tt.bad)
+		}
+	}
+}
+
+func TestLoadIcons(t *testing.T) {
+	for _, tt := range []struct {
+		sprite string
+		bad    bool
+	}{
+		{`<svg xmlns="http://www.w3.org/2000/svg"><!-- fine --><symbol id="a"/></svg>`, false},
+		{`<svg xmlns="http://www.w3.org/2000/svg"><!-- uses --icon-sw --><symbol id="a"/></svg>`, true},
+	} {
+		static := t.TempDir()
+		if err := os.MkdirAll(filepath.Join(static, "img"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(static, "img", "icons.svg"), []byte(tt.sprite), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		err := loadIcons(static)
+		if (err != nil) != tt.bad {
+			t.Errorf("loadIcons(%s): error %v, want an error: %v", tt.sprite, err, tt.bad)
+		}
+	}
+	iconSprite = "/img/icons.svg"
 }

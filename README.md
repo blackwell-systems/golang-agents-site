@@ -23,6 +23,8 @@ The build also runs a copy check: no published page may share a run of 10 or mor
 
 Each page's social share image is its own card in `static/og/`, rendered separately by `go run ./tools/og` (see `tools/og/README.md`). The build warns when a page has no card or its card no longer matches the page.
 
+The icons and dividers are symbols in one sprite, `static/img/icons.svg`: line work with 1.5 strokes on a 24 grid, its colors from the theme (`currentColor` and `--icon-accent`). A template draws one with `{{icon "name"}}`, and Go code with `icon("name")` (`cmd/build/icons.go`). The build fails if the sprite isn't well-formed XML, which leaves a browser drawing none of it, and the link check fails on a symbol the sprite doesn't have. `content/icons.md` is a draft that shows every icon and divider with where it's used: build with `-drafts` and open `/icons/`.
+
 `go test ./...` tests the generator.
 
 ## Deploy

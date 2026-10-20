@@ -30,6 +30,7 @@ type Site struct {
 // Section is a section with its own page and the pages in it.
 type Section struct {
 	Dir, Title, Nav, Art string
+	Icon                 string  // its symbol in static/img/icons.svg
 	Index                *Page   // the section's own page, content/<dir>/_index.md
 	Pages                []*Page // the rest, by weight
 	Held                 int     // drafts in the section, held back from this build
@@ -76,7 +77,7 @@ func newSite(pages, held []*Page, paths []*Path, static string) (*Site, error) {
 		Pages: pages, Held: held, Paths: paths,
 	}
 	for _, sec := range sections {
-		sv := &Section{Dir: sec.Dir, Title: sec.Title, Nav: cmp.Or(sec.Nav, sec.Title), Art: sec.Art}
+		sv := &Section{Dir: sec.Dir, Title: sec.Title, Nav: cmp.Or(sec.Nav, sec.Title), Art: sec.Art, Icon: sec.Icon}
 		for _, p := range pages {
 			switch {
 			case p.Section != sec.Dir:
@@ -172,6 +173,8 @@ var templateFuncs = template.FuncMap{
 	},
 	"picture": picture,
 	"slug":    slug,
+	"icon":    icon,
+	"sprite":  func() string { return iconSprite },
 }
 
 // slug turns a group's name into an ID for a link to it: "Go in depth"

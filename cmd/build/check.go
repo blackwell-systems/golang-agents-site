@@ -123,8 +123,20 @@ func checkRef(out, rel, ref string, ids map[string]map[string]bool, code *codeRo
 	}
 	if u.Fragment != "" {
 		pageIDs, ok := ids[target]
+		if !ok && path.Ext(target) == ".svg" {
+			// A symbol in a sprite, such as static/img/icons.svg.
+			b, err := os.ReadFile(filepath.Join(out, filepath.FromSlash(target)))
+			if err != nil {
+				return true, fmt.Errorf("link %q: %w", ref, err)
+			}
+			pageIDs = map[string]bool{}
+			for _, m := range idAttr.FindAllStringSubmatch(string(b), -1) {
+				pageIDs[html.UnescapeString(m[1])] = true
+			}
+			ids[target], ok = pageIDs, true
+		}
 		if !ok {
-			return true, fmt.Errorf("link %q: a fragment on a file that isn't a page", ref)
+			return true, fmt.Errorf("link %q: a fragment on a file that isn't a page or an SVG", ref)
 		}
 		if !pageIDs[u.Fragment] {
 			return true, fmt.Errorf("link %q: no id %q in %s", ref, u.Fragment, target)

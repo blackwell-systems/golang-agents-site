@@ -7,7 +7,7 @@
       {{- end}}
       <div class="head-text">
       {{- with .Section}}
-      <p class="eyebrow"><a href="/{{.Dir}}/">{{.Title}}</a>{{with $.Page.Kind}}<span aria-hidden="true"> · </span>{{.}}{{end}}</p>
+      <p class="eyebrow"><a href="/{{.Dir}}/">{{icon .Icon}}{{.Title}}</a>{{with $.Page.Kind}}<span aria-hidden="true"> · </span>{{.}}{{end}}</p>
       {{- end}}
       <h1>{{.Page.Title}}</h1>
       <p class="lede">{{.Page.Blurb}}</p>
@@ -43,10 +43,10 @@
       {{- if or .Prev .Next}}
       <nav class="pager" aria-label="More in this section">
         {{- with .Prev}}
-        <a class="pager-prev" href="{{.URL}}"><span>Previous in {{$.Section.Title}}</span>{{.Name}}</a>
+        <a class="pager-prev" href="{{.URL}}"><span>{{icon "arrow"}}Previous in {{$.Section.Title}}</span>{{.Name}}</a>
         {{- end}}
         {{- with .Next}}
-        <a class="pager-next" href="{{.URL}}"><span>Next in {{$.Section.Title}}</span>{{.Name}}</a>
+        <a class="pager-next" href="{{.URL}}"><span>Next in {{$.Section.Title}}{{icon "arrow"}}</span>{{.Name}}</a>
         {{- end}}
       </nav>
       {{- end}}

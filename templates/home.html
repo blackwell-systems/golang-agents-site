@@ -252,6 +252,7 @@
 {{- with .Site.Paths}}
 <section class="home-start" aria-labelledby="start-title">
   <div class="wrap">
+    {{template "rule"}}
     <h2 id="start-title">Three ways in</h2>
     <ul class="paths">
       {{- range .}}
@@ -278,12 +279,13 @@
 
 <section class="home-sections" aria-labelledby="sections-title">
   <div class="wrap">
+    {{template "rule"}}
     <h2 id="sections-title">Where to go next</h2>
     <p class="live-count">{{len .Site.Guides}} guides in {{len .Site.Sections}} sections.</p>
     <ul class="paths">
       {{- range .Site.Sections}}
       <li>
-        <h3><a href="/{{.Dir}}/">{{.Title}}</a></h3>
+        <h3 class="has-icon"><a href="/{{.Dir}}/">{{icon .Icon}}{{.Title}}</a></h3>
         <p>{{.Index.Description}}</p>
         {{- with .Pages}}
         <ul>
