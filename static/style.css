@@ -1389,7 +1389,8 @@ cite { font-style: italic; }
 .catalog .none { color: var(--soft); }
 
 /* The end of a guide */
-.guide-foot { max-width: var(--measure); margin-top: var(--space-8); }
+/* As wide as the text column above it (.prose). */
+.guide-foot { max-width: 60rem; margin-top: var(--space-8); }
 /* The one mention of the book on a guide: a quiet line under the text. */
 .book-line {
   padding-top: var(--space-4);
