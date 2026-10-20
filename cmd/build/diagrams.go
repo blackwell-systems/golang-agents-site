@@ -9,8 +9,11 @@ import (
 	"strings"
 )
 
-// diagramDir holds the diagrams, NAME-light.svg and NAME-dark.svg for
-// each; build sets it from the static directory.
+// themes are the site's reading themes, the same five as the book's.
+var themes = []string{"light", "dark", "tokyo-night", "gruvbox-dark", "catppuccin-latte"}
+
+// diagramDir holds the diagrams, NAME-THEME.svg for each theme; build
+// sets it from the static directory.
 var diagramDir = filepath.Join("static", "img", "diagrams")
 
 var (
@@ -26,9 +29,10 @@ var (
 //	```
 //	The caption, in Markdown.
 //
-// Both variants go in the page and CSS shows the one that matches the
-// theme, so the toggle switches them without a reload. Each image gets
-// its width and height from the SVG, so nothing shifts as it loads.
+// Every theme's version goes in the page and CSS shows the one that
+// matches the theme, so the theme menu switches them without a reload.
+// Each image gets its width and height from the SVG, so nothing shifts
+// as it loads, and hidden images aren't downloaded.
 func (r *codeBlocks) diagram(body string) (string, error) {
 	f, caption, err := fields(body, "name", "alt")
 	if err != nil {
@@ -48,7 +52,7 @@ func (r *codeBlocks) diagram(body string) (string, error) {
 	}
 	var b strings.Builder
 	b.WriteString(`<figure class="diagram">`)
-	for _, theme := range []string{"light", "dark"} {
+	for _, theme := range themes {
 		file := name + "-" + theme + ".svg"
 		svg, err := os.ReadFile(filepath.Join(diagramDir, file))
 		if err != nil {
@@ -58,7 +62,7 @@ func (r *codeBlocks) diagram(body string) (string, error) {
 		if m == nil {
 			return "", fmt.Errorf("diagram %s: no viewBox in %s", name, file)
 		}
-		fmt.Fprintf(&b, `<img class="diagram-%s" src="/img/diagrams/%s" alt="%s" width="%s" height="%s" loading="lazy" decoding="async">`,
+		fmt.Fprintf(&b, `<img class="diagram-theme diagram-%s" src="/img/diagrams/%s" alt="%s" width="%s" height="%s" loading="lazy" decoding="async">`,
 			theme, file, html.EscapeString(alt), m[1], m[2])
 	}
 	c, err := r.inline(caption)

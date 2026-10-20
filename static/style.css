@@ -232,24 +232,34 @@ cite { font-style: italic; }
   border-radius: 50%;
   background: var(--amber);
 }
-.theme-toggle {
-  margin-left: auto;
+/* The theme menu: a round palette button the size of the search link,
+   with the native select laid over it, invisible, so it keeps the
+   browser's own keyboard and screen reader behavior. */
+.theme-picker {
+  position: relative;
+  flex: none;
   display: inline-grid;
   place-items: center;
   width: 2.5rem;
   height: 2.5rem;
-  padding: 0;
+  margin-left: 0.5rem;
   border: 1px solid var(--line);
   border-radius: 50%;
-  background: transparent;
   color: var(--stone);
-  cursor: pointer;
 }
-.theme-toggle[hidden] { display: none; }
-.theme-toggle:hover { color: var(--ivory); border-color: var(--amber-dim); }
-.theme-toggle .icon-moon { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+.theme-picker[hidden] { display: none; }
+.theme-picker:hover, .theme-picker:focus-within { color: var(--ivory); border-color: var(--amber-dim); }
+.theme-picker:focus-within { outline: 3px solid var(--ivory); outline-offset: 3px; }
+.theme-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font: 500 1rem var(--label);
+}
+.theme-select option { background: var(--page); color: var(--stone); }
 .site-nav {
   flex: 1 1 100%;
   margin: 0 calc(-1 * var(--gutter));
@@ -283,7 +293,7 @@ cite { font-style: italic; }
   .header-row { flex-wrap: nowrap; }
   .site-nav { order: 2; flex: 0 1 auto; margin: 0 0 0 auto; padding: 0; border-top: 0; overflow: visible; }
   .site-nav a { padding: 1.1rem 0 1rem; }
-  .theme-toggle { order: 3; margin-left: 0.5rem; }
+  .theme-picker { order: 3; }
 }
 @media (max-width: 23rem) {
   .brand { font-size: 0.95rem; }
@@ -739,9 +749,108 @@ cite { font-style: italic; }
   color-scheme: light;
 }
 
-/* With no choice made in the toggle, follow the system setting. */
+/* Tokyo Night, the book's Tokyo Night reading theme. */
+:root[data-theme="tokyo-night"] {
+  --night: #16161E;
+  --page: #1A1B26;
+  --panel: #24283B;
+  --panel-deep: #1F2230;
+  --line: #292E42;
+  --line-soft: #292E42;
+  --ivory: #C0CAF5;
+  --stone: #C0CAF5;
+  --soft: #A9B1D6;
+  --amber: #7AA2F7;
+  --amber-dim: rgba(122, 162, 247, 0.55);
+  --amber-ink: #1A1B26;
+  --link: #7DCFFF;
+  --accent-wash: rgba(122, 162, 247, 0.12);
+  --button-hover: #8CACF6;
+  --outline-soft: rgba(192, 202, 245, 0.5);
+  --outline-wash: rgba(192, 202, 245, 0.06);
+  --shadow: rgba(0, 0, 0, 0.6);
+  --code-bg: #16161E;
+  --syn-keyword: #BB9AF7;
+  --syn-type: #2AC3DE;
+  --syn-constant: #FF9E64;
+  --syn-string: #9ECE6A;
+  --syn-number: #FF9E64;
+  --syn-comment: #7A82AA;
+  --syn-function: #7AA2F7;
+  --syn-key: #73DACA;
+  --syn-punct: #89DDFF;
+  color-scheme: dark;
+}
+
+/* Gruvbox Dark, the book's Gruvbox Dark reading theme. */
+:root[data-theme="gruvbox-dark"] {
+  --night: #1D2021;
+  --page: #282828;
+  --panel: #32302F;
+  --panel-deep: #2D2C2C;
+  --line: #3C3836;
+  --line-soft: #3C3836;
+  --ivory: #FBF1C7;
+  --stone: #EBDBB2;
+  --soft: #BDAE93;
+  --amber: #FABD2F;
+  --amber-dim: rgba(250, 189, 47, 0.55);
+  --amber-ink: #282828;
+  --link: #83A598;
+  --accent-wash: rgba(250, 189, 47, 0.12);
+  --button-hover: #FACA55;
+  --outline-soft: rgba(235, 219, 178, 0.5);
+  --outline-wash: rgba(235, 219, 178, 0.06);
+  --shadow: rgba(0, 0, 0, 0.6);
+  --code-bg: #1D2021;
+  --syn-keyword: #FB4934;
+  --syn-type: #FABD2F;
+  --syn-constant: #D3869B;
+  --syn-string: #B8BB26;
+  --syn-number: #D3869B;
+  --syn-comment: #A89984;
+  --syn-function: #8EC07C;
+  --syn-key: #83A598;
+  --syn-punct: #BDAE93;
+  color-scheme: dark;
+}
+
+/* Catppuccin Latte, the book's Catppuccin Latte reading theme. */
+:root[data-theme="catppuccin-latte"] {
+  --night: #E6E9EF;
+  --page: #EFF1F5;
+  --panel: #E6E9EF;
+  --panel-deep: #EAEDF2;
+  --line: #CCD0DA;
+  --line-soft: #CCD0DA;
+  --ivory: #4C4F69;
+  --stone: #4C4F69;
+  --soft: #5C5F77;
+  --amber: #8839EF;
+  --amber-dim: rgba(136, 57, 239, 0.55);
+  --amber-ink: #EFF1F5;
+  --link: #1D62EB;
+  --accent-wash: rgba(136, 57, 239, 0.12);
+  --button-hover: #793ECE;
+  --outline-soft: rgba(76, 79, 105, 0.5);
+  --outline-wash: rgba(76, 79, 105, 0.06);
+  --shadow: rgba(0, 0, 0, 0.15);
+  --code-bg: #E6E9EF;
+  --syn-keyword: #8337E5;
+  --syn-type: #8E5B12;
+  --syn-constant: #B0450B;
+  --syn-string: #2F7420;
+  --syn-number: #B0450B;
+  --syn-comment: #616473;
+  --syn-function: #1C5EE2;
+  --syn-key: #117278;
+  --syn-punct: #5C5F77;
+  color-scheme: light;
+}
+
+/* With no theme set (no JavaScript), follow the system setting. */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
+  :root:not([data-theme]) {
     --night: #fbfaf7;
     --page: #ffffff;
     --panel: #f6f4ef;
@@ -772,8 +881,6 @@ cite { font-style: italic; }
     --syn-punct: #52606d;
     color-scheme: light;
   }
-  :root:not([data-theme="dark"]) .theme-toggle .icon-sun { display: none; }
-  :root:not([data-theme="dark"]) .theme-toggle .icon-moon { display: block; }
 }
 
 
@@ -1392,7 +1499,9 @@ cite { font-style: italic; }
   background: #0a1828;
 }
 :root[data-theme="light"] .art-hero img,
-:root[data-theme="light"] .art-guide img { box-shadow: 0 6px 18px rgba(4, 14, 25, 0.18); border-color: rgba(4, 14, 25, 0.25); }
+:root[data-theme="light"] .art-guide img,
+:root[data-theme="catppuccin-latte"] .art-hero img,
+:root[data-theme="catppuccin-latte"] .art-guide img { box-shadow: 0 6px 18px rgba(4, 14, 25, 0.18); border-color: rgba(4, 14, 25, 0.25); }
 
 /* A section's plate: above the introduction on narrow screens, beside
    it on wide ones. */
@@ -1435,6 +1544,7 @@ cite { font-style: italic; }
 /* The header's search link, a round button like the theme toggle. It
    works without JavaScript; the toggle appears only with it. */
 .search-link {
+  flex: none;
   margin-left: auto;
   display: inline-grid;
   place-items: center;
@@ -1445,11 +1555,11 @@ cite { font-style: italic; }
   color: var(--stone);
 }
 .search-link:hover, .search-link[aria-current="page"] { color: var(--ivory); border-color: var(--amber-dim); }
-.search-link + .theme-toggle { margin-left: 0.5rem; }
+.search-link + .theme-picker { margin-left: 0.5rem; }
 .site-nav a.nav-start { color: var(--ivory); font-weight: 600; }
 @media (min-width: 80rem) {
   .search-link { order: 3; margin-left: 0.75rem; }
-  .theme-toggle { order: 4; }
+  .theme-picker { order: 4; }
 }
 
 /* The home page: the measured claim and the author under the hook. */
@@ -1598,12 +1708,17 @@ cite { font-style: italic; }
    screen, at its own proportions. */
 .diagram { margin: 1.75rem 0 2rem; }
 .diagram img { display: block; width: auto; max-width: 100%; height: auto; max-height: 80vh; margin: 0 auto; }
-.diagram .diagram-light { display: none; }
-:root[data-theme="light"] .diagram .diagram-light { display: block; }
-:root[data-theme="light"] .diagram .diagram-dark { display: none; }
+.diagram img.diagram-theme { display: none; }
+.diagram img.diagram-dark { display: block; }
+:root[data-theme] .diagram img.diagram-dark { display: none; }
+:root[data-theme="dark"] .diagram img.diagram-dark,
+:root[data-theme="light"] .diagram img.diagram-light,
+:root[data-theme="tokyo-night"] .diagram img.diagram-tokyo-night,
+:root[data-theme="gruvbox-dark"] .diagram img.diagram-gruvbox-dark,
+:root[data-theme="catppuccin-latte"] .diagram img.diagram-catppuccin-latte { display: block; }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .diagram .diagram-light { display: block; }
-  :root:not([data-theme="dark"]) .diagram .diagram-dark { display: none; }
+  :root:not([data-theme]) .diagram img.diagram-light { display: block; }
+  :root:not([data-theme]) .diagram img.diagram-dark { display: none; }
 }
 .diagram figcaption {
   max-width: var(--measure);
