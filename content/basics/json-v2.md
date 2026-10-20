@@ -1,7 +1,7 @@
 ---
 title: "encoding/json/v2 for LLM APIs in Go: what changed, and what an agent needs"
 short: JSON v2 for model APIs
-description: Using Go's encoding/json/v2 and jsontext for model APIs and tool calls. What changed from encoding/json, each behavior checked in Go 1.27, wire types with omitzero and jsontext.Value, invalid UTF-8 from tools, strict tool arguments, a field with two shapes, key order, deterministic output, and options for saving a run.
+description: Using Go's encoding/json/v2 and jsontext for model APIs and tool calls. Why switch, with a benchmark, what changed from encoding/json, each behavior checked in Go 1.27, wire types with omitzero and jsontext.Value, invalid UTF-8 from tools, strict tool arguments, a field with two shapes, key order, deterministic output, and options for saving a run.
 card: What changed from encoding/json, and the parts of v2 an agent leans on, each checked in Go 1.27.
 group: Go in depth
 chapters: 2, 4, 7, 8, 10, 15
@@ -20,6 +20,37 @@ In Go 1.27, `encoding/json/v2` is available by default; `GOEXPERIMENT=nojsonv2` 
 Go 1.26 ships it behind `GOEXPERIMENT=jsonv2`, and without that setting the package doesn't build.
 The original `encoding/json` is still there, so a program can move one package at a time.
 The companion code needs Go {{code go-version}}, and `go` downloads it when it reads the module's `go.mod`.
+
+## Why switch
+
+For an agent, the case for v2 is mostly about what it refuses to accept.
+A model's output is untrusted input, and v2's defaults treat it that way:
+
+- **Duplicate keys are an error.** In v1 the last one wins; when two parsers disagree about which duplicate counts, a value can get past a check that read the other one.
+- **Invalid UTF-8 is an error,** in both directions, instead of passing through.
+- **Names match exactly,** so `{"PATH": "..."}` can't land in a field tagged `path` by accident.
+
+The rest is control:
+
+- **Options per call,** such as `RejectUnknownMembers` for strict tool arguments, `AllowInvalidUTF8` for tool output, and `Deterministic` for stable bytes. v1's only option of this kind was `DisallowUnknownFields`, and only on a `Decoder`.
+- **Marshalers for types you don't own,** passed with `WithMarshalers` for one call, instead of a wrapper type used everywhere.
+- **Streaming marshalers,** `MarshalJSONTo` and `UnmarshalJSONFrom`, which read and write token by token, so a field that can take two shapes needs no buffering or guessing.
+- **Errors with locations:** `SemanticError` and `SyntacticError` carry a JSON Pointer to the part of the input that failed, which is what a model needs to fix its arguments.
+- **Zero values handled better:** `omitzero`, which respects an `IsZero` method, and nil slices written as `[]`, which APIs that expect arrays prefer to `null`.
+
+It is also faster at decoding, though for an agent that hardly matters.
+On a MacBook Pro with an M1 Pro chip and Go 1.27, decoding into typed structs, five runs each:
+
+| Payload | `encoding/json` | `encoding/json/v2` |
+| --- | --- | --- |
+| a model's reply, 3.8 KB | 9.7 to 10.4 µs | 7.2 to 8.5 µs |
+| a 16-message request, 18 KB | 51 to 61 µs | 38 to 41 µs |
+| encoding that request | 18.5 to 19.9 µs | 18.6 to 19.5 µs |
+
+Decoding was about a quarter faster, and encoding the same.
+A model call takes seconds, so tens of microseconds either way don't change how long a run takes.
+
+The costs are real too: code that relied on case-insensitive names or untagged fields stops decoding them, with no error; map keys are no longer sorted unless you ask; error text varies on purpose; and before Go 1.27 the package needs `GOEXPERIMENT=jsonv2`.
 
 ## What changed, checked
 
