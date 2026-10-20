@@ -16,7 +16,7 @@ The services it might use, an issue tracker, a code host, a database, are mostly
 The [Model Context Protocol](/glossary/#mcp) lets a program publish tools and data so that an agent in another process can use them, with no code written for that particular service.
 
 This page writes both sides by hand, a server for an issue tracker and a client in the agent, before turning to the official Go SDK.
-Writing it by hand has a second purpose: an MCP server's tool descriptions go straight into your model's context, and deciding what to check requires knowing which messages carry that text.
+Writing it by hand has a second purpose: an MCP server's tool descriptions go straight into your model's context, so deciding what to trust means knowing which requests and responses carry that text.
 
 ## The protocol in brief
 
@@ -88,7 +88,7 @@ Production clients go further, starting the server in a process group of its own
 | The tool's function, called directly | 0.16 µs |
 
 The process boundary made a call roughly 900 times slower than calling the function directly, and it still cost less than a ten-thousandth of one model call, which takes seconds.
-The m1 triage task was also run on the default model three times through the tracker's MCP server and three times with the agent's own tracker tools; all six runs passed all 16 checks, and the model used the server's tools as readily as its own.
+The `m1-done-after-delete` crash-triage task from [chapter 7's run](/run/ch07-crash-triage/) was also run on the default model three times through the tracker's MCP server and three times with the agent's own tracker tools; all six runs passed all 16 checks, and the model used the server's tools as readily as its own.
 The protocol cost the agent nothing it could measure.
 
 ## Server tools as agent tools
@@ -97,7 +97,7 @@ An adapter makes each server tool an ordinary `agent.Tool`, with three rules:
 
 - **Prefix names with the server's name**, the one you gave it in your configuration, such as `tracker__issue_search`, since two servers can both have a `search`. Names are rewritten to the characters model APIs accept, and one registry refuses any two that come out alike.
 - **Take the tool list once per run**, so tools can't change partway through.
-- **Treat what a server says as untrusted.** Descriptions and results are capped and have invisible characters removed, annotations such as "read-only" are hints, ignored unless the server is marked trusted, and a server that dies becomes `ErrToolFatal`, which stops the run instead of failing call after call.
+- **[Treat what a server says as untrusted](/production/prompt-injection/).** Descriptions and results are capped and have invisible characters removed, annotations such as "read-only" are hints, ignored unless the server is marked trusted, and a server that dies becomes `ErrToolFatal`, which stops the run instead of failing call after call.
 
 The trust question deserves its own page: [one sentence in a tool description decided 79 of 80 first moves](/findings/tool-description-poisoning/), across four models.
 The defense that works is upstream of the model: a person reads a server's tools once, and the client pins a hash of each definition, so a changed description stops the run until someone looks.

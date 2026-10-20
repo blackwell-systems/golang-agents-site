@@ -12,7 +12,7 @@ weight: 90
 
 An agent produces things over time: the pieces of a streamed reply, then a tool call, then its result, then the next turn.
 Since Go 1.23, a function can hand such a sequence to an ordinary `for ... range` loop, and the caller reads it as it is made.
-The companion code uses that shape throughout: a model's stream is an `iter.Seq2[Delta, error]`, and a whole run is an `iter.Seq[Event]`.
+The companion code uses that shape throughout: a model's stream is an `iter.Seq2[Delta, error]`, one piece of a reply per step, and a whole run is an `iter.Seq[Event]`, one thing that happened per step.
 This page covers how these iterators work and the patterns an agent needs, with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested; the [streaming guide](/build/streaming/) shows the server-sent events reader built the same way.
 
 ## An iterator is a function
@@ -50,7 +50,7 @@ A caller of an `iter.Seq2[Delta, error]` checks the error on every step, the way
 ```
 
 `Collect` assembles a whole reply from a stream, for code that wants the reply and not its pieces.
-It stops at the first error, keeping the usage the failed step reported, and it handles one more kind of step, a reset, which a retry sends when a stream starts over.
+It stops at the first error, keeping the usage the failed step reported, and it handles one more kind of step: a `Delta` with its `Reset` flag set, which a retry sends when a stream starts over, meaning the pieces before it belonged to a failed attempt and are discarded. See [retries and observability](/production/retries-and-observability/).
 
 ## Wrapping one: middleware with cleanup
 
@@ -70,9 +70,9 @@ A whole run is an iterator of events, so a caller that only wants the result rea
 ```go include=ch06/agent/loop.go tag=run
 ```
 
-`return` inside the loop ends the range, and `yield` returns false inside the run.
+A `return` inside the loop ends the range; the run's iterator sees its `yield` return false and stops.
 The run's iterator cancels its own [context](/basics/context/) when that happens, through a deferred `cancel`, so breaking out of the loop stops the model call in progress.
-Stopping a run is as simple as leaving the loop that reads it, and `TestBreakOutOfEvents` checks that it does.
+Stopping a run is as simple as leaving the loop that reads it, and `TestBreakOutOfEvents` checks that breaking out stops the run.
 
 ## Iterators with goroutines inside
 

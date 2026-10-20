@@ -35,7 +35,7 @@ From the repository's `code` directory, with no API key:
 $ go run ./memory
 ```
 
-Without a key, it replays a run recorded on October 19, 2026, with `xiaomi/mimo-v2.6-pro` for the answers and `voyageai/voyage-4-lite` for the embeddings; the store, the file tools, and the grading run for real.
+Without a key, it replays a run recorded on October 19, 2026, with `xiaomi/mimo-v2.6-pro` for the answers and `voyageai/voyage-4-lite` for the embeddings; the store, the file tools, and the [grading](/production/evals/) of each session's answer run for real.
 The run is eight sessions, each a new conversation:
 
 ```go include=memory/sessions.go tag=sessions
@@ -60,7 +60,7 @@ A note is one short fact, the session that saved it, and its embedding, so notes
 ```go include=memory/memory.go tag=store
 ```
 
-Recall sorts the notes by their cosine similarity to the user's message and keeps the closest.
+Recall sorts the notes by their cosine similarity to the user's message, a score of how close two embeddings are, and keeps the closest.
 The store is a slice in memory, saved to a JSON file between runs; even a few hundred notes would need nothing more, though this program caps the store at 100.
 
 ## Recall at the start of a session
@@ -71,7 +71,7 @@ Before the agent runs, the notes closest to the user's first message go into the
 ```
 
 Recall happens in code, not as a tool the model may or may not call, so a relevant note is in front of the model on its first turn.
-The notes are labeled as a record of what the user said, and each carries its ID, which the model needs to replace or delete one.
+The notes are labeled as a record of what the user said, and each carries its ID, which the model needs in order to replace or delete that note.
 
 ## Saving and replacing notes
 
@@ -109,11 +109,11 @@ With no memory, the assistant missed exactly the four sessions that needed an ea
 **No memory** failed where it had to.
 In session 6, asked which proxy the user runs, it read six documents looking for an answer that only the user had, and spent 10,369 input tokens finding nothing.
 
-**Notes** cost about what no memory cost, 7 percent more, for the embedding calls and the turns that saved notes.
+**Notes** cost 7 percent more than no memory, for the embedding calls and the turns that saved notes.
 They didn't save money, because the notes hold only what the user said: each session still read the documents it needed.
 Session 6 was the exception: the answer was in a note, and the assistant answered in one call with 592 input tokens.
 
-**Carrying the whole conversation** answered all eight too, and was the cheapest by far, $0.0031 against $0.0113.
+**Carrying the whole conversation** answered all eight too, and was the cheapest by far, $0.0031 against $0.0113 for notes.
 It carried more than the user's facts: the documents it read in session 1 stayed in the conversation, so it rarely read them again.
 That is the right choice while the history is short, and this run is short.
 

@@ -55,7 +55,7 @@ With `omitempty`, every request would include `"max_tokens": 0`, asking the mode
 ## The call
 
 The client's zero values are useful: leave the base URL empty and it uses OpenRouter, leave the `*http.Client` nil and it uses `http.DefaultClient`, leave the timeout at zero and it allows two minutes.
-`Generate` is the single method that makes the client a `Model` the agent loop can use:
+`Generate` is the single method that makes the client a `Model` the [agent loop](/basics/agent-loop/) can use:
 
 ```go include=ch02/openrouter/client.go tag=generate
 ```
@@ -72,14 +72,15 @@ The default `http.Client` will wait forever, and a healthy model call can take o
 It also gives no way to say which limit expired.
 
 The client instead derives a deadline from `ctx` for each call.
-That deadline belongs to one call only, it stacks with any deadline the caller already set (the earlier one fires), and it can carry a reason.
+That deadline belongs to one call only; it stacks with any deadline the caller already set (the earlier one fires); and it can carry a reason.
 [`context.WithTimeoutCause`](/basics/context/#say-why-it-stopped) attaches `ErrCallTimeout` to the cancellation, and `context.Cause` retrieves it.
 A caller can then [test the error](/basics/errors/) two ways: `errors.Is(err, context.DeadlineExceeded)` says a deadline fired, and `ErrCallTimeout` says it was this client's.
 `net/http` doesn't consistently preserve both, and which one survives depends on whether the connection is HTTP/1.1 or HTTP/2.
 So the client wraps in whatever is missing using `%w: %w`, which wraps two errors in one, and its tests verify the result over both protocol versions.
 
 The two-minute figure is measured.
-Across the recorded runs in the companion code, the longest single call lasted 76 seconds, `z-ai/glm-5.3-flash` producing 2,880 reasoning tokens, and in the bug-fix runs 90% of calls returned in under three seconds.
+Across the recorded runs in the companion code, the longest single call lasted 76 seconds: `z-ai/glm-5.3-flash` producing 2,880 reasoning tokens.
+In the bug-fix runs, 90% of calls returned in under three seconds.
 Two minutes covers the slow reasoning case and still catches a call that is stuck.
 The two official Go SDKs pick very different defaults: `openai-go` has no timeout unless you set one, and `anthropic-sdk-go` allows a non-streaming call ten minutes.
 
@@ -92,11 +93,12 @@ One call's life: the run's context and the call's own deadline both reach the HT
 
 ## Reading the reply
 
-There are three distinct ways a call can fail, and the client looks for each one:
+There are four distinct ways a call can fail, and the client looks for each one:
 
 - **A status other than 200.** The API turned the request down, for reasons like an invalid key (401), an empty account (402), a request bigger than the model accepts, or a provider outage. The returned error includes the status and the message the API sent.
 - **An error object inside a 200.** OpenRouter took the request, but the provider broke down before it produced a reply.
 - **A finish reason of `error`.** The provider started replying and then broke down.
+- **A 200 whose body isn't the expected JSON.** A proxy's HTML error page or a body cut off mid-transfer fails to decode, and the client returns a decode error.
 
 The client reads the body through `io.LimitReader` with a 16 MB ceiling, so a misbehaving server can't keep it reading without end.
 
@@ -112,7 +114,7 @@ Once the reply checks out, the client copies the parts the agent uses: the messa
 
 A `length` reply is returned normally, with the reason in a field.
 The text is truncated, but it is still text, and only the caller knows whether to keep it, ask again with a larger limit, or stop.
-The agent loop built on top should be stricter than the client and refuse to treat a truncated reply as a finished answer.
+The [agent loop](/basics/agent-loop/) built on top should be stricter than the client and refuse to treat a truncated reply as a finished answer.
 
 ## What it deliberately leaves out
 
@@ -120,7 +122,7 @@ Each call gets exactly one attempt.
 Failures are routine with model APIs: 429 rate limits, 502 and 503 from overloaded providers, connections that drop halfway through a reply.
 The official Go SDKs handle this by retrying twice by default.
 That's handy, but the caller can't see it happen: one call just looks slow, and any budget that counts calls misses the extra attempts.
-Put retries in the agent harness instead, so every attempt is visible in the logs, counts against the budget, and stops when the run is cancelled.
+Put [retries](/production/retries-and-observability/) in the agent loop instead, so every attempt is visible in the logs, counts against the budget, and stops when the run is cancelled.
 
 ## Run it
 

@@ -14,7 +14,7 @@ art: ch08
 A model has no memory between requests, so the harness sends the entire history each turn: the task, every crash report opened so far, every file read, every test output.
 Over a long run that history gets big.
 Money is the first thing it hurts; the model's ability to pay attention to all of it comes later.
-Deciding what goes into each request is stage 1 of the loop, and the design below turns that decision into Go code you can swap and test.
+Deciding what goes into each request is the first stage of the [agent loop](/basics/agent-loop/), and the design below turns that decision into Go code you can swap and test.
 
 ## The problem, measured
 
@@ -36,8 +36,8 @@ Two cache markers per request, and no other change, moved 95 percent of the inpu
 
 Pricing explains part of that bill.
 For requests above 100,000 tokens, the default model's price jumps to five times its normal rate, and close to half the requests in this run crossed that threshold.
-The window was never the constraint: at a million tokens, it held far more than any one request in the run.
-So for an agent the order of trouble is money first, and only on longer runs the window size and how well the model attends to a very long request.
+The [context window](/basics/tokens-and-cost/) was never the constraint: at a million tokens, it held far more than any one request in the run.
+So for an agent the order of trouble is money first; on longer runs the window size and how well the model attends to a very long request come next.
 
 ## Where the tokens go
 
@@ -139,6 +139,7 @@ Read that last row before the others.
 Nothing changed between its two runs except the model's choices, and one run took 62 turns for $0.42 while the other took 30 turns for $0.06, a sevenfold difference in cost.
 So a gap between two single-run rows means something only when it is large and has a cause you can point to.
 Two of the gaps can be read that way: caching, where 95 percent of the input came from the cache against none, and the 132 turns from clearing too early, which line up with the 47 repeated reads.
+Compaction and notes have no row of their own; what they did is reported above.
 The checks-passed column, which ranges from 81 to 87, is within the spread you could get by running any row again.
 
 ## What to take from it
@@ -167,6 +168,6 @@ From the `code` directory of a clone of the [companion repository](https://githu
 $ go run ./ch08 -task batch
 ```
 
-This replays the recorded batch run under the default policy (30 turns), executes every tool against fresh copies of the service, and grades the outcome against the catalog.
+This replays the [recorded model replies](/production/testing-offline/) under the default policy (30 turns), while every tool runs against fresh copies of the `remind` service, and the outcome is graded against the catalog.
 Because it runs the service's tests many times, it takes several minutes.
 The policies are in [`ch08/agent/trim.go`](code:ch08/agent/trim.go) and [`ch08/agent/compact.go`](code:ch08/agent/compact.go).

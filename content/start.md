@@ -97,7 +97,7 @@ For whoever decides whether a team spends its time here: what the work costs, wh
 {{art path-complete wide}}
 
 When you reach the last step of a path, the [Research](/findings/) section holds every measured result behind the guides, each with its method.
-The guides on knowledge and memory, [RAG in Go](/build/rag/), [RAG or agentic search?](/build/rag-or-agentic-search/), and [memory between sessions](/build/memory/), go past what the paths and the book cover.
+The guides on knowledge and memory go past what the paths and the book cover: [RAG in Go](/build/rag/), [RAG or agentic search?](/build/rag-or-agentic-search/), and [memory between sessions](/build/memory/).
 
 ## Browsing instead
 

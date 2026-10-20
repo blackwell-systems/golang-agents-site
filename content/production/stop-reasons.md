@@ -82,7 +82,7 @@ It holds the numeric status, the message from the API, the `Retry-After` delay i
 Matching "429" inside an error string stops working as soon as someone rewords the message; a method on a type keeps working.
 `Retryable` can cover one more case, OpenRouter's temporary in-flight 402, so the decision lives in one method you can extend.
 `openai-go` and `anthropic-sdk-go` take the same approach with `*openai.Error` and `*anthropic.Error`.
-This loop only classifies; the retrying, with backoff and jitter, is a separate step.
+This loop only classifies; the [retrying, with backoff and jitter](/production/retries-and-observability/), is a separate step.
 
 ## A budget in dollars, checked before each call
 
@@ -97,7 +97,7 @@ That choice has two effects, and both are wanted here.
 First, the overshoot is bounded: a run can exceed its budget by one call at most.
 Second, if the call that crosses the line is the final answer, the run succeeds anyway, because you have already paid for that answer and discarding it would waste the money.
 
-Every reply's usage counts toward the total, including replies the loop rejects and calls that errored after the provider charged for them.
+Every reply's usage counts toward the total, including replies the loop rejects and calls that failed after the provider charged for them, when the error comes back with the usage it was billed.
 Whatever happens, `Run` gives back the conversation, the spend, and the reason it ended, so a run cut short by a limit is still there to read and save.
 
 You might ask why the harness tracks spending when the provider already shows a balance.
@@ -122,7 +122,7 @@ In live use these failures almost never show up.
 In recorded runs without a token limit, 686 replies contained 617 tool calls, and none of them hit any of these problems.
 That rarity is the reason to test them.
 A long-running agent will eventually get such a reply, and handling code that never runs is where the bugs hide.
-A duplicate ID is also hard to trace: the tools run normally, and only the following request fails, with a 400 that looks like your client's fault.
+Without the check, a duplicate ID is hard to trace: the tools run normally, and only the following request fails, with a 400 that looks like your client's fault.
 
 ## Stopping partway through a reply
 
@@ -157,7 +157,7 @@ With an error that said the file was locked, three of the four models kept going
 ```
 
 In 40 healthy runs of this fix, every one finished within six turns.
-A limit of 10 leaves those runs room and cuts the stuck ones off at about half the cost they ran up, so `-max-turns 10` fits this task even though the program defaults to 20 to leave room for harder ones.
+A limit of 10 leaves those runs room and cuts the stuck ones off at about half the cost they ran up at 20 turns, so `-max-turns 10` fits this task even though the program defaults to 20 to leave room for harder ones.
 The rule generalizes: run the task a few times, note the turns a good run takes, and set the limit a little above that.
 Set the dollar budget from what a run is worth to you, not from what it usually costs.
 
@@ -169,7 +169,7 @@ Set the dollar budget from what a run is worth to you, not from what it usually 
 4. Check the finish reason and the tool-call IDs before a reply joins the conversation.
 5. Answer every tool call of a reply, with a "cancelled" result for the ones a cancellation kept from running.
 6. Return the conversation and the spend with every error, so a stopped run can be read and saved.
-7. Write one replayed fixture per stop reason, and a table test that checks each error's family.
+7. Write one [replayed fixture](/production/testing-offline/) per stop reason, and a table test that checks each error's family.
 
 ## When to use it
 

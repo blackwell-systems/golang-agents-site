@@ -1,7 +1,7 @@
 ---
 title: Running an agent's tool calls in parallel with goroutines
 short: Parallel tool calls
-description: A single model reply often requests several tools. This page covers which of those calls can safely overlap, a runner built on sync.WaitGroup.Go and a semaphore that returns answers in the model's order, and why the time it saves on a coding agent is measured in milliseconds.
+description: A single model reply often requests several tools. This page covers which of those calls can safely overlap, a runner built on sync.WaitGroup.Go and a semaphore that bounds concurrency, and per-call slots that return answers in the model's order, and why the time it saves on a coding agent is measured in milliseconds.
 card: Which tool calls can safely overlap, a runner that keeps the model's order, and what it saves.
 group: Scale up
 chapters: 9
@@ -11,7 +11,7 @@ weight: 60
 art: ch09
 ---
 
-When a reply contains several tool calls, the model has only listed them; executing them is up to the harness.
+When a reply contains several tool calls, the model has only listed them; executing them is up to the [harness](/glossary/#harness), the program that drives the [agent loop](/basics/agent-loop/).
 Starting them all at the same moment seems like a free speedup, and in Go it takes a few lines.
 The harder questions are which calls are allowed to overlap, how to keep the conversation valid and the run reproducible, and whether the speedup is real.
 This page works through those questions with the runner in [`ch09/agent/runner.go`](code:ch09/agent/runner.go).
@@ -30,7 +30,7 @@ All four models were counted on both tasks; here are two of them on each:
 | Crash triage, 14 tools | `openai/gpt-5.6-luna` | 50% | 3.14 | 12 |
 
 The companion code never sets `parallel_tool_calls` on a request.
-On models that honor it, setting it to false limits each reply to one call; of the four models tested only `z-ai/glm-5.3-flash` accepts it, and Anthropic's own API has a separate switch for the same purpose.
+On models that honor it, setting it to false limits each reply to one call; of the four models tested only `z-ai/glm-5.3-flash` accepts it, and Anthropic's own API has a separate switch for the same purpose, `disable_parallel_tool_use` (the [ecosystem page on API differences](/ecosystem/differences/) covers more of these).
 There is no value that makes a model request more than one, and in spite of the name, the flag has no bearing on how your harness executes the calls it gets.
 Anthropic's documentation is explicit that execution order is the caller's business: run the calls however you like, provided each one gets exactly one result.
 
@@ -46,7 +46,7 @@ The runner decides this with the read-only flag that every tool carries:
 - Every other call executes by itself, waiting for all earlier calls and holding back all later ones; this is a [barrier](/glossary/#barrier).
 
 `run_tests` doesn't count as read-only, since it executes code, including tests the agent wrote, so it acts as a barrier.
-A call to a tool the harness doesn't recognize also gets its own stage, because nothing is known about what it does, and so does the final tool: once it accepts an answer, the calls after it are answered "not run".
+A call to a tool the harness doesn't recognize also gets its own stage, because nothing is known about what it does, and so does the tool that ends the task (`submit_diagnosis` in the triage agent): once it accepts an answer, the calls after it are answered "not run".
 
 ```go include=ch09/agent/runner.go tag=stages
 ```
@@ -65,12 +65,12 @@ If the run is cancelled while a call is waiting for a slot, the call never start
 Three decisions make the runner correct:
 
 - **Each goroutine writes only its own slot.** Answers go into a slice at the position the call had in the reply. Since every goroutine owns a distinct index, there is no shared write and no mutex, and the results end up in the model's order regardless of which call finished first.
-- **Answers are reported only after `Wait`.** The loop's goroutine reports them, never a tool's goroutine, because the loop's event iterator has to be fed by the goroutine that is ranging over it.
+- **Answers are reported only after `Wait`.** The loop's goroutine reports them, never a tool's goroutine, because the loop's [event iterator](/basics/iterators/) has to be fed by the goroutine that is ranging over it.
 - **A panic in one tool is recovered at that tool's boundary.** The panic turns into that call's answer; the other calls in the stage carry on, and one tool's failure never cancels its neighbors.
 
 The API accepts results in any order, so why preserve the model's?
 Mostly for reproducibility: a run replays identically, and recorded runs and tests keep passing.
-It also keeps the next request byte-for-byte equal to what sequential execution would have produced, so the prompt cache still hits.
+It also keeps the next request byte-for-byte equal to what sequential execution would have produced, so the [prompt cache](/glossary/#prompt-caching), which reuses the already-processed start of the prompt, still hits.
 Streaming results back as each call completes wouldn't gain anything, since the next model call can't start until every result is in.
 
 The package's tests check this.
@@ -101,7 +101,7 @@ One measurement replayed the 87 tool calls from one recorded triage run one by o
 All 60 read-only calls together took about a seventh of a second.
 Nearly all the time went to two tools: `run_tests`, and `code_patch`, which runs the formatter and a compile on every edit.
 Together they took 33 seconds, and both are barriers, so neither could overlap with anything.
-For comparison, a short answer from the default model took a median of 3.1 seconds per call.
+For comparison, a short answer from the default model took a median of 3.1 seconds per model API call.
 Overlapping the reads on this agent saves a few milliseconds per turn.
 
 The runner stays in the code anyway.
@@ -118,7 +118,7 @@ The finer dependency-graph scheme described above was not built or measured eith
 
 Some failures leave the model nothing to try.
 When the workspace has disappeared, every `code_read` fails, and a model that only sees "no such file" keeps guessing new paths until it hits the turn limit.
-For this case a tool returns an error wrapping `ErrToolFatal`.
+For this case a tool returns an error wrapping the sentinel `ErrToolFatal`, which the runner detects with `errors.Is` (see [Errors in a Go agent](/basics/errors/)).
 The runner halts at the current stage, gives every call that didn't run the answer "not run" so the API still accepts the conversation, and the loop returns the error to its caller.
 
 ## Others choose differently

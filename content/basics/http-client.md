@@ -1,7 +1,7 @@
 ---
 title: "An HTTP client for LLM APIs in Go: timeouts, limits, errors, and Retry-After"
 short: An HTTP client for model APIs
-description: The net/http details a model API client in Go gets right or wrong. One shared client, why the deadline belongs on the context and not on http.Client.Timeout, reading replies with a size limit, errors inside a 200, API errors with Retry-After, connection reuse, and RoundTrippers for tests and fault injection.
+description: The net/http details that a model API client in Go gets right or wrong. One shared client, why the deadline belongs on the context and not on http.Client.Timeout, reading replies with a size limit, errors inside a 200, API errors with Retry-After, connection reuse, and RoundTrippers for tests and fault injection.
 card: One shared client, deadlines on the context, size limits, errors inside a 200, and honoring Retry-After.
 group: Go in depth
 chapters: 2, 5, 6, 9, 12
@@ -11,7 +11,7 @@ weight: 86
 ---
 
 A model API is an ordinary HTTPS endpoint with unusual traffic.
-A reply can take half a minute to start and a streamed one minutes to finish; the body can be large; rate limits are part of normal operation; and a request can fail after it has succeeded, with an error inside a `200 OK`.
+A reply can take half a minute to start, and a streamed one can take minutes to finish; the body can be large; rate limits are part of normal operation; and a request can fail after it has succeeded, with an error inside a `200 OK`.
 Go's `net/http` handles all of it, with a few choices made deliberately.
 This page goes through them, with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested.
 For the chat completions request itself, start with [calling a model from Go](/basics/calling-a-model/); for when and how to retry, see [retries and observability](/production/retries-and-observability/).
@@ -38,8 +38,8 @@ Over HTTP/2, one connection carries many requests at once, and the limit matters
 `http.Client` has a `Timeout` field, and it is the wrong tool here.
 It covers the whole exchange, including reading the body, so it can't tell a slow start from a long reply: a timeout long enough for a streamed reply that legitimately takes three minutes is far too long to notice a request that never got an answer.
 
-The client instead puts a deadline on each call's context, two minutes by default, and a stream gets an idle timer that measures silence instead of total time.
-Both carry their own cause, so a timeout says which one it was.
+The client instead puts a deadline on each call's context, two minutes by default, and a [stream](/build/streaming/) gets an idle timer that measures silence instead of total time.
+Both set a context cause (`context.WithTimeoutCause`), so the error from a timeout says which deadline ended the call.
 The [context page](/basics/context/#a-deadline-for-each-model-call) shows both.
 
 ## Read with a limit
@@ -87,7 +87,7 @@ The retry policy uses the server's wait when there is one, and gives up instead 
 
 A server's wait replaces the backoff for that retry, plus a random extra of up to a second, so that many clients told to wait the same time don't all come back in the same instant.
 A wait longer than `MaxWait`, one minute by default, ends the retries with an error that names the wait, which is more useful than sleeping through it.
-Which errors are worth retrying at all is the [errors page](/basics/errors/#errors-that-carry-data-types-and-behavior)'s `Classify`, and the backoff itself is on the [retries page](/production/retries-and-observability/#how-long-to-wait).
+Which errors are worth retrying is decided by `Classify`, described on the [errors page](/basics/errors/#errors-that-carry-data-types-and-behavior); the backoff itself is on the [retries page](/production/retries-and-observability/#how-long-to-wait).
 
 ## Keep connections reusable
 

@@ -40,7 +40,7 @@ It asks 16 questions three ways, and this page builds the first, `rag`; the othe
 ```text include=rag/testdata/out.txt title="go run ./rag"
 ```
 
-With `OPENROUTER_API_KEY` set, ask your own question:
+With `OPENROUTER_API_KEY` set ([getting set up](/basics/getting-set-up/) shows how), ask your own question:
 
 ```console
 $ go run ./rag -ask rag "How do I make redirects permanent?"
@@ -134,20 +134,20 @@ The cost includes embedding each question. One run on one model is a single samp
 
 ## Retrieval as a tool
 
-The same search can be a tool instead, so that a model in an agent loop decides when to search and what to search for:
+The same search can be a [tool](/basics/tool-calling/) instead, so that a model in an [agent loop](/basics/agent-loop/) decides when to search and what to search for:
 
 ```go include=rag/answer.go tag=search-tool
 ```
 
 With the tool, the model can search again with other words when the first results miss, and on these questions it searched more than once on 13 of 16.
-That costs calls and tokens; [RAG or agentic search?](/build/rag-or-agentic-search/) compares it with one-call RAG and with an agent that reads the files itself.
+That costs calls and tokens; [RAG or agentic search?](/build/rag-or-agentic-search/) compares it with one-shot RAG and with an agent that reads the files itself.
 
 ## What to watch
 
 **Retrieval can miss.**
 When the right chunk isn't among the four returned, the model can't answer, and with the prompt above it says it can't.
 Check retrieval on its own: for each test question, note which document holds the answer, and count how often a chunk from it comes back.
-That tells you whether a wrong answer came from the search or from the model, which an [eval](/production/evals/) of the answers alone can't.
+That tells you whether a wrong answer came from the search or from the model, something an [eval](/production/evals/) of the answers alone cannot do.
 
 **The index goes stale.**
 Vectors describe the documents as they were when they were embedded.

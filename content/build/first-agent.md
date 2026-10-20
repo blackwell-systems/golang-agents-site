@@ -51,7 +51,7 @@ Four types carry everything: a message, a tool call inside a message, a tool, an
 ```go include=firstagent/agent.go tag=types
 ```
 
-`Message` has the same fields, with the same JSON names, as a message in the chat completions API, so the client can send the conversation as it is and decode the model's reply straight into one.
+`Message` has the same fields, with the same JSON names, as a message in the [chat completions API](/ecosystem/differences/), so the client can send the conversation as it is and decode the model's reply straight into one.
 That keeps this program short.
 The companion code keeps its own types apart from the wire format instead, which lets one agent talk to providers whose formats differ; [calling a model from Go](/basics/calling-a-model/) shows that design.
 
@@ -88,10 +88,10 @@ This is the agent:
 
 Each pass is one turn: send the conversation, append the reply, and either stop or run the tools.
 A reply with no tool calls is the answer.
-A reply with tool calls gets one `tool` message for each call, tagged with the call's ID, and the loop goes around again with everything so far.
+A reply with tool calls gets one [`tool` message for each call](/basics/tool-calling/), tagged with the call's ID, and the loop goes around again with everything so far.
 
 The order of the appends matters.
-The model's reply goes into the conversation before its tools run, so every tool result answers a call the conversation already holds; the API refuses a request where it doesn't.
+The model's reply goes into the conversation before its tools run, so every tool result answers a call the conversation already holds; the API refuses a request that holds a tool result whose call ID isn't in the conversation.
 
 The loop stops in three ways: an answer, a reply cut off by `finish_reason: length`, which is never treated as an answer, or the turn limit.
 The deferred line reports what the run cost however it ended.

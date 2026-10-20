@@ -12,9 +12,11 @@ weight: 20
 art: ch12
 ---
 
-Two failures from recorded runs set up this page ([a dropped connection ended a 41-turn run](/findings/measured-mistakes/#dropped-connection) has the method).
+Two failures from recorded runs set up this page.
+The first is written up, with how it was measured, in [a dropped connection ended a 41-turn run](/findings/measured-mistakes/#dropped-connection).
 In the first, a batch run had read 1.7 million tokens when it hit `remote error: tls: bad record MAC` at turn 41.
-The harness resent the request once, right away, the resend failed as well, and the run ended with all of its findings gone.
+The harness resent the request once, right away.
+The resend failed as well, and the run ended with all of its findings gone.
 In the second, 23 agents were running in parallel, and that same TLS error cut off three of them in the middle of reading a reply.
 The task had nothing to do with either failure, and waiting a few seconds and trying again would probably have saved both.
 Afterwards there was also no record of which turns had cost the most or which calls had been slow.
@@ -31,7 +33,7 @@ Each one is instead a [middleware](/glossary/#middleware) wrapper that you write
 
 The companion code uses two wrapper types.
 Model wrappers wrap the streaming model interface.
-Tool wrappers receive the entire tool, safety flags included, and a retry needs those flags to tell whether running the tool twice is harmless.
+Tool wrappers receive the entire tool, [safety flags](/build/tool-design/) included, and a retry needs those flags to tell whether running the tool twice is harmless.
 Model calls can always be sent again; many tool calls can't, and a single shared handler type would lose that distinction.
 
 ## Which failures to retry
@@ -59,6 +61,7 @@ Each attempt's own deadline is set with `context.WithTimeoutCause` and a cause o
 That refusal is a 402 whose body sets `limit_source` to `openrouter_in_flight_budget`, and that one is retryable.
 Any other 402 means the credit is gone, and retrying won't help.
 There is a catch: an account that really has no credit left can receive the same in-flight `limit_source`, and in that case no number of retries succeeds.
+The policy's attempt cap, four by default, is what ends the loop then, and the run fails with the 402.
 
 The classifier doesn't depend on any client package.
 It asks the error three questions through small interfaces: is it retryable, does it carry a retry delay, and is it a timeout.
@@ -123,15 +126,15 @@ Two pieces of state, shared by all the agents, keep that in check:
 
 There is no way to pick a stream up where it broke, so a retry starts the reply from the beginning.
 Anyone watching has already seen part of the first attempt, so before the new attempt's first piece the wrapper sends a reset, and the display clears the partial reply.
-Usage from the failed attempt is carried over and added to the attempt that succeeds, so budgets match the bill.
-A chat completions stream reports usage in its final chunk, so a stream that broke reports none.
+Whatever usage a failed attempt did report is carried over and added to the attempt that succeeds, so budgets match the bill.
+A chat completions stream reports usage in its final chunk, so a stream that broke usually reports none.
 To recover that cost, the client saves each generation's ID, and OpenRouter can report the cost for that ID afterwards.
-The lookup isn't immediate: in a recorded measurement, OpenRouter returned 404 for between about four and a half and eight and a half minutes before the generation appeared.
+The lookup isn't immediate: in a recorded measurement, OpenRouter returned 404 for about four and a half to eight and a half minutes before the generation appeared.
 
 ## Tools: timeouts, and retries only when safe
 
 Each tool gets a `Timeout` field, and one wrapper enforces it for every tool.
-A tool that runs out of time fails with `ErrToolTimeout`, and the model receives that as an error result it can respond to.
+A tool that runs out of time fails with `ErrToolTimeout` when it is read-only or idempotent, and the model receives that as an error result it can respond to.
 
 Retrying tools needs more care than retrying model calls, because a tool can change the world.
 The tool retry wrapper only repeats tools flagged as read-only or idempotent.

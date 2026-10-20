@@ -28,7 +28,7 @@ Read the status first; it tells you whether trying again can help.
 | --- | --- | --- | --- |
 | 401 | The key is missing, mistyped, or revoked | Check `echo $OPENROUTER_API_KEY` in the same shell that runs the program; an `export` in another terminal doesn't carry over | No |
 | 402 | No credit left, or the key reached its own credit limit | Add credit or raise the key's limit | No, with one exception below |
-| 400 | The request itself is wrong: a misspelled model ID, a malformed message, or more text than the model can take | Fix the request; for a model ID, copy it from the model's page, in `company/model` form | No |
+| 400 | The request itself is wrong: a misspelled model ID, a malformed message, or more text than the [context window](/basics/tokens-and-cost/) can hold | Fix the request; for a model ID, copy it from the model's page, in `company/model` form | No |
 | 403 | A moderation check blocked the input | Change the input | No |
 | 408, 429 | A timeout, or too many requests too fast | Wait, then try again, waiting longer each time | Yes |
 | 500, 502, 503 | A failure on the API's or a model host's side | Wait briefly and try again | Yes |
@@ -36,7 +36,7 @@ Read the status first; it tells you whether trying again can help.
 OpenRouter also sends a 402 for a temporary limit on how much a key can have in flight at once, with [a header saying how long to wait](/basics/http-client/); that one is worth retrying.
 [Retries and observability](/production/retries-and-observability/) covers waiting well, and [why the agent stopped](/production/stop-reasons/) turns these statuses into Go errors your code can check.
 
-A model that can't use tools is a separate case.
+A model that can't use [tools](/basics/tool-calling/) is a separate case.
 If you send tools to a model that doesn't support them, the request fails; check that the model's page lists tool support before you choose it, as [choosing a model](/basics/choosing-a-model/) describes.
 
 ## When the reply is cut off

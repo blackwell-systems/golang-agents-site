@@ -25,13 +25,13 @@ Run twice on each of 20 tasks, the same agent’s second run beat its first by 1
 An agent's answers vary from run to run.
 Part of that is sampling: each token is drawn from a distribution.
 Part remains even at temperature 0, because providers batch requests and the order of the arithmetic shifts slightly with load.
-So any eval score is one draw from what the agent might have done, and before trusting it you need to know how far it drifts when nothing has changed.
+So any [eval score](/production/evals/) is one draw from what the agent might have done, and before trusting it you need to know how far it drifts when nothing has changed.
 
 The measurement below does exactly that.
 
 ## What was tested
 
-The agent is the crash-triage agent from the companion code: given crash reports from a small Go web service, it groups them, finds each cause, writes a reproducer test, fixes the code, and files an issue.
+The agent is [the crash-triage agent](/run/ch07-crash-triage/) from the companion code: given crash reports from a small Go web service, it groups them, finds each cause, writes a reproducer test, fixes the code, and files an issue.
 Each task in the crash catalog comes with a grader, code that checks the result: the grouping, the root cause, the reproducer failing before the fix and passing after, hidden tests the agent never sees, and more.
 No model judges the result.
 
@@ -47,8 +47,8 @@ Between the two runs, nothing was changed.
 The 15 points are chance.
 So a prompt change that gains 15 points, judged on a single run of each task on a set this size, has proved nothing so far.
 
-Single runs swing just as widely.
-Under one context policy, a 99-report batch took 62 turns and cost $0.42 on one run, then 30 turns and $0.06 on the next.
+Cost and turn count swing just as widely between identical runs.
+Under one [context policy](/build/context-management/), a 99-report batch took 62 turns and cost $0.42 on one run, then 30 turns and $0.06 on the next.
 
 ## Pair the comparison
 
@@ -62,7 +62,7 @@ A task that both pass contributes zero to the difference, and so does one that b
 The range comes from resampling the tasks with replacement, ten thousand times, and taking the middle 95 percent of the averages, because the tasks, not the runs, are what a small eval set has too few of.
 Below twelve tasks, a resampled range comes out too narrow, so the code reports no range at all, only the counts of tasks better, worse, and tied, and each task's results.
 
-Here is what pairing can separate, from comparisons recorded on 29 tasks:
+Here is what pairing can separate, from comparisons recorded on a separate sweep of 29 tasks:
 
 | Comparison | Difference, task by task | Tasks better, worse, tied |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ The second just touches zero, so it can't rank the two models.
 
 A pass rate of k out of n is an estimate of a rate nobody can see directly.
 The companion code reports it with a Wilson score interval, which, unlike the familiar formula, stays between 0 and 1 and keeps a width when every run passed or every run failed, which small evals hit often.
-Its width falls with the square root of n, so halving it takes four times as many runs.
+Its width falls as one over the square root of n, so halving it takes four times as many runs.
 
 An eval has two kinds of n, runs and tasks, and extra runs help with only the first.
 More runs of each task pin down how the agent does on those particular tasks.
@@ -91,7 +91,7 @@ With two runs per task on the confirmation set, the agent passed 72 percent of r
 A good share of what it fails on one attempt, it gets right on the next.
 
 Two agents with the same pass rate can be very different to run: one passes every task two times in three, while the other passes the same two thirds of the tasks on every run and fails the remaining third on every run.
-If you'll run the agent once, the second is the one you want, provided you can tell which tasks are its.
+If you'll run the agent once, the second is the one you want, provided you can tell which tasks those are.
 
 ## What it can't show
 
@@ -103,7 +103,7 @@ And chance can go the other way: a real improvement can come out flat or negativ
 
 - **Before believing a change, measure the spread of the unchanged agent.** A difference smaller than two identical runs' difference means nothing yet.
 - **Compare task by task, and report the range.** "Better on 5, worse on 2, tied on 13, -10 to +40" says far more than "+15".
-- **Report counts when there are too few tasks for a range.** On five tasks, say which ones moved; 0 of 5 becoming 5 of 5 on the same task is a strong signal even when an average across tasks isn't.
+- **Report counts when there are too few tasks for a range.** On five tasks, say which ones moved; one task going from 0 of 5 runs passing to 5 of 5 is a strong signal even when an average across tasks isn't.
 - **Keep a confirmation set out of tuning.** A prompt tuned until every task passes is fitted to the set, and the set stops measuring anything else.
 - **Watch cost and turns too.** They often separate versions when pass rates don't.
 

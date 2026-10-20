@@ -16,7 +16,7 @@ Making one by hand first, before any Go, shows exactly what your program will be
 ## Why OpenRouter
 
 The examples on this site call models through [OpenRouter](https://openrouter.ai), a service that puts hundreds of models from different companies behind one API.
-Its API uses the chat completions format that OpenAI introduced and most providers and local model servers now accept, so the code you write for it works elsewhere with a different address and key.
+Its API uses the [chat completions format](/ecosystem/differences/) that OpenAI introduced and most providers and local model servers now accept, so the code you write for it works elsewhere with a different address and key.
 Switching models is a change to one string, which makes it easy to compare them.
 
 Calling a provider directly, such as Anthropic or OpenAI, works the same way in principle; [Providers and SDKs](/ecosystem/providers-and-sdks/) covers what changes.

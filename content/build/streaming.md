@@ -12,8 +12,9 @@ art: ch06
 ---
 
 An agent that waits for whole replies gives its user long stretches of nothing.
-The terminal sits blank for a few seconds, prints an entire turn, and goes blank again, and from the outside a slow model, a hung connection, and a crashed program all look the same.
-With streaming, text appears while the model is producing it, and the harness gets a much earlier signal when a connection has died.
+The terminal sits blank for a few seconds, prints an entire turn, and goes blank again.
+From the outside a slow model, a hung connection, and a crashed program all look the same.
+With streaming, text appears while the model is producing it, and the [agent loop](/basics/agent-loop/) gets a much earlier signal when a connection has died.
 
 Here is how a stream looks on the wire, how to consume one in Go, and the details that catch out a stream reader written too quickly.
 
@@ -25,7 +26,7 @@ Total time barely moved: for three of the four models, streamed and unstreamed r
 
 What streaming improves, then, is what the user sees and how fast the program notices a failure; it doesn't make the model finish any earlier.
 Reasoning models complicate the picture.
-`z-ai/glm-5.3-flash` delivered its first chunk in under a second but its first word of actual answer only after a median of 12.2 seconds, since everything before that was reasoning.
+`z-ai/glm-5.3-flash` delivered its first chunk in under a second but its first word of the actual answer only after a median of 12.2 seconds, since everything before that was reasoning.
 If your display shows only the answer, the user stares at an empty screen for twelve seconds while data is flowing the entire time.
 
 ## Server-sent events
@@ -70,7 +71,7 @@ Second, if the body ends before `[DONE]` shows up, the iterator yields `io.ErrUn
 Most of a stream is just more text in each chunk.
 Three cases break that pattern:
 
-- **Usage comes last.** One chunk carries the finish reason; the usage comes in a chunk after it. Stop reading at the finish reason and you never find out what the call cost, so the client keeps going until `[DONE]`.
+- **Usage comes last.** One chunk carries the [finish reason](/glossary/#finish-reason), the field that says why the model stopped; the usage comes in a chunk after it. Stop reading at the finish reason and you never find out what the call cost, so the client keeps going until `[DONE]`.
 - **Errors can arrive mid-stream.** A provider that fails after it has started writing sends an error object as an ordinary chunk. The client treats it as a failure, never as a normal end to the reply.
 - **The connection can just end.** If the body stops before any finish reason or `[DONE]`, the reply is incomplete and the client reports an error. If the finish reason already arrived, the reply itself is complete and accepted; the only thing missing is its usage.
 
