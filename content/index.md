@@ -30,10 +30,14 @@ Here is the loop as the [companion code](https://github.com/blackwell-systems/go
 ```go include=ch01/agent/loop.go tag=run
 ```
 
-Its first line uses a small helper, `index`, to split the tools in two: `defs`, the name, description, and parameters of each tool, which go to the model in every request, and `byName`, a map from each tool's name to the Go code that runs it, which the loop uses to find the tool a call names.
+Its first line calls `index`, which splits the tools in two: `defs`, the definitions that go to the model in every request, and `byName`, which the loop uses to find the Go code for the tool a call names:
+
+```go include=ch01/agent/loop.go lines=49..63
+```
+
 The other names are plain types and helpers: a `Message` is one entry in the conversation, a `Request` is the messages and tool definitions for one call, `Limits` holds settings such as `MaxTurns`, a `Result` holds the conversation a run ends with, `runTool` runs one call and turns its output (or its error) into a message for the model, and `ErrMaxTurns` is the error a run returns when it hits the turn limit.
 
-It sends the whole conversation on every call, because the model keeps nothing between calls.
+The loop sends the whole conversation on every call, because the model keeps nothing between calls.
 It appends the model's reply to the conversation before running its tools, so each tool result is paired with a tool call the conversation already holds.
 It stops on an answer, at the turn limit, or when `ctx` is cancelled.
 [The agent loop in Go](/basics/agent-loop/) explains each line.
