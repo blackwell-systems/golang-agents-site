@@ -90,6 +90,10 @@ A guard placed in front of a dependency. After a string of consecutive failures 
 
 Shrinking the request by swapping the oldest part of the conversation for a model-written summary of it.
 
+### Context (Go) {#go-context}
+
+Go's `context.Context`, passed as the first parameter of every function that does I/O or can block, carries cancellation, a deadline, and a cause down a chain of calls. Not to be confused with a model's [context window](#context-window). See [context.Context in an agent](/basics/context/).
+
 ### Context policy {#context-policy}
 
 The code that decides which parts of the full conversation go into each request. Common policies send everything, drop old turns, clear old tool results, or summarize.

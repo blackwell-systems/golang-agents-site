@@ -1,6 +1,6 @@
 ---
 title: Basics
-description: How AI agents work, from the ground up: what an agent is, the loop at its center, calling a model from Go, tool calling, what each turn costs, and how a model picks its next token.
+description: How AI agents work, from the ground up: what an agent is, the loop at its center, calling a model from Go, tool calling, what each turn costs, how a model picks its next token, and the Go foundations an agent leans on, starting with context.Context.
 ---
 
 Start here if you are new to agents or to LLM APIs.
