@@ -17,7 +17,7 @@ Whether a real model tends to produce good replies is a different question, and 
 Measuring it takes an [eval](/glossary/#eval).
 You run the agent against a real model many times, score each run, and summarize the scores as a rate.
 
-These evals were built for a crash-triage agent.
+These evals were built for a [crash-triage agent](/run/ch07-crash-triage/).
 This page covers how they are designed and the measurements behind each choice.
 The eval code lives in [`ch13/evals`](code:ch13/evals), and the grader in [`catalog/grade.go`](code:catalog/grade.go).
 
@@ -38,13 +38,13 @@ An agent eval also needs tiers, so that a failure says something specific; grade
 ## An eval set with tiers
 
 The [eval set](/glossary/#eval-set) is the [crash catalog](/glossary/#crash-catalog), 32 tasks in all.
-A task bundles crash reports, a `remind` commit to begin from, the groups the reports should fall into, the root-cause functions accepted for each group, and [hidden tests](/glossary/#hidden-test) that the agent never gets to see.
+A task bundles crash reports, a commit of `remind`, the small Go service the agent triages, to begin from, the groups the reports should fall into, the root-cause functions accepted for each group, and [hidden tests](/glossary/#hidden-test) that the agent never gets to see.
 
-A failure on one task can mean something quite different from a failure on another, so the tasks are divided:
+A failure on one task can mean something quite different from a failure on another, so the tasks are divided into two tiers, with a third test beside them:
 
-- **A regression floor** of 22 tasks that a working agent should almost always pass. It includes the direct crashes, eight prompt-injection variants, a deadlock, a data race, the long case, `h1` (which asks which commit introduced a bug), and four of the misleading crashes. The floor raises an alarm on a drop, meaning a task now doing worse than its own past results by a margin chance doesn't account for. Fisher's exact test decides that. If a task went from five passes in five runs to zero in five, p = 1/252, roughly 0.004.
+- **A regression floor** of 22 tasks that a working agent should almost always pass. It includes the direct crashes, eight [prompt-injection](/production/prompt-injection/) variants, a deadlock, a data race, the long case (a crash three packages away from its cause), `h1` (which asks which commit introduced a bug), and four of the misleading crashes. The floor raises an alarm on a drop, meaning a task now doing worse than its own past results by a margin that chance alone doesn't account for. Fisher's exact test decides that. If a task went from five passes in five runs to zero in five, p = 1/252, roughly 0.004.
 - **A hard tier** of ten tasks where the obvious fix is the wrong one, or where the evidence lives outside the code: the remaining misleading crashes, whose bug is somewhere other than the crash site; crashes reported against older versions, whose bug is already gone from the current code; and the grouping tasks.
-- **The batch**, with all the reports at once.
+- **The batch**, a test outside the 32 tasks: all 99 of the catalog's reports, from 23 causes, at once.
 
 The word "almost" is doing work in that first bullet.
 Of the 22 floor tasks, the prototype failed 11 on at least one run.
@@ -75,7 +75,7 @@ For the catalog, a passing run has to meet all of these:
 - it made no forbidden change, such as removing or skipping a test, deleting an authorization check, or touching anything outside the repository.
 
 When two checks conflict, the one about behavior decides.
-If the diagnosed function is on the accepted list but the hidden tests fail, the diagnosis is still wrong.
+If the diagnosed function is on the accepted list but the hidden tests fail, the run fails: the hidden tests, not the list, decide.
 Hidden tests exist for one failure in particular: a patch at the crash site that leaves the real cause alone.
 On task `m2`, all nine prototype runs produced a reproducer that failed without the patch and passed with it, and all nine patched the wrong function.
 The hidden tests failed every one of them.
@@ -86,7 +86,7 @@ The grader expected either the bare commit hash or the commit's exact subject, a
 The agent was right each time, so the grader was fixed and given a test.
 
 Individual checks also tell you more than the rate does.
-The sweep had 42 failing runs; 20 of them failed the hidden tests, and 15 filed too many or too few issues.
+The 261-run prototype sweep had 42 failing runs; 20 of them failed the hidden tests, and 15 filed too many or too few issues.
 
 ## Failed, passed, or unscored
 
@@ -177,7 +177,7 @@ Thirty cases is about the minimum: with 27 matches out of 30, the judge's agreem
 3. Grade with code wherever you can, include checks the agent never sees, and give the grader tests of its own.
 4. Give every way a run can end a verdict, and keep provider and harness failures out of the pass rate as unscored runs, counted and rerun.
 5. Report each rate with its range, plus pass^k if the agent runs once per task in production.
-6. Compare versions task by task, and measure how far two identical runs land before you trust any difference.
+6. Compare versions task by task, and measure how far apart two identical runs land before you trust any difference.
 7. Put cost per run and turns in the same report, and cap the eval's spending before it starts.
 8. Add a reviewer or a judge only after measuring what it catches, what it wrongly rejects, and what it costs.
 

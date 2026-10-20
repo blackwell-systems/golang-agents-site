@@ -10,7 +10,7 @@ date: 2026-10-19
 weight: 84
 ---
 
-Everything an agent says to a model API is JSON: the request, the reply, each tool's definition, and the arguments of every tool call, which a model wrote and which are sometimes wrong.
+Everything an agent says to a model API is JSON: the request, the reply, each tool's definition, and the arguments of every [tool call](/basics/tool-calling/), which a model wrote and which are sometimes wrong.
 Go's newer JSON package, `encoding/json/v2`, with its lower-level companion `encoding/json/jsontext`, changes several defaults in ways that matter for exactly this kind of traffic.
 This page covers what changed and the parts of the package an agent uses, with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested.
 
@@ -39,7 +39,7 @@ The rest is control:
 - **Zero values handled better:** `omitzero`, which respects an `IsZero` method, and nil slices written as `[]`, which APIs that expect arrays prefer to `null`.
 
 It is also faster at decoding, though for an agent that hardly matters.
-On a MacBook Pro with an M1 Pro chip and Go 1.27, decoding into typed structs, five runs each:
+On a MacBook Pro with an M1 Pro chip and Go 1.27, decoding into typed structs and encoding a request, five runs each:
 
 | Payload | `encoding/json` | `encoding/json/v2` |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ On a MacBook Pro with an M1 Pro chip and Go 1.27, decoding into typed structs, f
 | a 16-message request, 18 KB | 51 to 61 µs | 38 to 41 µs |
 | encoding that request | 18.5 to 19.9 µs | 18.6 to 19.5 µs |
 
-Decoding was about a quarter faster, and encoding the same.
+Decoding was about a quarter faster; encoding took the same time with both.
 A model call takes seconds, so tens of microseconds either way don't change how long a run takes.
 
 The costs are real too: code that relied on case-insensitive names or untagged fields stops decoding them, with no error; map keys are no longer sorted unless you ask; error text varies on purpose; and before Go 1.27 the package needs `GOEXPERIMENT=jsonv2`.
@@ -110,7 +110,7 @@ Two error types carry the details: `*jsontext.SyntacticError` for JSON that isn'
 ## One field, two shapes
 
 Model APIs often accept a field in more than one shape.
-A message's content can be a plain string, or a list of parts, which is how a client marks a prompt-cache breakpoint.
+A message's content can be a plain string, or a list of parts, which is how a client marks a prompt-cache breakpoint, the point up to which the provider may [cache](/glossary/#prompt-caching) the request.
 v2's streaming marshaler interfaces handle that in one type: `MarshalJSONTo` writes through a `*jsontext.Encoder`, and `UnmarshalJSONFrom` reads from a `*jsontext.Decoder`:
 
 ```go include=ch12/openrouter/wire.go tag=content
@@ -124,7 +124,7 @@ The `IsZero` method matters too: `omitzero` calls it when a type has one, so a c
 
 ## Order you control
 
-A JSON object's members have no meaning in their order, but a model reads a tool's schema top to bottom, so the order of its properties is worth keeping.
+A JSON object's members have no meaning in their order, but a model reads a [tool's schema](/build/tool-design/) top to bottom, so the order of its properties is worth keeping.
 A Go map can't keep it, so the agent's schema type holds the properties as a slice and writes them as an object, in order, token by token:
 
 ```go include=ch12/agent/schema.go tag=props
@@ -142,7 +142,7 @@ Two things in an agent need the same input to encode to the same bytes every tim
 ## Options for a whole format: saving a run
 
 Options can be combined once and reused.
-The agent's checkpoint format joins three: leave zero fields out, and write every `jsontext.Value` as a quoted string instead of as raw JSON:
+The agent's checkpoint format joins three: leave zero fields out, write every `jsontext.Value` as a quoted string instead of as raw JSON, and read those strings back the same way:
 
 ```go include=ch15/durable/checkpoint.go tag=format
 ```
