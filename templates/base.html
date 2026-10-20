@@ -366,6 +366,116 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     box.appendChild(b);
   });
 })();
+
+// Names in a Go listing that the companion code declares show their
+// declaration in a popover: on hover, on keyboard focus, or on a tap.
+// Escape closes it; Enter on a focused name opens the declaration on
+// GitHub. The build puts each declaration in a hidden element after
+// the listing's <pre> (godefs.go), so copying copies only the code.
+(function () {
+  var refs = document.querySelectorAll(".listing .ref[data-def]");
+  if (!refs.length) return;
+  document.documentElement.classList.add("has-refs");
+  var pop = document.createElement("div");
+  pop.className = "ref-pop";
+  pop.id = "ref-pop";
+  pop.setAttribute("role", "tooltip");
+  pop.hidden = true;
+  document.body.appendChild(pop);
+  var current = null, showTimer = 0, hideTimer = 0, pointer = "mouse", wasOpen = false;
+  var seen = {};
+  refs.forEach(function (r) {
+    var id = r.getAttribute("data-def");
+    r.setAttribute("aria-describedby", id + "-text");
+    // One tab stop per declaration in each listing.
+    if (!seen[id]) { seen[id] = true; r.tabIndex = 0; }
+  });
+  function place(r) {
+    var gap = 6, edge = 8;
+    var a = r.getBoundingClientRect();
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    pop.style.left = "0px";
+    pop.style.top = "0px";
+    var w = pop.offsetWidth, h = pop.offsetHeight;
+    var left = Math.max(edge, Math.min(a.left, vw - w - edge));
+    var top = a.bottom + gap;
+    if (top + h > vh - edge && a.top - gap - h >= edge) top = a.top - gap - h;
+    pop.style.left = left + window.scrollX + "px";
+    pop.style.top = top + window.scrollY + "px";
+  }
+  function show(r) {
+    clearTimeout(showTimer);
+    clearTimeout(hideTimer);
+    if (current === r && !pop.hidden) return;
+    var def = document.getElementById(r.getAttribute("data-def"));
+    if (!def) return;
+    if (current) current.classList.remove("is-open");
+    current = r;
+    r.classList.add("is-open");
+    pop.innerHTML = def.innerHTML;
+    var t = pop.querySelector(".ref-text");
+    if (t) t.remove();
+    pop.hidden = false;
+    place(r);
+  }
+  function hide() {
+    clearTimeout(showTimer);
+    clearTimeout(hideTimer);
+    pop.hidden = true;
+    if (current) current.classList.remove("is-open");
+    current = null;
+  }
+  function later(fn, ms) { clearTimeout(hideTimer); hideTimer = setTimeout(fn, ms); }
+  refs.forEach(function (r) {
+    r.addEventListener("pointerenter", function (e) {
+      if (e.pointerType !== "mouse") return;
+      // A name focused from the keyboard keeps its popover.
+      var f = document.activeElement;
+      if (f !== r && f.classList.contains("ref") && f.matches(":focus-visible")) return;
+      clearTimeout(hideTimer);
+      clearTimeout(showTimer);
+      showTimer = setTimeout(function () { show(r); }, 90);
+    });
+    r.addEventListener("pointerleave", function (e) {
+      if (e.pointerType !== "mouse") return;
+      clearTimeout(showTimer);
+      if (current === r && document.activeElement !== r) later(hide, 160);
+    });
+    r.addEventListener("pointerdown", function (e) {
+      pointer = e.pointerType;
+      wasOpen = current === r && !pop.hidden;
+    });
+    r.addEventListener("click", function () {
+      // A tap shows the popover, and a second tap on the name closes it.
+      if (pointer !== "mouse" && wasOpen) hide(); else show(r);
+      wasOpen = false;
+    });
+    r.addEventListener("focus", function () { show(r); });
+    r.addEventListener("blur", function (e) {
+      if (e.relatedTarget && pop.contains(e.relatedTarget)) return;
+      later(hide, 100);
+    });
+    r.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter") return;
+      var a = document.getElementById(r.getAttribute("data-def")).querySelector(".ref-at a");
+      if (a) { e.preventDefault(); location.href = a.href; }
+    });
+  });
+  pop.addEventListener("pointerenter", function () { clearTimeout(hideTimer); });
+  pop.addEventListener("pointerleave", function (e) {
+    if (e.pointerType === "mouse" && current && document.activeElement !== current) later(hide, 160);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && current) hide();
+  });
+  document.addEventListener("pointerdown", function (e) {
+    if (current && !pop.contains(e.target) && !e.target.closest(".ref")) hide();
+  });
+  window.addEventListener("resize", hide);
+  document.querySelectorAll(".listing pre").forEach(function (pre) {
+    pre.addEventListener("scroll", function () { if (current && pre.contains(current)) hide(); });
+  });
+})();
 // Diagrams open larger in a dialog: click, or Enter or Space when the
 // diagram has focus. The dialog shows whichever copy the current theme
 // displays, and closes with Escape, the close button, or a click outside

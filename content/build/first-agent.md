@@ -121,7 +121,7 @@ The descriptions are written for the model, which reads nothing else about a too
 
 ## The prompt and main
 
-```go include=firstagent/main.go tag=prompt
+```go include=firstagent/main.go tag=prompt highlight=4
 ```
 
 The system prompt names the job, the tools and when to use them, and how to answer, including what to do when the files don't have the answer.

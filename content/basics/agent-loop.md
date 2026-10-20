@@ -52,7 +52,7 @@ It later plugs in a client that talks to a real model, and the loop itself is un
 
 Here is `Run`:
 
-```go include=ch01/agent/loop.go tag=run
+```go include=ch01/agent/loop.go tag=run highlight=10-12,19,23-25
 ```
 
 Read it stage by stage.

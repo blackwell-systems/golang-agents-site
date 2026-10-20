@@ -56,7 +56,7 @@ The input also reaches the classifier's prompt, so a crafted input, a [prompt in
 
 **Parallel calls with a vote** ask several voters the same question at once and return the first answer a quorum of them gives:
 
-```go include=shapes/vote.go tag=vote
+```go include=shapes/vote.go tag=vote highlight=17-20
 ```
 
 The deferred `wg.Wait` means no voter's goroutine outlives the call, and cancelling with a cause stops the calls still running once the vote is decided, since their answers can't change it.

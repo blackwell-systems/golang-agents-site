@@ -88,7 +88,7 @@ The map is shared by every request goroutine and the reading loop, so it sits be
 
 The server's main loop owns every request goroutine, and its deferred calls put the shutdown in order:
 
-```go include=ch15/mcp/server.go tag=serve
+```go include=ch15/mcp/server.go tag=serve highlight=8-9
 ```
 
 Deferred calls run in reverse order, so `stop` runs before `calls.wg.Wait()`: first every running request is cancelled, then the loop waits for each goroutine to return.

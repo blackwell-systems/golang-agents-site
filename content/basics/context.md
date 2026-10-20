@@ -101,7 +101,7 @@ An agent run started from a handler derives its context from it, so a person who
 A model call that hangs should fail on its own, without waiting for a person to notice.
 The client gives every request its own deadline, derived from the run's context:
 
-```go include=ch06/openrouter/client.go lines=72..84
+```go include=ch06/openrouter/client.go lines=72..84 highlight=4-6
 ```
 
 The derived context ends at whichever comes first: the caller's cancellation, or the call's own timeout.
