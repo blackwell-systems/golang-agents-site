@@ -10,7 +10,7 @@ weight: 10
 art: ch01
 ---
 
-This program runs the whole agent loop, with four tools and a small Go project whose tests fail, against a model that is a script.
+This program runs the whole agent loop, with four tools and a small Go project with a bug a test would catch, against a model that is a script.
 The script is a copy of what a real model, `anthropic/claude-haiku-5.5`, replied when it fixed the bug in October 2026, so the run has the shape of a real one while nothing leaves your machine.
 It is the smallest complete agent in the companion code, and every later example grows from it.
 
@@ -18,7 +18,7 @@ It is the smallest complete agent in the companion code, and every later example
 
 - The loop's four stages in about 30 lines of Go: assemble a request, send it to the model, execute any tool calls, and choose whether to go around again. [The agent loop in Go](/basics/agent-loop/) walks through them.
 - A `Model` interface with one method, which a script satisfies as well as a real client does.
-- Tools as a definition the model sees plus a Go function it never sees.
+- Tools as a [definition the model sees](/basics/tool-calling/) plus a Go function it never sees.
 - [Errors from tools going back to the model](/basics/errors/#errors-the-model-reads) as messages, so they never stop the run.
 
 ## Run it
@@ -48,8 +48,8 @@ The replies are plain Go values, built with three small helpers:
 ```go include=ch01/script.go tag=script
 ```
 
-`Calls` builds a reply that requests tools, `Call` builds a single tool call whose arguments are JSON, and `Says` builds a reply that only contains text; a reply without tool calls counts as the answer.
-To decide which reply comes next, the scripted model counts how many assistant turns the conversation already holds. A loop that lost a message or put one in the wrong place would knock the script out of step, and the tests would fail.
+`Calls` builds a reply that requests tools, `Call` builds one tool call whose arguments are JSON, for `Calls` to wrap, and `Says` builds a reply that only contains text; a reply without tool calls counts as the answer.
+To decide which reply comes next, the scripted model counts how many of the model's own replies (messages with the [assistant role](/basics/messages-and-roles/)) the conversation already holds. A loop that lost a message or put one in the wrong place would knock the script out of step, and the tests would fail.
 
 ## Run the tests
 
@@ -60,15 +60,15 @@ $ go test ./ch01/...
 Each test in `ch01/agent` pins down a single rule of the loop.
 An answer ends the run, and so does reaching the turn limit.
 Each tool call is answered by exactly one tool message, even when one reply holds several calls.
-A tool that fails sends its error back flagged as an error, and a call to a tool that doesn't exist is told which tools do.
+A tool that fails sends its error back flagged as an error, and a call to a tool that doesn't exist gets an error naming the tools that do exist.
 The whole suite finishes in milliseconds without touching the network, and that is why the loop is written before it is connected to a real model.
 
 ## Things to try
 
 Each of these is a one-line change; run `go run ./ch01` after it.
 
-**Misspell a tool.** In `script.go`, change the name in the `call_3` call from `read_file` to `read_files`.
-Turn 2 now prints a `tool error` whose text starts with `no tool named "read_files"` (the printer cuts long results short, so the list of real tools is cut off on screen), and the run keeps going, because the loop hands the error to the model and carries on.
+**Misspell a tool.** In `script.go`, change the tool name in `call_3`, the `read_file` call in turn 2, to `read_files`.
+Turn 2 now prints a `tool error` whose text starts with `no tool named "read_files"` (the printer cuts long results short, so the list of real tools is cut off on screen), and the run keeps going, because the loop hands the error back to the model.
 With a real model, the next reply would usually correct the name.
 
 **Lower the turn limit.** In `main.go`, set `MaxTurns` to 3.
@@ -92,4 +92,4 @@ The run prints three turns, then ends with `run agent: agent: max turns reached`
 
 ## Next
 
-[A real agent that fixes a failing test](/run/ch04-first-agent/) runs the same `Run` against a real model's recorded replies, with a real `go test` behind `run_tests`.
+[A real agent that fixes a failing test](/run/ch04-first-agent/) runs the same `Run` against a real model's [recorded replies](/production/testing-offline/), with a real `go test` behind `run_tests`.

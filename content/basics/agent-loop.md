@@ -84,7 +84,7 @@ And each turn begins by checking `ctx.Err()`, so a deadline or Ctrl-C ends the r
 In the bug fix this example replays, one reply asks for two things: change `duration.go`, then run the tests.
 If both ran at once, the test run might see the file before the change and report a failure that the edit had already fixed.
 So this loop runs the calls in a reply sequentially, in the model's order, which can never cause that problem.
-Parallel tool calls are faster, but they force the harness to work out which calls are safe to overlap, and that is a problem of its own.
+[Parallel tool calls](/build/parallel-tool-calls/) are faster, but they force the harness to work out which calls are safe to overlap, and that is a problem of its own.
 
 ## Every problem becomes a message
 
@@ -102,21 +102,21 @@ Consider the other options.
 Ending the run discards all the work done before the mistake.
 Picking the nearest tool name and running it executes a call the model never made.
 Reporting the error costs a single turn.
-A hand-written run in the API's format shows the model making three mistakes in a row: it calls a tool that isn't defined, passes a path as an array, and asks to replace text the file doesn't contain.
+A run written by hand in the API's format, standing in for a model's replies, shows the model making three mistakes in a row: it calls a tool that isn't defined, passes a path as an array, and asks to replace text the file doesn't contain.
 Every error message explains the problem, and every following call is correct.
 The [ch04 example](/run/ch04-first-agent/) replays that run.
 
-How quickly the model recovers depends on how the error is worded.
+How quickly the model recovers [depends on how the error is worded](/findings/error-wording/).
 A message like `old text appears 0 times in duration.go, want exactly once` tells it what to change, while a bare "please try again" tells it nothing.
 
 ## The turn limit comes first
 
 Without a turn limit, nothing guarantees the loop ends, and a real model bills you for every turn it takes.
-So `MaxTurns` is the loop's first setting, and leaving it at zero permits no turns at all, so every caller has to set it.
+So `MaxTurns` is the one setting every caller must choose, and leaving it at zero permits no turns at all, so every caller has to set it.
 
 There's no correct number you can know ahead of time.
 In recorded runs, all 40 bug-fix runs (ten on each of four models, October 2026) finished in four to six turns, so the program sets the limit to ten.
-Agent frameworks ship defaults that range from 10 turns to thousands of steps to no limit at all.
+[Agent frameworks](/ecosystem/go-agent-frameworks/) ship defaults that range from 10 turns to thousands of steps to no limit at all.
 A default can't know what your task needs, so choose the limit yourself and report hitting it to the caller as a failure.
 
 ## A real model fits behind the same interface
@@ -131,7 +131,7 @@ Because `meter` embeds a `Model` and defines its own `Generate`, it satisfies th
 The same trick wraps the model to add retries, timeouts, and tracing while the loop stays as it is.
 
 Beyond this short loop come the cases it leaves out: a provider that rejects the request, a reply the loop can't use (a tool-call ID that appears twice, an answer truncated by the token limit), a run that overspends, and Ctrl-C arriving while a reply's tools are running.
-Each one ends the run with a named [stop reason](/glossary/#stop-reason) that callers test with `errors.Is`, for example `ErrMaxTurns` or `ErrBudgetExceeded`.
+Each one ends the run with a named [stop reason](/glossary/#stop-reason) that callers test with `errors.Is`, as they already can for `ErrMaxTurns`; `ErrBudgetExceeded` is one of them.
 
 ## Run it
 
