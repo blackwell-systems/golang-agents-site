@@ -326,6 +326,7 @@ func convert(md goldmark.Markdown, code *codeRoot, src []byte) (template.HTML, e
 	if err := code.takeErr(); err != nil {
 		return "", err
 	}
+	buf.WriteString(code.takePops())
 	return template.HTML(buf.String()), nil
 }
 

@@ -23,35 +23,29 @@ import (
 	"strings"
 )
 
-// Listings of Go from the companion code show what each name refers to:
-// an identifier that names a function, method, type, variable, or
-// constant declared at the top level of a package in the companion code
-// gets a popover with its declaration, the first sentence of its doc
-// comment, and the file and line it's declared on. go/types resolves
-// the names, so local variables, fields, builtins, and the standard
-// library are never mistaken for them.
+// Listings of Go from the companion code show what every name refers
+// to, as an editor does: each identifier gets a popover with its
+// declaration, the first sentence of its doc comment, and where it's
+// declared (the line in the companion code, or the standard library's
+// page on pkg.go.dev). That covers the companion code's declarations,
+// the standard library's, the builtins, packages, struct fields, and the
+// listing's own variables and parameters, with their types. Every use of
+// the same name is marked, so the page can highlight them together.
+// go/types resolves the names.
 //
-// The standard library and third-party modules aren't loaded: each
-// import outside the companion code stands in as an empty package. The
-// checker reports errors for the names used from them, which are
-// ignored; names from the companion code still resolve, since they
-// don't depend on those packages' contents.
-//
-// A listing marked hover=full shows every name, as an editor does: a
-// full index also loads the standard library from the Go toolchain the
-// companion code builds with (go list names it), so a popover covers
-// the standard library's names, the builtins, packages, struct fields,
-// and the listing's own variables, parameters, and declarations. Every
-// use of the same name is marked, so the page can highlight them
-// together.
+// The index loads the standard library from the Go toolchain the
+// companion code builds with (go list names it). Third-party modules
+// aren't loaded: each stands in as an empty package. The checker reports
+// errors for the names used from them, which are ignored; every other
+// name still resolves, since it doesn't depend on those packages'
+// contents.
 
 // goDef is one declaration a listing may refer to.
 type goDef struct {
-	sig   string // the declaration, abbreviated when long
-	doc   string // the first sentence of its doc comment, or ""
-	rel   string // its file (or a package's directory), under code/, or "" outside it
-	line  int    // 0 for a package
-	field bool   // a struct field, which only a full listing shows
+	sig  string // the declaration, abbreviated when long
+	doc  string // the first sentence of its doc comment, or ""
+	rel  string // its file (or a package's directory), under code/, or "" outside it
+	line int    // 0 for a package
 
 	// For the standard library: the import path, and the anchor on
 	// pkg.go.dev ("Client.Do"), "" for the package itself.
@@ -79,8 +73,7 @@ type goIndex struct {
 	loading map[string]bool
 	ctx     gobuild.Context // which files a package's build uses
 
-	// In a full index only:
-	std      string                  // the standard library's source, GOROOT/src
+	std      string                  // the standard library's source, GOROOT/src; "" leaves it out
 	builtins map[string]*goDef       // the universe's names, from builtin/builtin.go
 	others   map[types.Object]*goDef // locals, packages, and the rest, made on demand
 	objIDs   map[types.Object]int    // a number for each object a listing shows
@@ -96,7 +89,9 @@ func newGoIndex(root string) (*goIndex, error) {
 	x := &goIndex{root: root, fset: token.NewFileSet(),
 		parsed: map[string]*ast.File{}, units: map[string]*goUnit{},
 		pkgs: map[string]*types.Package{}, defs: map[token.Pos]*goDef{},
-		loading: map[string]bool{}, ctx: gobuild.Default}
+		loading: map[string]bool{}, ctx: gobuild.Default,
+		builtins: map[string]*goDef{}, others: map[types.Object]*goDef{},
+		objIDs: map[types.Object]int{}}
 	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -129,11 +124,11 @@ func newGoIndex(root string) (*goIndex, error) {
 	return x, nil
 }
 
-// newFullGoIndex is newGoIndex with the standard library: the source
+// newStdGoIndex is newGoIndex with the standard library: the source
 // of the toolchain that builds the code under root, read with that
 // toolchain's build tags, so its release's packages and experiments
 // are there.
-func newFullGoIndex(root string) (*goIndex, error) {
+func newStdGoIndex(root string) (*goIndex, error) {
 	x, err := newGoIndex(root)
 	if err != nil {
 		return nil, err
@@ -154,9 +149,6 @@ func newFullGoIndex(root string) (*goIndex, error) {
 	x.ctx.ReleaseTags = strings.Split(lines[2], ",")
 	x.ctx.CgoEnabled = false // the pure Go files, which say more than cgo's
 	x.std = filepath.Join(lines[0], "src")
-	x.builtins = map[string]*goDef{}
-	x.others = map[types.Object]*goDef{}
-	x.objIDs = map[types.Object]int{}
 
 	f, err := x.parse(filepath.Join(x.std, "builtin", "builtin.go"))
 	if err != nil {
@@ -187,7 +179,7 @@ func newFullGoIndex(root string) (*goIndex, error) {
 }
 
 // dirOf returns the directory of the package with the given import
-// path: a companion package, or in a full index, a standard one. It
+// path: a companion package, or when the index has it, a standard one. It
 // returns "" for any other package.
 func (x *goIndex) dirOf(importPath string) string {
 	for _, m := range x.mods {
@@ -219,8 +211,8 @@ func (x *goIndex) stdPath(dir string) (string, bool) {
 	return filepath.ToSlash(rel), true
 }
 
-// Import implements types.Importer. Companion packages, and in a full
-// index the standard library, are checked from source; any other
+// Import implements types.Importer. Companion packages, and the
+// standard library when the index has it, are checked from source; any other
 // package is an empty stand-in.
 func (x *goIndex) Import(importPath string) (*types.Package, error) {
 	if p, ok := x.pkgs[importPath]; ok {
@@ -420,10 +412,7 @@ func (x *goIndex) indexDecls(f *ast.File) {
 								typ += " " + fl.Tag.Value
 							}
 							for _, n := range fl.Names {
-								if d := add(n, tname+"."+n.Name, "field "+n.Name+" "+typ,
-									fl.Doc, fl.Comment); d != nil {
-									d.field = true
-								}
+								add(n, tname+"."+n.Name, "field "+n.Name+" "+typ, fl.Doc, fl.Comment)
 							}
 						}
 					}
@@ -559,15 +548,12 @@ func firstSentence(text string) string {
 type goRef struct {
 	off, end int // byte offsets in the listing's text
 	def      *goDef
-	obj      int  // in a full listing, which object the name is: the same for every use
-	local    bool // in a full listing, a name declared inside a function
+	obj      int  // which object the name is: the same number for every use
+	local    bool // a name declared inside a function
 }
 
-// refs finds the names in ex, an excerpt of rel, that refer to
-// declarations in the companion code, leaving out uses of a
-// declaration the excerpt itself shows. With full set, it finds every
-// name instead, as described above; x must then be a full index.
-func (x *goIndex) refs(rel string, ex excerpt, full bool) ([]goRef, error) {
+// refs finds the names in ex, an excerpt of rel, and what each refers to.
+func (x *goIndex) refs(rel string, ex excerpt) ([]goRef, error) {
 	name := filepath.Join(x.root, filepath.FromSlash(rel))
 	dir, base := filepath.Split(name)
 	dir = filepath.Clean(dir)
@@ -622,31 +608,19 @@ func (x *goIndex) refs(rel string, ex excerpt, full bool) ([]goRef, error) {
 			return
 		}
 		ref := goRef{off: at, end: at + len(id.Name)}
-		if full {
-			ref.def, ref.local = x.fullDef(obj, u.pkg)
-			n, ok := x.objIDs[obj]
-			if !ok {
-				n = len(x.objIDs) + 1
-				x.objIDs[obj] = n
-			}
-			ref.obj = n
-		} else {
-			def := x.defs[obj.Pos()]
-			if def == nil || def.field || def.rel == rel && ex.shows(def.line) {
-				return // not a declaration shown, or declared in the listing itself
-			}
-			ref.def = def
+		ref.def, ref.local = x.def(obj, u.pkg)
+		n, ok := x.objIDs[obj]
+		if !ok {
+			n = len(x.objIDs) + 1
+			x.objIDs[obj] = n
 		}
-		if ref.def != nil {
-			byOff[at] = ref
-		}
+		ref.obj = n
+		byOff[at] = ref
 	}
 	// Uses come second, so an embedded field's name shows the type it
 	// names rather than the field it declares.
-	if full {
-		for id, obj := range u.info.Defs {
-			visit(id, obj)
-		}
+	for id, obj := range u.info.Defs {
+		visit(id, obj)
 	}
 	for id, obj := range u.info.Uses {
 		visit(id, obj)
@@ -656,10 +630,10 @@ func (x *goIndex) refs(rel string, ex excerpt, full bool) ([]goRef, error) {
 	return out, nil
 }
 
-// fullDef is what a full listing shows for obj, used in pkg: its
+// def is what a listing shows for obj, used in pkg: its
 // declaration when the index has one, and otherwise what go/types
 // says it is. local reports a name declared inside a function.
-func (x *goIndex) fullDef(obj types.Object, pkg *types.Package) (def *goDef, local bool) {
+func (x *goIndex) def(obj types.Object, pkg *types.Package) (def *goDef, local bool) {
 	if d := x.defs[obj.Pos()]; d != nil && obj.Pos().IsValid() {
 		return d, false
 	}
@@ -728,27 +702,17 @@ func (x *goIndex) pkgDef(p *types.Package) *goDef {
 	return d
 }
 
-// refs finds the names in ex, an excerpt of the Go file rel, that refer
-// to declarations in the companion code, or with full set, every name.
-func (c *codeRoot) refs(rel string, ex excerpt, full bool) ([]goRef, error) {
-	x := c.gox
-	if full {
-		x = c.goxFull
-	}
-	if x == nil {
-		var err error
-		if full {
-			x, err = newFullGoIndex(c.dir)
-			c.goxFull = x
-		} else {
-			x, err = newGoIndex(c.dir)
-			c.gox = x
-		}
+// refs finds the names in ex, an excerpt of the Go file rel, and what
+// each refers to.
+func (c *codeRoot) refs(rel string, ex excerpt) ([]goRef, error) {
+	if c.gox == nil {
+		x, err := newStdGoIndex(c.dir)
 		if err != nil {
 			return nil, err
 		}
+		c.gox = x
 	}
-	r, err := x.refs(rel, ex, full)
+	r, err := c.gox.refs(rel, ex)
 	if err != nil {
 		return nil, fmt.Errorf("include %s: %w", rel, err)
 	}
@@ -756,40 +720,52 @@ func (c *codeRoot) refs(rel string, ex excerpt, full bool) ([]goRef, error) {
 }
 
 // linkRefs wraps each name in refs in code, a highlighted listing, in
-// a span the page's script gives a popover, and returns the popovers'
-// contents: one hidden element per declaration, which the span names in
-// data-def. The popovers sit outside the <pre>, so copying the code
-// copies only the code. In a full listing, data-obj names the object,
-// the same for every use of it on the page, and data-local marks a name
-// declared inside a function, which gets no tab stop.
-func (r *codeBlocks) linkRefs(code string, refs []goRef) (string, string) {
+// a span the page's script gives a popover. The popovers' contents, one
+// hidden element per declaration that the span names in data-def, are
+// written once per page, after its body (convert): copying the code
+// copies only the code, and a declaration that several listings use is
+// sent once. data-obj names the object, the same for every use of it on
+// the page. Only names the companion code declares at a package's top
+// level (and their fields and methods) get a tab stop; data-notab marks
+// the rest (locals, the standard library, builtins, packages), so that
+// tabbing past a listing stays short.
+func (r *codeBlocks) linkRefs(code string, refs []goRef) string {
 	if len(refs) == 0 {
-		return code, ""
+		return code
 	}
-	ids := map[*goDef]string{}
-	var defs strings.Builder
-	defs.WriteString(`<div class="ref-defs" hidden>`)
+	c := r.code
+	if c.popIDs == nil {
+		c.popIDs = map[*goDef]string{}
+	}
 	marks := make([]mark, len(refs))
 	for i, ref := range refs {
-		id, ok := ids[ref.def]
+		id, ok := c.popIDs[ref.def]
 		if !ok {
-			id = fmt.Sprintf("ref-%d-%d", r.listings, len(ids)+1)
-			ids[ref.def] = id
-			if err := r.writeDef(&defs, id, ref.def); err != nil {
-				r.code.fail(err)
+			id = fmt.Sprintf("ref-%d", len(c.popIDs)+1)
+			c.popIDs[ref.def] = id
+			if err := r.writeDef(&c.pops, id, ref.def); err != nil {
+				c.fail(err)
 			}
 		}
-		open := `<span class="ref" data-def="` + id + `"`
-		if ref.obj != 0 {
-			open += fmt.Sprintf(` data-obj="o%d"`, ref.obj)
-		}
-		if ref.local {
-			open += ` data-local`
+		open := fmt.Sprintf(`<span class="ref" data-def="%s" data-obj="o%d"`, id, ref.obj)
+		if ref.local || ref.def.rel == "" || ref.def.line == 0 {
+			open += ` data-notab`
 		}
 		marks[i] = mark{ref.off, ref.end, open + `>`, `</span>`}
 	}
-	defs.WriteString(`</div>`)
-	return decorate(code, marks), defs.String()
+	return decorate(code, marks)
+}
+
+// takePops returns the popovers the page's listings use, in one hidden
+// element, and starts the next page.
+func (c *codeRoot) takePops() string {
+	if c.pops.Len() == 0 {
+		return ""
+	}
+	s := `<div class="ref-defs" hidden>` + c.pops.String() + `</div>`
+	c.pops.Reset()
+	c.popIDs = nil
+	return s
 }
 
 // writeDef writes the popover for one declaration.

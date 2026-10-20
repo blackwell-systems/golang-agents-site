@@ -2,6 +2,7 @@ package main
 
 import (
 	"html"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -108,38 +109,23 @@ func TestRefs(t *testing.T) {
 	dir := t.TempDir()
 	writeFiles(t, dir, refCode)
 	c := &codeRoot{dir: dir}
-	tests := []struct {
-		file, tag string
-		want      []string // the names decorated, in order
-	}{
-		// Names from the agent package, through selectors; a method
-		// through a value of a companion type; the package-level
-		// helper, but not the local variable that shadows it later;
-		// never context, fmt, len, a field, or a local.
-		{"ch01/main.go", "run", []string{"Model", "New", "Run", "ErrMaxTurns",
-			"Request", "Version", "helper", "Map"}},
-		// limit is declared in this listing, so only helper's own body
-		// would show it; it's left alone.
-		{"ch01/main.go", "helper", nil},
-		// A whole file declares everything it uses.
-		{"ch01/agent/agent.go", "", nil},
+	ex, err := c.excerpt("ch01/main.go", "helper", "")
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, tt := range tests {
-		ex, err := c.excerpt(tt.file, tt.tag, "")
-		if err != nil {
-			t.Fatal(err)
-		}
-		refs, err := c.refs(tt.file, ex, false)
-		if err != nil {
-			t.Fatal(err)
-		}
-		var got []string
-		for _, r := range refs {
-			got = append(got, ex.text[r.off:r.end])
-		}
-		if !slices.Equal(got, tt.want) {
-			t.Errorf("refs(%s, %q) = %q; want %q", tt.file, tt.tag, got, tt.want)
-		}
+	refs, err := c.refs("ch01/main.go", ex)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	for _, r := range refs {
+		got = append(got, ex.text[r.off:r.end])
+	}
+	// Every name, in order, including the ones the listing declares;
+	// never a keyword or a literal.
+	want := []string{"helper", "string", "limit", "limit", "string"}
+	if !slices.Equal(got, want) {
+		t.Errorf("refs = %q; want %q", got, want)
 	}
 }
 
@@ -151,13 +137,15 @@ func TestRefDefs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	refs, err := c.refs("ch01/main.go", ex, false)
+	refs, err := c.refs("ch01/main.go", ex)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defs := map[string]*goDef{}
+	defs := map[string]*goDef{} // by name, at its first use
 	for _, r := range refs {
-		defs[ex.text[r.off:r.end]] = r.def
+		if name := ex.text[r.off:r.end]; defs[name] == nil {
+			defs[name] = r.def
+		}
 	}
 	tests := []struct {
 		name, sig, doc string
@@ -199,22 +187,24 @@ func TestInterfaceMethodDef(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	refs, err := c.refs("ch01/agent/agent.go", ex, false)
+	refs, err := c.refs("ch01/agent/agent.go", ex)
 	if err != nil {
 		t.Fatal(err)
 	}
-	var got []string
+	got := map[string]bool{}
 	for _, r := range refs {
-		got = append(got, ex.text[r.off:r.end]+": "+r.def.sig)
+		got[ex.text[r.off:r.end]+": "+r.def.sig] = true
 	}
-	want := []string{
+	for _, want := range []string{
 		"Agent: type Agent struct{ M Model }",
 		"Reply: type Reply struct{ Text string }",
 		"Generate: func (Model) Generate(ctx context.Context, req Request) (Reply, error)",
 		"Request: type Request struct {\n\tMessages []string // the conversation\n}",
-	}
-	if !slices.Equal(got, want) {
-		t.Errorf("refs = %q;\nwant %q", got, want)
+		"M: field M Model",
+	} {
+		if !got[want] {
+			t.Errorf("no ref %q in %q", want, slices.Sorted(maps.Keys(got)))
+		}
 	}
 }
 
@@ -392,7 +382,7 @@ func TestFullRefs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	refs, err := c.refs("ch01/main.go", ex, true)
+	refs, err := c.refs("ch01/main.go", ex)
 	if err != nil {
 		t.Fatal(err)
 	}

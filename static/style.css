@@ -1185,28 +1185,14 @@ cite { font-style: italic; }
   background: var(--accent-wash);
 }
 
-/* Names the companion code declares: a dotted underline, and on hover,
-   focus, or a tap, a popover with the declaration (base.html). The
-   underline appears only when the script that shows popovers runs. */
-.has-refs .listing .ref {
-  text-decoration: underline dotted 1px;
-  text-decoration-color: var(--soft);
-  text-underline-offset: 0.22em;
-  cursor: help;
-  border-radius: 2px;
-}
-.has-refs .listing .ref:hover, .has-refs .listing .ref.is-open {
-  text-decoration-color: var(--amber);
-  text-decoration-style: solid;
-}
-.has-refs .listing .ref:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
-/* A full listing (hover=full): every name has a popover, so names get
-   no underline. The name under the pointer and every other use of it on
+/* Every name in a Go listing has a popover (base.html), so names get no
+   underline. The name under the pointer and every other use of it on
    the page get a wash, as in an editor. */
-.has-refs .listing.is-full .ref { text-decoration: none; cursor: text; }
+.has-refs .listing .ref { cursor: text; border-radius: 2px; }
 .has-refs .listing .ref.is-same { background: var(--accent-wash); }
-.has-refs .listing.is-full .ref:hover,
-.has-refs .listing.is-full .ref.is-open { background: color-mix(in srgb, var(--amber) 26%, transparent); }
+.has-refs .listing .ref:hover,
+.has-refs .listing .ref.is-open { background: color-mix(in srgb, var(--amber) 26%, transparent); }
+.has-refs .listing .ref:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
 .listing-hint {
   margin-left: auto;
   margin-right: 0.6rem;

@@ -370,11 +370,11 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   });
 })();
 
-// Names in a Go listing that the companion code declares show their
-// declaration in a popover: on hover, on keyboard focus, or on a tap.
-// Escape closes it; Enter on a focused name opens the declaration on
-// GitHub. The build puts each declaration in a hidden element after
-// the listing's <pre> (godefs.go), so copying copies only the code.
+// Every name in a Go listing shows what it is in a popover: on hover,
+// on keyboard focus, or on a tap. Escape closes it; Enter on a focused
+// name opens where it's declared. The build puts each declaration in a
+// hidden element after the page's body (godefs.go), so copying a
+// listing copies only the code.
 (function () {
   var refs = document.querySelectorAll(".listing .ref[data-def]");
   if (!refs.length) return;
@@ -386,20 +386,23 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   pop.hidden = true;
   document.body.appendChild(pop);
   var current = null, showTimer = 0, hideTimer = 0, pointer = "mouse", wasOpen = false;
-  var seen = {};
+  var seen = new Map();
   refs.forEach(function (r) {
     var id = r.getAttribute("data-def");
     r.setAttribute("aria-describedby", id + "-text");
-    // One tab stop per declaration in each listing; none for a full
-    // listing's local names, which would make tabbing past it long.
-    if (!seen[id] && !r.hasAttribute("data-local")) { seen[id] = true; r.tabIndex = 0; }
+    // One tab stop per declaration in each listing, for the companion
+    // code's own declarations (godefs.go marks the rest data-notab).
+    var fig = r.closest(".listing");
+    if (!seen.has(fig)) seen.set(fig, {});
+    var ids = seen.get(fig);
+    if (!ids[id] && !r.hasAttribute("data-notab")) { ids[id] = true; r.tabIndex = 0; }
   });
-  // A full listing (hover=full) says how to use it in its title bar.
+  // Each listing says how to use it in its title bar.
   var canHover = window.matchMedia("(hover: hover)").matches;
-  document.querySelectorAll(".listing.is-full .listing-hint").forEach(function (h) {
+  document.querySelectorAll(".listing .listing-hint").forEach(function (h) {
     h.textContent = canHover ? "Hover any name" : "Tap any name";
   });
-  // In a full listing, every use of the shown name on the page is marked.
+  // Every use of the shown name on the page is marked.
   var same = [];
   function mark(r) {
     same.forEach(function (s) { s.classList.remove("is-same"); });

@@ -179,7 +179,7 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		}
 		return ast.WalkSkipChildren, nil
 	}
-	caption, href, full := attrs["title"], "", attrs["hover"] == "full"
+	caption, href := attrs["title"], ""
 	var refs []goRef
 	if file := attrs["include"]; file != "" {
 		if body.Len() > 0 {
@@ -197,7 +197,7 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 			return ast.WalkStop, err
 		}
 		if lang == "go" && strings.HasSuffix(file, ".go") {
-			if refs, err = r.code.refs(file, ex, full); err != nil {
+			if refs, err = r.code.refs(file, ex); err != nil {
 				return ast.WalkStop, err
 			}
 		}
@@ -211,15 +211,15 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		return ast.WalkStop, err
 	}
 	r.listings++
-	code, defs := r.linkRefs(code, refs)
-	class, hint := "listing", ""
-	if full && len(refs) > 0 {
-		// A full listing says so in its title bar; the script shows the
-		// hint only where popovers work (base.html).
-		class += " is-full"
+	code = r.linkRefs(code, refs)
+	hint := ""
+	if len(refs) > 0 {
+		// A listing whose names have popovers says so in its title bar;
+		// the script fills in the hint only where popovers work
+		// (base.html).
 		hint = `<span class="listing-hint" aria-hidden="true"></span>`
 	}
-	fmt.Fprintf(w, "<figure class=\"%s\" data-lang=\"%s\">", class, html.EscapeString(lang))
+	fmt.Fprintf(w, "<figure class=\"listing\" data-lang=\"%s\">", html.EscapeString(lang))
 	// Every listing gets a title bar: its file or title, or else a
 	// label for what kind of text it holds.
 	switch {
@@ -232,7 +232,6 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		fmt.Fprintf(w, "<figcaption>%s%s</figcaption>", html.EscapeString(barLabel(lang)), hint)
 	}
 	w.WriteString(code)
-	w.WriteString(defs)
 	w.WriteString("</figure>\n")
 	return ast.WalkSkipChildren, nil
 }
@@ -259,11 +258,6 @@ func parseInfo(info string) (string, map[string]string, error) {
 		}
 		switch key {
 		case "include", "tag", "lines", "title", "highlight":
-			attrs[key] = val
-		case "hover":
-			if val != "full" {
-				return "", nil, fmt.Errorf("code block %q: hover takes only full", info)
-			}
 			attrs[key] = val
 		default:
 			return "", nil, fmt.Errorf("code block %q: unknown attribute %q", info, key)
