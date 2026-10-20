@@ -84,40 +84,40 @@
     "hash": "51128ef6fbf76c7b4e01b559aff33b7b0796c7c7d65dab150dafece980f6120d"
   },
   "og/build.jpg": {
-    "spec": "d936232399d6a4aeb9fafedb66b5943eadacc8f895dd217349be49c033c30f21",
-    "hash": "7e29ba5cfc13205e9ac5c3b96121cb86191d7832abfe5bd84ffbc3764bf8ed58"
+    "spec": "a5e40b6a5b5171a4eab2f4988ab362b558e3f254a4e638a791a3d92b1a0be2a5",
+    "hash": "602e76587455430a4f52823b4d38c3c9e6f8b9bdfbe3df44914d7aca7eba228d"
   },
   "og/build/context-management.jpg": {
     "spec": "658d13a80a97de1b87915f4f0374be8623ef996c4ea8009a776f81213aa29517",
     "hash": "3deb3b8e16cef25a4d2c4a71493a313ba93e34da44ec944ab07e77a875caaf5c"
   },
   "og/build/first-agent.jpg": {
-    "spec": "62004b208ed810768a14e4d6a27d8356c000dacba46978b2689ed273172e2cf1",
-    "hash": "8ca81022e4cf97eaa3f4caea0d815d08221e4844c5e186f4cbacafdf8367d32f"
+    "spec": "c2e462d49678eb5e1986fb89a64dc3efe7f08362726ab6c3087a09ecab189605",
+    "hash": "01827b6d2157594c61462cd997db0aca0aa832f30a4e5bbb45908b68e7f195d4"
   },
   "og/build/mcp.jpg": {
     "spec": "dd70ebcdf22c2ca97e9b669fbe36c07371a43ddb4d74cae2c6987827187b1c30",
     "hash": "c01b42cd0f35867666a2eb99c6741df6adcbe1f40965f89ed8d1ee297392e94f"
   },
   "og/build/memory.jpg": {
-    "spec": "eebc7beb70aee97d42a60130f2604c1ec5ff9fe92c5687af5d62d44746e05cf4",
-    "hash": "f64172b5d5465ae53528a1771848fb51b035c545a08b2ce8f28da2542da0c3fe"
+    "spec": "09e9849ca2b7929e4933c6392a8c7cf3b78828d28540dae48ea9a4d5f83edc62",
+    "hash": "9cbc89cbc8ffe5eb02a067061d7f9e4af66f4438feebcad6db02fd6bec830c8e"
   },
   "og/build/parallel-tool-calls.jpg": {
     "spec": "aaa81cc803c20a15e52ae0aaf3bb6ca9028329f81f331b3777f7163eeaa3e406",
     "hash": "6c5756c95768ca606ac0442e62e507ddd9145f6c68deaa215f5d707b39575134"
   },
   "og/build/patterns-by-name.jpg": {
-    "spec": "cd65441b50a267799caf044e086069b60cee7fdd2dc58d21742457b60ebbcaa2",
-    "hash": "56cbdcbbc0d2d4ebe99565bcd1ac2f36a81508b6e9b46f9f234929202eaefd50"
+    "spec": "a9ffae5368b1c003115e757421418006f08070fa87ffbf8682ea0f200d7141cb",
+    "hash": "104ca344b20f4b928f18e8a520c92549f9bf1e5039922758f844dd30f021b6b5"
   },
   "og/build/rag-or-agentic-search.jpg": {
-    "spec": "a9716df7be823d8c9f2cf67038adaaf693dfbc01ec3c120c1af8629f690a3309",
-    "hash": "893d8e3c3c3a0a0fb4c58c1a24d17a2e37f13111e95c1f41e37aeacd7322b0b3"
+    "spec": "37ce4ffc96d20e2457f148f1199295dacd37a04dcf48d2f22eb7ec0468bddc98",
+    "hash": "a43c4f10086fd2084115b57b248aaea055e5b3416853b8cc630b33882c869c38"
   },
   "og/build/rag.jpg": {
-    "spec": "6e3f57b19eaea507c3ede50dd80842506ca888cdba70e0c7662967ff9983aeb2",
-    "hash": "e21406de55fa1d129d865564ca2a5f3b4000394e480a5248c4c479061bb4af11"
+    "spec": "5fa72135cdae01297eb114bc0eaca4359d17d47998557bfac71636982e110336",
+    "hash": "aed7b0c345c39bf1ff91df28905a8c4627dfdb0d2f7829c7dd71568345e475e5"
   },
   "og/build/streaming.jpg": {
     "spec": "3dbd5771bb7e85d20746ca4124418f53431cace5002e1d72a7577aec71b9be86",

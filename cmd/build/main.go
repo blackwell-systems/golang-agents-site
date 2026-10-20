@@ -87,7 +87,7 @@ type section struct {
 // sections are the site's sections, in the order the nav lists them.
 var sections = []section{
 	{"basics", "Basics", "", "section-basics", "section-basics"},
-	{"build", "Build", "", "part2", "section-build"},
+	{"build", "Build", "", "section-build", "section-build"},
 	{"production", "Production", "", "part3", "section-production"},
 	{"ecosystem", "Go ecosystem", "Ecosystem", "ch11", "section-ecosystem"},
 	{"run", "Examples", "", "intro", "section-examples"},
