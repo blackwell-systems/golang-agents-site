@@ -16,7 +16,7 @@ A model call that failed, a budget that ran out, or a cancelled run goes to the 
 A tool call with bad arguments, or one that names a tool that doesn't exist, goes to the model, as the tool's result, and the model fixes its next call.
 Getting each error to the right reader, in a form that reader can act on, is most of the job.
 
-The tools below are standard Go, several of them recent: `errors.Join` and wrapping more than one error with `fmt.Errorf` came in Go 1.20, and `errors.AsType` in Go 1.26.
+The functions below are standard Go, several of them recent: `errors.Join` and wrapping more than one error with `fmt.Errorf` came in Go 1.20, and `errors.AsType` in Go 1.26.
 All the code is from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested.
 
 ## Wrap with what you were doing
@@ -104,7 +104,7 @@ Arguments that don't decode get the same treatment, with one more detail: `encod
 ```go include=ch06/agent/tools.go tag=decode
 ```
 
-Stable wording matters twice here: a model reads it, and recorded runs used as test fixtures would otherwise change from one run to the next.
+Stable wording matters twice here: a model reads it, and [recorded runs used as test fixtures](/production/testing-offline/) would otherwise change from one run to the next.
 
 ## Errors that stop the run
 
@@ -141,10 +141,10 @@ Sometimes two things fail and both matter: a write fails, and putting the files 
 ```go include=ch12/groups/merge.go tag=apply-write
 ```
 
-Parallel tool calls are the other common case: when several calls in one reply can't run at all, the runner joins their errors, so the run reports every one instead of whichever finished first.
+[Parallel tool calls](/build/parallel-tool-calls/) are the other common case: when several calls in one reply can't run at all, the runner joins their errors, so the run reports every one instead of whichever finished first.
 
 A joined error's `Unwrap` returns a slice, `Unwrap() []error`, so code that walks a chain by hand has to follow both shapes.
-The retry code does, because it looks for any error in the chain with a `Timeout` method that returns true, which `errors.AsType` can't express, since it stops at the first error with the method whatever it returns:
+The retry code does, because it looks for any error in the chain with a `Timeout` method that returns true, which `errors.AsType` can't express, since it stops at the first error in the chain that has the method, whatever that method returns:
 
 ```go include=ch12/agent/classify.go tag=timed-out
 ```
@@ -167,5 +167,5 @@ $ go test ./ch12/agent -run 'TestClassify|TestToolPanic|TestToolFatal' -v
 ```
 
 1. In `TestClassify`, add a case for an error that wraps a `*RetryError` in another `fmt.Errorf`, and check that it still isn't retried.
-2. Write a tool that panics on purpose, run it through the loop with a scripted model, and read the tool message the model would get.
+2. Write a tool that panics on purpose, run it through the loop with a [scripted model](/run/ch01-scripted-loop/), and read the tool message the model would get.
 3. Change `toolError.Error` to return `e.kind.Error() + ": " + e.msg`, and look at what the model would read for an unknown tool.

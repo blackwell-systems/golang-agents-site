@@ -18,7 +18,7 @@ There are four, and knowing who writes each one is most of what you need to read
 
 | Role | Who writes it | What it holds |
 | --- | --- | --- |
-| `system` | You, the developer, once, at the start | Instructions: the job, the rules, how to finish |
+| `system` | You, the developer: written once, sent at the start of every request | Instructions: the job, the rules, how to finish |
 | `user` | The person using the program, or your program on their behalf | The request or the task |
 | `assistant` | The model | Its reply: text, a request to run tools, or both |
 | `tool` | Your program, after running a tool | What the tool returned, tagged with the call it answers |
@@ -39,7 +39,7 @@ The companion code holds a conversation as a slice of one small struct, and a re
 ```
 
 `Content` holds the text, `ToolCalls` holds the tool requests in an assistant message, and `ToolCallID` ties a tool message to the request it answers.
-The client turns these into the JSON the API expects and back again, so the rest of the program never handles JSON directly.
+The client turns these into the JSON the API expects and back again, so the rest of the program never builds message JSON itself; only a tool call's arguments arrive as JSON for the tool to decode.
 
 ## The system prompt
 
@@ -47,10 +47,10 @@ The system message, usually called the **system prompt**, is where you tell the 
 In a chat program it can be one sentence; the [first model call](/basics/first-model-call/) used a single line asking for short answers aimed at Go programmers.
 
 An agent's first task can get by without one.
-The bug-fixing agent in the early chapters sends a single `user` message, two short sentences saying the project's tests fail and asking the model to find the cause and fix it, and that's enough, because the task says everything the model needs and the tools do the rest.
+The [bug-fixing agent](/run/ch04-first-agent/) in the early chapters sends a single `user` message, two short sentences saying the project's tests fail and asking the model to find the cause and fix it, and that's enough, because the task says everything the model needs and the tools do the rest.
 
 A system prompt earns its place once the agent has a standing job that every task shares.
-This is the one the crash-triage agent sends before every batch of crash reports:
+This is the one the [crash-triage agent](/run/ch07-crash-triage/) sends before every batch of crash reports:
 
 ```text include=ch07/triage/prompt.md title="The crash-triage agent's system prompt"
 ```
@@ -74,7 +74,7 @@ So a rule that matters for safety, such as "never edit this file" or "never spen
 
 In the chat completions format, the API checks the list's shape and refuses a request that breaks it:
 
-- The `system` message comes first.
+- The `system` message comes first (the Messages API takes it as a separate field instead; [API differences](/ecosystem/differences/) lists the rest).
 - Every tool call in an assistant message is answered by exactly one `tool` message, with the call's ID, before the next assistant message.
 
 The API can't check one more rule, so the program has to: messages stay in the order they happened. Reordering or dropping one, to save space, can leave a tool result with no call or a call with no result, and the API refuses that.
