@@ -47,7 +47,7 @@ type config struct {
 const (
 	siteURL  = "https://golang-agents.com"
 	siteName = "AI Agents in Go"
-	siteTag  = "A code-first guide to building AI agents in Go"
+	siteTag  = "Build AI agents with Go's standard library"
 	author   = "Dayna Blackwell"
 	ogImage  = "/og-v3.jpg"
 	repoURL  = "https://github.com/blackwell-systems/go-agents-book-code"
