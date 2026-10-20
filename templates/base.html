@@ -534,6 +534,29 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   });
 })();
 </script>
+<script>
+// Mark links in running text that leave the site: the source icon for
+// the companion code on GitHub, the external icon for anything else.
+// Code listings, popovers, and navigation keep their links unmarked.
+(function () {
+  var sprite = document.querySelector('use[href*="icons.svg"]');
+  var base = sprite ? sprite.getAttribute("href").split("#")[0] : "/img/icons.svg";
+  var links = document.querySelectorAll(
+    ".prose :is(p, li, td, figcaption, blockquote) > a[href^='http'], .guide-foot p > a[href^='http']");
+  links.forEach(function (a) {
+    if (a.hostname === location.hostname || a.querySelector("svg")) return;
+    var name = a.href.indexOf("github.com/blackwell-systems/go-agents-book-code") >= 0 ? "source" : "external";
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "icon link-icon");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttribute("href", base + "#" + name);
+    svg.appendChild(use);
+    a.appendChild(svg);
+  });
+})();
+</script>
 </body>
 </html>
 {{end}}

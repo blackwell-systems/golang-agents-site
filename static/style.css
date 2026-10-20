@@ -2367,3 +2367,26 @@ nav.toc { display: none; }
 .pager-next span .icon { margin: -0.2em 0 0 0.4rem; transform: none; }
 .copy { display: inline-flex; align-items: center; gap: 0.3rem; }
 .copy .icon { width: 0.95rem; height: 0.95rem; color: currentColor; --icon-accent: currentColor; }
+
+/* A guide's loop stage, under its title: the four stage icons with the
+   page's own lit, and its name; it links to the loop on the home page. */
+.stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: var(--space-2, 0.5rem);
+  font-family: var(--label);
+  font-size: var(--fs-sm, 0.875rem);
+  color: var(--soft);
+  text-decoration: none;
+}
+.stage-pips { display: inline-flex; gap: 0.3rem; }
+.stage-pip .icon { width: 1.2rem; height: 1.2rem; color: var(--soft); opacity: 0.55; }
+.stage-pip.is-on .icon { opacity: 1; }
+.stage-pip.is-on .icon { color: var(--amber); }
+.stage-badge:hover .stage-text, .stage-badge:focus-visible .stage-text { color: var(--amber); }
+.stage-badge:hover .stage-pip:not(.is-on) .icon { opacity: 0.85; }
+
+/* Links in running text that leave the site carry a small mark: the
+   source icon for the companion code, the external icon otherwise. */
+.link-icon { width: 0.8em; height: 0.8em; margin-left: 0.15em; vertical-align: -0.05em; color: currentColor; opacity: 0.75; }

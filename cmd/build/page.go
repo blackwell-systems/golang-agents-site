@@ -339,6 +339,12 @@ type StageItem struct {
 	On   bool // the page works on this stage
 }
 
+// stageIcons are the sprite's symbols for the four stages, in order.
+var stageIcons = [4]string{"stage-build", "stage-call", "stage-tools", "stage-decide"}
+
+// Icon is the sprite symbol for the stage.
+func (s StageItem) Icon() string { return stageIcons[s.N-1] }
+
 // Stages is the loop map for a page that names a stage, or nil.
 func (p *Page) Stages() []StageItem {
 	if p.Stage == "" {

@@ -60,6 +60,8 @@ var headingIcons = map[string]string{
 	"when-to-use-it":    "block-fit",   // above a fit block
 	"mistakes-to-avoid": "block-watch", // the book's "Watch out"
 	"what-to-watch":     "block-watch",
+	// what a production service adds to an example: the book's "In production"
+	"what-a-real-service-adds": "block-production",
 }
 
 // markHeadings puts each heading's icon at the start of its h2 in body.

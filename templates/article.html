@@ -12,6 +12,12 @@
       <h1>{{.Page.Title}}</h1>
       <p class="lede">{{.Page.Blurb}}</p>
       <p class="meta">Updated <time datetime="{{.Page.Modified}}">{{date .Page.Modified}}</time></p>
+      {{- with .Page.Stages}}
+      <a class="stage-badge" href="/#the-loop-in-four-stages">
+        <span class="stage-pips">{{range .}}<span class="stage-pip{{if .On}} is-on{{end}}">{{icon .Icon}}</span>{{end}}</span>
+        <span class="stage-text">{{if eq $.Page.Stage "all"}}The whole loop{{else}}{{range .}}{{if .On}}Stage {{.N}}: {{.Name}}{{end}}{{end}}{{end}}</span>
+      </a>
+      {{- end}}
       </div>
     </header>
     <div class="guide-body">
