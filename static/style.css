@@ -1661,9 +1661,9 @@ cite { font-style: italic; }
 /* Steps as a grid of numbered cards that uses the page's width; the
    numbers keep the order, reading left to right. */
 .prose > .reading-path { max-width: 100%; }
+.reading-path { counter-reset: step; }
 .prose .path-steps {
   list-style: none;
-  counter-reset: step;
   padding: 0;
   margin: 1.25rem 0 0;
   display: grid;
@@ -1868,3 +1868,31 @@ cite { font-style: italic; }
   color: var(--ivory);
 }
 .definition strong { color: var(--amber); }
+
+/* A path in phases: a row each, the phase on the left and its steps on
+   the right; on a narrow screen the phase sits above its steps. */
+.path-phases { margin-top: 1.5rem; }
+.phase {
+  display: grid;
+  gap: 0.75rem 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
+}
+@media (min-width: 52rem) {
+  .phase { grid-template-columns: 13rem minmax(0, 1fr); }
+}
+.phase-num {
+  margin: 0 0 0.25rem;
+  font-family: var(--label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.prose .phase-head h3 { margin: 0 0 0.35rem; font-size: 1.2rem; line-height: 1.25; }
+.phase-goal { margin: 0; font-size: 0.93rem; line-height: 1.45; color: var(--soft); }
+.prose .phase .path-steps { margin: 0; grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); }
+/* The start page uses the full width, so a phase's steps fit in a row. */
+.prose:has(.reading-path) { max-width: none; }
+.prose:has(.reading-path) > p { max-width: var(--measure); }

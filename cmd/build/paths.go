@@ -32,7 +32,16 @@ const startPage = "start.md"
 type readingPath struct {
 	ID, Title string
 	Steps     []string // page URLs, in order
+	Phases    []phase  // optional groups of consecutive steps
 	Text      string   // who the path suits, in Markdown
+}
+
+// phase groups the steps that follow its line in a path block:
+//
+//	phase: Talk to a model | Make a first call, and learn its shape.
+type phase struct {
+	Name, Goal string
+	First      int // index of its first step
 }
 
 var (
@@ -42,7 +51,7 @@ var (
 
 // parsePath reads one path block's body.
 func parsePath(body string) (readingPath, error) {
-	f, text, err := fields(body, "id", "title", "step")
+	f, text, err := fields(body, "id", "title", "step", "phase")
 	if err != nil {
 		return readingPath{}, err
 	}
@@ -50,6 +59,30 @@ func parsePath(body string) (readingPath, error) {
 		return readingPath{}, fmt.Errorf("want one id: line and one title: line")
 	}
 	p := readingPath{ID: f["id"][0], Title: f["title"][0], Steps: f["step"], Text: text}
+	// Phases need the order of the lines, which fields doesn't keep.
+	head, _, _ := strings.Cut(body, "\n\n")
+	n := 0
+	for line := range strings.SplitSeq(head, "\n") {
+		key, val, _ := strings.Cut(line, ":")
+		switch strings.TrimSpace(key) {
+		case "step":
+			n++
+		case "phase":
+			name, goal, ok := strings.Cut(val, "|")
+			if !ok {
+				return p, fmt.Errorf("path: phase %q: want a name, |, and a goal", strings.TrimSpace(val))
+			}
+			p.Phases = append(p.Phases, phase{strings.TrimSpace(name), strings.TrimSpace(goal), n})
+		}
+	}
+	if len(p.Phases) > 0 && p.Phases[0].First != 0 {
+		return p, fmt.Errorf("path %s: steps before the first phase", p.ID)
+	}
+	for i, ph := range p.Phases {
+		if i+1 < len(p.Phases) && p.Phases[i+1].First == ph.First || ph.First == len(p.Steps) {
+			return p, fmt.Errorf("path %s: phase %q has no steps", p.ID, ph.Name)
+		}
+	}
 	if !pathID.MatchString(p.ID) {
 		return p, fmt.Errorf("id %q: want lowercase words joined by hyphens", p.ID)
 	}
@@ -227,19 +260,48 @@ func (r *codeBlocks) path(body string) (string, error) {
 	var b strings.Builder
 	fmt.Fprintf(&b, `<section class="reading-path" aria-labelledby="%s">`, p.ID)
 	fmt.Fprintf(&b, `<h2 id="%s">%s</h2><p>%s</p>`, p.ID, html.EscapeString(p.Title), text)
-	b.WriteString(`<ol class="path-steps">`)
-	for _, s := range p.Steps {
+	// Without phases, one list; with them, a row per phase whose steps
+	// keep numbering from the one before.
+	groups := []phase{{First: 0}}
+	if len(rp.Phases) > 0 {
+		groups = rp.Phases
+		b.WriteString(`<div class="path-phases">`)
+	}
+	for gi, g := range groups {
+		end := len(p.Steps)
+		if gi+1 < len(groups) {
+			end = groups[gi+1].First
+		}
+		if g.Name != "" {
+			fmt.Fprintf(&b, `<div class="phase"><div class="phase-head"><p class="phase-num">Phase %d</p>`+
+				`<h3>%s</h3><p class="phase-goal">%s</p></div>`, gi+1, html.EscapeString(g.Name), html.EscapeString(g.Goal))
+		}
+		b.WriteString(`<ol class="path-steps">`)
+		writeSteps(&b, p.Steps[g.First:end])
+		b.WriteString("</ol>")
+		if g.Name != "" {
+			b.WriteString("</div>")
+		}
+	}
+	if len(rp.Phases) > 0 {
+		b.WriteString("</div>")
+	}
+	b.WriteString("</section>\n")
+	return b.String(), nil
+}
+
+// writeSteps writes one list's steps.
+func writeSteps(b *strings.Builder, steps []PathStep) {
+	for _, s := range steps {
 		if s.Live {
-			fmt.Fprintf(&b, `<li><a href="%s"><span class="step-title">%s</span>`+
+			fmt.Fprintf(b, `<li><a href="%s"><span class="step-title">%s</span>`+
 				`<span class="step-desc">%s</span></a></li>`,
 				html.EscapeString(s.Page.URL), html.EscapeString(s.Page.Name()), html.EscapeString(s.Page.Blurb()))
 			continue
 		}
 		// A draft's description hasn't passed the copy check, so only
 		// its title is shown.
-		fmt.Fprintf(&b, `<li class="pending"><span class="step-title">%s</span>`+
+		fmt.Fprintf(b, `<li class="pending"><span class="step-title">%s</span>`+
 			`<span class="step-tag">Being reviewed</span></li>`, html.EscapeString(s.Page.Name()))
 	}
-	b.WriteString("</ol></section>\n")
-	return b.String(), nil
 }
