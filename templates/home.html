@@ -35,6 +35,14 @@
   </div>
 </section>
 
+<div class="home-body">
+  <div class="wrap">
+    <div class="prose">
+{{before .Page.Body "<!-- paths -->"}}
+    </div>
+  </div>
+</div>
+
 {{- with .Site.Paths}}
 <section class="home-start" aria-labelledby="start-title">
   <div class="wrap">
@@ -57,7 +65,7 @@
 <div class="home-body">
   <div class="wrap">
     <div class="prose">
-{{.Page.Body}}
+{{after .Page.Body "<!-- paths -->"}}
     </div>
   </div>
 </div>

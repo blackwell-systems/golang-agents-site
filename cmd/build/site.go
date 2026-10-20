@@ -160,7 +160,17 @@ var templateFuncs = template.FuncMap{
 	},
 	"chapters": chapterText,
 	"add":      func(a, b int) int { return a + b },
-	"picture":  picture,
+	// before and after split a page's HTML at a marker comment, so a
+	// template can put something of its own in the middle.
+	"before": func(h template.HTML, marker string) template.HTML {
+		b, _, _ := strings.Cut(string(h), marker)
+		return template.HTML(b)
+	},
+	"after": func(h template.HTML, marker string) template.HTML {
+		_, a, _ := strings.Cut(string(h), marker)
+		return template.HTML(a)
+	},
+	"picture": picture,
 }
 
 // chapterText turns "1, 4" into "chapters 1 and 4".
