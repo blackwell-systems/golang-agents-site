@@ -50,7 +50,7 @@ Where a complete response has a `message`, each chunk has a `delta` instead: onl
 ## Reading it with an iterator
 
 A `bufio.Scanner` plus a handful of rules is enough to parse the format.
-The `sseData` helper hands back the payload of each `data:` line through a range-over-func iterator, an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
+The `sseData` helper hands back the payload of each `data:` line through a [range-over-func iterator](/basics/iterators/), an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
 
 ```go include=ch06/openrouter/sse.go tag=sse
 ```
@@ -102,7 +102,7 @@ It defaults to 30 seconds, which is deliberately loose.
 Across the twenty timed streams, no gap between pieces after a reply began was longer than 0.64 seconds, but one run spent 10.9 seconds before sending its first piece.
 A shorter timeout would trip on providers that hold a request in a queue before starting, and would discard replies that were on their way.
 
-The reason travels with the context, so the resulting error matches `context.Canceled` and also `ErrStreamIdle`.
+The reason travels with the [context](/basics/context/), so the resulting error matches `context.Canceled` and also `ErrStreamIdle`.
 That lets a caller distinguish a stream that went idle, which is worth retrying, from a person pressing Ctrl-C.
 Cancellation can hit at any moment without corrupting the conversation: a reply still in flight is thrown away, so the history never contains a partial reply or a tool call missing its result.
 

@@ -33,7 +33,7 @@ These are the main stop reasons the hardened loop reports, with the check a call
 | The model answered | `err == nil` | Use the answer, then verify what it claims |
 | The turn limit | `errors.Is(err, agent.ErrMaxTurns)` | Read the saved conversation for a loop |
 | The cost budget | `errors.Is(err, agent.ErrBudgetExceeded)` | Give the run more money, or give it less to do |
-| Cancelled, or a deadline | `errors.Is(err, context.Canceled)`, `context.DeadlineExceeded` | If a person stopped it, nothing; `context.Cause` gives the reason |
+| Cancelled, or a deadline | `errors.Is(err, context.Canceled)`, `context.DeadlineExceeded` | If a person stopped it, nothing; [`context.Cause`](/basics/context/#say-why-it-stopped) gives the reason |
 | A bad reply | `errors.Is(err, agent.ErrBadReply)` | Run it again; switch models if it repeats |
 | A model call timed out | `errors.Is(err, openrouter.ErrCallTimeout)` | Run it again; slow providers usually recover |
 | An API error | `errors.AsType[*openrouter.APIError](err)` | Retry when `Retryable()` says so; otherwise fix the key, the credit, or the request |
@@ -57,7 +57,7 @@ So the sentinels are grouped: each specific error wraps a family error with `%w`
 
 With that tree, `errors.Is(err, ErrBudget)` matches every budget stop, and `errors.Is(err, ErrMaxTurns)` matches only the turn limit.
 The checks keep working after more wrapping, because `errors.Is` walks the full chain; a caller that returns `fmt.Errorf("run agent: %w", err)` breaks nothing.
-When an error has to carry data, it is a type, and callers pull it out with `errors.AsType` (new in Go 1.26).
+When an error has to carry data, it is a type, and callers pull it out with [`errors.AsType`](/basics/errors/) (new in Go 1.26).
 
 Tool errors are the exception: an unknown tool name, or arguments that fail to decode, never reach the caller.
 The loop turns each one into a tool message, the model sees it, and the run continues.

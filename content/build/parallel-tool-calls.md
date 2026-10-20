@@ -57,7 +57,7 @@ A single bit per tool handles the cases that matter.
 
 ## Running a stage
 
-The runner launches each call in a stage with `sync.WaitGroup.Go`, added in Go 1.25, which does the counting that used to need a manual `Add(1)` and `defer Done()`, a pair that was easy to misplace.
+The runner launches each call in a stage with [`sync.WaitGroup.Go`](/basics/goroutines/), added in Go 1.25, which does the counting that used to need a manual `Add(1)` and `defer Done()`, a pair that was easy to misplace.
 To bound concurrency, a buffered channel acts as a semaphore with eight slots per reply.
 Only three replies in the recorded runs asked for more than eight calls, and all three came from one model on the triage task.
 If the run is cancelled while a call is waiting for a slot, the call never starts and its answer is "cancelled".

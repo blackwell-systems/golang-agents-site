@@ -164,7 +164,7 @@ A rate limiter that waits on a timer does the same, and stops the timer when it 
 
 Both return the cause, so a caller sees why the wait ended.
 Without the `ctx.Done()` case, a goroutine blocked on a full channel waits forever after its run is gone: a goroutine leak, which in a long-running service adds up one stopped run at a time.
-Every goroutine needs an owner and a way to stop, and for most of them the way to stop is a context.
+[Every goroutine needs an owner and a way to stop](/basics/goroutines/), and for most of them the way to stop is a context.
 
 ## Tools that start processes
 

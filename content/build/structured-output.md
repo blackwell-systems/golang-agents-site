@@ -57,7 +57,7 @@ That gives the final tool the power to turn an answer down and lets the model co
 Once a final call succeeds, nothing else in that reply runs: later calls in the reply get "not run" as their result, so the answer matches the code exactly as it stood at the moment of acceptance.
 
 A model that writes its answer as plain text instead of calling the tool gets a nudge: a user message telling it to call the tool once it is finished, or to carry on with the work.
-If two nudges don't help, the run ends with `ErrNoFinalAnswer`, a sign that the program never received an answer it could use; callers test for it with `errors.Is`.
+If two nudges don't help, the run ends with `ErrNoFinalAnswer`, a sign that the program never received an answer it could use; callers test for it with [`errors.Is`](/basics/errors/).
 
 ## Checking what the answer claims
 

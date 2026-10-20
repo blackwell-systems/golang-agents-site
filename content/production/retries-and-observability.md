@@ -38,7 +38,7 @@ Model calls can always be sent again; many tool calls can't, and a single shared
 
 | Failure | Retry? |
 | --- | --- |
-| 408, 429, and 5xx statuses | Yes; honor `Retry-After` |
+| 408, 429, and 5xx statuses | Yes; honor [`Retry-After`](/basics/http-client/#when-the-status-isnt-200) |
 | A connection reset, cut off, or ended by a TLS alert | Yes; a new connection usually works |
 | A provider error inside a 200 stream | Yes |
 | An attempt that ran out of its own time | Yes |

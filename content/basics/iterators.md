@@ -71,7 +71,7 @@ A whole run is an iterator of events, so a caller that only wants the result rea
 ```
 
 `return` inside the loop ends the range, and `yield` returns false inside the run.
-The run's iterator cancels its own context when that happens, through a deferred `cancel`, so breaking out of the loop stops the model call in progress.
+The run's iterator cancels its own [context](/basics/context/) when that happens, through a deferred `cancel`, so breaking out of the loop stops the model call in progress.
 Stopping a run is as simple as leaving the loop that reads it, and `TestBreakOutOfEvents` checks that it does.
 
 ## Iterators with goroutines inside

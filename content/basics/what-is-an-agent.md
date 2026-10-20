@@ -104,7 +104,7 @@ When that request arrives, `Run` unpacks the JSON into a struct and opens the fi
 Arguments that fail to unpack produce an error that shows a correct example, which gives the model what it needs to send a better call next time.
 
 Tag every struct field that a model fills with an explicit `json` name.
-The companion code uses `encoding/json/v2`, part of the standard library in Go 1.27, and it matches names case-sensitively: without a tag, `"path"` does not land in `Path`, decoding reports no error, and the tool receives an empty path.
+The companion code uses [`encoding/json/v2`](/basics/json-v2/), part of the standard library in Go 1.27, and it matches names case-sensitively: without a tag, `"path"` does not land in `Path`, decoding reports no error, and the tool receives an empty path.
 
 ## The parts you write
 

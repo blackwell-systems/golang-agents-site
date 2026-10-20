@@ -46,7 +46,7 @@ Here is the handler:
 
 Three headers make it a stream: `text/event-stream` tells the browser what it is reading, `Cache-Control: no-cache` keeps caches out of the way, and `X-Accel-Buffering: no` asks a proxy such as nginx not to hold events back in a buffer.
 
-The run gets a context derived from the request's.
+The run gets a [context](/basics/context/) derived from the request's.
 When the browser closes the connection, because the person pressed Stop or closed the tab, the request's context ends, and the run's model call and tools stop with it.
 The deferred function cancels the run and then reads the channel until it closes, so the goroutine that drives the agent has always finished before the handler returns.
 That goroutine has one owner, the handler, and one way to stop, the context.

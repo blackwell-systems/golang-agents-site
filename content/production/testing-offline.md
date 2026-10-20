@@ -52,7 +52,7 @@ A failing tool's result goes back flagged as an error.
 
 The scripted model sits above the HTTP client, so it never exercises the client.
 To test the client, the companion code replaces what sits below it.
-In Go, every HTTP request passes through an `http.RoundTripper`.
+In Go, every HTTP request passes through an [`http.RoundTripper`](/basics/http-client/#roundtrippers-where-tests-and-faults-plug-in).
 Hand `http.Client` a round tripper that reads its responses from files, and the client behaves exactly as it would on the network:
 
 ```go include=ch02/replay/replay.go tag=transport

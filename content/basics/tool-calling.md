@@ -13,7 +13,7 @@ art: ch04
 
 A model never runs a tool.
 It writes a request to run one, and your program decides what that request means.
-The request travels as JSON, and getting the JSON right in both directions is most of what "tool calling" means for the program that does it.
+The request travels as JSON, and [getting the JSON right](/basics/json-v2/) in both directions is most of what "tool calling" means for the program that does it.
 
 This page shows the real JSON from one recorded run of the example agent, on `anthropic/claude-haiku-5.5` in October 2026: the request that offers tools, the reply that asks for them, and the messages that answer.
 Then it shows the Go types that carry them, from the companion code's [`openrouter` package](code:ch04/openrouter).
