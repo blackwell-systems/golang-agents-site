@@ -22,7 +22,7 @@ source: Chapter 1, and chapter 5’s table of shapes
 Written as a fixed three-step workflow, the bug fix cost a quarter to a sixth as much as the agent on each of four models, and its one model call took between under a second and 2.5 seconds, while each agent run took 7.5 to 13.5 seconds.
 ```
 
-In an agent, the model picks every next step.
+In an [agent](/basics/what-is-an-agent/), the model picks every next step.
 In a [workflow](/glossary/#workflow), your code has already picked the steps, and the model is called at the places the code chose.
 A common rule of thumb says to prefer a workflow whenever you know the steps.
 That rule was checked on a task small enough to build both ways.
@@ -54,7 +54,7 @@ Costs are medians of ten runs:
 
 On every model, the workflow's cost was between a quarter and a sixth of the agent's, and it finished several times sooner.
 The gap comes from the shape of the two programs.
-The agent made four to six model calls, and each one resent the conversation so far along with about 270 tokens of tool definitions, plus whatever the provider adds around them.
+The agent made four to six model calls, and each one resent the conversation so far along with about 270 tokens of tool definitions, plus whatever the provider adds around them ([tokens and cost](/basics/tokens-and-cost/) shows how that adds up).
 The workflow made a single call and offered no tools.
 On this bug, the workflow is the better choice.
 
@@ -72,7 +72,7 @@ The loop's argument decoder writes the reason and an example of the expected sha
 ```
 
 That one run shows the trade.
-The workflow is cheap because a person fixed the steps in advance, and it is fragile because nobody wrote a step for a model reply that can't be used.
+The workflow is cheap because a person fixed the steps in advance, and it is fragile because nothing in the program handles a model reply it can't decode.
 
 ## What it can't show
 
@@ -92,11 +92,11 @@ To compare models, or to learn whether a change to an agent helped, you need tas
 
 ## Try it
 
-The workflow and agent runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them. The agent is the `ch04` program in the companion code.
+The workflow and agent runs behind the table are in the repository's `evidence` directory, and `go run ./evidence`, with no key set, prints the table again from them. The agent is the [`ch04` program](/run/ch04-first-agent/) in the companion code.
 From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code):
 
 ```console
 $ go run ./ch04
 ```
 
-This replays the agent's recorded run on the default model, runs `go test` for real, and prints the cost: $0.0008 across four model calls.
+This replays the agent's recorded run on the default model, `anthropic/claude-haiku-5.5`, runs `go test` for real, and prints the cost: $0.0008 across four model calls.

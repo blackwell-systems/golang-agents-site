@@ -26,14 +26,14 @@ Once an agent's tools act on the world (filing issues, sending mail, deploying),
 The restarted process can go wrong in two directions.
 It can forget what it already did, start from the top, and pay for every model call again.
 Or it can do something twice.
-Suppose the tracker created an issue and the process died before writing down the reply.
+Suppose the issue tracker created an issue and the process died before writing down the reply.
 The new process finds a tool call with no result, makes the call, and the crash now has two issues.
 
 The fix is to make the run survive crashes, and then check that work by crashing it in every place it can be crashed.
 
 ## The window no checkpoint can close
 
-Follow one tool call from start to finish: the request goes out, the other side acts on it, the reply comes back, and the run writes the reply to its checkpoint.
+Follow one tool call from start to finish: the request goes out, the other side acts on it, the reply comes back, and the run writes the reply to its [checkpoint](/production/durable-runs/), a file written to a temporary name and then renamed into place, so it is always whole.
 If the process dies after the second step and before the fourth, the checkpoint shows nothing.
 You can't fix that by saving sooner, since the reply you'd want to save hasn't arrived yet.
 
@@ -106,10 +106,11 @@ That loop has 38 crash points, its own save points among them.
 
 Against the keyed tracker, all 910 scenarios ended with no duplicate, no missing effect, and no question.
 Against the keyless one, the 892 scenarios also had no duplicate and lost nothing, and they asked a person 624 times.
+The counts differ because each scenario also crashes again at every point its restart reaches, and a restart that asks a person takes a different path from one that doesn't.
 
 The sweep also covers two harder situations.
-In one, a tool fails after the tracker has already accepted its request, as happens when an MCP server dies mid-call.
-In the other, a tool waits behind an approval gate, and the crash lands while the person is deciding.
+In one, a tool fails after the tracker has already accepted its request, as happens when an [MCP](/build/mcp/) server dies mid-call.
+In the other, a tool waits behind an [approval gate](/production/approval/), and the crash lands while the person is deciding.
 Both came through with no duplicate and no lost effect, and with keys on, nobody had to answer anything.
 
 ## What it can't show
@@ -119,14 +120,14 @@ The sweep leaves some things untested:
 - **A panic isn't a power cut.** The test crashes by panicking, and the operating system's file cache survives a panic. The sweep also turns off file syncs so that it finishes in seconds. It checks the order of the saves, and leaves open whether they reach the disk.
 - **The tracker is assumed durable.** It never crashes in the test.
 - **The scripted person never answers wrong.** The keyless run's zero duplicates depend on that, and a real person can make a mistake.
-- **The model is scripted.** Asking it again gives the same reply. A real model asked again may choose different tool calls, so saving once per turn would fare worse in practice than in the table.
+- **The model is [scripted](/production/testing-offline/).** Asking it again gives the same reply. A real model asked again may choose different tool calls, so saving once per turn would fare worse in practice than in the table.
 
 ## What to do with it
 
 - **Save the model's reply before you run any of its tools.** Each call then has a fixed ID before it goes out, and a restarted run can see which calls already have answers.
 - **Send an idempotency key with every call that changes something**, made from the run ID and the call ID. Pick services that honor keys, and add key handling to the services you own.
-- **When a service won't take a key, write a marker before the call.** On restart, a marker without a result means the outcome is unknown: rerun the call if a repeat is harmless, look it up on the other side if you can, and ask a person only as the last step.
-- **Never reuse a run ID.** Providers happen to make call IDs unique, but nothing promises it, and replayed models repeat them. The key's uniqueness has to come from the run ID.
+- **When a service won't take a key, write a marker before the call.** On restart, a marker without a result means the outcome is unknown; work down the ladder above, and ask a person only as the last step.
+- **Never reuse a run ID.** Providers happen to make call IDs unique, but nothing promises it, and a replayed run repeats the same call IDs as the run it came from. Call IDs keep keys apart within a run; only the run ID keeps them apart across runs.
 - **Crash on purpose at every point** to test the order of your saves, including the points you didn't expect trouble from.
 
 Durable workflow engines such as Temporal run into the same wall.
