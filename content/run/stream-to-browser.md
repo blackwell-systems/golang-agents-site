@@ -10,11 +10,11 @@ weight: 30
 art: ch06
 ---
 
-Reading server-sent events from the model's API turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn, and the end of a run.
+[Reading server-sent events](/build/streaming/) from the model's API turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn (one model call and its tools), and the end of a run.
 This example sends those events onward, from a Go server to a web page, so a person can watch a run as it happens and stop it.
 It is the companion code's [`ssebrowser` example](code:ssebrowser), built on `net/http` alone, with tests that run under the race detector.
 
-The model is scripted, a replay of a run on the `duration` project slowed down so you can watch it, so everything runs offline.
+The model is scripted, a replay of a run on the `duration` project, the small Go package whose failing test the book's first agent fixes, slowed down so you can watch it, so everything runs offline.
 The tools, `go test` among them, run for real.
 
 ## Run it
@@ -48,7 +48,7 @@ Three headers make it a stream: `text/event-stream` tells the browser what it is
 
 The run gets a [context](/basics/context/) derived from the request's.
 When the browser closes the connection, because the person pressed Stop or closed the tab, the request's context ends, and the run's model call and tools stop with it.
-The deferred function cancels the run and then reads the channel until it closes, so the goroutine that drives the agent has always finished before the handler returns.
+The deferred function cancels the run and then reads the channel until it closes, so the goroutine that drives the agent is sure to have finished before the handler returns.
 That goroutine has one owner, the handler, and one way to stop, the context.
 
 The agent runs in its own goroutine for a reason: while the model is thinking, nothing arrives for a while, and the handler has to keep sending something.
@@ -109,9 +109,9 @@ The tests read the stream from an `httptest` server and check the headers and ev
 
 ## What a real service adds
 
-The example is small on purpose, and its README lists what a public service would change:
+The example is small on purpose, and its README lists what a public service would change; [an agent as a service](/production/agent-as-a-service/) builds one:
 
-- **Error text.** The page shows a run's error as it is; a public service would send a short stop reason instead of internal detail.
+- **Error text.** The page shows a run's error as it is; a public service would send a short [stop reason](/production/stop-reasons/) instead of internal detail.
 - **Limits.** Each request starts a run. A real service caps how many run at once, and per user, since each one spends money.
 - **Reconnecting.** A dropped connection loses the run. To let a client pick up where it left off, give each event an `id:` line, keep the run going apart from the request, and resume from the `Last-Event-ID` header the browser sends when it reconnects.
 

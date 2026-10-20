@@ -16,7 +16,7 @@ This program runs one task from the crash catalog, replayed from a run recorded 
 ## What it shows
 
 - An agent with fourteen tools grouped by prefix: `crash_*` to read reports, `code_*` to read and patch code, `issue_*` for the tracker, `run_tests`, and a final tool, `submit_diagnosis`. [Designing tools a model uses well](/build/tool-design/) explains the choices.
-- A final answer as typed data, one `Diagnosis` per crash group, checked before it is accepted: [structured output](/build/structured-output/).
+- A final answer as typed data, one `Diagnosis` per crash group (reports that share one cause), checked before it is accepted: [structured output](/build/structured-output/).
 - A reproducer test that must fail on the original code and pass on the fix.
 - A grade from the crash catalog's grader, check by check.
 
@@ -60,15 +60,15 @@ The agent's evidence, in its final answer, cites the stack, the code, and the lo
 
 The run passed 12 of 16 checks.
 The four failures say the agent marked both already-filed crashes as `fixed`, treating them as its own to fix, instead of as duplicates of issues #101 and #102.
-The first system prompt never tells the model how to handle a report the tracker already knows about, which is the failure a better prompt has to fix.
-A typed answer is what made the mistake a failed check instead of a paragraph to read.
+This first version of the system prompt never tells the model how to handle a report the tracker already knows about, which is the failure a better prompt has to fix.
+Because the answer was typed data, the mistake showed up as a failed check instead of a sentence buried in a paragraph.
 
 **The cost.** 17 turns, $0.034, and every request is bigger than the one before, growing from roughly 3,800 tokens to roughly 29,600.
 [Context management](/build/context-management/) is what brings that down.
 
 ## Things to try
 
-**Check whether the model picks the right tool.** A cheap smoke test, replayed offline:
+**Check whether the model picks the right tool.** A cheap smoke test, [replayed offline](/production/testing-offline/):
 
 ```console
 $ go run ./ch07/evals/toolselect
@@ -76,7 +76,7 @@ $ go run ./ch07/evals/toolselect -distractors
 ```
 
 The first replays fifteen short requests, three times each on four models, and prints each answer that scored below full marks; the second adds thirty plausible extra tools.
-Several "misses" are the system prompt winning: asked to file an issue, models search the tracker first, as the prompt tells them to.
+Several "misses" are the system prompt doing its job: asked to file an issue, models search the tracker first, as the prompt tells them to.
 
 **Read a tool's output the way the model does.** The recorded tool outputs under `ch07/testdata/out/tools` show what concise results look like: `crash_read` shows the service's own stack frames, one line each, and `crash_goroutines` condenses an 85 KB goroutine dump, 46 goroutines, into 8 groups that take 7 KB.
 
