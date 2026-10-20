@@ -92,6 +92,13 @@ step: /ecosystem/why-go/
 For whoever decides whether a team spends its time here: what the work costs, what the team ends up able to build, the risks and how they're handled, and what's left out, mostly without code.
 ```
 
+## At the end of a path
+
+{{art path-complete wide}}
+
+When you reach the last step of a path, the [Research](/findings/) section holds every measured result behind the guides, each with its method.
+The guides on knowledge and memory, [RAG in Go](/build/rag/), [RAG or agentic search?](/build/rag-or-agentic-search/), and [memory between sessions](/build/memory/), go past what the paths and the book cover.
+
 ## Browsing instead
 
 If you'd rather look something up, each section in the header collects the guides on one subject, [search](/search/) finds a page by its title or headings, and the [glossary](/glossary/) defines the vocabulary.

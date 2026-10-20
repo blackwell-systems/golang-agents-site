@@ -68,6 +68,7 @@ var arts = map[string]artwork{
 	"path-learning": card("At the foot of a wide stone stair, the Gopher holds up a lantern and points up a row of small lanterns toward the great stone rings, while the Ghost, a stone android, kneels beside it."),
 	"path-shipping": card("On a loading dock under a work lamp, the Gopher in an amber hard hat ticks a line on its clipboard while the Ghost, a stone android, sets a sealed crate onto a cart on iron rails."),
 	"path-leading":  card("Under a hanging lamp, the Gopher on a stool moves a token along a dotted route on a map of the monument, while the Ghost, a stone android, leans in and points to the same route."),
+	"path-complete": card("On a terrace at the top of the stairs, the kneeling Ghost, a stone android, holds the Gopher on its open palm, the Gopher's clipboard fully ticked, beside a lantern, with lit towers and stairs far below."),
 	"gopher": {
 		Alt:    "The Gopher, the site's mascot, with its clipboard.",
 		Widths: badgeWidths, Ratio: [2]int{1, 1}, Ext: "png",
@@ -81,6 +82,7 @@ var artSizes = map[string]string{
 	"guide": "(min-width: 60rem) 10rem, 6rem",
 	"badge": "12rem",
 	"card":  "(min-width: 48rem) 20rem, 100vw",
+	"wide":  "(min-width: 48rem) 40rem, 100vw",
 }
 
 // artToken places art in a page's own HTML: {{art path-learning card}}

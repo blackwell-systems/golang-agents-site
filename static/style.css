@@ -1733,6 +1733,8 @@ cite { font-style: italic; }
   border-radius: 6px;
   text-decoration: none;
 }
+.art-wide { display: block; max-width: 40rem; }
+.art-wide img { border-radius: 6px; border: 1px solid var(--line); }
 .path-choose .art-card { display: block; margin: -1.1rem -1.2rem 0.9rem; }
 .path-choose .art-card img { display: block; width: 100%; height: auto; margin: 0; border-radius: 3px 3px 0 0; }
 .path-choose a:hover { border-color: var(--amber-dim); border-top-color: var(--amber); }

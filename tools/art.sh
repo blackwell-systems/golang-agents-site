@@ -43,7 +43,7 @@ for w in 240 480; do
 done
 
 # The cards: the site's own 3:2 art, from art/ in this repository.
-for name in path-learning path-shipping path-leading; do
+for name in path-learning path-shipping path-leading path-complete; do
 	in=$site/art/$name.png
 	[ -f "$in" ] || { echo "art: no $in" >&2; exit 1; }
 	for w in 480 960; do
