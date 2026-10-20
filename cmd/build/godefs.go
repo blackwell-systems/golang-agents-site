@@ -34,11 +34,11 @@ import (
 // go/types resolves the names.
 //
 // The index loads the standard library from the Go toolchain the
-// companion code builds with (go list names it). Third-party modules
-// aren't loaded: each stands in as an empty package. The checker reports
-// errors for the names used from them, which are ignored; every other
-// name still resolves, since it doesn't depend on those packages'
-// contents.
+// companion code builds with, and third-party packages from the module
+// cache, at the versions each companion module builds with (go list
+// names both). A package go list can't find stands in as an empty
+// package: the checker reports errors for the names used from it, which
+// are ignored, and every other name still resolves.
 
 // goDef is one declaration a listing may refer to.
 type goDef struct {
@@ -47,9 +47,19 @@ type goDef struct {
 	rel  string // its file (or a package's directory), under code/, or "" outside it
 	line int    // 0 for a package
 
-	// For the standard library: the import path, and the anchor on
-	// pkg.go.dev ("Client.Do"), "" for the package itself.
-	pkg, anchor string
+	// Outside the companion code: the import path, the package's page
+	// on pkg.go.dev, and the anchor there ("Client.Do"), "" for the
+	// package itself.
+	pkg, url, anchor string
+}
+
+// goLib is a package from outside the companion code: the standard
+// library's, or a third-party module's.
+type goLib struct {
+	path string // its import path
+	dir  string
+	url  string // its page on pkg.go.dev, at the version the code uses
+	main string // for a module's package, the companion module whose build uses it
 }
 
 // goUnit is a type-checked set of files: a package, or a package with
@@ -65,18 +75,21 @@ type goUnit struct {
 type goIndex struct {
 	root    string // the code/ directory
 	fset    *token.FileSet
-	mods    []goModule           // longest path first
-	parsed  map[string]*ast.File // by file name
-	units   map[string]*goUnit   // by directory, with "#test" or "#xtest" for test units
-	pkgs    map[string]*types.Package
-	defs    map[token.Pos]*goDef // by the position of the declared name
+	mods    []goModule                // longest path first
+	parsed  map[string]*ast.File      // by file name
+	units   map[string]*goUnit        // by directory, with "#test" or "#xtest" for test units
+	byDir   map[string]*types.Package // the packages checked from source
+	pkgs    map[string]*types.Package // the stand-ins, by import path
+	defs    map[token.Pos]*goDef      // by the position of the declared name
 	loading map[string]bool
 	ctx     gobuild.Context // which files a package's build uses
 
-	std      string                  // the standard library's source, GOROOT/src; "" leaves it out
-	builtins map[string]*goDef       // the universe's names, from builtin/builtin.go
-	others   map[types.Object]*goDef // locals, packages, and the rest, made on demand
-	objIDs   map[types.Object]int    // a number for each object a listing shows
+	std      string                       // the standard library's source, GOROOT/src; "" leaves it out
+	deps     map[string]map[string]*goLib // by companion module directory, then import path
+	ext      map[string]*goLib            // the third-party packages loaded, by directory
+	builtins map[string]*goDef            // the universe's names, from builtin/builtin.go
+	others   map[types.Object]*goDef      // locals, packages, and the rest, made on demand
+	objIDs   map[types.Object]int         // a number for each object a listing shows
 }
 
 // goModule is a module in the companion code.
@@ -88,7 +101,9 @@ var moduleLine = regexp.MustCompile(`^module\s+(\S+)`)
 func newGoIndex(root string) (*goIndex, error) {
 	x := &goIndex{root: root, fset: token.NewFileSet(),
 		parsed: map[string]*ast.File{}, units: map[string]*goUnit{},
-		pkgs: map[string]*types.Package{}, defs: map[token.Pos]*goDef{},
+		byDir: map[string]*types.Package{}, pkgs: map[string]*types.Package{},
+		defs: map[token.Pos]*goDef{}, deps: map[string]map[string]*goLib{},
+		ext:     map[string]*goLib{},
 		loading: map[string]bool{}, ctx: gobuild.Default,
 		builtins: map[string]*goDef{}, others: map[types.Object]*goDef{},
 		objIDs: map[types.Object]int{}}
@@ -199,6 +214,75 @@ func (x *goIndex) dirOf(importPath string) string {
 	return ""
 }
 
+// depDir returns the directory of a third-party package that the
+// package in srcDir imports, at the version its companion module builds
+// with, or "" when there's none.
+func (x *goIndex) depDir(srcDir, importPath string) string {
+	main := ""
+	if l := x.ext[srcDir]; l != nil {
+		main = l.main
+	} else {
+		for _, m := range x.mods {
+			if r, err := filepath.Rel(m.dir, srcDir); err == nil && !strings.HasPrefix(r, "..") &&
+				len(m.dir) > len(main) {
+				main = m.dir
+			}
+		}
+	}
+	if main == "" {
+		return ""
+	}
+	deps, ok := x.deps[main]
+	if !ok {
+		deps = x.listDeps(main)
+		x.deps[main] = deps
+	}
+	l := deps[importPath]
+	if l == nil {
+		return ""
+	}
+	if x.ext[l.dir] == nil {
+		x.ext[l.dir] = l
+	}
+	return l.dir
+}
+
+// listDeps asks go list for the third-party packages that the companion
+// module in dir builds with, tests included, without going to the
+// network: they're in the module cache wherever the code builds. A
+// failure leaves the packages as stand-ins, so it isn't an error.
+func (x *goIndex) listDeps(dir string) map[string]*goLib {
+	cmd := exec.Command("go", "list", "-e", "-deps", "-test", "-f",
+		"{{if and (not .Standard) (not .ForTest) .Module}}{{.ImportPath}}\t{{.Dir}}\t"+
+			"{{.Module.Path}}\t{{.Module.Version}}{{end}}", "./...")
+	cmd.Dir = dir
+	cmd.Env = append(os.Environ(), "GOPROXY=off", "GOFLAGS=-mod=mod")
+	out, _ := cmd.Output()
+	deps := map[string]*goLib{}
+	for line := range strings.Lines(string(out)) {
+		f := strings.Split(strings.TrimSpace(line), "\t")
+		if len(f) != 4 || f[1] == "" || f[3] == "" {
+			continue // the companion code's own packages have no version
+		}
+		pkg, d, mod, ver := f[0], f[1], f[2], f[3]
+		deps[pkg] = &goLib{path: pkg, dir: d, main: dir,
+			url: "https://pkg.go.dev/" + mod + "@" + ver + strings.TrimPrefix(pkg, mod)}
+	}
+	return deps
+}
+
+// lib describes the package in dir if it's from outside the companion
+// code, and returns nil otherwise.
+func (x *goIndex) lib(dir string) *goLib {
+	if l := x.ext[dir]; l != nil {
+		return l
+	}
+	if p, ok := x.stdPath(dir); ok {
+		return &goLib{path: p, dir: dir, url: "https://pkg.go.dev/" + p}
+	}
+	return nil
+}
+
 // stdPath is the import path of dir if it holds a standard package.
 func (x *goIndex) stdPath(dir string) (string, bool) {
 	if x.std == "" {
@@ -211,24 +295,37 @@ func (x *goIndex) stdPath(dir string) (string, bool) {
 	return filepath.ToSlash(rel), true
 }
 
-// Import implements types.Importer. Companion packages, and the
-// standard library when the index has it, are checked from source; any other
-// package is an empty stand-in.
+// Import implements types.Importer.
 func (x *goIndex) Import(importPath string) (*types.Package, error) {
-	if p, ok := x.pkgs[importPath]; ok {
-		return p, nil
-	}
+	return x.ImportFrom(importPath, "", 0)
+}
+
+// ImportFrom implements types.ImporterFrom. Companion packages, and the
+// standard library and the third-party packages srcDir's module builds
+// with when the index has them, are checked from source; any other
+// package is an empty stand-in.
+func (x *goIndex) ImportFrom(importPath, srcDir string, _ types.ImportMode) (*types.Package, error) {
 	if importPath == "unsafe" && x.std != "" {
 		return types.Unsafe, nil
 	}
-	if dir := x.dirOf(importPath); dir != "" {
+	dir := x.dirOf(importPath)
+	if dir == "" && x.std != "" {
+		dir = x.depDir(srcDir, importPath)
+	}
+	if dir != "" {
+		if p, ok := x.byDir[dir]; ok {
+			return p, nil
+		}
 		if _, err := x.unit(dir, ""); err != nil {
 			return nil, err
 		}
-		if p, ok := x.pkgs[importPath]; ok {
+		if p, ok := x.byDir[dir]; ok {
 			return p, nil
 		}
 		return nil, fmt.Errorf("no package %s", importPath)
+	}
+	if p, ok := x.pkgs[importPath]; ok {
+		return p, nil
 	}
 	name := path.Base(importPath)
 	if len(name) > 1 && name[0] == 'v' && strings.Trim(name[1:], "0123456789") == "" {
@@ -243,8 +340,8 @@ func (x *goIndex) Import(importPath string) (*types.Package, error) {
 
 // importPath is the import path of the package in dir.
 func (x *goIndex) importPath(dir string) string {
-	if p, ok := x.stdPath(dir); ok {
-		return p
+	if l := x.lib(dir); l != nil {
+		return l.path
 	}
 	for _, m := range x.mods {
 		if rel, err := filepath.Rel(m.dir, dir); err == nil && !strings.HasPrefix(rel, "..") {
@@ -280,11 +377,11 @@ func (x *goIndex) unit(dir, kind string) (*goUnit, error) {
 	}
 	var pkgFiles, testFiles, xtestFiles []*ast.File
 	var pkgName string
-	_, std := x.stdPath(dir)
+	lib := x.lib(dir) != nil
 	for _, e := range entries {
 		name := e.Name()
 		if e.IsDir() || !strings.HasSuffix(name, ".go") ||
-			std && strings.HasSuffix(name, "_test.go") {
+			lib && strings.HasSuffix(name, "_test.go") {
 			continue
 		}
 		if ok, err := x.ctx.MatchFile(dir, name); err != nil || !ok {
@@ -323,7 +420,7 @@ func (x *goIndex) unit(dir, kind string) (*goUnit, error) {
 	conf := types.Config{Importer: x, FakeImportC: true, Error: func(error) {}}
 	p, _ := conf.Check(ipath, x.fset, files, info) // errors are expected; see above
 	if kind == "" && p != nil && pkgName != "" {
-		x.pkgs[ipath] = p
+		x.byDir[dir] = p
 	}
 	u := &goUnit{pkg: p, info: info, files: map[string]*ast.File{}}
 	for _, f := range files {
@@ -351,9 +448,9 @@ func (x *goIndex) parse(name string) (*ast.File, error) {
 // of its interfaces and the fields of its structs.
 func (x *goIndex) indexDecls(f *ast.File) {
 	name := x.fset.File(f.Pos()).Name()
-	stdPkg, std := x.stdPath(filepath.Dir(name))
+	lib := x.lib(filepath.Dir(name))
 	rel, err := filepath.Rel(x.root, name)
-	if !std && (err != nil || strings.HasPrefix(rel, "..")) {
+	if lib == nil && (err != nil || strings.HasPrefix(rel, "..")) {
 		return
 	}
 	add := func(id *ast.Ident, anchor, sig string, docs ...*ast.CommentGroup) *goDef {
@@ -361,8 +458,8 @@ func (x *goIndex) indexDecls(f *ast.File) {
 			return nil
 		}
 		d := &goDef{sig: sig}
-		if std {
-			d.pkg, d.anchor = stdPkg, anchor
+		if lib != nil {
+			d.pkg, d.url, d.anchor = lib.path, lib.url, anchor
 		} else {
 			d.rel, d.line = filepath.ToSlash(rel), x.fset.Position(id.Pos()).Line
 		}
@@ -680,8 +777,8 @@ func (x *goIndex) pkgDef(p *types.Package) *goDef {
 	if dir == "" {
 		return d
 	}
-	if std, ok := x.stdPath(dir); ok {
-		d.pkg = std
+	if l := x.lib(dir); l != nil {
+		d.pkg, d.url = l.path, l.url
 	} else if rel, err := filepath.Rel(x.root, dir); err == nil {
 		d.rel = filepath.ToSlash(rel)
 	}
@@ -779,7 +876,7 @@ func (r *codeBlocks) writeDef(w *strings.Builder, id string, d *goDef) error {
 	var href, at, where string
 	switch {
 	case d.pkg != "":
-		href, at = "https://pkg.go.dev/"+d.pkg, d.pkg
+		href, at = d.url, d.pkg
 		if d.anchor != "" {
 			href += "#" + d.anchor
 			at += "." + d.anchor
