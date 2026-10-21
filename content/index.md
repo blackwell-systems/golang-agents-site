@@ -171,6 +171,35 @@ On every turn, one pass through these four stages, the harness does the same fou
   .loopv-c .lvc-list { align-self: end; }
   .loopv-c figcaption { align-self: start; }
 }
+/* The small ring in the loop's code (built by the script below): it
+   stays at the top right of the code while the code scrolls by, and
+   lights the stage of the line beside it. The listing clips instead of
+   hiding its overflow, so the ring can stick. */
+.listing.has-stages { overflow: clip; }
+.lvc-mini-pin { position: sticky; top: var(--header-h); z-index: 2; height: 0; }
+.lvc-mini {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 9rem;
+  height: 9rem;
+  display: block;
+  opacity: 0;
+  translate: 0 0.4rem;
+  pointer-events: none;
+  transition: opacity 300ms ease-out, translate 300ms ease-out;
+}
+.lvc-mini.is-shown { opacity: 1; translate: 0 0; pointer-events: auto; }
+.lvc-mini svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.lvc-mini .lvc-track { fill: none; stroke: var(--line); stroke-width: 1.5; }
+.lvc-mini .lvc-arc { fill: none; stroke: var(--st); stroke-width: 2.5; }
+.lvc-mini .lvc-track, .lvc-mini .lvc-arc, .lvc-mini .lvc-node circle { vector-effect: non-scaling-stroke; }
+.lvc-mini .lvc-node circle { fill: var(--code-bg); stroke: var(--st); stroke-width: 2; transition: fill 220ms ease-out; }
+.lvc-mini .lvc-node text { fill: var(--st); font-family: var(--label); font-weight: 700; font-size: 30px; text-anchor: middle; transition: fill 220ms ease-out; }
+.lvc-mini .lvc-node.is-on circle { fill: var(--st); }
+.lvc-mini .lvc-node.is-on text { fill: var(--code-bg); }
+@media (max-width: 47.99rem) { .lvc-mini-pin { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lvc-mini, .lvc-mini * { transition: none; } }
 </style>
 <figure class="loopv-c">
   <div class="lvc-ring">
@@ -233,6 +262,7 @@ On every turn, one pass through these four stages, the harness does the same fou
       items[k].classList.toggle("is-on", k === i);
     }
     if (i >= 0) root.style.setProperty("--lvc-st", "var(--stage-" + (i + 1) + ")");
+    miniLight(i);
     Array.prototype.forEach.call(lines, function (l) {
       l.classList.toggle("is-lit", l.dataset.stage === String(i + 1));
     });
@@ -258,15 +288,66 @@ On every turn, one pass through these four stages, the harness does the same fou
     g.addEventListener("click", function () { items[i].querySelector("a").click(); });
   });
   list.addEventListener("pointerleave", function () { hovered = false; rest(); });
-  // A stage's number in the loop's code answers a pointer as the ring
-  // does. The code comes after this script, so wait for the page.
+  // The loop's code comes after this script, so wait for the page.
+  var mini = null, miniNodes = [];
   document.addEventListener("DOMContentLoaded", function () {
+    // A stage's number in the code answers a pointer as the ring does.
     document.querySelectorAll(".listing .stage-badge").forEach(function (b) {
       var i = b.dataset.n - 1;
       b.addEventListener("pointerenter", function () { hovered = true; show(i); });
       b.addEventListener("pointerleave", function () { hovered = false; rest(); });
     });
+    var code = document.querySelector(".listing.has-stages .listing-body") ||
+      document.querySelector(".listing.has-stages");
+    if (!code) return;
+    // A small copy of the ring: its arcs and numbered nodes, without the
+    // labels or the marker. It links back up to the ring.
+    var svg = root.querySelector(".lvc-ring svg").cloneNode(true);
+    svg.querySelectorAll("defs, .lvc-label, .lvc-center, .lvc-sub, .lvc-marker").forEach(function (e) { e.remove(); });
+    svg.querySelectorAll(".lvc-arc").forEach(function (a) { a.removeAttribute("marker-end"); });
+    svg.setAttribute("viewBox", "46 46 308 308");
+    // Bigger nodes, so the numbers read at this size.
+    svg.querySelectorAll(".lvc-node circle").forEach(function (c) { c.setAttribute("r", "30"); });
+    svg.querySelectorAll(".lvc-node text").forEach(function (t) { t.setAttribute("y", +t.getAttribute("y") + 4); });
+    mini = document.createElement("a");
+    mini.className = "lvc-mini";
+    mini.href = "#the-loop-in-four-stages";
+    mini.setAttribute("aria-label", "The loop's four stages");
+    mini.appendChild(svg);
+    // A pin with no height holds it, so the code keeps its full width.
+    var pin = document.createElement("div");
+    pin.className = "lvc-mini-pin";
+    pin.appendChild(mini);
+    code.insertBefore(pin, code.firstChild);
+    miniNodes = svg.querySelectorAll(".lvc-node");
+    // Shown once the big ring has scrolled out of view.
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        mini.classList.toggle("is-shown", !entries[0].isIntersecting);
+      }).observe(root.querySelector(".lvc-ring"));
+    } else {
+      mini.classList.add("is-shown");
+    }
+    // As the code scrolls by, light the stage of the line level with the
+    // small ring's middle.
+    var staged = code.querySelectorAll(".line[data-stage]"), queued = false;
+    function follow() {
+      queued = false;
+      if (hovered) return;
+      var r = mini.getBoundingClientRect(), y = r.top + r.height / 2;
+      for (var k = 0; k < staged.length; k++) {
+        var b = staged[k].getBoundingClientRect();
+        if (b.top <= y && y < b.bottom) { miniLight(staged[k].dataset.stage - 1); return; }
+      }
+    }
+    window.addEventListener("scroll", function () {
+      if (!queued) { queued = true; requestAnimationFrame(follow); }
+    }, { passive: true });
   });
+  function miniLight(i) {
+    if (!mini) return;
+    for (var k = 0; k < miniNodes.length; k++) miniNodes[k].classList.toggle("is-on", k === i);
+  }
   root.addEventListener("focusout", rest);
   // One lap when the section first comes into view, then rest at stage 1.
   if (!still.matches && "IntersectionObserver" in window) {
