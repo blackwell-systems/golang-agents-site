@@ -13,7 +13,7 @@ art: ch02
 
 To a Go program, a model is a web service: you POST some JSON and decode the JSON that comes back.
 [`net/http`](/basics/http-client/) and [`encoding/json/v2`](/basics/json-v2/) cover all of it.
-The big providers do publish official Go SDKs, which bring typed options, built-in retries, and streaming helpers.
+The big providers do publish official Go SDKs (software development kits: libraries that wrap an API in ready-made Go types and functions; see the [glossary](/glossary/#sdk)), which bring typed options, built-in retries, and streaming helpers.
 The catch for an agent is that an SDK makes some choices on your behalf that an agent should make on purpose, such as the timeout for a call, whether a failure gets retried, and what happens to a reply that ended before it was done.
 Building the client yourself once puts each of those choices in front of you; a later project can switch to an SDK where one is useful.
 
@@ -37,7 +37,8 @@ The response carries the model's message plus metadata: the reason it stopped wr
 
 ## Wire types, kept apart
 
-The JSON the API speaks lives in unexported types inside the client package, not in the agent's own `Message`:
+The JSON the API speaks lives in wire types: Go structs that match the JSON sent over the network, field for field.
+They are unexported (their names start with a lowercase letter, so only the client package can use them) and separate from the agent's own `Message`:
 
 ```go include=ch02/openrouter/wire.go tag=wire-request
 ```
@@ -46,15 +47,21 @@ Separate types let each side evolve on its own schedule.
 The API has its own field names and extra fields an agent never reads, and the agent's types are shaped around the agent.
 With the translation in one file, the rest of the program never learns the API's conventions, and swapping in an API with another shape later means writing another translation file.
 
-Two details here come from `encoding/json/v2`, which Go 1.27 ships in the standard library.
-Each field carries a `json` tag, since v2 compares names case-sensitively.
-And `MaxTokens` is marked `omitzero` rather than `omitempty`.
+Each field carries a `json` tag, a short string after the field that names its JSON key ([struct tags](/glossary/#struct-tag)).
+`encoding/json/v2`, which Go 1.27 ships in the standard library, compares names case-sensitively, so every field needs one.
+
+<div class="hood">
+
+**Why `MaxTokens` is `omitzero`.**
+`MaxTokens` is marked `omitzero` rather than `omitempty`.
 Under v2, `omitempty` drops a field only when its encoded JSON is empty, like `""` or `[]`, and the number `0` doesn't count as empty.
 With `omitempty`, every request would include `"max_tokens": 0`, asking the model for a reply no longer than zero tokens.
 
+</div>
+
 ## The call
 
-The client's zero values are useful: leave the base URL empty and it uses OpenRouter, leave the `*http.Client` nil and it uses `http.DefaultClient`, leave the timeout at zero and it allows two minutes.
+The client's zero values are useful: leave the base URL empty and it uses OpenRouter; leave the `*http.Client` nil (you didn't supply one) and it uses `http.DefaultClient`, the ready-made client in `net/http`; leave the timeout at zero and it allows two minutes.
 `Generate` is the single method that makes the client a `Model` the [agent loop](/basics/agent-loop/) can use:
 
 ```go include=ch02/openrouter/client.go tag=generate
@@ -62,27 +69,40 @@ The client's zero values are useful: leave the base URL empty and it uses OpenRo
 
 Everything else is standard `net/http`.
 `NewRequestWithContext` binds the request to `ctx`, so a cancelled run abandons the call, including while the body is still arriving.
-The API key travels as a bearer token in `Authorization`.
+The API key travels in the `Authorization` header as `Bearer <key>`, called a bearer token because whoever holds it can make calls on your account.
 `defer resp.Body.Close()` gives the connection back no matter how the function returns.
 
 ## A deadline with a reason
 
 The default `http.Client` will wait forever, and a healthy model call can take over a minute, so the client needs some limit.
-`http.Client.Timeout` is the obvious place to put one, but it applies to every request through that client, and clients are usually shared by much of a program.
+`http.Client.Timeout` is the built-in setting for one, but it applies to every request through that client, and clients are usually shared by much of a program.
 It also gives no way to say which limit expired.
 
-The client instead derives a deadline from `ctx` for each call.
-That deadline belongs to one call only; it stacks with any deadline the caller already set (the earlier one fires); and it can carry a reason.
+The client instead sets a deadline on the [context](/glossary/#go-context) for each call.
+The takeaway: a slow model can't hang the program, because every call has a time limit, and the error that comes back says why the call stopped.
+
+<div class="hood">
+
+**How the deadline works.**
+The client derives the deadline from `ctx` for each call.
+That deadline belongs to one call only; it stacks with any deadline the caller already set (the sooner of the two fires); and it can carry a reason.
 [`context.WithTimeoutCause`](/basics/context/#say-why-it-stopped) attaches `ErrCallTimeout` to the cancellation, and `context.Cause` retrieves it.
 A caller can then [test the error](/basics/errors/) two ways: `errors.Is(err, context.DeadlineExceeded)` says a deadline fired, and `ErrCallTimeout` says it was this client's.
 `net/http` doesn't consistently preserve both, and which one survives depends on whether the connection is HTTP/1.1 or HTTP/2.
 So the client wraps in whatever is missing using `%w: %w`, which wraps two errors in one, and its tests verify the result over both protocol versions.
 
-The two-minute figure is measured.
-Across the recorded runs in the companion code, the longest single call lasted 76 seconds: `z-ai/glm-5.3-flash` producing 2,880 reasoning tokens.
-In the bug-fix runs, 90% of calls returned in under three seconds.
+**Where two minutes comes from.**
+The two-minute figure is measured, from the recorded runs in the companion code:
+
+| Measurement | Result |
+| --- | --- |
+| Longest single call | 76 seconds (`z-ai/glm-5.3-flash`, producing 2,880 reasoning tokens) |
+| Calls that returned in under three seconds, in the bug-fix runs | 90% |
+
 Two minutes covers the slow reasoning case and still catches a call that is stuck.
 The two official Go SDKs pick very different defaults: `openai-go` has no timeout unless you set one, and `anthropic-sdk-go` allows a non-streaming call ten minutes.
+
+</div>
 
 ```diagram
 name: call-life
@@ -132,6 +152,12 @@ From the `code` directory of a clone of the [companion repository](https://githu
 $ go run ./ch02
 ```
 
-If `OPENROUTER_API_KEY` is unset, the program plays back a three-turn chat recorded from the real API and prints the cost of each call; an HTTP transport serves the recorded responses from disk, and to the client they look exactly like the network.
+If `OPENROUTER_API_KEY` is unset, the program plays back a three-turn chat recorded from the real API and prints the cost of each call.
+The client sends its requests through an HTTP [transport](/glossary/#transport), the part of `net/http` that actually carries a request; here the program swaps in a transport that reads the saved responses from files instead of using the network, and to the client they look exactly like real replies.
+The start of that replay looks like this:
+
+```text include=ch02/testdata/transcript.txt lines=1..9 title="go run ./ch02, with no key"
+```
+
 If the key is set, you get a live chat with the default model.
 For a local server, set `OPENROUTER_BASE_URL` and `OPENROUTER_MODEL`, and give `OPENROUTER_API_KEY` any non-empty value, because an empty key means replay.
