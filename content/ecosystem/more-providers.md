@@ -8,6 +8,7 @@ chapters: 2, 11
 stage: 2
 date: 2026-10-18
 weight: 20
+art: more-providers
 ---
 
 The agent in the companion code speaks two formats: chat completions, through OpenRouter, and Anthropic's Messages API.
