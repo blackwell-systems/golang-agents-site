@@ -41,7 +41,7 @@ It asks 16 questions three ways, and this page builds the first, `rag`; the othe
 ```text include=rag/testdata/out.txt title="go run ./rag"
 ```
 
-With `OPENROUTER_API_KEY` set ([getting set up](/basics/getting-set-up/) shows how), ask your own question:
+With `OPENROUTER_API_KEY` set ([getting set up](/basics/getting-set-up/) shows how; this makes live calls), ask your own question:
 
 ```console
 $ go run ./rag -ask rag "How do I make redirects permanent?"
@@ -54,7 +54,8 @@ There are four pieces: split the documents into chunks, embed every chunk, searc
 A whole document is the wrong unit to search.
 A long page about deployment matches many questions a little, and sending all of it spends tokens on paragraphs that don't matter.
 A sentence is too small: it loses the context that says what it is about.
-Documentation is written in sections, so the sections are the chunks here:
+Documentation is written in sections, so the sections are the chunks here.
+`chunkDocs` walks every Markdown file, starts a new chunk at each heading, and cuts a long section at paragraph breaks:
 
 ```go include=rag/retrieve.go tag=chunk
 ```
@@ -86,7 +87,7 @@ The request is a model and a list of texts, and the reply holds one vector per t
 All 140 chunks go in one request, which cost $0.00028 with `voyageai/voyage-4-lite`.
 Embedding costs little next to the answers: the 16 questions' answers cost about 20 times as much as building the index.
 
-The request asks for 256 numbers per vector, through the `dimensions` field; this model makes 1,024 by default.
+The request asks for 256 numbers per vector, through the `dimensions` field; this model makes 1024 by default.
 Shorter vectors take a quarter of the storage, and a quarter of the arithmetic in every comparison.
 The questions must be embedded by the same model, with the same number of dimensions, as the chunks, or the vectors can't be compared.
 
@@ -94,7 +95,8 @@ The questions must be embedded by the same model, with the same number of dimens
 
 To compare two vectors, the program uses cosine similarity: it measures the angle between them and ignores their length.
 It is 1 for vectors that point the same way and near 0 for unrelated ones.
-The search computes it against every chunk and keeps the best:
+The search computes it against every chunk and keeps the best.
+A `Hit` is a `Chunk` plus a `Score` (embedding `Chunk` in the struct gives `Hit` all of its fields), and the sort compares `b.Score` with `a.Score` in that order so the highest scores come first:
 
 ```go include=rag/retrieve.go tag=index
 ```
@@ -164,7 +166,9 @@ Splitting by heading suits documentation; for text without headings, split by pa
 
 ## Try it
 
-1. Run `go run ./rag` and read `testdata/run.json` for one question: the embedding request, the four passages in the chat request, and the answer.
-2. With a key, ask a question whose answer spans two documents, such as which setting turns webhooks on and which metric counts failed deliveries, and see whether four chunks are enough.
-3. Change `topK` in `answer.go` to 2, record a run with `-record`, and compare the scores and the cost.
-4. Change `embedDims` in `retrieve.go` to 1,024, and compare the size of the recording and the answers.
+1. Run `go run ./rag` (no key needed) and read `rag/testdata/run.json`, from the `code` directory, for one question: the embedding request, the four passages in the chat request, and the answer.
+2. With a key (this makes live calls), ask a question whose answer spans two documents, such as which setting turns webhooks on and which metric counts failed deliveries, and see whether four chunks are enough.
+3. Change `topK` in `rag/answer.go` to 2, record a run with `-record my-run.json` (needs an API key and makes live calls), and compare the scores and the cost.
+4. Change `embedDims` in `rag/retrieve.go` to 1024 (digits only, no comma), record a run the same way (needs an API key and makes live calls), and compare the size of the recording and the answers.
+
+To undo the edits to the source, run `git restore rag` from the `code` directory.

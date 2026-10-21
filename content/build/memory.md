@@ -42,10 +42,14 @@ The run is eight sessions, each a new conversation:
 ```go include=memory/sessions.go tag=sessions
 ```
 
+Each entry in `sessions` has two fields: what the user says, and the phrases a right answer must contain.
+The second field is a list of groups, and an answer is graded right when, for every group, it contains at least one of that group's phrases, ignoring case.
+So session 2, which has two groups, needs both `.backup` and the database path `/srv/shortlink/links.db`, and session 1, which has one group, needs only `trusted_proxies`.
+
 ```text include=memory/testdata/out.txt title="go run ./memory"
 ```
 
-With a key, `-store` runs one session with a notes file, the way an assistant would between real conversations:
+With a key (this makes live calls), `-store` runs one session with a notes file, the way an assistant would between real conversations:
 
 ```console
 $ go run ./memory -store notes.json "We run shortlink behind Caddy at 10.0.0.2."
@@ -56,7 +60,7 @@ The second command starts a new conversation that never saw the first; in a test
 
 ## A note is a fact with a vector
 
-A note is one short fact, the session that saved it, and its embedding, so notes can be found by meaning the way [RAG](/build/rag/) finds chunks:
+A note is one short fact, the session that saved it, and its [embedding](/glossary/#embedding) (a list of numbers that places the text so that notes with similar meaning sit close together), so notes can be found by meaning the way [RAG](/build/rag/) finds chunks:
 
 ```go include=memory/memory.go tag=store
 ```
@@ -158,7 +162,7 @@ An assistant for many people keeps one store per person and never recalls one pe
 
 ## Try it
 
-1. Run `go run ./memory` and find, in `memory/testdata/run.json`, the `remember` call in session 5 that replaced note 1.
-2. With a key, run two sessions with `-store notes.json`, then open `notes.json` and read what was saved.
-3. Remove the last sentence of `memoryPrompt`, the one about never saving instructions, record a run with `-record`, and see whether the log line's instruction gets saved.
-4. Add sessions to `sessions.go` until the history row passes 10,000 tokens a session, and compare the cost of the `history` and `memory` rows again.
+1. Run `go run ./memory` (no key needed) and find, in `memory/testdata/run.json` (the saved run, in the `code` directory), the `remember` call in session 5 that replaced note 1.
+2. With a key (this makes live calls), run two sessions with `-store notes.json`, then open `notes.json` and read what was saved.
+3. Remove the last sentence of `memoryPrompt`, the one about never saving instructions, record a run with `-record my-run.json` (needs an API key and makes live calls; the recording is a new file, which you can delete afterward), and see whether the log line's instruction gets saved. `git restore memory` undoes the prompt edit.
+4. Add sessions to `sessions.go` until the history row passes 10,000 tokens a session, and compare the cost of the `history` and `memory` rows again. This needs an API key and makes live calls, since the saved run covers only the original eight sessions; `git restore memory/sessions.go` undoes the edit.

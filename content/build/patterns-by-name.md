@@ -87,7 +87,7 @@ How the error is worded decides how fast that works; an error that said "locked"
 ## Agents as tools, and orchestrator-workers
 
 OpenAI's guide, ["A practical guide to building agents"](https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf) (2025), describes a *manager* pattern, in which one agent calls other agents as tools.
-A [sub-agent](/build/sub-agents/) on this site is that: the crash-triage agent's `explain_package` tool runs a second copy of the loop with an empty history to answer one question about one package, and only the answer comes back.
+A [sub-agent](/build/sub-agents/) on this site is that: the [crash-triage agent](/glossary/#crash-triage-agent)'s (the companion code's agent that reads crash reports from the `remind` practice service and files issues in a tracker) `explain_package` tool runs a second copy of the loop with an empty history to answer one question about one package, and only the answer comes back.
 The lead model decides when to call it, one question at a time.
 
 Anthropic's *orchestrator-workers* goes further: the lead model reads the whole job, splits it into subtasks it decides on, hands them to workers, and combines what they return.

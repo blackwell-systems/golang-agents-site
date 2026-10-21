@@ -32,9 +32,16 @@ One Go type covers every kind of message, since they differ only by which fields
 ```go include=ch10/mcp/jsonrpc.go tag=message
 ```
 
+In the current revision of the protocol, each request is self-contained, and a client falls back to an older opening step when a server is older.
+The version details are below, and you can skip them on a first read.
+
+<div class="hood">
+
 In the revision dated 2026-07-28, the current one, each request is self-contained: a `_meta` field carries the protocol version along with the client's name and capabilities.
 A server therefore needs no memory of earlier requests, and any instance of it can serve any request.
 Before that revision a connection began with a handshake, and many published servers still work that way, so a client sends the newer discovery request first and drops back to the handshake when the server doesn't understand it.
+
+</div>
 
 A session goes: `server/discover` to learn the versions and capabilities, `tools/list` a page at a time, then `tools/call` with a name and arguments.
 
@@ -45,6 +52,12 @@ Asking for a tool the server never listed produces something else, a protocol er
 And a call that gets no answer in time is cancelled: the client sends `notifications/cancelled` naming the request, and the server stops the work.
 
 ## The client: one reader, many callers
+
+A client can have several calls waiting on one connection at once, so a single goroutine reads everything the server writes and hands each response to the call it answers.
+A goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines (the [Tour of Go](https://go.dev/tour/concurrency/1) introduces both; see also the glossary entries for [goroutine](/glossary/#goroutine) and [channel](/glossary/#channel)).
+The mechanics are below, and you can skip them on a first read.
+
+<div class="hood">
 
 Several goroutines may call through one connection at once.
 Each call registers a buffered channel under its request ID before it sends, and one goroutine reads everything the server writes and hands each response to its call:
@@ -57,6 +70,8 @@ If the server's output stops, each caller still waiting gets `ErrServerGone`, al
 
 Every call has a timeout, a minute by default, set with [`context.WithTimeoutCause`](/basics/context/#say-why-it-stopped) so the error says which limit fired.
 In the `TestCancel` test, a tool that waits on its context saw that context end 100 ms in, under a 100 ms timeout, and the connection kept working for the following call.
+
+</div>
 
 ```diagram
 name: ch10-wire
@@ -75,7 +90,13 @@ This isn't a sandbox: the server still runs as you.
 
 **Stop it in the protocol's order.** First close the server's standard input, its cue to exit; then wait for it; kill it only if it is still running after a grace period.
 `exec.CommandContext` would kill it at once and skip the first two steps, so the client uses `exec.Command` and `context.AfterFunc` to start the shutdown when the run's context ends.
-Production clients go further, starting the server in a process group of its own and sending SIGTERM before SIGKILL, since real servers are often started through a launcher whose child survives the launcher being killed.
+
+
+<div class="hood">
+
+Production clients go further, starting the server in a process group of its own (a set of processes that can be signalled together) and sending SIGTERM (a polite request to exit) before SIGKILL (which ends the process at once), since real servers are often started through a launcher whose child survives the launcher being killed.
+
+</div>
 
 ## What the extra process costs
 
@@ -88,7 +109,7 @@ Production clients go further, starting the server in a process group of its own
 | The tool's function, called directly | 0.16 µs |
 
 The process boundary made a call roughly 900 times slower than calling the function directly, and it still cost less than a ten-thousandth of one model call, which takes seconds.
-The `m1-done-after-delete` crash-triage task from [chapter 7's run](/run/ch07-crash-triage/) was also run on the default model three times through the tracker's MCP server and three times with the agent's own tracker tools; all six runs passed all 16 checks, and the model used the server's tools as readily as its own.
+The `m1-done-after-delete` task for the [crash-triage agent](/glossary/#crash-triage-agent) (the companion code's agent that reads crash reports from the `remind` practice service and files issues in a tracker), from the [`ch07` run](/run/ch07-crash-triage/), was also run on the default model three times through the tracker's MCP server and three times with the agent's own tracker tools; all six runs passed all 16 checks, and the model used the server's tools as readily as its own.
 The protocol cost the agent nothing it could measure.
 
 ## Server tools as agent tools
@@ -100,7 +121,7 @@ An adapter makes each server tool an ordinary `agent.Tool`, with three rules:
 - **[Treat what a server says as untrusted](/production/prompt-injection/).** Descriptions and results are capped and have invisible characters removed, annotations such as "read-only" are hints, ignored unless the server is marked trusted, and a server that dies becomes `ErrToolFatal`, which stops the run instead of failing call after call.
 
 The trust question deserves its own page: [one sentence in a tool description decided 79 of 80 first moves](/findings/tool-description-poisoning/), across four models.
-The defense that works is upstream of the model: a person reads a server's tools once, and the client pins a hash of each definition, so a changed description stops the run until someone looks.
+The defense that works is upstream of the model: a person reads a server's tools once, and the client pins a [hash](/glossary/#hash) of each definition (a short fixed-size fingerprint of its text), so a changed description stops the run until someone looks.
 
 ## When to use the official SDK
 
@@ -127,5 +148,5 @@ $ go run ./ch10
 $ go test ./ch10/mcp/ -run 'Cancel|Close|StartEnv' -v
 ```
 
-The first replays a triage run that files its issue through the tracker's MCP server, started as a process; the second runs the cancellation, shutdown, and environment tests.
+The first replays a triage run that files its issue through the tracker's MCP server, started as a process; the second runs the cancellation, shutdown, and environment tests (`-run` picks them by name, and `-v` prints each test's result).
 The SDK version of the server is a module of its own, in [`ch10/sdk`](code:ch10/sdk).

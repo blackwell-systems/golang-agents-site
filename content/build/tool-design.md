@@ -17,18 +17,18 @@ From those alone it decides whether to call the tool, what to pass, and what the
 It has no source to open and nobody to ask, and it will sometimes pick a tool for a job you never had in mind.
 Treat that model as the only user of a small API, and design for it the way you would for any API user who works from the docs.
 
-The companion code builds fourteen tools for a crash-triage agent.
+The companion code builds fourteen tools for its [crash-triage agent](/glossary/#crash-triage-agent), which reads crash reports from `remind` (a small practice service with planted bugs), fixes the bugs, and files issues in a small issue tracker.
 Below are the rules it follows, with code from [`ch07`](code:ch07) and the results its recorded runs produced.
 
 ## What the model reads when it chooses
 
 Your tool definitions don't reach the model through a side channel.
 The provider renders the messages and the definitions together into a single stream of text, in the format that model was trained on, called its [chat template](/glossary/#chat-template).
-In Qwen3's template, which the companion code renders in Go, each definition becomes a line of JSON inside the system message, and after the list comes a short passage in English explaining that a call is a JSON object written between `<tool_call>` tags.
+In the template for Qwen3 (an open-weight model family), which the companion code renders in Go, each definition becomes a line of JSON inside the system message, and after the list comes a short passage in English explaining that a call is a JSON object written between `<tool_call>` tags.
 
 So a tool call is text the model writes, and the provider parses that text back into the `tool_calls` field you receive.
 Picking a tool is the same act as writing any other reply: given the request, the system prompt, and every name and description in the list, the model samples a likely continuation, and sometimes that continuation is a call.
-Unless the provider restricts decoding to the declared tools, as some strict modes do, nothing in that process even guarantees the name is real.
+Unless the provider restricts decoding to the declared tools (some providers offer a strict mode that does this), nothing in that process even guarantees the name is real.
 That is why names and descriptions carry so much weight: they are all the model has to tell one tool from another.
 When no tool fits what the model wants to do, a name that looks closer can win on a one-line description, which is what the smoke test at the end of this page found.
 
@@ -75,15 +75,22 @@ Each tool declares its arguments as a Go struct, and a `desc` tag carries the te
 ```go include=ch07/triage/codetools.go tag=read-args
 ```
 
-A field whose `json` tag includes `omitzero` is optional for the model.
+A field whose `json` tag includes `omitzero` (a struct tag option meaning "leave this out when it is empty") is optional for the model.
+You write an argument struct and a function; `NewTool` builds the tool, schema included.
 `NewTool` wraps a function over such a struct and produces a tool:
 
 ```go include=ch07/agent/registry.go tag=new-tool
 ```
 
-The generic type parameter `A` has to reach the `reflect` package somehow, and `reflect.TypeFor[A]()` (Go 1.22) does that without needing a value, which lets the generator read each field and its tags.
-Generation happens a single time, at construction.
+Generation happens a single time, at construction, and a struct the generator can't describe fails at startup rather than during a run.
+
+<div class="hood">
+
+The generic [type parameter](/glossary/#type-parameter) `A` has to reach the `reflect` package somehow, and `reflect.TypeFor[A]()` (Go 1.22) does that without needing a value, which lets the generator read each field and its tags.
 If the struct uses something JSON Schema can't describe here, a map or an interface field for example, `NewTool` panics during startup: that is a bug in the program, and it should fail before any model call.
+
+</div>
+
 At run time, each call's arguments are validated against the schema first, and only then decoded into the struct that `run` receives; tool code works with typed values and never parses JSON.
 
 Properties come out in the order the fields are declared, and the object gets `additionalProperties: false`.
@@ -152,12 +159,21 @@ leave: Tool descriptions that assume trust. A description is prompt text; one se
 
 ## Try it
 
-From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set:
+From the `code` directory of a clone of the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), with no key set (all three commands run offline):
 
 ```console
 $ go run ./ch07/evals/toolselect
 $ go run ./ch07/evals/toolselect -distractors
 $ go run ./ch03 template
+```
+
+The first one starts like this:
+
+```text
+14 tools, 15 requests, 3 runs each
+
+anthropic/claude-haiku-5.5      33.5 of 45
+    "Did any crash happen on the snooze endpoint?": got crash_list, want crash_search (0.5)
 ```
 
 The first two replay the recorded smoke-test runs, print each model's score out of 45, and list every answer that lost points; with `-distractors`, the `issue_lookup` picks show up in the list.

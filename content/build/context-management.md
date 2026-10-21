@@ -18,20 +18,20 @@ Deciding what goes into each request is the first stage of the [agent loop](/bas
 
 ## The problem, measured
 
-One task in the crash catalog throws everything at the agent together: 99 reports from 23 different causes, the kind of pile a crash feed produces after a release goes badly.
+One task in the [crash catalog](/glossary/#crash-catalog) throws everything at the agent together: 99 reports from 23 different causes, the kind of pile a crash feed produces after a release goes badly.
 The default model ran it with no context policy at all.
 It needed 35 turns and sent 3.1 million input tokens across them, roughly 89,000 per request on average, for a total of $1.33.
 
 ```result
 figure: $0.23
 unit: down from $1.33, for the same work
-task: the crash catalog's batch task, 99 crash reports from 23 causes, triaged by one agent with chapter 8's prompt
+task: the crash catalog's batch task, 99 crash reports from 23 causes, triaged by one agent with the prompt from the `ch08` companion code
 models: anthropic/claude-haiku-5.5, the book's default model, through OpenRouter
 runs: one run with no context policy and one with cache markers; the provider's billed cost
 date: October 2026
 source: Chapter 8
 
-Two cache markers per request, and no other change, moved 95 percent of the input to the cache price. Part of the drop comes from the price tier described below, which both runs crossed; at the base price alone, the chapter puts the saving at about four and a half times.
+Two cache markers per request (hints that tell the provider to cache the start of the request, explained under prompt caching below), and no other change, moved 95 percent of the input to the cache price. Part of the drop comes from the price tier described below, which both runs crossed; at the base price alone, the chapter puts the saving at about four and a half times.
 ```
 
 Pricing explains part of that bill.
@@ -81,7 +81,7 @@ Consecutive requests share almost everything up front, and providers charge roug
 Some models cache on their own; the default model wants explicit markers.
 `CacheMarks` sets two of them, one after the system prompt and task and one at the end of the request.
 That single change took the batch from $1.33 to $0.23, and 95 percent of the input tokens were read from the cache.
-The cache only works if the beginning of the request stays identical, so anything that varies there breaks it: a clock reading in the system prompt, say, or tool definitions emitted in map iteration order.
+The cache only works if the beginning of the request stays identical, so anything that varies there breaks it: a clock reading in the system prompt, say, or tool definitions emitted in map iteration order (Go deliberately randomizes the order of a map, so the same tools can come out in a different order on each request).
 
 **Clearing old results.**
 In an old turn, the tool result is usually the bulk of the tokens, and if the model needs it again it can repeat the call.
@@ -112,7 +112,7 @@ On this batch it wrote as many as 11 notes in a run and read none of them, since
 
 ## The default chain
 
-The triage agent's default policy chains these together, starting with the one that loses least:
+The default policy of the [crash-triage agent](/glossary/#crash-triage-agent), which reads crash reports from the `remind` practice service and files issues in a tracker, chains these together, starting with the one that loses least:
 
 ```go include=ch08/task.go tag=policy
 ```
@@ -121,7 +121,7 @@ Once a request passes 60,000 tokens, estimated from its byte count, it clears ol
 The estimate assumes four bytes per token.
 On the recorded run it averaged 0.57 of the token count the provider reported, and never went above 0.70.
 Code and crash reports take fewer bytes per token than English prose, so four bytes per token undercounts them, and the estimate also leaves out the tool definitions, about 4,000 tokens on every request.
-That puts 60,000 estimated tokens near 100,000 real ones.
+Dividing 60,000 by 0.57 gives about 105,000, so 60,000 estimated tokens are near 100,000 real ones.
 If the limit exists to keep requests under the price tier, set it lower, or calibrate it from the token usage the last reply reported.
 
 ## What the runs showed
@@ -170,4 +170,10 @@ $ go run ./ch08 -task batch
 
 This replays the [recorded model replies](/production/testing-offline/) under the default policy (30 turns), while every tool runs against fresh copies of the `remind` service, and the outcome is graded against the catalog.
 Because it runs the service's tests many times, it takes several minutes.
+The output lists each turn's tool calls and ends with the model's final submission, then two lines like these:
+
+```text
+stopped: the model answered
+1728605 tokens in (1560770 from the cache), 55749 out, $0.0645
+```
 The policies are in [`ch08/agent/trim.go`](code:ch08/agent/trim.go) and [`ch08/agent/compact.go`](code:ch08/agent/compact.go).

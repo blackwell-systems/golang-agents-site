@@ -17,7 +17,7 @@ A [sub-agent](/glossary/#sub-agent) is another.
 The parent hands a narrow question to a tool, the tool runs a second copy of the loop with an empty conversation, and only the final answer comes back.
 Whatever the sub-agent read along the way is discarded with its conversation, so the parent's history grows by one answer.
 
-The rest of this page adds a sub-agent to the crash-triage agent and then tests it on the task it was designed for.
+The rest of this page adds a sub-agent to the [crash-triage agent](/glossary/#crash-triage-agent), the companion code's agent that reads crash reports from the `remind` practice service and files issues in a tracker, and then tests it on the task it was designed for.
 
 ## A sub-agent is a tool
 
@@ -137,8 +137,10 @@ $ go test ./ch09/triage/ -run TestExplainUnfinished -v
 $ go run ./ch09 -task g3-mixed-batch -groups -parallel 4
 ```
 
+The `-run` flag picks the test by name and `-v` prints its name and result.
+In the second command, `-groups` runs one agent per [fingerprint](/glossary/#fingerprint) group (reports with the same fingerprint, a short identifier derived from a crash report, are treated as one cause), and `-parallel 4` runs four of those agents at a time.
 The test confirms that a sub-agent that exhausts its turns reaches the parent as a tool error and that the parent keeps running.
 The second command, with no key set, [replays a recorded](/production/testing-offline/) fan-out run on a six-report task with five fingerprint groups.
-Each output line names the group whose agent produced it; after the agents finish come the merge of their workspaces, the filed issues, and a grade of 22 of 22 checks.
+Each output line names the group whose agent produced it; after the agents finish come the merge of their workspaces (each agent edits its own copy of the service, and the edits are combined at the end), the filed issues, and a grade of 22 of 22 checks.
 The service's tests run many times along the way, so it takes a couple of minutes.
 The sub-agent's prompt and tool list are in [`ch09/triage/subagent.go`](code:ch09/triage/subagent.go).

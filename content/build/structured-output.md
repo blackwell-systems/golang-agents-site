@@ -12,7 +12,7 @@ art: ch07
 ---
 
 A chatbot's last message is written for a human.
-The last step of many agents is written for a program: the crash-triage agent has to say which reports share a cause, where the bug lives, which test proves it, and which tracker issue it belongs to.
+The last step of many agents is written for a program: the [crash-triage agent](/glossary/#crash-triage-agent), the companion code's agent that reads crash reports from the `remind` practice service and files issues in a tracker, has to say which reports share a cause, where the bug lives, which test proves it, and which tracker issue it belongs to.
 Code that scrapes those facts out of prose works until the model words things differently, which it will.
 The answer needs a shape the program can decode.
 
@@ -22,8 +22,14 @@ This page covers both approaches, says which one the companion code uses by defa
 ## Two ways to get structure
 
 **A constrained reply.** [Structured outputs](/glossary/#structured-outputs) is a request option, `response_format`, that tells the API to make the reply conform to a JSON Schema.
-Support varies by model and by provider.
+Support varies by model and by provider, so check it before you rely on it.
+
+<div class="hood">
+
 On OpenRouter, leaving out `require_parameters` allows routing to a provider that doesn't honor `response_format`.
+
+</div>
+
 Many providers also won't apply it in a turn that offers tools.
 Reserve it for single calls that use no tools, for example [condensing the early turns](/build/context-management/) of a long conversation.
 
@@ -67,7 +73,7 @@ Whether the content is correct is a separate matter, and a model sounds just as 
 
 - Each report belongs to one group and only one.
 - A group marked duplicate points at an issue that is open, and a group marked fixed points at an issue that exists.
-- For a fixed group, the reproducer test is run twice. Against the untouched original plus the tests the agent wrote, it has to fail; against the agent's changed code it has to pass.
+- For a fixed group, the [reproducer](/glossary/#reproducer), a test the agent wrote that fails because of the bug, is run twice. Against the untouched original plus the tests the agent wrote, it has to fail; against the agent's changed code it has to pass.
 
 The reproducer check is the one that tests the substance of the claim.
 If the test already passes before the fix, it says nothing about the crash, no matter how convincing the fix is.
