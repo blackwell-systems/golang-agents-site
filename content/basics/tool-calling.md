@@ -35,19 +35,32 @@ Here is the first request of the run, cut to one of its four tools:
 ```json include=ch04/testdata/out/request.json title="The first request, with one of its four tools"
 ```
 
-A [tool definition](/glossary/#tool-definition) is a name, a description in plain language, and a [JSON Schema](/glossary/#json-schema) for the arguments.
+A [tool definition](/glossary/#tool-definition) is a name, a description in plain language, and a [JSON Schema](/glossary/#json-schema) for the arguments (a standard way to describe the shape of a JSON value: which fields it has, their types, and which are required).
 The API wraps each definition in an object with a `type`, always `"function"` here, which leaves room for other kinds of tools.
 The model reads the name and the description to decide when to call the tool, and the schema to decide what to send, so both are part of your prompt.
 
 The definitions go out with every request, and they are not free.
-In this run the first request was 583 tokens, although the task is one sentence: the four definitions came to about 270 tokens, and the provider added about 290 more of its own instructions for using tools, text you never see but pay for.
-How much a provider adds varies; across 40 recorded runs (ten on each of four models, October 2026), the same first request came to 126 tokens on `gpt-5.6-luna`, whose provider encodes tool definitions in a compact format of its own, and at 441 on `deepseek-v4.1-flash`.
+A [token](/glossary/#token) is the unit a model reads and bills in, and the first request here was 583 of them, although the task is one sentence.
+The definitions account for part, and the provider adds its own instructions for using tools, text you never see but pay for.
+How much it adds varies by provider, as these recorded first requests show (the 40 runs were ten on each of four models, October 2026):
+
+| Model | Tokens in the first request | Notes |
+| --- | --- | --- |
+| `anthropic/claude-haiku-5.5` (this run) | 583 | About 270 for the four definitions and about 290 added by the provider |
+| `openai/gpt-5.6-luna` | 126 | Its provider encodes tool definitions in a compact format of its own |
+| `deepseek/deepseek-v4.1-flash` | 441 | |
 
 ## What the model actually reads
 
 The JSON above is what your program sends, not what the model sees.
 A model reads one stream of text, so before generating, the provider turns the messages and the tool definitions into a single text using the model's [chat template](/glossary/#chat-template), a layout each model family was trained on.
 The provider's own instructions for using tools, the roughly 290 tokens counted above, are part of that text.
+The takeaway: the tool definitions and the model's calls end up as ordinary text in the model's prompt, which is why their wording matters.
+
+<div class="hood">
+
+#### Under the hood: the text the model reads
+
 The `chatml` package renders the start of the bug fix prompt the way Qwen3's open models lay it out, with one tool:
 
 ```text include=ch03/testdata/out/template.txt lines=3..22 title="One tool, a task, and a tool call, as the model reads them"
@@ -56,6 +69,9 @@ The `chatml` package renders the start of the bug fix prompt the way Qwen3's ope
 The definition turns into one JSON line in the system message, and after it come instructions, in English, on how to ask for a call.
 In this template the model's tool call is text it writes between `<tool_call>` tags, and the provider parses that text back into the `tool_calls` array you receive.
 Other model families use other markers and wording, and closed models don't publish theirs, but the mechanism is the same: the call is text the model writes, which the provider turns back into JSON.
+
+</div>
+
 So choosing to call a tool is the same act as writing any other reply: the model continues the text, and a call is the continuation it found most likely, given the descriptions, the task, and everything said so far.
 
 That explains several things a harness has to handle.
@@ -84,11 +100,20 @@ The client has to unwrap it, and it can't assume the JSON inside is valid: nothi
 **The ID comes from the provider.** Anthropic's IDs start with `toolu_`.
 The harness copies each ID into the message that answers the call.
 
-**`reasoning_details` go back unchanged.** This model thought for 24 tokens before replying, and the provider returned a signed record of that thinking, shortened above.
+**`reasoning_details` go back unchanged.** Copy this field from the reply into the assistant message you send back, and don't edit it.
+
+<div class="hood">
+
+#### Under the hood: reasoning_details
+
+This model thought for 24 tokens before replying, and the provider returned a signed record of that thinking (a copy the provider can check wasn't altered), shortened above.
 The harness never reads it, but it must send it back, exactly as it came, with the assistant message it belongs to; without it, the model starts its next turn without the reasoning behind its own call, and some providers reject the conversation.
 
+</div>
+
 `finish_reason` is `tool_calls`, OpenRouter's translation of Anthropic's own `tool_use` in `native_finish_reason`.
-Don't lean on it.
+Don't lean on it to decide whether the model asked for tools.
+Do check it for the failures it reports reliably, such as `length`, which means the reply was cut off ([common first errors](/basics/common-errors/) has the list).
 The translation was right in all 194 replies of the 40 runs, but other servers that accept the same requests don't all translate as carefully, and some report `stop` for a reply that holds tool calls.
 The loop in the companion code decides from the reply itself: a reply with tool calls is a request for tools, whatever its finish reason says.
 
@@ -106,10 +131,19 @@ If your loop adds the reply to the history first and then writes one result per 
 
 ## The wire types stay inside the client
 
-The client keeps the API's JSON in its own unexported types, separate from the agent's `Message`, which keeps everything specific to this API inside one file of the client:
+The client keeps the API's JSON in its own unexported types, separate from the agent's `Message`, which keeps everything specific to this API inside one file of the client.
+You can skim this section on a first read; the next one is about the rules that matter for your own loop.
+
+<div class="hood">
+
+#### Under the hood: the wire types
 
 ```go include=ch04/openrouter/wire.go tag=wire-message
 ```
+
+Two bits of syntax here may be new.
+The backtick text after each field, such as `json:"function"`, is a [struct tag](/glossary/#struct-tag) that tells the JSON package the field's name on the wire.
+And `Function struct { ... }` declares a struct type inline, with no name of its own, as the type of the field `Function`; it is the same as writing a separate named type and using it there, just shorter when only one place needs it.
 
 Three details carry most of the weight:
 
@@ -119,6 +153,8 @@ Three details carry most of the weight:
 
 Every field has an explicit `json` tag because `encoding/json/v2`, in the standard library from Go 1.27, matches field names exactly.
 An untagged `Path` field would never receive `"path"`, and the tool would get an empty value with no error.
+
+</div>
 
 The API has no field for a failed tool.
 The agent's `Message` has an `IsError` flag, and when the client converts a tool message, it turns that flag into a prefix, so the model reads `Error: old text appears 0 times in duration.go, want exactly once` and knows the call failed.
@@ -135,7 +171,7 @@ Each failed check goes back to the model as a tool message that says what was wr
 ```
 
 The model can fix its call on the next turn, and the run goes on.
-Some APIs can constrain the arguments to match the schema exactly (strict mode, a form of [structured outputs](/glossary/#structured-outputs)), at the price of a restricted schema; even then, a well-formed `path` may still point at a missing file, so the checks in the harness stay on regardless.
+Some APIs can constrain the arguments to match the schema exactly (strict mode, a form of [structured outputs](/glossary/#structured-outputs), where the provider only lets the model write JSON that matches your schema), at the price of a restricted schema; even then, a well-formed `path` may still point at a missing file, so the checks in the harness stay on regardless.
 
 ```diagram
 name: sendback
@@ -146,7 +182,7 @@ Every tool call gets an answer: each kind of failure becomes a tool message mark
 
 ## Run it
 
-From the `code` directory of a clone of the repository, with no API key set:
+From the `code` directory of a clone of the repository, with no API key set (if you exported one earlier, remove it from this shell first: `unset OPENROUTER_API_KEY`, or in PowerShell `Remove-Item Env:OPENROUTER_API_KEY`):
 
 ```console
 $ go run ./ch04

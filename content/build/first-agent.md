@@ -44,6 +44,19 @@ The whole run cost about five hundredths of a cent.
 
 The rest of this page builds that program, one file at a time.
 The files import only the standard library, so you can copy the `firstagent` directory into a module of your own and change it from there.
+To try that, from the `code` directory:
+
+```console
+$ mkdir ../myagent
+$ cp -r firstagent/. ../myagent/
+$ cd ../myagent
+$ go mod init example.com/myagent
+$ go run .
+```
+
+The `testdata` folder comes along, which is what lets it run with no key; `go run .` runs the package in the current directory.
+The package is `main` and imports nothing from the rest of the repository, so no import paths change.
+Use Go 1.27 or later, since the code relies on `encoding/json/v2`.
 
 ## The types
 
@@ -112,7 +125,7 @@ Models misspell tool names and send arguments in the wrong shape more often than
 ```go include=firstagent/tools.go tag=tools
 ```
 
-Both tools read through an `fs.FS`, and `main` builds that from an `os.Root`, which refuses any path that leads out of the directory, whether through `..` or a symbolic link.
+Both tools read through an `fs.FS` (the standard library's interface for a read-only tree of files), and `main` builds that from an `os.Root`, which refuses any path that leads out of the directory, whether through `..` or a symbolic link.
 That makes the confinement a property of the code: the model can ask for `../../.ssh/id_rsa`, and the read simply fails.
 The read is capped at 20,000 bytes, so one large file can't fill the conversation.
 
@@ -131,6 +144,11 @@ That last line matters more than it looks: without it, a model asked something t
 
 ```go include=firstagent/main.go tag=main
 ```
+
+`run` takes `getenv func(string) string` as a parameter, and `main` passes it `os.Getenv`; a test can pass a function that returns whatever it likes, so it never has to touch the real environment.
+`cmp.Or(a, b)` returns the first of its arguments that isn't empty, which is how an unset `OPENROUTER_MODEL` falls back to the default model.
+`errors.Join(err, other)` combines two errors into one, used here so a failure to save the recording doesn't hide the run's own error.
+If any of these are new, the [New to Go? box](/basics/getting-set-up/#new-to-go) covers related ground.
 
 `run` builds the client, picks how it reaches the network, opens the directory, and starts the conversation with the system prompt and the question.
 With no key, `setTransport` gives the client a transport that answers from the recording; with `-record`, one that saves the run.

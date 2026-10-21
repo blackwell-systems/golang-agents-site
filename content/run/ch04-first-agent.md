@@ -11,9 +11,15 @@ art: ch04
 ---
 
 This program is the first real agent in the companion code.
-Nothing scripts the model's moves in the recorded run: it looks around a small Go project, runs the tests, works out where the bug is, and repairs it on its own.
+Nothing scripts the model's moves in the recorded run (the replay hands back what a real model said, but no code decides what it does): it looks around a small Go project, runs the tests, works out where the bug is, and repairs it on its own.
 The bug is a typo in `duration.go`'s table of units, `'m'` mapped to `time.Second` instead of `time.Minute`, so a test expecting `Parse("1h30m")` to give 1h30m0s gets 1h0m30s.
 Without an API key, the program replays the model's replies from a run recorded in October 2026, but only the replies are saved: every tool, `go test` included, runs for real each time.
+
+## What differs from the ch01 example
+
+The [ch01 example](/run/ch01-scripted-loop/) also replays a real model's replies, but it does so from a list written in Go, and its `run_tests` is a stand-in that only checks the in-memory files for the fix.
+This program replays the raw HTTP responses from files on disk, through the same HTTP client a live run uses, so the code that sends requests and reads replies is exercised too.
+Its `run_tests` is real: it writes the files to a temporary directory and runs an actual `go test` there.
 
 ## What it shows
 
@@ -68,7 +74,13 @@ The detour costs one turn per mistake and stops nothing.
 
 The code under test may be code the model wrote, and it runs with your permissions.
 So the tool doesn't hand your environment to the tests.
-It builds one from scratch:
+It builds one from scratch, so the agent's `go test` can't reach the network or see your keys.
+You can skip the rest of this section on a first read.
+
+<div class="hood">
+
+#### Under the hood: the test environment
+
 
 ```go include=ch04/agent/gotest.go tag=test-env
 ```
@@ -76,6 +88,8 @@ It builds one from scratch:
 The test process never sees your `OPENROUTER_API_KEY`, or any other secret exported in your shell.
 The settings keep `go test` from downloading modules or toolchains, out of any workspace above the temporary directory, away from your own Go settings, and on the toolchain you have.
 One of the package's tests puts an API key in its own environment, then confirms that a test running inside the project finds no trace of it.
+
+</div>
 
 A scrubbed environment is not a [sandbox](/glossary/#sandbox): the tests still run as you, and can read your home directory or open network connections.
 Real limits on what tool code can touch come later in the companion code, in `ch14/safety`.
@@ -107,7 +121,7 @@ $ go run ./ch04
 
 The default model is `anthropic/claude-haiku-5.5`; set `OPENROUTER_MODEL` to try another tool-capable model.
 Expect to spend well under a cent. Expect different wording too, and possibly a different route to the fix.
-Unset the key to go back to the recorded replies.
+Unset the key to go back to the recorded replies: `unset OPENROUTER_API_KEY` (in PowerShell, `Remove-Item Env:OPENROUTER_API_KEY`).
 
 ## Run the tests
 
