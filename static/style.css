@@ -1197,6 +1197,54 @@ cite { font-style: italic; }
   background: var(--accent-wash);
 }
 
+/* The agent loop's four stages each have a color: 1 build the request,
+   2 call the model, 3 run the tools, 4 decide. The landing page's ring
+   uses them, and so does a listing marked with stages= (markdown.go):
+   each line of a stage gets the stage's color at its left edge, and the
+   first line of each run of a stage shows the stage's number, drawn in
+   the gutter so copying the code copies only the code. */
+:root { --stage-1: #7fb2e5; --stage-2: #e9ae55; --stage-3: #93c47d; --stage-4: #e8896f; }
+:root[data-theme="light"] { --stage-1: #2f6db0; --stage-2: #9a5b0c; --stage-3: #3b7a2c; --stage-4: #b4472d; }
+:root[data-theme="tokyo-night"] { --stage-1: #7aa2f7; --stage-2: #e0af68; --stage-3: #9ece6a; --stage-4: #f7768e; }
+:root[data-theme="gruvbox-dark"] { --stage-1: #83a598; --stage-2: #fabd2f; --stage-3: #b8bb26; --stage-4: #fe8019; }
+:root[data-theme="catppuccin-latte"] { --stage-1: #1e66f5; --stage-2: #df8e1d; --stage-3: #40a02b; --stage-4: #fe640b; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) { --stage-1: #2f6db0; --stage-2: #9a5b0c; --stage-3: #3b7a2c; --stage-4: #b4472d; }
+}
+.listing.has-stages pre { --gutter-x: 2.5rem; padding-left: var(--gutter-x); }
+.listing .line[data-stage] {
+  position: relative;
+  margin: 0 calc(-1 * var(--pad-x)) 0 calc(-1 * var(--gutter-x));
+  padding: 0 var(--pad-x) 0 calc(var(--gutter-x) - 3px);
+  border-left: 3px solid var(--st);
+}
+.listing .line[data-stage="1"] { --st: var(--stage-1); }
+.listing .line[data-stage="2"] { --st: var(--stage-2); }
+.listing .line[data-stage="3"] { --st: var(--stage-3); }
+.listing .line[data-stage="4"] { --st: var(--stage-4); }
+.listing .line[data-badge]::before {
+  content: attr(data-badge);
+  content: attr(data-badge) / "";
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1.5px solid var(--st);
+  border-radius: 50%;
+  background: var(--code-bg);
+  color: var(--st);
+  font: 600 0.68rem / 1 var(--label);
+  user-select: none;
+}
+.listing .line[data-stage].is-lit { background: color-mix(in srgb, var(--st) 14%, transparent); }
+@media (prefers-reduced-motion: no-preference) {
+  .listing .line[data-stage] { transition: background-color 220ms ease-out; }
+}
+
 /* Every name in a Go listing has a popover (base.html), so names get no
    underline. The name under the pointer and every other use of it on
    the page get a wash, as in an editor. */

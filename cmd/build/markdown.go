@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -210,6 +211,12 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 	if err != nil {
 		return ast.WalkStop, err
 	}
+	staged := attrs["stages"] != ""
+	if staged {
+		if code, err = markStages(code, attrs["stages"], strings.Count(body.String(), "\n")); err != nil {
+			return ast.WalkStop, fmt.Errorf("code block %q: %w", info, err)
+		}
+	}
 	r.listings++
 	code = r.linkRefs(code, refs)
 	hint := ""
@@ -219,7 +226,11 @@ func (r *codeBlocks) render(w util.BufWriter, src []byte, n ast.Node, entering b
 		// (base.html).
 		hint = `<span class="listing-hint" aria-hidden="true"></span>`
 	}
-	fmt.Fprintf(w, "<figure class=\"listing\" data-lang=\"%s\">", html.EscapeString(lang))
+	class := "listing"
+	if staged {
+		class += " has-stages"
+	}
+	fmt.Fprintf(w, "<figure class=\"%s\" data-lang=\"%s\">", class, html.EscapeString(lang))
 	// Every listing gets a title bar: its file or title, or else a
 	// label for what kind of text it holds.
 	switch {
@@ -257,7 +268,7 @@ func parseInfo(info string) (string, map[string]string, error) {
 			val, rest, _ = strings.Cut(after, " ")
 		}
 		switch key {
-		case "include", "tag", "lines", "title", "highlight":
+		case "include", "tag", "lines", "title", "highlight", "stages":
 			attrs[key] = val
 		default:
 			return "", nil, fmt.Errorf("code block %q: unknown attribute %q", info, key)
@@ -320,6 +331,50 @@ func barLabel(lang string) string {
 		return "Go"
 	}
 	return lang
+}
+
+// stageLine is where chroma starts a line of a listing.
+var stageLine = regexp.MustCompile(`<span class="line( hl)?">`)
+
+// markStages tags the lines of code, a highlighted listing, with the
+// stage of the agent loop each belongs to, from a stages= value such as
+// "7-8:1,10-12:4": data-stage on every line in a range, and data-badge
+// on the first line of each run of one stage, where the stylesheet draws
+// the stage's number. The number is drawn, not written, so copying the
+// listing copies only the code. n is the number of lines.
+func markStages(code, spec string, n int) (string, error) {
+	stage := make([]int, n+1) // by line, 1-based; 0 for none
+	for part := range strings.SplitSeq(spec, ",") {
+		lines, num, ok := strings.Cut(part, ":")
+		st, err := strconv.Atoi(num)
+		if !ok || err != nil || st < 1 || st > 4 {
+			return "", fmt.Errorf("stages %q: want lines and a stage from 1 to 4, such as 7-8:1,10-12:4", spec)
+		}
+		ranges, err := lineRanges(lines, n)
+		if err != nil {
+			return "", fmt.Errorf("stages %q: %w", spec, err)
+		}
+		for _, r := range ranges {
+			for l := r[0]; l <= r[1]; l++ {
+				if stage[l] != 0 {
+					return "", fmt.Errorf("stages %q: line %d is in two stages", spec, l)
+				}
+				stage[l] = st
+			}
+		}
+	}
+	line := 0
+	return stageLine.ReplaceAllStringFunc(code, func(m string) string {
+		line++
+		if line > n || stage[line] == 0 {
+			return m
+		}
+		attrs := fmt.Sprintf(` data-stage="%d"`, stage[line])
+		if stage[line-1] != stage[line] {
+			attrs += fmt.Sprintf(` data-badge="%d"`, stage[line])
+		}
+		return strings.TrimSuffix(m, ">") + attrs + ">"
+	}), nil
 }
 
 // lineRanges parses a highlight= value such as "3-5,9" into ranges of

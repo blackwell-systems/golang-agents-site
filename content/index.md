@@ -23,22 +23,22 @@ On every turn, one pass through these four stages, the harness does the same fou
 .loopv-c .lvc-ring { position: relative; justify-self: center; width: 100%; }
 .loopv-c .lvc-ring svg { display: block; width: 100%; height: auto; overflow: visible; }
 .loopv-c .lvc-track { fill: none; stroke: var(--line); stroke-width: 1.5; }
-.loopv-c .lvc-arc { fill: none; stroke: var(--amber); stroke-width: 2; }
+.loopv-c .lvc-arc { fill: none; stroke: var(--st, var(--amber)); stroke-width: 2; }
 .loopv-c .lvc-head { fill: var(--amber); }
 /* Strokes stay thin however large the ring is drawn. */
 .loopv-c .lvc-track, .loopv-c .lvc-arc, .loopv-c .lvc-node circle, .loopv-c .lvc-halo { vector-effect: non-scaling-stroke; }
-.loopv-c .lvc-node circle { fill: var(--page); stroke: var(--amber); stroke-width: 2; }
-.loopv-c .lvc-node text { fill: var(--amber); font-family: var(--label); font-weight: 600; font-size: 16px; text-anchor: middle; }
+.loopv-c .lvc-node circle { fill: var(--page); stroke: var(--st); stroke-width: 2; }
+.loopv-c .lvc-node text { fill: var(--st); font-family: var(--label); font-weight: 600; font-size: 16px; text-anchor: middle; }
 .loopv-c .lvc-label { fill: var(--soft); font-family: var(--label); font-weight: 600; font-size: 15px; text-anchor: middle; }
 .loopv-c .lvc-label.lvc-start { text-anchor: start; }
 .loopv-c .lvc-label.lvc-end { text-anchor: end; }
 .loopv-c .lvc-center { fill: var(--ivory); font-family: var(--display); font-size: 24px; text-anchor: middle; }
 .loopv-c .lvc-sub { fill: var(--soft); font-family: var(--label); font-size: 13px; text-anchor: middle; letter-spacing: 0.06em; }
 .loopv-c .lvc-node { cursor: pointer; }
-.loopv-c .lvc-node.is-on circle { fill: var(--amber); }
-.loopv-c .lvc-node.is-on text { fill: var(--amber-ink); }
-.loopv-c .lvc-label.is-on { fill: var(--ivory); }
-.loopv-c .lvc-halo { fill: none; stroke: var(--amber); stroke-width: 2; }
+.loopv-c .lvc-node.is-on circle { fill: var(--st); }
+.loopv-c .lvc-node.is-on text { fill: var(--page); }
+.loopv-c .lvc-label.is-on { fill: var(--st); }
+.loopv-c .lvc-halo { fill: none; stroke: var(--lvc-st, var(--stage-1)); stroke-width: 2; transition: stroke 220ms ease-out; }
 .loopv-c .lvc-box { fill: none; stroke: none; }
 .loopv-c .lvc-marker {
   transform-box: fill-box;
@@ -81,10 +81,10 @@ On every turn, one pass through these four stages, the harness does the same fou
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
-  border: 2px solid var(--amber);
+  border: 2px solid var(--st);
   border-radius: 50%;
   background: var(--page);
-  color: var(--amber);
+  color: var(--st);
   font-family: var(--label);
   font-weight: 600;
   font-size: 0.95rem;
@@ -103,12 +103,12 @@ On every turn, one pass through these four stages, the harness does the same fou
   text-decoration: none;
 }
 .loopv-c .lvc-name::after { content: ""; position: absolute; inset: 0; border-radius: 6px; }
-.loopv-c .lvc-go { color: var(--amber); font-weight: 500; }
+.loopv-c .lvc-go { color: var(--st); font-weight: 500; }
 .loopv-c .lvc-desc { grid-column: 2; margin: 0; color: var(--stone); font-size: 0.97rem; }
 .loopv-c .lvc-list > li:hover,
 .loopv-c .lvc-list > li.is-on { background: var(--panel); border-color: var(--line); }
 .loopv-c .lvc-list > li:hover .lvc-num,
-.loopv-c .lvc-list > li.is-on .lvc-num { background: var(--amber); color: var(--amber-ink); }
+.loopv-c .lvc-list > li.is-on .lvc-num { background: var(--st); color: var(--page); }
 .loopv-c .lvc-list > li:hover .lvc-t { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 .loopv-c .lvc-list > li:hover .lvc-go,
 .loopv-c .lvc-list > li.is-on .lvc-go { transform: translateX(3px); }
@@ -129,7 +129,7 @@ On every turn, one pass through these four stages, the harness does the same fou
   line-height: 1.45;
 }
 .loopv-c .lvc-back { display: block; width: 2.25rem; height: 2.25rem; }
-.loopv-c .lvc-back path { fill: none; stroke: var(--amber); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.loopv-c .lvc-back path { fill: none; stroke: var(--stage-1); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 @media (prefers-reduced-motion: no-preference) {
   .loopv-c .lvc-node circle, .loopv-c .lvc-node text, .loopv-c .lvc-label { transition: fill 220ms ease-out; }
   .loopv-c .lvc-list > li, .loopv-c .lvc-num { transition: background-color 220ms ease-out, border-color 220ms ease-out, color 220ms ease-out; }
@@ -175,30 +175,30 @@ On every turn, one pass through these four stages, the harness does the same fou
 <figure class="loopv-c">
   <div class="lvc-ring">
     <svg viewBox="-10 20 480 365" aria-hidden="true" focusable="false">
-      <defs><marker id="lvc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="lvc-head"/></marker></defs>
+      <defs><marker id="lvc-arrow-1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-1)"/></marker><marker id="lvc-arrow-2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-2)"/></marker><marker id="lvc-arrow-3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-3)"/></marker><marker id="lvc-arrow-4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-4)"/></marker></defs>
       <circle cx="200" cy="200" r="120" class="lvc-track"/>
-      <path d="M232 84 A120 120 0 0 1 316 168" class="lvc-arc" marker-end="url(#lvc-arrow)"/>
-      <path d="M316 232 A120 120 0 0 1 232 316" class="lvc-arc" marker-end="url(#lvc-arrow)"/>
-      <path d="M168 316 A120 120 0 0 1 84 232" class="lvc-arc" marker-end="url(#lvc-arrow)"/>
-      <path d="M84 168 A120 120 0 0 1 168 84" class="lvc-arc" marker-end="url(#lvc-arrow)"/>
+      <path d="M232 84 A120 120 0 0 1 316 168" class="lvc-arc" style="--st: var(--stage-1)" marker-end="url(#lvc-arrow-1)"/>
+      <path d="M316 232 A120 120 0 0 1 232 316" class="lvc-arc" style="--st: var(--stage-2)" marker-end="url(#lvc-arrow-2)"/>
+      <path d="M168 316 A120 120 0 0 1 84 232" class="lvc-arc" style="--st: var(--stage-3)" marker-end="url(#lvc-arrow-3)"/>
+      <path d="M84 168 A120 120 0 0 1 168 84" class="lvc-arc" style="--st: var(--stage-4)" marker-end="url(#lvc-arrow-4)"/>
       <g class="lvc-marker"><circle cx="200" cy="200" r="145" class="lvc-box"/><circle cx="200" cy="80" r="26" class="lvc-halo"/></g>
-      <g class="lvc-node"><circle cx="200" cy="80" r="17"/><text x="200" y="86">1</text></g>
-      <g class="lvc-node"><circle cx="320" cy="200" r="17"/><text x="320" y="206">2</text></g>
-      <g class="lvc-node"><circle cx="200" cy="320" r="17"/><text x="200" y="326">3</text></g>
-      <g class="lvc-node"><circle cx="80" cy="200" r="17"/><text x="80" y="206">4</text></g>
-      <text x="200" y="44" class="lvc-label" data-i="0">Build the request</text>
-      <text x="200" y="368" class="lvc-label" data-i="2">Run the tools</text>
-      <text x="352" y="206" class="lvc-label lvc-start" data-i="1">Call the model</text>
-      <text x="48" y="206" class="lvc-label lvc-end" data-i="3">Decide</text>
+      <g class="lvc-node" style="--st: var(--stage-1)"><circle cx="200" cy="80" r="17"/><text x="200" y="86">1</text></g>
+      <g class="lvc-node" style="--st: var(--stage-2)"><circle cx="320" cy="200" r="17"/><text x="320" y="206">2</text></g>
+      <g class="lvc-node" style="--st: var(--stage-3)"><circle cx="200" cy="320" r="17"/><text x="200" y="326">3</text></g>
+      <g class="lvc-node" style="--st: var(--stage-4)"><circle cx="80" cy="200" r="17"/><text x="80" y="206">4</text></g>
+      <text x="200" y="44" class="lvc-label" data-i="0" style="--st: var(--stage-1)">Build the request</text>
+      <text x="200" y="368" class="lvc-label" data-i="2" style="--st: var(--stage-3)">Run the tools</text>
+      <text x="352" y="206" class="lvc-label lvc-start" data-i="1" style="--st: var(--stage-2)">Call the model</text>
+      <text x="48" y="206" class="lvc-label lvc-end" data-i="3" style="--st: var(--stage-4)">Decide</text>
       <text x="200" y="196" class="lvc-center">one turn</text>
       <text x="200" y="220" class="lvc-sub">until an answer or a limit</text>
     </svg>
   </div>
   <ol class="lvc-list">
-    <li><span class="lvc-num" aria-hidden="true">1</span><a class="lvc-name" href="/build/context-management/"><span class="lvc-t">Build the request</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Decide what the model sees: instructions, the conversation so far, tool results, and the tools it may call.</p></li>
-    <li><span class="lvc-num" aria-hidden="true">2</span><a class="lvc-name" href="/basics/calling-a-model/"><span class="lvc-t">Call the model</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Send the request and read the reply, with a deadline and a count of what it cost.</p></li>
-    <li><span class="lvc-num" aria-hidden="true">3</span><a class="lvc-name" href="/basics/tool-calling/"><span class="lvc-t">Run the tools</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Carry out the calls the model asked for, and add each result to the conversation.</p></li>
-    <li><span class="lvc-num" aria-hidden="true">4</span><a class="lvc-name" href="/production/stop-reasons/"><span class="lvc-t">Decide</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Stop with an answer, stop at a limit, or go around again.</p></li>
+    <li style="--st: var(--stage-1)"><span class="lvc-num" aria-hidden="true">1</span><a class="lvc-name" href="/build/context-management/"><span class="lvc-t">Build the request</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Decide what the model sees: instructions, the conversation so far, tool results, and the tools it may call.</p></li>
+    <li style="--st: var(--stage-2)"><span class="lvc-num" aria-hidden="true">2</span><a class="lvc-name" href="/basics/calling-a-model/"><span class="lvc-t">Call the model</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Send the request and read the reply, with a deadline and a count of what it cost.</p></li>
+    <li style="--st: var(--stage-3)"><span class="lvc-num" aria-hidden="true">3</span><a class="lvc-name" href="/basics/tool-calling/"><span class="lvc-t">Run the tools</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Carry out the calls the model asked for, and add each result to the conversation.</p></li>
+    <li style="--st: var(--stage-4)"><span class="lvc-num" aria-hidden="true">4</span><a class="lvc-name" href="/production/stop-reasons/"><span class="lvc-t">Decide</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Stop with an answer, stop at a limit, or go around again.</p></li>
   </ol>
   <figcaption><svg class="lvc-back" viewBox="0 0 36 36" aria-hidden="true" focusable="false"><path d="M25.5 11.5A10 10 0 1 0 28 18"/><path d="M27.5 6.5l-1.5 5.5-5.5-1"/></svg><span>Then back to stage 1, with everything that just happened in the conversation.</span></figcaption>
 </figure>
@@ -224,11 +224,18 @@ On every turn, one pass through these four stages, the harness does the same fou
     marker.style.transform = "rotate(" + angle + "deg)";
   }
   function light(i) {
+    // The loop's code, below, marks each line with its stage (stages=);
+    // it comes after this script, so it's looked up here.
+    var lines = document.querySelectorAll(".listing .line[data-stage]");
     for (var k = 0; k < 4; k++) {
       nodes[k].classList.toggle("is-on", k === i);
       labels[k].classList.toggle("is-on", k === i);
       items[k].classList.toggle("is-on", k === i);
     }
+    if (i >= 0) root.style.setProperty("--lvc-st", "var(--stage-" + (i + 1) + ")");
+    Array.prototype.forEach.call(lines, function (l) {
+      l.classList.toggle("is-lit", l.dataset.stage === String(i + 1));
+    });
   }
   function show(i) { stopTour(); clearTimeout(leaveTimer); light(i); move(i); }
   function rest() {
@@ -280,9 +287,9 @@ The loop talks to the model through one small interface:
 
 Anything with a `Generate` method is a `Model`: a scripted list of replies for tests, or a client for a real model's API.
 The loop calls `m.Generate` once per turn and never needs to know which one it has.
-Here is the loop as the [companion code](https://github.com/blackwell-systems/go-agents-book-code) writes it:
+Here is the loop as the [companion code](https://github.com/blackwell-systems/go-agents-book-code) writes it, each line marked with its stage's number and color from the ring above:
 
-```go include=ch01/agent/loop.go tag=run
+```go include=ch01/agent/loop.go tag=run stages=7-8:1,10-12:4,13:1,14-19:2,20-22:4,23-25:3,27:4
 ```
 
 Its first line calls `index`, which splits the tools in two: `defs`, the definitions that go to the model in every request, and `byName`, which the loop uses to find the Go code for the tool a call names:
