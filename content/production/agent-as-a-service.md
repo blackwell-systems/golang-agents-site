@@ -46,14 +46,22 @@ So the command cancels:
 ```go include=ch15/durable.go tag=shutdown
 ```
 
+The `go func()` block runs in the background as a [goroutine](/basics/goroutines/), and `select` waits for whichever of its channels receives first: a signal, or the `done` channel that `stop` closes.
+The prose below says what it does, so you can read on without tracing it.
+
 The first signal cancels the run with `ErrShutdown` as its cause.
 The model call in flight is abandoned and will be made again after the restart; tool calls that hadn't started get a "cancelled" answer that is kept out of the saved state; and the loop saves.
 A second signal ends the process at once, for whoever can't wait for the save.
 
 Calls that are already talking to the outside world get a short reprieve.
 A call that files an issue in the tracker is settled once its answer arrives, while one cut off halfway leaves an outcome nobody knows, so a tool wrapper gives calls with side effects five more seconds after a shutdown before cancelling them.
-It does that with `context.WithoutCancel`, which keeps the call's values, its idempotency key among them, and forwards the cancellation on its own schedule.
+
+<div class="hood">
+
+The wrapper does that with `context.WithoutCancel`, which keeps the call's values, its idempotency key among them, and forwards the cancellation on its own schedule.
 Five seconds sits well inside both platforms' limits, and since the wrapper is applied inside the timeout wrapper, each tool's own time limit keeps working.
+
+</div>
 
 ## A container image that keeps the key out of reach
 
@@ -65,7 +73,14 @@ A key passed with `-e` is worse in two ways.
 Anyone allowed to run Docker commands can read it with `docker inspect`.
 And although the command removes the variable from its own environment at startup, the kernel still holds the environment the first process started with, and any process of the same user can read it from `/proc/1/environ`.
 This was tried with a made-up key, and another process in the container read the key back.
-Test code runs as that same user inside the image, which also means the tests are at rung 2 of the [sandbox ladder](/production/prompt-injection/) at best: Docker's default settings don't allow the namespaces that bubblewrap, a Linux sandboxing tool, needs, so stronger isolation for the tests means a separate sandbox beside the agent's container.
+Test code runs as that same user inside the image, which also means the tests are at rung 2 of the [sandbox ladder](/production/prompt-injection/) at best.
+Stronger isolation for the tests means a separate sandbox beside the agent's container.
+
+<div class="hood">
+
+The reason is that Docker's default settings don't allow the namespaces (the Linux feature that gives a process its own private view of files, processes, or the network) that bubblewrap, a Linux sandboxing tool, needs.
+
+</div>
 
 ## From a command to a service
 
@@ -100,7 +115,7 @@ The crash-triage service: fixed workflow in the solid boxes, and the agent, wher
 
 ## The queue is a directory
 
-The service has no message broker.
+The service has no message broker (a separate program, such as RabbitMQ or Kafka, that holds a queue of work between the parts of a system).
 Every file under its state directory is written the way a [checkpoint](/production/durable-runs/) is written, so a crash leaves each file whole, and the writes go in a fixed order: the report, then the run that names it, then the 202 to the shipper.
 On startup the service looks for reports no run names and puts runs that were in progress back in the queue, where their checkpoints take them from where they were.
 Two runs go at once by default, up to twenty wait, and a report that would start a run when the queue is full gets 503 with `Retry-After`.
@@ -110,7 +125,7 @@ The clone copies objects instead of hard-linking them and runs no hooks, so test
 
 A broker would add a second record of where each run stands, and every crash would have to keep the two in agreement.
 On one machine, the checkpoints, their locks, and a directory listing already do the job.
-Once the service needs several machines, file locks stop being enough, and a broker or a database with leases becomes the right tool.
+Once the service needs several machines, file locks stop being enough, and a broker or a database with leases (a claim on a piece of work that expires, so a crashed worker's claim frees itself) becomes the right tool.
 
 ## Spending that survives a restart
 
@@ -194,4 +209,5 @@ $ go test ./ch15/agent/ -run Grace -v
 
 The first runs the service's tests for secrets, redaction on disk, repeated report IDs, restarts, and the ledger, all against `httptest` with a scripted stand-in for the agent, so nothing calls a model.
 The second checks the five-second grace period on `testing/synctest`'s fake clock.
+Passing looks like a `--- PASS` line per test and a final `ok` line for each package (`ok  github.com/blackwell-systems/go-agents-book/code/ch17/service`, and the same for `ch15/agent`); `TestRestart` and `TestLedgerCrash` are the two worth reading, since they stop the service and start it again on the same files.
 [Durable runs](/production/durable-runs/) shows a run killed and resumed from the command line.

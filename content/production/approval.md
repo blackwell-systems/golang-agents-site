@@ -21,7 +21,8 @@ The code is in [`ch14/safety`](code:ch14/safety) and [`ch14/agent`](code:ch14/ag
 ## Put the gate in the harness
 
 In the companion code, [approval](/glossary/#approval) is a wrapper around a tool, the same kind of middleware used for retries and timeouts.
-It sits outside those wrappers, so time spent waiting for a person never counts against a tool's time limit and is never retried; only the [egress check](/production/prompt-injection/), which inspects text the agent is about to send out of the machine, wraps it in turn.
+It sits outside those wrappers, so time spent waiting for a person never counts against a tool's time limit and is never retried.
+The one wrapper further out is the [egress check](/production/prompt-injection/), which inspects text the agent is about to send out of the machine before the call reaches the approval gate.
 
 The alternative, a tool such as `ask_permission` that the model calls before acting, puts the choice to ask in the model's hands.
 A model can skip the call by mistake, and an injected instruction, a [prompt injection](/production/prompt-injection/), can tell it to skip the call on purpose.
@@ -52,7 +53,7 @@ Paths get a stricter treatment that also escapes anything outside printable ASCI
 
 ## Tie each yes to what was shown
 
-A decision counts only if it names the request's hash, a SHA-256 over the agent's name, the call ID, the tool, its arguments with their object keys in sorted order, the reason, the evidence, and the current bytes of every target file.
+A decision counts only if it names the request's hash, a [hash](/glossary/#hash) (a short code computed from data that changes if any byte of it changes; SHA-256 is the standard one used here) over the agent's name, the call ID, the tool, its arguments with their object keys in sorted order, the reason, the evidence, and the current bytes of every target file.
 
 Two parts of that list do most of the work.
 Without the call ID, approving one `issue_file` call would also approve an identical second call later in the run, and an approver that stores decisions by hash would let the model file that issue again and again.
@@ -93,7 +94,7 @@ So an approver with nothing to report returns `ErrNoDecision`, and the run stops
 The calls that came before the waiting one in the same reply have already run.
 The waiting call and everything after it go into `Result.Pending` with no answers yet, since the later calls may depend on it.
 
-Resuming takes two things: the conversation from that `Result`, and `Limits` with `Before` set to the `Result` itself and `Approver` set to something that returns the decisions.
+Resuming takes two things: the conversation from that `Result`, and a `Limits` value that carries the paused `Result` (in its `Before` field) and an `Approver`, which is whatever returns the decisions.
 The loop runs the pending calls through the gate first, before it makes any model call, and the turns and money already spent count toward the resumed run's limits, so pausing can't be used to reset a budget.
 A caller that slips an extra user message in after the waiting calls gets `ErrBadResume`, because the API expects the tool results to come first.
 
@@ -106,7 +107,9 @@ One reply's calls, where the third needs a person's decision.
 
 ## Make the pause survive a restart
 
-A [checkpoint](/production/durable-runs/) saves the run so a restart loses nothing, and three details connect it to approval.
+A [checkpoint](/production/durable-runs/) saves the run to disk so a restart loses nothing and the run can pick up where it paused.
+Checkpoints and the attempt markers below are covered in [Durable runs](/production/durable-runs/); here it is enough to know the run is saved and can resume.
+Three details connect it to approval.
 The marker that says "this call went out" is written after the yes, not before the question, so a process that dies while a person is deciding leaves nothing to investigate.
 The gate's denials, which the gate keeps only in memory, are rebuilt from the audit log when the command runs with `-audit`; without it, a refusal doesn't outlive the process.
 And when a crash leaves a call whose outcome nobody knows, the person is asked through the same approver, with a different question: did this take effect?
@@ -118,10 +121,16 @@ Every outcome at the gate goes into an append-only [audit log](/glossary/#audit-
 Each entry reaches the disk before the call proceeds.
 
 A plain file can be edited by anyone with write access, and a plain hash chain can be recomputed by the same person.
-So each line carries an [HMAC](/glossary/#hmac) over itself and the previous line, keyed with a secret stored where neither the agent, its tools, nor test code can read it.
+So each line is signed with a key that only the harness holds, and the signatures are chained, so editing, deleting, or reordering a line shows up when the log is checked.
+
+<div class="hood">
+
+Each line carries an [HMAC](/glossary/#hmac) over itself and the previous line, keyed with a secret stored where neither the agent, its tools, nor test code can read it.
 The tests flip a denial to an approval, delete a line, and rebuild the whole chain under another key, and verification catches all three.
 Two limits remain: lines cut from the end of the log leave the chain intact, and an HMAC can't prove that a person, rather than a script, made the decision.
 For a record other teams must rely on, have the harness sign each line with a key that nothing else holds, and send the log to a store that accepts additions but no rewrites.
+
+</div>
 
 ## What it costs in decisions
 
@@ -165,3 +174,5 @@ $ go test ./ch14/safety/ -run 'Gate|Audit|PauseResume|DenialByTarget' -v
 
 The tests cover the hash, decisions that went stale, denials remembered by target, pausing and resuming a run, and tampering with the audit log.
 No key is needed, and nothing calls a model.
+Passing looks like a `--- PASS` line for each test and a final `ok  github.com/blackwell-systems/go-agents-book/code/ch14/safety`.
+`TestGateHash` (the hash changes when anything the person saw changes) and `TestDenialByTarget` are the two worth reading first.

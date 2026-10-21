@@ -60,11 +60,18 @@ Hand `http.Client` a round tripper that reads its responses from files, and the 
 
 Recorded calls belong to scripts, and each script is a numbered series of files such as `fix-01.json` and `fix-02.json`.
 A single client can serve calls from several scripts, which rules out storing the script name on the transport.
-The program puts the name in the request's context instead, under a key of an unexported type so that no other package can use the same key.
+The program passes the name along with the request, so the transport can read it when the request arrives.
+
+<div class="hood">
+
+The program puts the name in the request's [context](/basics/context/) instead, under a key of an unexported type so that no other package can use the same key.
 This is exactly the case context values exist for: a value scoped to one request that has to pass from the program, through the client and `http.Client`, down to the transport.
 
 The transport keeps the `RoundTripper` rules.
 It closes the request body, leaves the request unmodified, and returns an error for a request whose context is already cancelled, just as a real network round trip would.
+
+</div>
+
 When a test makes more calls than a script holds, the transport returns an error that names both the call and the script.
 An unexpected extra call then fails the test immediately; it can't hang and it can't go out to the network.
 
@@ -107,10 +114,17 @@ A run that deletes or skips a test fails its task, and separate hidden tests, wh
 The client gives each call two minutes.
 Nobody runs a test that sits idle for two minutes.
 `testing/synctest`, added in Go 1.25, solves this by running the test inside a bubble that has its own fake clock.
+Inside the bubble the two-minute deadline arrives immediately, and the whole test takes a few milliseconds.
+
+<div class="hood">
+
+A [goroutine](/basics/goroutines/) is durably blocked when only another goroutine in the bubble could wake it, for example by waiting on a channel or on the request's context.
 Once all of the bubble's goroutines are durably blocked, the fake clock moves forward.
 The test's transport never responds; it just waits on the request's context.
 Inside the bubble, the two-minute deadline arrives immediately.
-The test then checks the returned error and confirms that the fake clock moved forward by exactly two minutes, and the whole test takes a few milliseconds.
+The test then checks the returned error and confirms that the fake clock moved forward by exactly two minutes.
+
+</div>
 
 The same approach works for [streams that stop sending](/build/streaming/) and for [retries with backoff](/production/retries-and-observability/).
 Streams get one extra test that is worth borrowing.

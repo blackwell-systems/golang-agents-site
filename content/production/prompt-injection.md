@@ -61,10 +61,16 @@ They do little against hostile code, because the test still runs with your user'
 An attacker-style probe test on a Mac confirms the difference.
 At rung 2 the probe read a file nobody had given it, wrote a file outside the workspace, and had nothing preventing it from connecting to the internet.
 At rung 3 all three attempts failed.
+Rung 3 left two small openings, described below, and they are the reason keys belong in files only you can read.
+
+<div class="hood">
+
 Rung 3 left two openings.
 One is deliberate: the loopback address stays reachable, because the service's tests use `httptest` to start HTTP servers.
 The other is that on macOS a process can read the starting environment of other processes owned by the same user.
 That is why, at rung 3, keys should live in files only you can read, kept outside the workspace, and why the program removes key variables from its own environment before it launches anything.
+
+</div>
 
 ## Five layers, strongest first
 
@@ -92,7 +98,7 @@ Applied to all 78 issues and comments from the recorded runs, it found nothing t
 
 **5. Marking tool output as data.** This is the weakest layer, though it is often the first one people reach for.
 The system prompt says that anything inside a marked block is data.
-A fixed marker would be trivial for an attacker to imitate, so each run of the program picks a random boundary:
+A fixed marker would be trivial for an attacker to imitate, so each run of the program picks a random boundary, built from a nonce (a random value used once, so an attacker can't know it ahead of time):
 
 ```go include=ch14/safety/mark.go tag=mark-wrap
 ```
@@ -109,7 +115,7 @@ One injected instruction on its way through the defenses, and what gets past eac
 
 ## An agent that went around a denial, with no attacker
 
-The most instructive run contains no attack at all; the method is in [refused once, the agent tried other spellings](/findings/measured-mistakes/#denial).
+The most instructive run contains no attack at all; how it was measured is written up in the finding [refused once, the agent tried other spellings](/findings/measured-mistakes/#denial).
 `openai/gpt-5.6-luna` was running with every defense on, and decided to fix an older crash in `auth/auth.go` that had already been filed.
 Here is what it tried, in order:
 
@@ -166,9 +172,9 @@ With the defenses on, `anthropic/claude-haiku-5.5` passed every one of the task'
 ## When to use it
 
 ```fit
-reach: The agent reads text someone else wrote: crash reports, web pages, tool descriptions. One sentence in a tool description steered 79 of 80 first moves.
+reach: The agent reads text someone else wrote: crash reports, web pages, tool descriptions. One sentence planted in a tool's description (the text a tool server hands the model to explain the tool, see [tool poisoning](/glossary/#tool-poisoning)) steered 79 of 80 first moves.
 reach: The agent runs code it didn't write, such as tests. Test code could read the harness's starting environment, key included, until keys moved into files.
-leave: Relying on a label or a warning in the prompt. Marking a poisoned description as the server's text cut obeying replies only from 79 to 57 of 80.
+leave: Relying on a label or a warning in the prompt. Telling the model that a poisoned description was only the tool server's own text cut obeying replies only from 79 to 57 of 80.
 leave: Defenses that guess intent. With no attacker present, a model tried three other spellings of a refused file, so checks have to hold whoever is asking.
 ```
 
@@ -181,4 +187,5 @@ $ go test ./ch14/safety/ -run 'Protected|Egress|Marker' -v
 ```
 
 Those tests cover the protected-path table, the egress check, and the marker.
+Passing looks like `--- PASS` for each test and a final `ok  github.com/blackwell-systems/go-agents-book/code/ch14/safety`; `TestProtectedTable` is the one to read, since its output lists each path and why it is refused (for example `go.ſum` is "not plain").
 On macOS, or on Linux with `bwrap` installed, `go test ./ch14/safety/ -run 'Sandbox|Seatbelt|Bubblewrap' -v` adds the sandbox tests.

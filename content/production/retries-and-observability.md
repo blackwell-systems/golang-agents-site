@@ -13,30 +13,33 @@ art: ch12
 ---
 
 Two failures from recorded runs set up this page.
-The first is written up, with how it was measured, in [a dropped connection ended a 41-turn run](/findings/measured-mistakes/#dropped-connection).
 In the first, a batch run had read 1.7 million tokens when it hit `remote error: tls: bad record MAC` at turn 41.
 The harness resent the request once, right away.
 The resend failed as well, and the run ended with all of its findings gone.
+(How this was measured is written up in the finding [a dropped connection ended a 41-turn run](/findings/measured-mistakes/#dropped-connection).)
 In the second, 23 agents were running in parallel, and that same TLS error cut off three of them in the middle of reading a reply.
 The task had nothing to do with either failure, and waiting a few seconds and trying again would probably have saved both.
 Afterwards there was also no record of which turns had cost the most or which calls had been slow.
 
 This page closes both gaps with retries, timeouts, logs, traces, and cost reporting.
-Each one is middleware wrapped around a call; the code is in [`ch12/agent`](code:ch12/agent).
+Each one is a wrapper around a call, the pattern called [middleware](/glossary/#middleware); the code is in [`ch12/agent`](code:ch12/agent).
 
 ## Middleware, two kinds
 
 Each of these concerns does one thing to a call.
 A retry sends it again, a timeout limits how long it may take, a span measures it, and a meter totals what it cost.
 Writing all of them into the loop body would make the loop longer with every addition.
-Each one is instead a [middleware](/glossary/#middleware) wrapper that you write once and stack with the others.
+Each one is instead a wrapper function that takes a call and returns a call with one added behavior, written once and stacked with the others.
 
 The companion code uses two wrapper types.
-Model wrappers wrap the streaming model interface.
-Tool wrappers receive the entire tool, [safety flags](/build/tool-design/) included, and a retry needs those flags to tell whether running the tool twice is harmless.
+Model wrappers wrap the interface the loop calls to get a streamed reply from the model.
+Tool wrappers receive the entire tool, including the [safety flags](/build/tool-design/) on it (`ReadOnly`, meaning it only looks things up, and `Idempotent`), and a retry needs those flags to tell whether running the tool twice is harmless.
+A tool is [idempotent](/glossary/#idempotent) when a second run changes nothing the first did not.
 Model calls can always be sent again; many tool calls can't, and a single shared handler type would lose that distinction.
 
 ## Which failures to retry
+
+The short version: retry what is temporary, never what will fail the same way, and stop as soon as the caller gives up.
 
 | Failure | Retry? |
 | --- | --- |
@@ -51,6 +54,11 @@ Model calls can always be sent again; many tool calls can't, and a single shared
 | A tool that can't run at all (`ErrToolFatal`) | No |
 
 Two rows in that table hide a trap.
+A timeout can be one attempt's own or the whole run's, and a 402 can be a temporary limit or an empty account.
+The classifier checks the caller's context first and retries only the temporary cases.
+The details are below if you want them.
+
+<div class="hood">
 
 **Two kinds of timeout produce the same error.** Both an attempt that ran past its own deadline and a run whose caller's deadline expired end in `context.DeadlineExceeded`.
 The attempt deserves another try; the expired caller means the run is over.
@@ -64,8 +72,11 @@ There is a catch: an account that really has no credit left can receive the same
 The policy's attempt cap, four by default, is what ends the loop then, and the run fails with the 402.
 
 The classifier doesn't depend on any client package.
-It asks the error three questions through small interfaces: is it retryable, does it carry a retry delay, and is it a timeout.
+It asks the error three questions through small interfaces (an interface of one method that the error type satisfies without naming it): is it retryable, does it carry a retry delay, and is it a timeout.
 Each client's error types answer them.
+
+The diagram below shows one call through the retry policy.
+The circuit breaker in it is explained under "Many agents, one provider" further down.
 
 ```diagram
 name: ch12-do
@@ -73,6 +84,8 @@ alt: A vertical flow: the breaker's Allow, the policy's Wait hook, the attempt u
 
 One model call through the retry policy: the circuit breaker, the wait, the attempt under its own deadline, then the decision to retry or stop.
 ```
+
+</div>
 
 ## How long to wait
 
@@ -150,7 +163,7 @@ Instead the run stops with `ErrOutcomeUnknown`, which names the call.
 Metadata is always logged.
 Content is logged only when you turn it on; it is truncated and then run through the same redaction hook every tool result already passes through.
 
-**Traces** show a run as a tree of [spans](/glossary/#span).
+**Traces** show a run as a tree of [spans](/glossary/#span), where a span is one timed step, such as a model call or a tool call, with its children inside it.
 A small recorder built on the standard library prints that tree.
 The same spans can then be exported through OpenTelemetry, using the generative-AI naming conventions: `invoke_agent` for a run, `chat {model}` with token counts for a model call, and `execute_tool {name}` for a tool call.
 Those conventions put all of a call's retries under one span, so each attempt becomes a child span:
