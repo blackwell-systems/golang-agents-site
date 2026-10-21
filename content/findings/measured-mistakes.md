@@ -7,6 +7,7 @@ chapters: 1, 4, 7, 9, 10, 12, 13, 14, 15
 stage: all
 date: 2026-10-18
 weight: 5
+art: measured-mistakes
 ---
 
 Lists of agent pitfalls are easy to write and hard to check.
