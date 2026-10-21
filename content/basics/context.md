@@ -8,6 +8,7 @@ chapters: 1, 2, 5, 6, 12, 15
 stage: all
 date: 2026-10-19
 weight: 80
+art: go-context
 ---
 
 An agent run makes many slow calls: a model call that takes half a minute, a tool that runs a test suite, another model call, and so on for dozens of turns.
