@@ -76,7 +76,7 @@ The run prints three turns, then ends with `run agent: agent: max turns reached`
 `Run` still returns the conversation so far, which is how the program prints those three turns.
 
 **Cancel before it starts.** In `main.go`, the `run` function starts with `func run(ctx context.Context, w io.Writer) error {`.
-Add two lines directly after that one (and add `"time"` to the imports, or `go run` will report an undefined `time`):
+Add two lines directly after that one:
 
 ```go
 ctx, cancel := context.WithTimeout(ctx, 0) // a deadline of zero seconds
@@ -85,7 +85,7 @@ defer cancel()
 
 `WithTimeout` gives back a copy of `ctx` that is cancelled after the given time, and zero means the deadline has already passed.
 `Run` checks `ctx` at the top of every turn, so it stops before the first model call.
-The program ends with an error whose text mentions `context deadline exceeded`.
+The program ends with `run agent: run: context deadline exceeded`.
 In code, `errors.Is(err, context.DeadlineExceeded)` is how you ask whether that is the reason the error occurred, even when other errors have wrapped it.
 
 When you are done experimenting, undo your edits from the `code` directory with `git restore .` (or `git checkout -- .`).
