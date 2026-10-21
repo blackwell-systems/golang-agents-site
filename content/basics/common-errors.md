@@ -8,6 +8,7 @@ chapters: 2, 5, 12
 stage: 2
 date: 2026-10-19
 weight: 35
+art: common-errors
 ---
 
 Most problems with a first agent are problems with a single call.
