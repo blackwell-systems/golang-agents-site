@@ -76,6 +76,11 @@ A point that work can't pass in either direction: all the work before it must fi
 
 ## C {#letter-c .letter}
 
+### Channel (Go) {#channel}
+
+A typed pipe that passes values between goroutines. A send waits until a receiver takes the value (or until there is room, for a buffered channel), and closing a channel tells receivers that no more values are coming.
+<span class="cite-line">[Goroutines with an owner](/basics/goroutines/)</span>
+
 ### Chat template {#chat-template}
 
 The rules a specific model uses to flatten a list of messages, plus any tool definitions, into the single stream of text it saw during training. Different model families use different templates.
@@ -128,6 +133,11 @@ A set of crash reports with a single underlying cause. Grouping is a judgment ca
 ### Crash report {#crash-report}
 
 Everything captured about one crash: the panic message and stack trace, the version of the program that crashed, the request it was handling, and the last log lines before it.
+
+### Crash-triage agent {#crash-triage-agent}
+
+The agent the companion code builds from chapter 7 on. It reads crash reports from `remind`, a small reminders web service with bugs seeded on purpose, groups them by cause, writes a test that reproduces each bug, fixes the code, and files one issue per cause in an issue tracker.
+<span class="cite-line">[One crash report, triaged by an agent](/run/ch07-crash-triage/)</span>
 
 ## D {#letter-d .letter}
 
@@ -185,6 +195,11 @@ The field in each reply that says why the model stopped generating: it was done 
 
 ## G {#letter-g .letter}
 
+### Goroutine {#goroutine}
+
+A function running at the same time as the rest of the program, started with the `go` keyword. Goroutines are cheap, so an agent can run many at once, but each needs an owner that knows when it ends.
+<span class="cite-line">[Goroutines with an owner](/basics/goroutines/)</span>
+
 ### Graceful shutdown {#graceful-shutdown}
 
 Ending a process without dropping work or leaving it half finished: refuse new work, complete or save whatever is in progress, then exit.
@@ -208,6 +223,10 @@ A model presenting something false with the same confidence as something true. N
 
 Everything in an agent program except the model. The harness carries out the tool calls the model requests, chooses what goes into each request, and decides when the run is over.
 <span class="cite-line">[The agent loop in Go](/basics/agent-loop/)</span>
+
+### Hash {#hash}
+
+A short value computed from some data, such as a SHA-256 digest, that changes completely if any byte of the data changes. Comparing two hashes shows whether two pieces of text are identical without keeping both.
 
 ### Hidden test {#hidden-test}
 
@@ -242,6 +261,11 @@ A pause requested by a tool partway through a run, so the run can wait on someth
 ### Issue tracker {#issue-tracker}
 
 Where a team keeps its list of known problems, for example GitHub Issues or Jira. The companion code ships a small stand-in, `tracker`, which stores issues in a JSON file.
+
+### Iterator (Go) {#iterator}
+
+A function that hands values to a `for` loop one at a time by calling `yield`, so `for v := range seq` works on it the way it works on a slice. `iter.Seq[V]` is the type of one.
+<span class="cite-line">[Iterators in an agent](/basics/iterators/)</span>
 
 ## J {#letter-j .letter}
 
@@ -279,6 +303,10 @@ For each token the model wrote, the logarithm of the probability it assigned to 
 The Model Context Protocol: an open standard that lets one program expose tools and data, and lets an agent in another process or on another machine find and call them.
 <span class="cite-line">[MCP in Go: a client and a server, both sides](/build/mcp/)</span>
 <span class="cite-line">[One sentence in a tool description decided 79 of 80 first moves](/findings/tool-description-poisoning/)</span>
+
+### Median {#median}
+
+The middle value once results are sorted: half the runs came out lower and half higher. It is used instead of the average when one unusual run would pull the average far off.
 
 ### Memory {#memory}
 
@@ -370,6 +398,10 @@ A tool that only reads, such as `code_read` or `crash_list`: calling it has no e
 ### Reasoning model {#reasoning-model}
 
 A model trained to produce reasoning tokens before it answers. The reply usually hides those tokens or shows a summary, but you pay for them as output.
+
+### Reproducer {#reproducer}
+
+A test the agent writes that fails on the code as it was and passes once the fix is applied, which shows the fix changed the behavior that crashed.
 
 ### Retry budget {#retry-budget}
 
@@ -505,6 +537,10 @@ One trip around the loop: the harness sends the model the whole conversation so 
 
 A cap on how many turns a run can take before the harness ends it. A loop without one can keep running, and charging you, indefinitely.
 <span class="cite-line">[The agent loop in Go](/basics/agent-loop/)</span>
+
+### Type parameter (Go) {#type-parameter}
+
+A type written in square brackets after the name of a generic function or type, as in `errors.AsType[*APIError](err)` or `iter.Seq[Event]`. The brackets say which type the code works with this time.
 
 ## U {#letter-u .letter}
 
