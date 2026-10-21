@@ -8,6 +8,7 @@ stage: 1
 beyond: true
 date: 2026-10-19
 weight: 90
+art: rag
 ---
 
 A model knows what was in its training data, and nothing about your service's documentation, your runbooks, or last week's design notes.
