@@ -64,7 +64,16 @@ Read it stage by stage.
 Every call sends `msgs` in full.
 A model carries no state from one call to the next, so the only thing it knows on a given call is what that request contains.
 That means the requests keep getting bigger as the run goes on; [tool calling on the wire](/basics/tool-calling/) shows how many tokens the first request already takes before the task is read.
+
+<div class="hood">
+
+### Why `Run` clones the slice
+
 `Run` calls `slices.Clone` before it appends anything, so the caller's slice and its backing array stay as they were.
+A Go slice is a small window onto an array that lives elsewhere (the backing array), and `append` may write into that array in place.
+Without the copy, the loop's appends could overwrite elements the caller still holds in its own slice.
+
+</div>
 
 **Call the model.** `m.Generate(ctx, req)` receives the run's `ctx`, which lets a real client drop the HTTP request if the run is cancelled.
 
@@ -89,7 +98,9 @@ So this loop runs the calls in a reply sequentially, in the model's order, which
 ## Every problem becomes a message
 
 Nothing in `Run` ends the run because a tool went wrong.
-`runTool` converts every kind of failure into a tool message for the model to read:
+`runTool` converts every kind of failure into a tool message for the model to read.
+In plain terms, it looks up the tool by name, runs it, and wraps whatever comes back, success or failure, in a message flagged `IsError` when it went wrong.
+In the unknown-tool branch, `%q` prints a string in double quotes, and `slices.Sorted(maps.Keys(byName))` collects the tool names into an alphabetical list.
 
 ```go include=ch01/agent/loop.go tag=run-tool stages=all:3
 ```
@@ -122,16 +133,37 @@ A default can't know what your task needs, so choose the limit yourself and repo
 ## A real model fits behind the same interface
 
 This same `Run` works against a real model unchanged.
-On the way in, the program wraps the client in another `Model` that totals the cost of the run:
+On the way in, the program wraps the client in another `Model` that totals the cost of the run.
+In plain terms, `meter` forwards every `Generate` call to the real model, then adds the reply's tokens and cost to running totals.
+This code comes from the [ch04 example](/run/ch04-first-agent/), which runs this same loop against a real model:
 
 ```go include=ch04/main.go tag=meter
 ```
 
-Because `meter` embeds a `Model` and defines its own `Generate`, it satisfies the interface itself, and the loop has no way to know there is a client inside.
+<div class="hood">
+
+### How `meter` becomes a `Model`
+
+`meter` embeds a `Model`: the line `agent.Model` with no field name pulls that interface's methods into `meter`.
+It then defines its own `Generate`, which replaces the embedded one and calls it as `m.Model.Generate`.
+Go interfaces are satisfied implicitly, so `*meter` (the pointer receiver lets it update `calls` and `usage`) is a `Model` itself, and the loop has no way to know there is a client inside.
+The `//nolint:wrapcheck` comment tells the linter that returning the inner error unchanged is intended.
 The same trick wraps the model to add retries, timeouts, and tracing while the loop stays as it is.
+The [New to Go?](/basics/getting-set-up/#new-to-go) box has short notes on interfaces and receivers.
+
+</div>
 
 Beyond this short loop come the cases it leaves out: a provider that rejects the request, a reply the loop can't use (a tool-call ID that appears twice, an answer truncated by the token limit), a run that overspends, and Ctrl-C arriving while a reply's tools are running.
 Each one ends the run with a named [stop reason](/glossary/#stop-reason) that callers test with `errors.Is`, as they already can for `ErrMaxTurns`; `ErrBudgetExceeded` is one of them.
+
+<div class="hood">
+
+### Checking for a stop reason
+
+Each stop reason is an error value exported by the package, and `errors.Is(err, agent.ErrMaxTurns)` reports whether `err` is that value, even if other code has wrapped it with `fmt.Errorf` and `%w` on the way up.
+A caller can then react differently to a run that hit its limit than to one that failed.
+
+</div>
 
 ## Run it
 

@@ -42,8 +42,9 @@ Look at the middle column: it holds nothing but requests.
 The model has no access to the files and no way to get any: it receives text and replies with text, so everything it knows about the task arrived in the request.
 The right-hand column is where things happen, and all of it is your Go program: the code that gives `read_file` its meaning, runs the tests, applies the edit, and notices that the job is over.
 
-One run proves little, so the task was repeated 40 times: ten runs each on `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, and `deepseek/deepseek-v4.1-flash`.
+One run proves little, so the task was repeated 40 times, ten runs on each of four models.
 All 40 fixed the bug, each in four to six turns, and no run cost more than a fifth of a cent.
+(The four models were `anthropic/claude-haiku-5.5`, `openai/gpt-5.6-luna`, `z-ai/glm-5.3-flash`, and `deepseek/deepseek-v4.1-flash`; you can skip the names on a first read.)
 That price is counted in [tokens](/glossary/#token), the pieces of text a model reads and writes: a common word, a fragment of a longer word, or a punctuation mark.
 A provider charges for every token in the request and every token in the reply, at a price per million.
 The routes differed more than the outcomes.
@@ -92,25 +93,31 @@ Later pages cover it under the name [context management](/build/context-manageme
 ## Tools have two sides
 
 A [tool](/glossary/#tool-and-tool-call) faces two directions.
-Toward the model it is a name and a description, plus a JSON Schema for its arguments.
+Toward the model it is a name and a description, plus a [JSON Schema](/glossary/#json-schema) (a JSON description of which arguments the tool takes and their types) for its arguments.
 Toward your program it is a Go function, which the model never sees.
 The companion code keeps both halves in a single value:
 
 ```go include=ch01/agent/tools.go tag=read-file stages=all:3
 ```
 
+A few pieces of syntax here trip up newer Go readers.
+The backticks around the schema make a raw string, which can span lines and hold double quotes without escaping.
+`Run` is a field of the `Tool` struct that holds a function, which is how one value carries both halves.
+The `_` parameter is the `context.Context` that this tool doesn't use, and `_` is Go's way of saying so.
+The [New to Go?](/basics/getting-set-up/#new-to-go) box covers these and the rest.
+
 From this, the model learns that a tool called `read_file` exists, what it is for, and what arguments it takes, so it can ask for it with something like `{"path": "duration.go"}`.
 When that request arrives, `Run` unpacks the JSON into a struct and opens the file.
 Arguments that fail to unpack produce an error that shows a correct example, which gives the model what it needs to send a better call next time.
 
-Tag every struct field that a model fills with an explicit `json` name.
+Tag every struct field that a model fills with an explicit `json` name; a [struct tag](/glossary/#struct-tag) is the backtick text after a field's type, such as `json:"path"` in the listing above.
 The companion code uses [`encoding/json/v2`](/basics/json-v2/), part of the standard library in Go 1.27, and it matches names case-sensitively: without a tag, `"path"` does not land in `Path`, decoding reports no error, and the tool receives an empty path.
 
 ## The parts you write
 
 An agent in Go comes down to a handful of plain pieces:
 
-- **A model interface** with one method, `Generate(ctx, req)`, so a scripted fake and a real HTTP client are interchangeable.
+- **A model interface** with one method, `Generate(ctx, req)` (`ctx` is a [`context.Context`](/glossary/#go-context), the value Go code passes along so a caller can cancel the call or set a deadline), so a scripted fake and a real HTTP client are interchangeable.
 - **[Messages](/basics/messages-and-roles/)**: the conversation as a slice, each with a role (`system`, `user`, `assistant`, or `tool`).
 - **[Tools](/basics/tool-calling/)**: a definition the model reads and a function the harness calls.
 - **The loop**: assemble a request, send it, act on any tool calls in the reply, then either finish or take another turn. [The agent loop in Go](/basics/agent-loop/) shows it in about 30 lines.
