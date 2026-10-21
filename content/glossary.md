@@ -3,6 +3,7 @@ title: Glossary
 description: The vocabulary of building AI agents, from agent and harness to idempotency key and tool poisoning, each in a sentence or two, with a link to the guide that covers it.
 layout: glossary
 updated: 2026-10-18
+art: glossary
 ---
 
 Short definitions of the terms this guide uses.

@@ -1,11 +1,16 @@
 {{define "main" -}}
 <article class="guide glossary">
   <div class="wrap">
-    <header class="guide-head">
+    <header class="guide-head{{if .Page.Art}} has-art{{end}}">
+      {{- with .Page.Art}}
+      {{picture . "guide" false}}
+      {{- end}}
+      <div class="head-text">
       <p class="eyebrow">Reference</p>
       <h1>{{.Page.Title}}</h1>
       <p class="lede">{{.Page.Description}}</p>
       <p class="meta">Updated <time datetime="{{.Page.Modified}}">{{date .Page.Modified}}</time></p>
+      </div>
     </header>
     <div class="prose">
 {{.Page.Body}}
