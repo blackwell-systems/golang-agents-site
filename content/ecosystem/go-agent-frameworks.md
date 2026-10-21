@@ -55,7 +55,14 @@ The comparison ran Eino and Genkit; the other three columns come from their docu
 | Development UI | has | an IDE plugin | has | none | none; an AG-UI server for chat front ends |
 
 One cell rests on less than the others.
-Genkit's panic cell comes from its source, where each tool runs in a goroutine Genkit starts, so no `recover` in your own goroutine can catch its panic, and from one probe run while this table was checked, in which the process exited; no test in the companion code panics a tool.
+Genkit's panic cell comes from its source and from one probe run, described below; no test in the companion code panics a tool.
+
+<div class="hood">
+
+In Genkit's source, each tool runs in a goroutine Genkit starts, so no `recover` in your own goroutine can catch its panic (`recover` is the built-in that stops a panic from crashing the program, and it works only in the goroutine that panicked).
+The probe run, made while this table was checked, ended with the process exiting.
+
+</div>
 
 The v1 releases of ADK for Go speak only to Gemini models; the v2 line adds an OpenAI-compatible adapter, still marked experimental.
 There is nothing odd about a model provider's framework favoring that provider's models, but if your agent may need to change providers, check this first.
@@ -70,7 +77,7 @@ A task built around what the frameworks offer and the harness doesn't (many prov
 
 Eino and Genkit both let you hand them your own `*http.Client`.
 That made it possible to feed all three versions the same scripted replies, written by hand in the harness's [replay format](/production/testing-offline/), through one transport that also saved a copy of every request each version made.
-In Eino, the approval is an interrupt raised from inside the tool:
+In Eino, the approval is an interrupt raised from inside the tool: the tool stops the run and asks to be resumed later with the person's answer.
 
 ```go include=ch16/eino/eino.go tag=issue
 ```
@@ -95,7 +102,7 @@ Here is what the code measured (`go run ./compare` prints the table, and a test 
 Be careful with the line counts.
 The hand-built version is only 80 lines because 5,351 lines from fourteen earlier stages of the harness sit beneath it, so the row doesn't show the frameworks needing more code for the same job.
 Turned around, those 5,351 lines are roughly what adopting a framework would spare you.
-Not all of them, though: around 1,500 are the sandbox, egress check, and audit log, and neither framework supplies those.
+Not all of them, though: around 1,500 are the sandbox (the limits on what a tool may touch), the egress check (which network destinations are allowed), and the audit log (a record of what the agent did), and neither framework supplies those.
 
 The first requests from all three versions were almost identical, within 70 bytes of each other, and neither framework added a prompt of its own.
 Where the versions did differ, each difference traced back to a default that somebody chose, and each default is defensible: ending the run on a tool error or not, retrying a 503 or not, sending a string result as plain text or as a JSON-encoded string, marking schemas strict or not.

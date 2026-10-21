@@ -25,8 +25,8 @@ A context can also carry why it was cancelled.
 That is used in three places, each of which needed the reason and not only the fact:
 
 - **[Stop reasons](/production/stop-reasons/)**. A cancelled run returns an error that holds both `context.Canceled` and its cause, so a caller learns why the run ended as well as that it did.
-- **Retries**. A call that ran out of its own time limit deserves another attempt; a job whose caller's deadline passed does not. Both fail with `context.DeadlineExceeded`; the call's limit is set with `context.WithTimeoutCause`, so the classifier checks the caller's context first and retries only a timeout of the call's own.
-- **Shutdown**. A platform stopping the service sends SIGTERM and kills the process after a grace period. The [service](/production/agent-as-a-service/) cancels the run with `ErrShutdown` as the cause, and the loop [saves its state](/production/durable-runs/) on the way out.
+- **Retries**. If one model call runs out of its own time limit, try it again; if the caller's whole deadline has passed, give up. Both fail with `context.DeadlineExceeded`, so the call's limit is set with `context.WithTimeoutCause` to tell them apart. The classifier, the function that decides whether an error is worth retrying (`Classify` in [`ch12/agent/classify.go`](code:ch12/agent/classify.go)), checks the caller's context first and retries only a timeout of the call's own.
+- **Shutdown**. A platform stopping the service sends it SIGTERM, the signal that asks a process to exit, and kills the process after a grace period if it hasn't. The [service](/production/agent-as-a-service/) cancels the run with `ErrShutdown` as the cause, and the loop [saves its state](/production/durable-runs/) on the way out.
 
 Here is the shutdown, from the companion code:
 
@@ -41,8 +41,14 @@ Across recorded live runs, the median model call took 2.35 seconds, but 9 of 209
 
 Running a reply's tool calls side by side is a few lines with `sync.WaitGroup.Go`: one goroutine per call, each writing only its own slot of the results slice.
 The part worth having is the checking.
-`go test -race` runs on every test in the companion code, so a shared write between those goroutines would fail a test run instead of waiting to be noticed in review.
-Go 1.27's `goroutineleak` profile finds goroutines blocked forever on a channel nothing can reach; the companion code writes a fan-in whose two senders leak on purpose, and a test that catches both.
+`go test -race` runs on every test in the companion code, so two goroutines writing the same variable at once (a data race) would fail a test run instead of waiting to be noticed in review.
+A goroutine that waits forever on a channel nothing will ever use again is a leak, and Go 1.27's `goroutineleak` profile finds such goroutines.
+
+<div class="hood">
+
+The companion code tests that profile with a fan-in (several goroutines sending their results into one channel) whose two senders leak on purpose, and a test that catches both.
+
+</div>
 
 The measurements also say where concurrency didn't help.
 Replaying one recorded run's 87 tool calls, the 60 read-only calls added up to about a seventh of a second, so [running them in parallel](/build/parallel-tool-calls/) saved milliseconds; the time went to model calls and to the two tools that compile code.

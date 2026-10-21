@@ -11,12 +11,12 @@ art: ch10
 ---
 
 The tracker is the one part of the triage job that lives in another program, with its own data.
-In this example the agent reaches it only through [MCP](/glossary/#mcp): the program starts the tracker's MCP server as a child process, lists its tools, and offers them to the model under prefixed names such as `tracker__issue_search`.
+In this example the agent reaches it only through [MCP](/glossary/#mcp), the Model Context Protocol, a standard way for an agent to use tools that another program serves: the program starts the tracker's MCP server as a child process, lists its tools, and offers them to the model under prefixed names such as `tracker__issue_search`.
 The model's replies are recorded, but the server, the protocol, and every tool call run for real.
 
 ## What it shows
 
-- A hand-written MCP client and server in Go, newline-delimited JSON-RPC over standard input and output. [MCP in Go](/build/mcp/) explains both sides.
+- A hand-written MCP client and server in Go, newline-delimited [JSON-RPC](/glossary/#json-rpc) (a request-and-reply message format built on JSON) over standard input and output. [MCP in Go](/build/mcp/) explains both sides.
 - Server tools adapted into agent tools, with names prefixed by the server's name, descriptions labeled as the server's, and the server's hints about its tools, such as which ones only read, ignored unless the server is trusted.
 - A server whose tool definitions can be pinned by hash, so a change stops the run before it starts.
 
@@ -39,6 +39,8 @@ On this run the agent marked both already-filed crashes as duplicates of their e
 
 ```text include=ch10/testdata/out/m1-mcp.txt lines=139..149 title="The end of the run"
 ```
+
+The second cost line adds the spending of any [sub-agent](/glossary/#sub-agent) (a separate agent loop that one of the agent's tools starts); it matches the first because this run started none.
 
 The agent caught the duplicates this time because the prompt had changed since that earlier run; the protocol didn't change what the agent could do.
 In three runs each way on the default model, `anthropic/claude-haiku-5.5`, the agent worked with the server's tools as readily as with its own hand-written ones, and every run passed every check.
@@ -66,6 +68,7 @@ $ go run ./ch10 -tracker-pins pins.json
 The first prints the four tools' digests; the second runs the replay with them checked.
 Next, edit a single word in the description of `issue_search` in `ch10/triage/issuetools.go`, which defines the tools the server serves, then repeat the second command.
 The run stops before it starts, with an error naming the tool, its new digest, and the pinned one.
+To undo the edit, run `git restore ch10/triage/issuetools.go` from the `code` directory.
 
 ## Run the tests
 

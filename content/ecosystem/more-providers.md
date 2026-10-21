@@ -28,7 +28,18 @@ These APIs change often; check the linked page before you rely on a detail.
 | Amazon Bedrock | Converse (`/model/{modelId}/converse`) | A JSON object | Yes, `toolUseId` | Yes, for some models | AWS SDK for Go v2, `bedrockruntime` |
 | Cohere | Chat v2 (`POST /v2/chat`) | A string holding JSON | Yes | Yes, a compatibility API | `github.com/cohere-ai/cohere-go/v2` |
 
-The quickest way to reach one of them from the companion code is through that provider's OpenAI-compatible endpoint, where it has one, by pointing `OPENROUTER_BASE_URL` at it, as the companion code does for Ollama.
+The quickest way to reach one of them from the companion code is through that provider's OpenAI-compatible endpoint, where it has one, by pointing `OPENROUTER_BASE_URL` at it, which the companion code's programs read.
+For Ollama, from the `code` directory:
+
+```console
+$ OPENROUTER_BASE_URL=http://localhost:11434/v1 \
+  OPENROUTER_API_KEY=ollama \
+  OPENROUTER_MODEL=<a tool-capable model you have pulled> \
+  go run ./ch04
+```
+
+This needs Ollama running on your machine and a model that supports tool calls; the key can be any non-empty text, and its only job is to take the program out of replay mode.
+This command was not run for this page, so what it prints, and how well a small local model handles the task, is for you to see.
 The cost is the compatibility layer's gaps, listed below for each, and the loss of whatever the native API offers that chat completions doesn't.
 
 ## Google Gemini

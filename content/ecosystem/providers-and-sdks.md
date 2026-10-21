@@ -30,8 +30,8 @@ The Messages API [differs from chat completions](/ecosystem/differences/) in the
 - the system prompt goes in its own request field instead of the message list;
 - no message has a `tool` role; tool results travel as blocks inside a user message, with every result from one reply packed into that single message;
 - the arguments of a tool call arrive as a JSON object, where chat completions sends a string you have to decode;
-- reasoning comes back as thinking blocks, and each block carries a signature;
-- stop reasons, usage counts, and error bodies each have their own names and layout.
+- reasoning comes back as thinking blocks (the model's reasoning, returned as separate blocks of the reply), and each block carries a signature that lets the provider check it hasn't been altered;
+- [stop reasons](/glossary/#stop-reason) (why the model stopped), usage counts, and error bodies each have their own names and layout.
 
 Because OpenRouter also serves the Messages API, every run recorded here used a single key.
 Change the base URL to `https://api.anthropic.com/v1` and give it an Anthropic key, and the same client goes to Anthropic directly; it already sends the key in the `x-api-key` header that Anthropic's own API reads.
@@ -39,13 +39,13 @@ Change the base URL to `https://api.anthropic.com/v1` and give it an Anthropic k
 ## An official SDK, behind your own interface
 
 OpenRouter has a Go SDK for chat completions, produced by a code generator from its API description.
-Adding it makes it the first dependency of the main module in the companion code, pinned at `v0.9.59`: a generated library before 1.0 changes its types every time the description changes.
+Adding it makes it the first dependency of the main module in the companion code, pinned at `v0.9.59` (the module requires exactly that version): a generated library before 1.0 changes its types every time the description changes.
 Two settings in the adapter's constructor do most of the work:
 
 ```go include=ch11/orsdk/orsdk.go tag=client
 ```
 
-**Supply your own HTTP client.** Any value with a `Do` method will do, so the replay transport plugs straight in, and so does a thin wrapper that notes each response's status code and `Retry-After` header.
+**Supply your own HTTP client.** Any value with a `Do` method will do, so the replay transport (the stand-in that plays recorded responses back, as in [testing offline](/production/testing-offline/)) plugs straight in, and so does a thin wrapper that notes each response's status code and `Retry-After` header.
 
 **Switch the SDK's retries off** if your harness already retries, or every harness retry will contain a full round of SDK retries.
 Left unconfigured, this SDK retries all 5xx responses and connection errors with backoff and keeps going for as long as an hour.
@@ -58,8 +58,8 @@ The adapter converts each one into the `*APIError` that the hand-written client 
 Callers go on using [`errors.Is(err, agent.ErrBudget)`](/basics/errors/) and `Retryable()` and never learn which client sent the request.
 Had the adapter passed the SDK's types upward, every caller would have had to import the SDK as well.
 
-**Set each field on every message type.** In this SDK, a message is a union of generated types, one per role.
-The adapter's first version added the [cache](/glossary/#prompt-caching) marker, the field that tells the provider where a reusable prefix of the request ends, to system and user messages but missed tool messages.
+**Set each field on every message type.** In this SDK, the generator makes one Go type for each role, and a message holds exactly one of them.
+The adapter's first version added the cache marker, the field that tells the provider where a reusable prefix of the request ends (see [prompt caching](/glossary/#prompt-caching)), to system and user messages but missed tool messages.
 In that run the cache supplied just 30 percent of the input, and the run cost $0.0208.
 After the fix, the same task got 91 percent from the cache and cost about a third as much, as the table below shows.
 
@@ -70,31 +70,42 @@ Each came out with identical fields and values, and OpenRouter took them back in
 
 ## Reasoning stays with the provider and host that wrote it
 
-Within a turn that uses tools, thinking blocks have to be returned unchanged, and Anthropic refuses a block that has been edited, moved, or rebuilt.
-The Messages API adapter therefore saves the full content of each reply, all its blocks in the order the API sent them, and returns exactly that.
-It must also make sure that content never reaches a different client's API.
-For that, the agent's `Message` gets one new field:
+Some models return their reasoning as signed thinking blocks that must go back unchanged, and only to the host that wrote them.
+So the adapter records where each block came from, in one new field:
 
 ```go include=ch11/agent/types.go tag=reasoning-from
 ```
 
 The value records the server as well as the API, since the model alone doesn't decide where a block is accepted.
 OpenRouter can send one model's requests to several hosts, and each host runs under its own account.
+The rule that follows: store the origin of every piece of reasoning, and drop the reasoning whenever a conversation moves to a different host or provider.
+
+Within a turn that uses tools, Anthropic refuses a thinking block that has been edited, moved, or rebuilt.
+The Messages API adapter therefore saves the full content of each reply, all its blocks in the order the API sent them, and returns exactly that.
+
+<div class="hood">
+
 An experiment on `anthropic/claude-haiku-5.5`, two runs in October 2026, showed the effect.
 It pinned the first request to one host, Claude Platform on AWS, and then sent the continuation, the block plus a tool result, along five routes, one of them the same host with the block left out.
 Returned to the host that produced it, the block was billed as input at its full size.
 The same host also accepted the continuation with the block left out, and the difference in input tokens between those two requests, 165 in one run and 152 in the other, matched exactly the thinking tokens each first reply had written.
 Routed instead to Anthropic's own API, Azure, or Google Vertex, the request was refused by OpenRouter with a 400 that named the original host.
-The rule that follows: store the origin of every piece of reasoning, and drop the reasoning whenever a conversation moves to a different host or provider.
 
-Editing the history raises a related problem.
+</div>
+
+Editing the history also makes thinking blocks stale, and the client asks Anthropic to discard the stale ones.
+
+<div class="hood">
+
 On that model a thinking block stays valid only as long as nothing earlier in the request changes.
-[Context policies](/build/context-management/) change earlier content all the time, by clearing an old tool result or dropping old turns, and every thinking block after the edit becomes stale.
+[Context policies](/build/context-management/), the rules for what stays in the conversation, change earlier content all the time, by clearing an old tool result or dropping old turns, and every thinking block after the edit becomes stale.
 Rather than leave it to the account's default, the client sends Anthropic's beta setting that discards stale blocks.
+
+</div>
 
 ## One task, three clients
 
-Each client ran the `m1` triage task, one crash report from the [crash catalog](/glossary/#crash-catalog) for the agent to triage, three times in October 2026, all through OpenRouter on the default model at its API's default reasoning setting:
+Each client ran the `m1` triage task, a set of four crash reports from the [crash catalog](/glossary/#crash-catalog) (the book's graded triage tasks) for the agent to triage, three times in October 2026, all through OpenRouter on the default model at its API's default reasoning setting:
 
 | Client | Turns | From the cache | Cost | Checks passed |
 | --- | --- | --- | --- | --- |
