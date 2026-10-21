@@ -8,6 +8,7 @@ chapters: 2, 5, 7, 9, 12
 stage: all
 date: 2026-10-19
 weight: 82
+art: go-errors
 ---
 
 Most Go programs have one reader for their errors: the code that called them, and in the end the person who runs the program.

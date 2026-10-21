@@ -77,6 +77,7 @@ var arts = map[string]artwork{
 	"patterns-by-name":   plate("By lantern light, the Gopher, clipboard in hand, points a long stick at four carved stone panels (a ring, a fork, three parallel arrows, and a looping arrow) while the crouching Ghost, a stone android, studies them."),
 	"glossary":           plate("On a stone lectern by lantern light, the Gopher, clipboard in hand, reads a great open book while the kneeling Ghost, a stone android, turns a page."),
 	"go-context":         plate("The kneeling Ghost, a stone android, holds up a branching rope hung with lit lanterns while the Gopher, on a stool, snips one branch with shears, and the lanterns hanging below the cut go dark."),
+	"go-errors":          plate("By lantern light, the Gopher lifts a small stone block out of a set of nested stone boxes, each inside the next, while the Ghost, a stone android, holds the outer lid open."),
 	"first-agent":        plate("By lantern light, the Gopher sets a stone block into a small ring of blocks on a workbench while the Ghost, a stone android, leans in close to watch, mallet and chisel at hand."),
 	"section-examples":   plate("On a stone ledge by lantern light, the Gopher turns the crank of a working model of gears and a looping track while the leaning Ghost, a stone android, watches a little cart ride the rails."),
 	"section-ecosystem":  plate("On a round stone platform high above a city of bridges and towers, the Gopher studies a map and points down one stone causeway while the kneeling Ghost, a stone android, sets a lantern down beside it."),
