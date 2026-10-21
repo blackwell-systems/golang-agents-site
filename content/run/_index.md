@@ -32,16 +32,16 @@ ch03 | A toy language model, a tokenizer, embeddings, and attention | `go run ./
 ch04 | A real model with four tools fixes the test | `go run ./ch04` | /run/ch04-first-agent/
 ch05 | Stop reasons, budgets, and a reply the loop refuses | `go run ./ch05 -replay dup-id` |
 ch06 | Streaming, and a stream that fails partway | `go run ./ch06 -replay stream-error` |
-ch07 | The crash-triage agent on one catalog task | `go run ./ch07` |
+ch07 | The crash-triage agent on one catalog task | `go run ./ch07` | /run/ch07-crash-triage/
 ch08 | Context policies on a batch of 99 crash reports | `go run ./ch08 -task batch` |
 ch09 | Parallel tool calls, sub-agents, and one agent per crash group | `go run ./ch09 -task g3-mixed-batch -groups -parallel 4` |
-ch10 | An MCP client and server, with pinned tool definitions | `go run ./ch10` |
+ch10 | An MCP client and server, with pinned tool definitions | `go run ./ch10` | /run/ch10-mcp-tracker/
 ch11 | Other providers' APIs and official SDKs | `go run ./ch11` |
 ch12 | Retries, traces, and cost, with injected 503s | `go run ./ch12 -trace -faults 503` |
 ch13 | Evals graded by code, a gate, and a reviewer | `go test ./ch13/evals/` |
 ch14 | Sandboxed tools, injection defenses, and approval | `go run ./ch14` |
 ch15 | Checkpoints, idempotency keys, and the crash sweep | `go test ./ch15/durable/ -run TestCrashSweep -v` |
-ch16 | One task on the book's harness, Eino, and Genkit (its own module) | `cd ch16 && go run ./cmd/harness` |
+ch16 | One task on the book's harness, Eino, and Genkit (its own module) | `cd ch16 && go run ./cmd/harness` | /run/ch16-framework-ports/
 ch17 | The finished crash-triage agent | `go run ./ch17` |
 catalog | The crash catalog's tasks and its grader | `go test ./catalog/` |
 tracker | The small issue tracker the agent files issues in | `go test ./tracker/...` |
@@ -127,7 +127,7 @@ graded against the catalog: 12 of 16 checks passed
 graded against the catalog: 82 of 94 checks passed
 ```
 
-**`ch09`** runs one agent per crash group, four at a time:
+**`ch09`** runs one agent per crash group, four at a time. A group's changes are left out when they conflict with an earlier group's, so the line `0 groups' changes left out` means every group's fix merged into the combined workspace without a conflict:
 
 ```text
 4 diagnoses; 0 groups unresolved; 0 groups' changes left out
@@ -177,7 +177,8 @@ type "yes 93761f" to approve:
 
 Type that line and the run finishes and is graded, 16 of 16 checks; press Ctrl-D instead and the run stops with the call left waiting.
 
-**`ch15`**'s [crash sweep](/findings/crash-sweep/) crashes the agent at every save point and counts the runs left with a duplicate, for each of five designs:
+**`ch15`**'s [crash sweep](/findings/crash-sweep/) crashes the agent at every save point and counts the runs left with a duplicate, for each of five designs.
+Each column is one design for making the run durable, from `v1` (save once per turn) to `v5` (idempotency keys and attempt markers), each row is where the crash landed, and each number counts the crashed runs that ended with a duplicate issue or comment, so 0 is the result you want:
 
 ```text
 crash point            v1     v2     v3     v4     v5

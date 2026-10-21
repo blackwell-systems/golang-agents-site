@@ -25,8 +25,8 @@ Everything else that needs a library lives in a nested module, a directory with 
 | Library | Version | Where | Stands in for |
 | --- | --- | --- | --- |
 | OpenRouter's Go SDK, `github.com/OpenRouterTeam/go-sdk` | v0.9.59 | `code/go.mod` | The hand-written chat completions client |
-| The MCP Go SDK, `github.com/modelcontextprotocol/go-sdk` | v1.8.0 | `code/ch10/sdk`, its own module | The hand-written MCP server |
-| OpenTelemetry for Go, `go.opentelemetry.io/otel` and its SDK | v1.47.0 | `code/ch12/otel`, its own module | Nothing: it carries the recorder's spans to a tracing system |
+| The [MCP](/glossary/#mcp) Go SDK, `github.com/modelcontextprotocol/go-sdk` | v1.8.0 | `code/ch10/sdk`, its own module | The hand-written MCP server |
+| OpenTelemetry for Go, `go.opentelemetry.io/otel` and its SDK | v1.47.0 | `code/ch12/otel`, its own module | Nothing: it carries the recorder's [spans](/glossary/#span) to a tracing system |
 | Eino, with its OpenAI model adapter from `eino-ext` | v0.9.21 (adapter v0.1.13) | `code/ch16`, its own module | The loop, client, and approval pause, for one task |
 | Genkit for Go, with `openai-go` v1.8.2 | v1.13.1 | `code/ch16` | The same |
 
@@ -43,15 +43,15 @@ The finished adapter is 327 lines of Go, leaving out comments and blank lines, a
 
 ### The MCP Go SDK
 
-The official implementation of both sides of the Model Context Protocol (MCP).
+The official implementation of both sides of the Model Context Protocol (MCP), a standard way for an agent to use tools that another program serves.
 [A client and a server](/build/mcp/) are written with the standard library first, then the server is rebuilt on the SDK.
 What the SDK does well is the tool boundary: `mcp.AddTool` builds the schema from the arguments' Go type, using struct tags for the descriptions, and checks each call against it before your handler runs.
 The registry in the companion code does the same job by hand.
 
 ### OpenTelemetry
 
-The agent's trace recorder, part of its [observability](/production/retries-and-observability/) code, writes spans for every model call, attempt, and tool call; sending them to a tracing system takes one function, and that module is the only one that imports OpenTelemetry.
-Most tracing systems read its format, and its semantic conventions for generative AI name the model, token, and cost attributes so a tool can display them without knowing your code.
+The agent's trace recorder, part of its [observability](/production/retries-and-observability/) code, writes spans for every model call, attempt, and tool call (a [span](/glossary/#span) is one timed step, and a [trace](/glossary/#trace) is the tree of spans for a run); sending them to a tracing system, a tool that stores and displays traces, takes one function, and that module is the only one that imports OpenTelemetry.
+Most tracing systems read its format, and its semantic conventions for generative AI, an agreed set of attribute names for model calls, name the model, token, and cost attributes so a tool can display them without knowing your code.
 Those conventions are still changing; keep the attribute names in one place.
 
 ## What else is compared

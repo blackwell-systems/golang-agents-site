@@ -10,7 +10,8 @@ weight: 30
 art: ch06
 ---
 
-[Reading server-sent events](/build/streaming/) from the model's API turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn (one model call and its tools), and the end of a run.
+[Server-sent events](/glossary/#server-sent-events) (SSE) keep one HTTP response open and send messages down it as they happen.
+[Reading them](/build/streaming/) from the model's API turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn (one model call and its tools), and the end of a run.
 This example sends those events onward, from a Go server to a web page, so a person can watch a run as it happens and stop it.
 It is the companion code's [`ssebrowser` example](code:ssebrowser), built on `net/http` alone, with tests that run under the race detector.
 
@@ -28,11 +29,22 @@ $ go run ./ssebrowser
 Open the address it prints and press Run.
 The page shows the model's text as it streams, each tool call and its result, and the end of each turn.
 Press Stop partway through and the run on the server stops too.
-To see the raw stream without a browser:
+Press Ctrl-C in the terminal to stop the server.
+To see the raw stream without a browser, run this in a second terminal while the server is up (`-N` turns off curl's output buffering, so each event prints as it arrives):
 
 ```console
 $ curl -N 'http://localhost:8080/events?task=fix'
+: run started
+
+event: text
+data: {"text":"I'll "}
+
+event: text
+data: {"text":"run "}
 ```
+
+The lines continue until the run ends.
+Each event is a line naming its kind and a line of JSON, followed by a blank line; the first line, starting with a colon, is a comment that the browser ignores.
 
 The page sends its task in the query string, but the scripted model gives the same replies whatever the task says.
 
@@ -90,14 +102,20 @@ So the page closes the `EventSource` itself when it sees the `stopped` event or 
 
 ## Shutting down
 
+When you press Ctrl-C, the program cancels every open stream and its run, then shuts the server down.
+
+<div class="hood">
+
 A stream never goes idle by itself, so `http.Server.Shutdown`, which waits for active connections to go idle, would wait out its whole timeout.
-The program gives the server a `BaseContext` that returns the program's own context, which Ctrl-C cancels:
+The program gives the server a `BaseContext` that returns the program's own context, which Ctrl-C cancels (this listing is the first half of the `serve` function; the rest starts the server and calls `Shutdown`):
 
 ```go include=ssebrowser/main.go tag=serve
 ```
 
 Every request's context descends from it, so cancelling it ends every open stream and its run, and `Shutdown` then finds nothing left to wait for.
 `ReadHeaderTimeout` bounds how long a client may take to send its headers, a limit worth setting on any server that faces the internet.
+
+</div>
 
 ## What the tests check
 

@@ -1,6 +1,6 @@
 ---
-title: One crash report, triaged by an agent
-short: "ch07: One crash report, triaged"
+title: Four crash reports, triaged by an agent
+short: "ch07: Four crash reports, triaged"
 description: The crash-triage agent's first run on a small Go web service, replayed offline. Four crash reports, two already filed, one bug that lives away from the line that crashed; fourteen tools, a final answer in a fixed shape, and a grade from the crash catalog.
 card: The crash-triage agent's first run on four crash reports, replayed and graded offline.
 chapters: 7
@@ -35,6 +35,8 @@ From the `code` directory of a clone of [go-agents-book-code](https://github.com
 $ go run ./ch07
 ```
 
+The replay takes under a minute (about 40 seconds on a laptop here), because the agent runs the service's tests many times and the tools run for real; nothing is hung while it works.
+
 The task is `m1-done-after-delete`, which hands the agent four crash reports.
 The tracker already has issues for two of them.
 The other two crashed in one place because of a mistake made somewhere else.
@@ -62,6 +64,11 @@ The run passed 12 of 16 checks.
 The four failures say the agent marked both already-filed crashes as `fixed`, treating them as its own to fix, instead of as duplicates of issues #101 and #102.
 This first version of the system prompt never tells the model how to handle a report the tracker already knows about, which is the failure a better prompt has to fix.
 Because the answer was typed data, the mistake showed up as a failed check instead of a sentence buried in a paragraph.
+
+The names in that output are the catalog's.
+`cr_` names a [crash report](/glossary/#crash-report), and `fp_` names a [crash group](/glossary/#crash-group), the reports that share one [fingerprint](/glossary/#fingerprint).
+`N1A` and `N2A` are the grader's labels for the two groups that were already filed in the tracker: the task borrows them from two other catalog tasks, and the leading `N` marks borrowed groups.
+`issue 0` means the diagnosis named no existing issue, which is what the agent did when it answered `fixed` instead of `duplicate` (the check wants #101 and #102).
 
 **The cost.** 17 turns, $0.034, and every request is bigger than the one before, growing from roughly 3,800 tokens to roughly 29,600.
 [Context management](/build/context-management/) is what brings that down.
