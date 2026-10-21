@@ -96,7 +96,7 @@ Toward the model it is a name and a description, plus a JSON Schema for its argu
 Toward your program it is a Go function, which the model never sees.
 The companion code keeps both halves in a single value:
 
-```go include=ch01/agent/tools.go tag=read-file
+```go include=ch01/agent/tools.go tag=read-file stages=all:3
 ```
 
 From this, the model learns that a tool called `read_file` exists, what it is for, and what arguments it takes, so it can ask for it with something like `{"path": "duration.go"}`.
@@ -115,6 +115,10 @@ An agent in Go comes down to a handful of plain pieces:
 - **[Tools](/basics/tool-calling/)**: a definition the model reads and a function the harness calls.
 - **The loop**: assemble a request, send it, act on any tool calls in the reply, then either finish or take another turn. [The agent loop in Go](/basics/agent-loop/) shows it in about 30 lines.
 - **Limits**: a cap on turns from the very first version, and later a cap on spending, since nothing else stops a loop that never gets an answer.
+
+Every turn of that loop passes through the same four stages, and every page on this site works on one of them or on the whole loop:
+
+{{loop}}
 
 You don't need a framework for any of this, and you don't need a model to test it.
 The loop in the companion code runs against a scripted list of replies, so its rules are checked by tests that finish in milliseconds and never touch the network.

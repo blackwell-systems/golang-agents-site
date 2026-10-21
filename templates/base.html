@@ -373,6 +373,191 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     box.appendChild(b);
   });
 })();
+// The agent loop's ring (loopring.html, placed by a loop token in a
+// page): pointing at a stage on the ring or in its list lights it and
+// moves the marker there, and the ring makes one lap when it first comes
+// into view.
+(function () {
+  var root = document.querySelector(".loopv-c");
+  if (!root) return;
+  var marker = root.querySelector(".lvc-marker");
+  var nodes = root.querySelectorAll(".lvc-node");
+  // Labels are numbered, since their order in the markup isn't the stage order.
+  var labels = Array.prototype.slice.call(root.querySelectorAll(".lvc-label"))
+    .sort(function (a, b) { return a.dataset.i - b.dataset.i; });
+  var items = root.querySelectorAll(".lvc-list > li");
+  var list = root.querySelector(".lvc-list");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var angle = 0, hovered = false, leaveTimer = 0, timers = [];
+  // Move the marker to stage i (0 to 3) by the shorter way round.
+  function move(i, ms) {
+    var d = ((i * 90 - angle) % 360 + 540) % 360 - 180;
+    if (d === -180) d = 180;
+    angle += d;
+    marker.style.transitionDuration = still.matches ? "0ms" : (ms || 380 + Math.abs(d) * 1.6) + "ms";
+    marker.style.transform = "rotate(" + angle + "deg)";
+  }
+  // The code on the page (stages= listings, base.html) hears which
+  // stage is lit, and says which one a reader points at in it.
+  function light(i) {
+    for (var k = 0; k < 4; k++) {
+      nodes[k].classList.toggle("is-on", k === i);
+      labels[k].classList.toggle("is-on", k === i);
+      items[k].classList.toggle("is-on", k === i);
+    }
+    if (i >= 0) root.style.setProperty("--lvc-st", "var(--stage-" + (i + 1) + ")");
+    document.dispatchEvent(new CustomEvent("loop:stage", { detail: i }));
+  }
+  function show(i) { stopTour(); clearTimeout(leaveTimer); light(i); move(i); }
+  function rest() {
+    clearTimeout(leaveTimer);
+    leaveTimer = setTimeout(function () {
+      if (hovered || root.contains(document.activeElement)) return;
+      light(-1);
+      move(0);
+    }, 220);
+  }
+  function stopTour() { timers.forEach(clearTimeout); timers = []; }
+  Array.prototype.forEach.call(items, function (li, i) {
+    li.addEventListener("pointerenter", function () { hovered = true; show(i); });
+    li.addEventListener("focusin", function () { show(i); });
+  });
+  // The ring's nodes answer a pointer too; the list holds the links.
+  Array.prototype.forEach.call(nodes, function (g, i) {
+    g.addEventListener("pointerenter", function () { hovered = true; show(i); });
+    g.addEventListener("pointerleave", function () { hovered = false; rest(); });
+    g.addEventListener("click", function () { items[i].querySelector("a").click(); });
+  });
+  list.addEventListener("pointerleave", function () { hovered = false; rest(); });
+  document.addEventListener("loop:pick", function (e) {
+    if (e.detail >= 0) { hovered = true; show(e.detail); } else { hovered = false; rest(); }
+  });
+  root.addEventListener("focusout", rest);
+  // One lap when the section first comes into view, then rest at stage 1.
+  if (!still.matches && "IntersectionObserver" in window) {
+    var seen = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      seen.disconnect();
+      if (hovered || root.contains(document.activeElement)) return;
+      [1, 2, 3, 0].forEach(function (i, n) {
+        timers.push(setTimeout(function () { light(i); move(i, 900); }, 500 + n * 1100));
+      });
+      timers.push(setTimeout(function () { light(-1); }, 500 + 4 * 1100 + 300));
+    }, { threshold: 0.6 });
+    seen.observe(root.querySelector(".lvc-ring"));
+  }
+})();
+
+// Listings marked with the agent loop's stages (stages=, markdown.go).
+// Pointing at a stage's number lights that stage's lines, and on the
+// home page, the big ring too, which talks to this through two events:
+// loop:stage says which stage the ring lit, and loop:pick which stage a
+// reader points at here (-1 for none). A listing with more than one
+// stage gets a small ring at its top right that stays in view while the
+// code scrolls by, naming the stage of the line beside it.
+(function () {
+  var listings = document.querySelectorAll(".listing.has-stages");
+  if (!listings.length) return;
+  var names = ["Build the request", "Call the model", "Run the tools", "Decide"];
+  var lines = document.querySelectorAll(".listing .line[data-stage]");
+  var minis = [], pointing = false;
+  function lightLines(i) {
+    lines.forEach(function (l) { l.classList.toggle("is-lit", l.dataset.stage === String(i + 1)); });
+  }
+  function lightMini(m, i) {
+    m.nodes.forEach(function (n, k) { n.classList.toggle("is-on", k === i); });
+    if (i >= 0) {
+      m.name.textContent = names[i];
+      m.name.style.setProperty("--st", "var(--stage-" + (i + 1) + ")");
+    }
+  }
+  function light(i) {
+    lightLines(i);
+    minis.forEach(function (m) { lightMini(m, i); });
+  }
+  document.addEventListener("loop:stage", function (e) { light(e.detail); });
+  document.querySelectorAll(".listing .stage-badge").forEach(function (b) {
+    var i = b.dataset.n - 1;
+    b.addEventListener("pointerenter", function () {
+      pointing = true;
+      light(i);
+      document.dispatchEvent(new CustomEvent("loop:pick", { detail: i }));
+    });
+    b.addEventListener("pointerleave", function () {
+      pointing = false;
+      lightLines(-1);
+      document.dispatchEvent(new CustomEvent("loop:pick", { detail: -1 }));
+    });
+  });
+  var ring = document.querySelector(".loopv-c .lvc-ring");
+  var svgNS = "http://www.w3.org/2000/svg";
+  var arcs = ["M232 84 A120 120 0 0 1 316 168", "M316 232 A120 120 0 0 1 232 316",
+    "M168 316 A120 120 0 0 1 84 232", "M84 168 A120 120 0 0 1 168 84"];
+  var at = [[200, 80], [320, 200], [200, 320], [80, 200]];
+  function el(name, attrs) {
+    var e = document.createElementNS(svgNS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  listings.forEach(function (fig) {
+    var stages = {};
+    fig.querySelectorAll(".line[data-stage]").forEach(function (l) { stages[l.dataset.stage] = true; });
+    if (Object.keys(stages).length < 2) return;
+    var svg = el("svg", { viewBox: "46 46 308 308", "aria-hidden": "true", focusable: "false" });
+    svg.appendChild(el("circle", { cx: 200, cy: 200, r: 120, "class": "lvc-track" }));
+    arcs.forEach(function (d, k) { svg.appendChild(el("path", { d: d, "class": "lvc-arc", style: "--st: var(--stage-" + (k + 1) + ")" })); });
+    var nodes = at.map(function (p, k) {
+      var g = el("g", { "class": "lvc-node", style: "--st: var(--stage-" + (k + 1) + ")" });
+      g.appendChild(el("circle", { cx: p[0], cy: p[1], r: 30 }));
+      var t = el("text", { x: p[0], y: p[1] + 10 });
+      t.textContent = k + 1;
+      g.appendChild(t);
+      svg.appendChild(g);
+      return g;
+    });
+    var a = document.createElement("a");
+    a.className = "lvc-mini";
+    a.href = ring ? "#loop-ring" : "/#loop-ring";
+    a.setAttribute("aria-label", "The agent loop's four stages");
+    a.appendChild(svg);
+    var name = document.createElement("span");
+    name.className = "lvc-mini-name";
+    a.appendChild(name);
+    // A pin with no height holds it, so the code keeps its full width.
+    var pin = document.createElement("div");
+    pin.className = "lvc-mini-pin";
+    pin.appendChild(a);
+    var body = fig.querySelector(".listing-body") || fig;
+    body.insertBefore(pin, body.firstChild);
+    var m = { a: a, nodes: nodes, name: name, lines: fig.querySelectorAll(".line[data-stage]") };
+    minis.push(m);
+    // On the home page it appears once the big ring is out of view.
+    if (!ring || !("IntersectionObserver" in window)) a.classList.add("is-shown");
+  });
+  if (!minis.length) return;
+  if (ring && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      minis.forEach(function (m) { m.a.classList.toggle("is-shown", !entries[0].isIntersecting); });
+    }).observe(ring);
+  }
+  // As the code scrolls by, each small ring lights the stage of the line
+  // level with its middle.
+  var queued = false;
+  function follow() {
+    queued = false;
+    if (pointing) return;
+    minis.forEach(function (m) {
+      var r = m.a.getBoundingClientRect(), y = r.top + r.height / 2;
+      for (var k = 0; k < m.lines.length; k++) {
+        var b = m.lines[k].getBoundingClientRect();
+        if (b.top <= y && y < b.bottom) { lightMini(m, m.lines[k].dataset.stage - 1); return; }
+      }
+    });
+  }
+  window.addEventListener("scroll", function () {
+    if (!queued) { queued = true; requestAnimationFrame(follow); }
+  }, { passive: true });
+})();
 
 // Every name in a Go listing, and inline code in the prose that names
 // one of them, shows what it is in a popover: on hover,

@@ -1,0 +1,30 @@
+<figure class="loopv-c" id="loop-ring">
+  <div class="lvc-ring">
+    <svg viewBox="-10 20 480 365" aria-hidden="true" focusable="false">
+      <defs><marker id="lvc-arrow-1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-1)"/></marker><marker id="lvc-arrow-2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-2)"/></marker><marker id="lvc-arrow-3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-3)"/></marker><marker id="lvc-arrow-4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-4)"/></marker></defs>
+      <circle cx="200" cy="200" r="120" class="lvc-track"/>
+      <path d="M232 84 A120 120 0 0 1 316 168" class="lvc-arc" style="--st: var(--stage-1)" marker-end="url(#lvc-arrow-1)"/>
+      <path d="M316 232 A120 120 0 0 1 232 316" class="lvc-arc" style="--st: var(--stage-2)" marker-end="url(#lvc-arrow-2)"/>
+      <path d="M168 316 A120 120 0 0 1 84 232" class="lvc-arc" style="--st: var(--stage-3)" marker-end="url(#lvc-arrow-3)"/>
+      <path d="M84 168 A120 120 0 0 1 168 84" class="lvc-arc" style="--st: var(--stage-4)" marker-end="url(#lvc-arrow-4)"/>
+      <g class="lvc-marker"><circle cx="200" cy="200" r="145" class="lvc-box"/><circle cx="200" cy="80" r="26" class="lvc-halo"/></g>
+      <g class="lvc-node" style="--st: var(--stage-1)"><circle cx="200" cy="80" r="17"/><text x="200" y="86">1</text></g>
+      <g class="lvc-node" style="--st: var(--stage-2)"><circle cx="320" cy="200" r="17"/><text x="320" y="206">2</text></g>
+      <g class="lvc-node" style="--st: var(--stage-3)"><circle cx="200" cy="320" r="17"/><text x="200" y="326">3</text></g>
+      <g class="lvc-node" style="--st: var(--stage-4)"><circle cx="80" cy="200" r="17"/><text x="80" y="206">4</text></g>
+      <text x="200" y="44" class="lvc-label" data-i="0" style="--st: var(--stage-1)">Build the request</text>
+      <text x="200" y="368" class="lvc-label" data-i="2" style="--st: var(--stage-3)">Run the tools</text>
+      <text x="352" y="206" class="lvc-label lvc-start" data-i="1" style="--st: var(--stage-2)">Call the model</text>
+      <text x="48" y="206" class="lvc-label lvc-end" data-i="3" style="--st: var(--stage-4)">Decide</text>
+      <text x="200" y="196" class="lvc-center">one turn</text>
+      <text x="200" y="220" class="lvc-sub">until an answer or a limit</text>
+    </svg>
+  </div>
+  <ol class="lvc-list">
+    <li style="--st: var(--stage-1)"><span class="lvc-num" aria-hidden="true">1</span><a class="lvc-name" href="/build/context-management/"><span class="lvc-t">Build the request</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Decide what the model sees: instructions, the conversation so far, tool results, and the tools it may call.</p></li>
+    <li style="--st: var(--stage-2)"><span class="lvc-num" aria-hidden="true">2</span><a class="lvc-name" href="/basics/calling-a-model/"><span class="lvc-t">Call the model</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Send the request and read the reply, with a deadline and a count of what it cost.</p></li>
+    <li style="--st: var(--stage-3)"><span class="lvc-num" aria-hidden="true">3</span><a class="lvc-name" href="/basics/tool-calling/"><span class="lvc-t">Run the tools</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Carry out the calls the model asked for, and add each result to the conversation.</p></li>
+    <li style="--st: var(--stage-4)"><span class="lvc-num" aria-hidden="true">4</span><a class="lvc-name" href="/production/stop-reasons/"><span class="lvc-t">Decide</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Stop with an answer, stop at a limit, or go around again.</p></li>
+  </ol>
+  <figcaption><svg class="lvc-back" viewBox="0 0 36 36" aria-hidden="true" focusable="false"><path d="M25.5 11.5A10 10 0 1 0 28 18"/><path d="M27.5 6.5l-1.5 5.5-5.5-1"/></svg><span>Then back to stage 1, with everything that just happened in the conversation.</span></figcaption>
+</figure>

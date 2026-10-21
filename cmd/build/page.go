@@ -312,6 +312,7 @@ func convert(md goldmark.Markdown, code *codeRoot, src []byte) (template.HTML, e
 	if bytes.ContainsRune(src, '—') || bytes.Contains(src, []byte("&mdash;")) {
 		return "", fmt.Errorf("an em dash: the prose rules ban them")
 	}
+	src = bytes.ReplaceAll(src, []byte("{{loop}}"), loopRing)
 	src, err := fillArt(src)
 	if err != nil {
 		return "", err

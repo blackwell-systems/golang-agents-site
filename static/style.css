@@ -1197,6 +1197,177 @@ cite { font-style: italic; }
   background: var(--accent-wash);
 }
 
+/* The agent loop as a ring of its four stages, beside a list of them
+   ({{loop}} in a page, loopring.html; its script is in base.html). */
+.loopv-c {
+  --lvc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  margin: 2.25rem 0 2.75rem;
+  padding: 0;
+  max-width: none;
+  display: grid;
+  gap: 1.25rem;
+}
+.loopv-c * { box-sizing: border-box; }
+/* The ring */
+.loopv-c .lvc-ring { position: relative; justify-self: center; width: 100%; }
+.loopv-c .lvc-ring svg { display: block; width: 100%; height: auto; overflow: visible; }
+.loopv-c .lvc-track { fill: none; stroke: var(--line); stroke-width: 1.5; }
+.loopv-c .lvc-arc { fill: none; stroke: var(--st, var(--amber)); stroke-width: 2; }
+.loopv-c .lvc-head { fill: var(--amber); }
+/* Strokes stay thin however large the ring is drawn. */
+.loopv-c .lvc-track, .loopv-c .lvc-arc, .loopv-c .lvc-node circle, .loopv-c .lvc-halo { vector-effect: non-scaling-stroke; }
+.loopv-c .lvc-node circle { fill: var(--page); stroke: var(--st); stroke-width: 2; }
+.loopv-c .lvc-node text { fill: var(--st); font-family: var(--label); font-weight: 600; font-size: 16px; text-anchor: middle; }
+.loopv-c .lvc-label { fill: var(--soft); font-family: var(--label); font-weight: 600; font-size: 15px; text-anchor: middle; }
+.loopv-c .lvc-label.lvc-start { text-anchor: start; }
+.loopv-c .lvc-label.lvc-end { text-anchor: end; }
+.loopv-c .lvc-center { fill: var(--ivory); font-family: var(--display); font-size: 24px; text-anchor: middle; }
+.loopv-c .lvc-sub { fill: var(--soft); font-family: var(--label); font-size: 13px; text-anchor: middle; letter-spacing: 0.06em; }
+.loopv-c .lvc-node { cursor: pointer; }
+.loopv-c .lvc-node.is-on circle { fill: var(--st); }
+.loopv-c .lvc-node.is-on text { fill: var(--page); }
+.loopv-c .lvc-label.is-on { fill: var(--st); }
+.loopv-c .lvc-halo { fill: none; stroke: var(--lvc-st, var(--stage-1)); stroke-width: 2; transition: stroke 220ms ease-out; }
+.loopv-c .lvc-box { fill: none; stroke: none; }
+.loopv-c .lvc-marker {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transition: transform 600ms var(--lvc-ease);
+}
+/* The stages */
+.loopv-c .lvc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.loopv-c .lvc-list > li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  column-gap: 1rem;
+  margin: 0;
+  padding: 0.8rem 1rem 0.85rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+.loopv-c .lvc-list > li::marker { content: none; }
+/* The rail between the numbers. */
+.loopv-c .lvc-list > li::before {
+  content: "";
+  position: absolute;
+  left: calc(0.85rem + 1.125rem - 0.5px);
+  top: calc(0.8rem + 2.25rem + 0.3rem);
+  bottom: calc(-0.8rem - 0.25rem + 0.3rem);
+  width: 1px;
+  background: var(--line);
+}
+.loopv-c .lvc-num {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 2px solid var(--st);
+  border-radius: 50%;
+  background: var(--page);
+  color: var(--st);
+  font-family: var(--label);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.loopv-c .lvc-name {
+  align-self: center;
+  min-height: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--ivory);
+  font-family: var(--label);
+  font-weight: 600;
+  font-size: 1.08rem;
+  text-decoration: none;
+}
+.loopv-c .lvc-name::after { content: ""; position: absolute; inset: 0; border-radius: 6px; }
+.loopv-c .lvc-go { color: var(--st); font-weight: 500; }
+.loopv-c .lvc-desc { grid-column: 2; margin: 0; color: var(--stone); font-size: 0.97rem; }
+.loopv-c .lvc-list > li:hover,
+.loopv-c .lvc-list > li.is-on { background: var(--panel); border-color: var(--line); }
+.loopv-c .lvc-list > li:hover .lvc-num,
+.loopv-c .lvc-list > li.is-on .lvc-num { background: var(--st); color: var(--page); }
+.loopv-c .lvc-list > li:hover .lvc-t { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+.loopv-c .lvc-list > li:hover .lvc-go,
+.loopv-c .lvc-list > li.is-on .lvc-go { transform: translateX(3px); }
+.loopv-c .lvc-go { display: inline-block; }
+.loopv-c .lvc-name:focus-visible { outline: none; }
+.loopv-c .lvc-name:focus-visible::after { outline: 3px solid var(--ivory); outline-offset: 2px; }
+/* The caption: back to stage 1. */
+.loopv-c figcaption {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  column-gap: 1rem;
+  align-items: center;
+  margin: 0.15rem 0 0;
+  padding: 0 1rem 0 0.85rem;
+  color: var(--soft);
+  font-family: var(--label);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+.loopv-c .lvc-back { display: block; width: 2.25rem; height: 2.25rem; }
+.loopv-c .lvc-back path { fill: none; stroke: var(--stage-1); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+@media (prefers-reduced-motion: no-preference) {
+  .loopv-c .lvc-node circle, .loopv-c .lvc-node text, .loopv-c .lvc-label { transition: fill 220ms ease-out; }
+  .loopv-c .lvc-list > li, .loopv-c .lvc-num { transition: background-color 220ms ease-out, border-color 220ms ease-out, color 220ms ease-out; }
+  .loopv-c .lvc-go { transition: transform 220ms var(--lvc-ease); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loopv-c .lvc-marker { transition: none; }
+}
+/* Narrow screens: the ring, cropped to itself, above the list. */
+@media (max-width: 47.99rem) {
+  .loopv-c { gap: 0.5rem; }
+  .loopv-c .lvc-ring { width: min(15rem, 66vw); aspect-ratio: 1; overflow: hidden; }
+  .loopv-c .lvc-ring svg {
+    position: absolute;
+    left: -20%;
+    top: -10%;
+    width: 160%;
+  }
+  .loopv-c .lvc-label { display: none; }
+  .loopv-c .lvc-sub { font-size: 14.5px; letter-spacing: 0.02em; }
+  .loopv-c .lvc-center { font-size: 27px; }
+  .loopv-c .lvc-list > li { padding-left: 0.6rem; padding-right: 0.75rem; column-gap: 0.85rem; }
+  .loopv-c .lvc-list > li::before { left: calc(0.6rem + 1.125rem - 0.5px); }
+  .loopv-c figcaption { padding-left: 0.6rem; column-gap: 0.85rem; }
+}
+@media (min-width: 48rem) {
+  .loopv-c {
+
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, min(29rem, 42%));
+    column-gap: clamp(1.5rem, 3.5vw, 3.5rem);
+    row-gap: 0.4rem;
+    align-items: center;
+  }
+  .loopv-c .lvc-ring { grid-row: 1 / span 2; align-self: center; }
+  .loopv-c .lvc-list { align-self: end; }
+  .loopv-c figcaption { align-self: start; }
+}
+
+/* On the home page the ring is as wide as the frame where the page has
+   room, centered on the text column; in a guide it keeps to the column,
+   clear of On this page. */
+@media (min-width: 48rem) {
+  .home-body .loopv-c {
+    --lvc-w: max(100%, min(var(--frame), calc(100vw - 2 * var(--gutter) - 20px)));
+    width: var(--lvc-w);
+    margin-left: calc((100% - var(--lvc-w)) / 2);
+  }
+}
+
 /* The agent loop's four stages each have a color: 1 build the request,
    2 call the model, 3 run the tools, 4 decide. The landing page's ring
    uses them, and so does a listing marked with stages= (markdown.go):
@@ -1272,6 +1443,49 @@ cite { font-style: italic; }
 @media (prefers-reduced-motion: no-preference) {
   .listing .line[data-stage] { transition: background-color 220ms ease-out; }
 }
+
+/* The small ring in a listing with more than one stage (base.html): it
+   stays at the top right of the code while the code scrolls by, and
+   lights the stage of the line beside it. The listing clips instead of
+   hiding its overflow, so the ring can stick. */
+.listing.has-stages { overflow: clip; }
+.lvc-mini-pin { position: sticky; top: var(--header-h); z-index: 2; height: 0; }
+.lvc-mini {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 9rem;
+  height: 9rem;
+  display: block;
+  opacity: 0;
+  translate: 0 0.4rem;
+  pointer-events: none;
+  transition: opacity 300ms ease-out, translate 300ms ease-out;
+}
+.lvc-mini.is-shown { opacity: 1; translate: 0 0; pointer-events: auto; }
+.lvc-mini svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.lvc-mini .lvc-track { fill: none; stroke: var(--line); stroke-width: 1.5; }
+.lvc-mini .lvc-arc { fill: none; stroke: var(--st); stroke-width: 2.5; }
+.lvc-mini .lvc-track, .lvc-mini .lvc-arc, .lvc-mini .lvc-node circle { vector-effect: non-scaling-stroke; }
+.lvc-mini .lvc-node circle { fill: var(--code-bg); stroke: var(--st); stroke-width: 2; transition: fill 220ms ease-out; }
+.lvc-mini .lvc-node text { fill: var(--st); font-family: var(--label); font-weight: 700; font-size: 30px; text-anchor: middle; transition: fill 220ms ease-out; }
+.lvc-mini .lvc-node.is-on circle { fill: var(--st); }
+.lvc-mini .lvc-node.is-on text { fill: var(--code-bg); }
+/* The lit stage's name, in the ring's middle. */
+.lvc-mini-name {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 2.2rem;
+  color: var(--st, var(--soft));
+  font: 600 0.74rem / 1.2 var(--label);
+  text-align: center;
+  pointer-events: none;
+  transition: color 220ms ease-out;
+}
+@media (max-width: 47.99rem) { .lvc-mini-pin { display: none; } }
+@media (prefers-reduced-motion: reduce) { .lvc-mini, .lvc-mini * { transition: none; } }
 
 /* Every name in a Go listing has a popover (base.html), so names get no
    underline. The name under the pointer and every other use of it on
@@ -1355,7 +1569,7 @@ cite { font-style: italic; }
   margin: 0;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-top: var(--accent-w) solid var(--amber);
+  border-top: var(--accent-w) solid var(--st);
   border-radius: var(--radius);
   padding: var(--card-py) var(--card-px);
   font-size: var(--fs-md);
@@ -1368,13 +1582,18 @@ cite { font-style: italic; }
   width: 1.6rem;
   height: 1.6rem;
   margin-bottom: 0.5rem;
-  border: 2px solid var(--amber);
+  border: 2px solid var(--st);
   border-radius: 50%;
-  color: var(--amber);
+  color: var(--st);
   font-family: var(--label);
   font-weight: 600;
   font-size: 0.85rem;
 }
+/* Each stage in its color, as on the home page's ring. */
+.loop-stages li:nth-child(1) { --st: var(--stage-1); }
+.loop-stages li:nth-child(2) { --st: var(--stage-2); }
+.loop-stages li:nth-child(3) { --st: var(--stage-3); }
+.loop-stages li:nth-child(4) { --st: var(--stage-4); }
 .loop-stages strong { display: block; font-family: var(--label); margin-bottom: 0.2rem; }
 .loop-back {
   font-family: var(--label);
@@ -2524,9 +2743,14 @@ nav.toc { display: none; }
   text-decoration: none;
 }
 .stage-pips { display: inline-flex; gap: 0.3rem; }
-.stage-pip .icon { width: 1.2rem; height: 1.2rem; color: var(--soft); opacity: 0.55; }
+/* Each pip in its stage's color, as on the home page's ring: the page's
+   stage full, the others faint; a page on the whole loop shows all four. */
+.stage-pip:nth-child(1) { --st: var(--stage-1); }
+.stage-pip:nth-child(2) { --st: var(--stage-2); }
+.stage-pip:nth-child(3) { --st: var(--stage-3); }
+.stage-pip:nth-child(4) { --st: var(--stage-4); }
+.stage-pip .icon { width: 1.2rem; height: 1.2rem; color: var(--st); opacity: 0.35; }
 .stage-pip.is-on .icon { opacity: 1; }
-.stage-pip.is-on .icon { color: var(--amber); }
 .stage-badge:hover .stage-text, .stage-badge:focus-visible .stage-text { color: var(--amber); }
 .stage-badge:hover .stage-pip:not(.is-on) .icon { opacity: 0.85; }
 

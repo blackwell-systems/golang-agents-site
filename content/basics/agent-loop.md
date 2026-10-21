@@ -27,7 +27,7 @@ A turn is a single exchange.
 The harness sends the conversation so far, gets one reply, and does what the reply calls for.
 Every turn passes through the same four stages:
 
-<ol class="loop-stages"><li><strong>Build the request</strong>Choose what goes to the model this time: instructions, the messages so far, and the tool definitions.</li><li><strong>Call the model</strong>Send that request and wait until the reply comes back.</li><li><strong>Run the tools</strong>Carry out each call in the reply and append its result to the conversation.</li><li><strong>Decide</strong>Finish if the reply is an answer; if not, and no limit has been hit, start another turn.</li></ol>
+{{loop}}
 
 The stages double as a debugging map.
 If a run never ends, look at Decide.
@@ -52,7 +52,7 @@ It later plugs in a client that talks to a real model, and the loop itself is un
 
 Here is `Run`:
 
-```go include=ch01/agent/loop.go tag=run highlight=10-12,19,23-25
+```go include=ch01/agent/loop.go tag=run stages=7-8:1,10-12:4,13:1,14-19:2,20-22:4,23-25:3,27:4
 ```
 
 Read it stage by stage.
@@ -91,7 +91,7 @@ So this loop runs the calls in a reply sequentially, in the model's order, which
 Nothing in `Run` ends the run because a tool went wrong.
 `runTool` converts every kind of failure into a tool message for the model to read:
 
-```go include=ch01/agent/loop.go tag=run-tool
+```go include=ch01/agent/loop.go tag=run-tool stages=all:3
 ```
 
 If the model names a tool that doesn't exist, the reply lists the tools that do.

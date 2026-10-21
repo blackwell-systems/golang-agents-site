@@ -89,7 +89,7 @@ This loop only classifies; the [retrying, with backoff and jitter](/production/r
 A turn limit caps how many times the loop goes around.
 A cost budget caps what you actually care about, the money:
 
-```go include=ch05/agent/loop.go tag=before-turn
+```go include=ch05/agent/loop.go tag=before-turn stages=all:4
 ```
 
 The check runs at the top of each turn, since nobody knows what a call costs until it returns.

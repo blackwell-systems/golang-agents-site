@@ -338,7 +338,8 @@ var stageLine = regexp.MustCompile(`<span class="line( hl)?">`)
 
 // markStages tags the lines of code, a highlighted listing, with the
 // stage of the agent loop each belongs to, from a stages= value such as
-// "7-8:1,10-12:4": data-stage on every line in a range, and on the first
+// "7-8:1,10-12:4" ("all:3" marks every line): data-stage on every line in
+// a range, and on the first
 // line of each run of one stage, a badge: an empty element the
 // stylesheet draws the stage's number in, with the stage's name beside
 // it on hover. The badge holds no text, so copying the listing copies
@@ -351,6 +352,9 @@ func markStages(code, spec string, n int) (string, error) {
 		st, err := strconv.Atoi(num)
 		if !ok || err != nil || st < 1 || st > 4 {
 			return "", fmt.Errorf("stages %q: want lines and a stage from 1 to 4, such as 7-8:1,10-12:4", spec)
+		}
+		if lines == "all" {
+			lines = fmt.Sprintf("1-%d", n)
 		}
 		ranges, err := lineRanges(lines, n)
 		if err != nil {

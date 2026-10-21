@@ -84,7 +84,7 @@ A non-200 status, an error object inside a 200, and a reply with no choices all 
 
 This is the agent:
 
-```go include=firstagent/agent.go tag=run
+```go include=firstagent/agent.go tag=run stages=13-20:2,21-23:4,24:2,25-27:4,28-36:3,38:4
 ```
 
 Each pass is one turn: send the conversation, append the reply, and either stop or run the tools.
@@ -100,7 +100,7 @@ The deferred line reports what the run cost however it ended.
 
 Running one call is a small function of its own:
 
-```go include=firstagent/agent.go tag=run-tool
+```go include=firstagent/agent.go tag=run-tool stages=all:3
 ```
 
 A tool that fails doesn't stop the run.

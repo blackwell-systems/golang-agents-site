@@ -140,13 +140,13 @@ With both in the chain, the program can say in plain words why a run ended, chec
 Every model call notices cancellation on its own, because the context reaches the HTTP request.
 The loop also checks between turns, so it doesn't start a call it would cancel at once:
 
-```go include=ch06/agent/loop.go tag=before-turn
+```go include=ch06/agent/loop.go tag=before-turn stages=all:4
 ```
 
 When cancellation arrives partway through a reply that asked for several tools, some calls have run and some haven't.
 Every tool call in a conversation [needs a matching result](/basics/tool-calling/), or the next request to the model is rejected, so the calls that didn't run get a result that says why:
 
-```go include=ch06/agent/loop.go tag=run-tools
+```go include=ch06/agent/loop.go tag=run-tools stages=all:3
 ```
 
 ## Waiting in your own code
