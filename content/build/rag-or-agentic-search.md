@@ -119,7 +119,7 @@ Read the answers it marks wrong before you trust a score, and see [evals](/produ
 
 ## Try it
 
-1. Run `go run ./rag` and look in `rag/testdata/run.json` for the five searches `rag-tool` made on the last question.
-2. With `OPENROUTER_API_KEY` set (see [your first model call](/basics/first-model-call/)), run `go run ./rag -ask files "What does a 429 mean?"` and `-ask rag` with the same question, and compare the calls and the cost each prints.
-3. Rename the files in `testdata/docs` to `doc1.md`, `doc2.md`, and so on, record a run with `-record`, and see what happens to the `files` approach.
-4. Add a question of your own to `questions.go` with the phrases a right answer must contain, and run it all three ways.
+1. Run `go run ./rag` (no key needed) and look in `rag/testdata/run.json` for the five searches `rag-tool` made on the last question.
+2. With `OPENROUTER_API_KEY` set (see [your first model call](/basics/first-model-call/); steps 2 to 4 make live calls), run `go run ./rag -ask files "What does a 429 mean?"` and `-ask rag` with the same question, and compare the calls and the cost each prints.
+3. Rename the 25 files in `rag/testdata/docs` to `doc1.md`, `doc2.md`, and so on, record a run with `-record my-run.json`, and see what happens to the `files` approach. To undo it, run `git restore rag/testdata` and then `git clean -fd rag/testdata` from the `code` directory (the second command deletes the renamed files).
+4. Add a question of your own to `rag/questions.go` with the phrases a right answer must contain, and run it all three ways.

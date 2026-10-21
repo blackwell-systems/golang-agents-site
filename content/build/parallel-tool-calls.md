@@ -20,7 +20,8 @@ This page works through those questions with the runner in [`ch09/agent/runner.g
 
 Models do this on their own, and frequently.
 In the recorded runs, between a quarter of replies and every reply requested more than one tool call, depending on which model and which task.
-All four models were counted on both tasks; here are two of them on each:
+All four models were counted on both tasks; here are two of them on each.
+"Crash triage" is the companion code's [crash-triage agent](/glossary/#crash-triage-agent), which reads crash reports from the `remind` practice service and files issues in a tracker; "bug fix" is its smaller first task:
 
 | Task | Model | Replies with more than one call | Mean calls per reply | Most in one reply |
 | --- | --- | --- | --- | --- |
@@ -29,10 +30,16 @@ All four models were counted on both tasks; here are two of them on each:
 | Crash triage, 14 tools | `anthropic/claude-haiku-5.5` | 64% | 2.59 | 6 |
 | Crash triage, 14 tools | `openai/gpt-5.6-luna` | 50% | 3.14 | 12 |
 
+Models send several calls on their own, and the companion code never asks for or against it.
+
+<div class="hood">
+
 The companion code never sets `parallel_tool_calls` on a request.
 On models that honor it, setting it to false limits each reply to one call; of the four models tested only `z-ai/glm-5.3-flash` accepts it, and Anthropic's own API has a separate switch for the same purpose, `disable_parallel_tool_use` (the [ecosystem page on API differences](/ecosystem/differences/) covers more of these).
 There is no value that makes a model request more than one, and in spite of the name, the flag has no bearing on how your harness executes the calls it gets.
 Anthropic's documentation is explicit that execution order is the caller's business: run the calls however you like, provided each one gets exactly one result.
+
+</div>
 
 ## Which calls may run together
 
@@ -57,6 +64,12 @@ A single bit per tool handles the cases that matter.
 
 ## Running a stage
 
+Read-only calls start together, at most eight at once, and their answers go back in the model's order.
+Starting them together uses goroutines: a goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines (see the [Tour of Go](https://go.dev/tour/concurrency/1) and the glossary entries for [goroutine](/glossary/#goroutine) and [channel](/glossary/#channel)).
+The details are below, and you can skip them on a first read.
+
+<div class="hood">
+
 The runner launches each call in a stage with [`sync.WaitGroup.Go`](/basics/goroutines/), added in Go 1.25, which does the counting that used to need a manual `Add(1)` and `defer Done()`, a pair that was easy to misplace.
 To bound concurrency, a buffered channel acts as a semaphore with eight slots per reply.
 Only three replies in the recorded runs asked for more than eight calls, and all three came from one model on the triage task.
@@ -67,6 +80,8 @@ Three decisions make the runner correct:
 - **Each goroutine writes only its own slot.** Answers go into a slice at the position the call had in the reply. Since every goroutine owns a distinct index, there is no shared write and no mutex, and the results end up in the model's order regardless of which call finished first.
 - **Answers are reported only after `Wait`.** The loop's goroutine reports them, never a tool's goroutine, because the loop's [event iterator](/basics/iterators/) has to be fed by the goroutine that is ranging over it.
 - **A panic in one tool is recovered at that tool's boundary.** The panic turns into that call's answer; the other calls in the stage carry on, and one tool's failure never cancels its neighbors.
+
+</div>
 
 The API accepts results in any order, so why preserve the model's?
 Mostly for reproducibility: a run replays identically, and recorded runs and tests keep passing.
@@ -145,5 +160,17 @@ From the `code` directory of a clone of the [companion repository](https://githu
 $ go test ./ch09/agent/ -run 'Barrier|Stages' -race -v
 ```
 
-`TestStages` checks how replies split into stages, and `TestBarrier` runs the edit-then-test reply both ways, every call at once and through the runner, inside a `testing/synctest` bubble, with the race detector on.
+The `-run` pattern picks the two tests by name, `-race` turns on Go's data-race detector, and `-v` prints each test's name and result.
+It needs no key.
+The output ends like this:
+
+```text
+=== RUN   TestStages
+--- PASS: TestStages (0.00s)
+=== RUN   TestBarrier
+--- PASS: TestBarrier (0.00s)
+PASS
+```
+
+`TestStages` checks how replies split into stages, and `TestBarrier` runs the edit-then-test reply both ways, every call at once and through the runner, inside a `testing/synctest` bubble (a test helper in which time is virtual, so the slow fake edit doesn't make the test wait), with the race detector on.
 The semaphore is in [`ch09/agent/slots.go`](code:ch09/agent/slots.go).

@@ -2,7 +2,7 @@
 title: Streaming model replies in Go
 short: Streaming replies
 description: A streamed chat completion arrives as server-sent events. This page reads one with a bufio.Scanner and an iterator, reassembles tool calls from their fragments, and stops a stream that stops sending.
-card: Reading server-sent events with bufio and an iterator, and rebuilding tool calls from fragments.
+card: Reading a reply that arrives as it is written (server-sent events) in Go, and rebuilding tool calls from fragments.
 group: Tools and output
 chapters: 6
 stage: 2
@@ -34,7 +34,7 @@ If your display shows only the answer, the user stares at an empty screen for tw
 Models produce output a token at a time, which lets a provider forward each piece the moment it exists.
 You opt in with `"stream": true` in the request, and add `"stream_options": {"include_usage": true}` if you still want token counts at the end.
 
-The reply is an HTTP 200 whose body keeps arriving, formatted as [server-sent events](/glossary/#server-sent-events).
+The reply is an HTTP 200 whose body keeps arriving, formatted as [server-sent events](/glossary/#server-sent-events) (SSE), a plain-text format that lets a server push lines to a client over one open connection.
 The format is line-based.
 A line beginning `data:` holds the payload, an empty line separates one event from the next, and a line beginning with a colon is a comment to be ignored.
 Every `data:` line here is one JSON chunk of the reply, and the final one is the literal `data: [DONE]`.
@@ -51,7 +51,8 @@ Where a complete response has a `message`, each chunk has a `delta` instead: onl
 ## Reading it with an iterator
 
 A `bufio.Scanner` plus a handful of rules is enough to parse the format.
-The `sseData` helper hands back the payload of each `data:` line through a [range-over-func iterator](/basics/iterators/), an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
+You use `sseData` like a slice: `for data, err := range sseData(body)` gives you one `data:` line per pass.
+The helper hands back each payload through a [range-over-func iterator](/basics/iterators/), an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
 
 ```go include=ch06/openrouter/sse.go tag=sse highlight=10,24-27
 ```
@@ -116,6 +117,11 @@ The contexts in a streamed run: ending one ends everything below it, and each re
 
 ## The run as an iterator
 
+The loop reports text, tool calls and results as events you read with a `for` loop.
+The rest of this section explains why the loop is built that way, and you can skip it on a first read.
+
+<div class="hood">
+
 The model's stream is a detail of the client.
 A program running an agent cares about a different set of happenings: text from the model, a finished tool call, a tool result, the end of a turn, the end of a run.
 Those happenings are reported as events, and the agent loop itself becomes `Events`, a function that returns an `iter.Seq` of them.
@@ -126,9 +132,18 @@ A channel needs a goroutine to feed it, and then the code has to close the chann
 `Events` runs in the caller's goroutine, puts the error in the final event, and stops completely when the caller breaks out of its `for` loop.
 `TestBreakOutOfEvents` in `ch06/agent/stream_test.go` checks exactly that: it breaks out at the first text event, then asserts that the model's stream returned and that the context the model was given has been cancelled.
 
+A goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines; the [Tour of Go](https://go.dev/tour/concurrency/1) introduces both.
+
+</div>
+
 ## One interface or two?
 
-Streaming adds a second interface next to `Model`:
+Streaming adds a second interface, `StreamModel`, next to `Model`.
+The reasoning for two is below, and you can skip it on a first read.
+
+<div class="hood">
+
+Here is the new interface:
 
 ```go include=ch06/agent/stream.go tag=stream-model
 ```
@@ -137,6 +152,10 @@ A single interface plus a type assertion for streaming support would be shorter,
 Wrap the client in a logger that only implements `Model`, and the `Stream` method disappears behind it; the loop switches back to whole replies and every test still passes.
 Two interfaces put the choice in the type system.
 An adapter wraps any plain `Model` as a `StreamModel`, which is how all the earlier tests keep running, unchanged, through the streaming loop.
+
+A type assertion, such as `m.(StreamModel)`, asks at run time whether a value also implements another interface; [Go by Example](https://gobyexample.com/) and the Tour of Go cover the basics.
+
+</div>
 
 ## Run it
 
@@ -147,5 +166,18 @@ $ go run ./ch06 -replay fix-again
 $ go run ./ch06 -replay stream-error
 ```
 
-Replays hand over the recorded stream in one go; set `OPENROUTER_API_KEY` and you see each line as the model produces it.
+The first command replays a saved run named `fix-again`: a stream recorded from `openai/gpt-5.6-luna` fixing the failing test in the `duration` package, the first practice project in the companion code.
+Without a key, the replay hands over the whole recorded stream at once, so the finished turns appear together rather than text arriving word by word; seeing each line as the model produces it needs `OPENROUTER_API_KEY` and makes live calls.
+The tools run for real either way, and the output starts like this:
+
+```text
+No OPENROUTER_API_KEY: replaying a saved run. The tools run for real.
+task: The tests in this project fail. Find out why and fix it.
+
+turn 1
+  model asks:  list_files {}
+  tool result: duration.go, duration_test.go
+```
+
 The second command replays a provider that fails mid-reply: the partial text is printed, is kept out of the conversation, and the error explains what happened.
+It ends with `error: run agent: generate: agent: bad reply: provider failed partway: server_error Provider disconnected`.

@@ -54,12 +54,20 @@ A chain costs one call per step, made one after another, so its latency is the s
 It adds one short call in front of every input, and an input it misfiles gets the wrong treatment, so measure the classifier on inputs someone has labeled before you trust it.
 The input also reaches the classifier's prompt, so a crafted input, a [prompt injection](/production/prompt-injection/), can choose its own kind: no handler should have a permission that the worst possible input must never get.
 
-**Parallel calls with a vote** ask several voters the same question at once and return the first answer a quorum of them gives:
+**Parallel calls with a vote** ask several voters the same question at once and return the first answer a quorum of them gives.
+The code runs each call in its own goroutine, a function running at the same time as the rest of the program, and collects the answers through a channel, which passes values between goroutines ([Tour of Go](https://go.dev/tour/concurrency/1); glossary: [goroutine](/glossary/#goroutine), [channel](/glossary/#channel)):
 
 ```go include=shapes/vote.go tag=vote highlight=17-20
 ```
 
+Once the vote is decided, the calls still running are stopped, and Vote doesn't return until every call has finished.
+
+<div class="hood">
+
 The deferred `wg.Wait` means no voter's goroutine outlives the call, and cancelling with a cause stops the calls still running once the vote is decided, since their answers can't change it.
+
+</div>
+
 A vote costs one call per voter and takes about as long as the slowest call it waits for.
 It only buys something if the voters can disagree: one model at temperature 0 gives the same answer every time.
 Answers are compared as strings after trimming space, so ask for a word or a fixed label; in the example's demo, `Yes` and `yes` count as two different answers.
@@ -72,7 +80,7 @@ A writer drafts, a critic judges the draft, and the critic's notes go back to th
 
 The critic can be code (a length limit, a schema, the tests), a model, or both, with the cheap checks first; `AllOf` in the same file runs them in that order.
 Each round costs a critic call and a writer call, and the writer's calls grow, since each one carries the conversation so far; `maxRevisions` bounds both.
-Recorded measurements show why the critic deserves suspicion too: a model reviewer [spent its whole reasoning budget](/findings/measured-mistakes/#reviewer-budget) on 10 of 25 reviews and returned nothing usable.
+Recorded measurements show why the critic deserves suspicion too: a model reviewer [spent its whole reasoning budget](/findings/measured-mistakes/#reviewer-budget) (the tokens a [reasoning model](/glossary/#reasoning-model) may use to think before it answers) on 10 of 25 reviews and returned nothing usable.
 
 ## What moving down costs, measured
 
@@ -95,7 +103,7 @@ Move the cause into a third file, or make it something only a test run can pin d
 An agent pays for itself when nobody can say ahead of time what the next step should be, because that depends on the result of the step before.
 In the bug-fix run, no line of code told the model to open the test file after listing the directory; it decided that after seeing the listing, and it decided on the edit after reading the test output.
 
-A crash-triage agent does that kind of work all the time.
+A [crash-triage agent](/glossary/#crash-triage-agent), the companion code's agent that reads crash reports from `remind` (a small practice service with planted bugs), fixes them, and files issues in a tracker, does that kind of work all the time.
 The crash catalog is built to mislead: a crash can surface far from the code that caused it, a report can come from an older release whose bug was fixed since, and reports that look alike can have different causes.
 There's no fixed list of files to read, since the right one depends on the stack trace, the source, and the outcome of the latest test run.
 
@@ -125,7 +133,7 @@ Putting the router in front means most tickets cost a single model call, and tho
 The two halves also get measured in different ways.
 The router's accuracy is a number a program can compute against tickets someone has labeled.
 Whether a given refund should have been issued is a business decision, so it takes a human reviewer or a model acting as judge.
-And because `issue_refund` moves money, a person [approves each call](/production/approval/) before it runs, and the call carries an [idempotency key](/production/durable-runs/) so a refund that went out just before a crash isn't paid twice.
+And because `issue_refund` moves money, a person [approves each call](/production/approval/) before it runs, and the call carries an [idempotency key](/glossary/#idempotency-key) (an identifier the payment system uses to ignore a repeat of the same request) so a refund that went out just before a crash isn't paid twice.
 
 ## When to use it
 
@@ -155,6 +163,7 @@ $ go run ./shapes
 $ go test -race ./shapes
 ```
 
+The `-race` flag turns on Go's data-race detector, which reports two goroutines touching the same memory without coordination; the second command runs the example's tests with it.
 The first runs each workflow shape on scripted models, on a crash report from the `remind` service, and prints what each returned and how many calls it made: two calls for the chain, four to the small model and two to the large one for the router, a vote that reaches its quorum and one that doesn't, and two rounds of writing and critique.
 No key is needed.
 
