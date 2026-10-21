@@ -22,7 +22,7 @@ source: Chapter 10
 One sentence appended to one tool’s description decided the model’s first move in 79 of 80 replies across four models, when it reached the model as the server sent it. Marking the description as the server’s text cut that to 57 of 80.
 ```
 
-When an agent connects to an [MCP](/glossary/#mcp) server, every request the agent sends carries the server's tool descriptions, exactly as the server wrote them.
+When an agent connects to an [MCP](/glossary/#mcp) server (a program that offers tools to an agent through the Model Context Protocol, a standard way to do so), every request the agent sends carries the server's tool descriptions, exactly as the server wrote them.
 So part of your prompt is text you didn't write and may never have read.
 The measurement below counts how much one sentence in one of them can do, before the agent has called anything.
 
@@ -87,21 +87,31 @@ Putting the label in front matters.
 A label at the end could be imitated: a hostile description could finish with a forged label and then keep writing, and the model would take the rest for the client's own words.
 In front, the label marks all of the text that follows as the server's.
 
-`Describe` also strips characters a person reviewing the description can't see: zero-width and direction-reversing marks, variation selectors, the blank braille pattern, private-use characters, and the Unicode tag characters, which render as nothing on screen yet spell out ASCII text the model can read.
+`Describe` also strips invisible characters, so a person reviewing a description reads exactly what the model will read; it doesn't block an instruction written in plain sight.
+
+<div class="hood">
+
+The characters it strips are the ones a person reviewing the description can't see: zero-width and direction-reversing marks, variation selectors, the blank braille pattern, private-use characters, and the Unicode tag characters, which render as nothing on screen yet spell out ASCII text the model can read.
 None of that blocks an instruction written in plain sight.
 What it does is make the reviewer read exactly what the model will read, which matters for the defense that works.
+
+</div>
 
 ## What stops it: a person, then a pin
 
 The attack sentence is plain to see.
 Anyone who reads the tool's description before connecting the server will spot it.
-The defense here is a pin: a person reads a server's tools once, and the client records a hash of each tool's definition.
+The defense here is a pin: a person reads a server's tools once, and the client records a [hash](/glossary/#hash) of each tool's definition, a short code computed from the text that changes if any character of it does.
+
+<div class="hood">
 
 ```go include=ch10/mcptools/trust.go tag=digest
 ```
 
 The digest covers the name, the title, the description, the schema (with its keys put in a fixed order first), and the annotations, the server's hints about each tool, such as "read-only" ([MCP in Go](/build/mcp/) covers them).
 A property's description, an enum value, or a default inside the schema reaches the model just like the description does, so the hash covers it as well.
+
+</div>
 On later runs, any tool whose hash differs from the recorded one, and any tool that has no recorded hash, make the client stop with `ErrUnreviewed` before the run starts.
 A server that adds one sentence tomorrow, the change researchers call a rug pull, then makes the client stop the run until someone looks.
 

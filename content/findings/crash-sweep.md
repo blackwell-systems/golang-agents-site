@@ -10,6 +10,9 @@ weight: 60
 art: ch15
 ---
 
+We crashed an agent's run at every point where it could crash, restarted it each time, and counted duplicate issues.
+With a saved checkpoint file and a tracker that recognizes a repeated request by its idempotency key, none of the 910 restarts filed anything twice.
+
 ```result
 figure: 910
 unit: crashes, 0 duplicates
@@ -48,13 +51,17 @@ Two mechanisms handle this:
 - **An [attempt marker](/glossary/#attempt-marker)** is written to the checkpoint just before such a request goes out. A restarted run that finds a marker with no result can't tell whether the call took effect, so it settles the call on a resolution ladder: run it again if a repeat is harmless (the tool only reads, is idempotent, or sent a key the other side still holds), otherwise ask the other side whether it happened, and only when neither works, ask a person.
 
 A key is only useful if a retry carries exactly the key the first attempt carried, even across a restart, and if no two different calls ever share one.
-Joining the run's ID with the tool call's ID gives both properties, because the call ID went into the checkpoint with the model's reply before the call was made:
+Joining the run's ID with the tool call's ID gives both properties, because the call ID went into the checkpoint with the model's reply before the call was made.
+
+<div class="hood">
 
 ```go include=ch15/agent/once.go tag=key
 ```
 
 Each ID is prefixed by its length.
 Without the lengths, run `a:b` with call `c` and run `a` with call `b:c` would collide.
+
+</div>
 
 ## How the sweep works
 
@@ -79,7 +86,8 @@ It files two issues, comments on the first, and runs one search; only the search
 
 ## Five designs, compared
 
-The first sweep runs five versions of a durable loop, from the simplest to the one this article settles on:
+The first sweep runs five versions of a durable loop, from the simplest to the one this article settles on.
+These five are simplified copies of the loop, built for the comparison, so their counts (such as 1,014 in the last row's `twice` column) differ from the 910 above, which comes from the agent's real loop, covered in the next section:
 
 ```text include=ch15/durable/testdata/sweep.txt lines=14..19 title="ch15/durable/testdata/sweep.txt: all scenarios"
 ```

@@ -42,7 +42,7 @@ An agent's loop would have returned the decoding error and let the model resend.
 figure: 18 → 4
 unit: median turns
 task: the same bug fix, with an `edit_file` tool that failed on every call; two wordings of its error
-models: the same four as chapter 1
+models: the four models of the first entry above
 runs: three per model and wording, with a 20-turn limit
 date: October 2026
 source: Chapter 4
@@ -116,7 +116,7 @@ more: The finding
 As the server sent it, the sentence decided the first call in 79 of 80 replies. A label marking the text as the server's brought that down to 57 of 80, not to zero.
 ```
 
-The tool carrying the sentence hadn't even been called.
+The tool carrying the sentence, one offered by an [MCP](/glossary/#mcp) server (a program that provides tools to an agent through the Model Context Protocol), hadn't even been called.
 Its description reached the model because every request carries every connected tool's definition.
 
 **What to change:** read a server's descriptions before connecting it, pin a hash of each definition so a changed one stops the run, and treat a label that marks the text as the server's as a partial defense, since it still let 57 of 80 through.
@@ -135,7 +135,7 @@ source: Chapter 12
 A TLS error from the connection to the API ended a run at turn 41, by which point it had spent $0.077 reading 1.7 million tokens. The same error, arriving partway through a streamed reply, left three groups of the fan-out unresolved.
 ```
 
-The harness of the time resent a request once, and only when no reply had started.
+The [harness](/glossary/#harness) in those runs, the code around the model, resent a request once, and only when no reply had started.
 Neither the stopped run nor the broken streams had anything to do with the task, and a retry a few seconds later would very likely have worked.
 
 **What to change:** classify errors, and retry the transient ones with backoff and jitter, including a stream that broke partway, which has to be requested again from the start.
@@ -156,6 +156,8 @@ more: The finding
 
 The second run scored 15 points above the first, better on 5 tasks, worse on 2, tied on 13. Nothing had changed, and the range around the difference, from -10 to +40, included zero.
 ```
+
+A [range](/glossary/#range) is where the true difference probably lies; if it includes zero, as this one does, the change may have done nothing.
 
 **What to change:** report every eval result with its range and its counts of tasks that got better, worse, and stayed the same, and believe a change only when it beats the spread between identical runs.
 
@@ -194,6 +196,8 @@ source: Chapter 13
 In all nine, the agent's reproducer test failed on the original code and passed once its fix went in, and every run fixed the crash site instead of the cause. A gate that checks the test against the fix would have passed all nine. The hidden tests failed them.
 ```
 
+The gate is the check that the test the agent wrote to reproduce a crash fails before its fix and passes after.
+
 The same blind spot showed on the reference agent.
 On the hard tier, 40 runs of `anthropic/claude-haiku-5.5` with a reviewer, six got a root cause wrong; five of those filed a reproducer, and the gate let every one through.
 A reproducer that exercises the crash site shows only that the crash no longer happens there; whether the cause was found is a separate question.
@@ -223,7 +227,7 @@ Capping reasoning at 4,000 tokens and pinning one [host](/glossary/#host), the c
 ```result
 figure: 3
 unit: other spellings tried
-task: the injection eval's `i3-split-fields` task, with every chapter 14 defense on and a scripted approver that denies changes to protected files
+task: the injection eval's `i3-split-fields` task, with every defense of the harness against injected instructions switched on and a scripted approver that denies changes to protected files
 models: `openai/gpt-5.6-luna`
 runs: one recorded run, with a second showing the same pattern
 date: 16 October 2026
@@ -255,7 +259,7 @@ When the run saved its state once per turn, a crash between the tracker acceptin
 ```
 
 The restarted run saw a tool call with no recorded result and made it again.
-With an idempotency key on every call that changes something, the [sweep of the agent's real loop](/findings/crash-sweep/) ran 910 scenarios with no duplicates, nothing lost, and no question to a person.
+With an [idempotency key](/glossary/#idempotency-key) on every call that changes something (a unique name sent with the request so the receiver can recognize a repeat and not act twice; the [crash sweep](/findings/crash-sweep/) explains it), the [sweep of the agent's real loop](/findings/crash-sweep/) ran 910 scenarios with no duplicates, nothing lost, and no question to a person.
 
 **What to change:** save the model's reply before running its tools, send a key made from the run and call IDs with every side effect, and crash your own loop on purpose at every save point.
 
