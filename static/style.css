@@ -2195,6 +2195,9 @@ nav.toc { display: none; }
   padding: var(--panel-px);
 }
 .contact h2 { font-size: 1.5rem; margin-bottom: var(--space-2); }
+.contact-head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
+.contact-head h2 { margin: 0; }
+.contact-head .author-photo img { width: 4rem; height: 4rem; }
 .contact > p { font-size: var(--fs-md); line-height: var(--lh-snug); }
 .field { margin-bottom: var(--space-4); }
 .field label {
