@@ -7,6 +7,7 @@ group: Why Go
 chapters: 5, 9, 11, 12, 15, 16
 date: 2026-10-18
 weight: 5
+art: why-go
 ---
 
 Very little of an agent is machine learning.
