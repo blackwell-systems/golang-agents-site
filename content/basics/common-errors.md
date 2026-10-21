@@ -29,7 +29,7 @@ Read the status first; it tells you whether trying again can help.
 | --- | --- | --- | --- |
 | 401 | The key is missing, mistyped, or revoked | Check `echo $OPENROUTER_API_KEY` in the same shell that runs the program; an `export` in another terminal doesn't carry over | No |
 | 402 | No credit left, or the key reached its own credit limit | Add credit or raise the key's limit | No, with one exception below |
-| 400 | The request itself is wrong: a misspelled model ID, a malformed message, or more text than the [context window](/basics/tokens-and-cost/) can hold | Fix the request; for a model ID, copy it from the model's page, in `company/model` form | No |
+| 400 | The request itself is wrong: a misspelled model ID, a malformed message, or more text than the [context window](/glossary/#context-window), the most a model can read in one request, can hold | Fix the request; for a model ID, copy it from the model's page, in `company/model` form | No |
 | 403 | A moderation check blocked the input | Change the input | No |
 | 408, 429 | A timeout, or too many requests too fast | Wait, then try again, waiting longer each time | Yes |
 | 500, 502, 503 | A failure on the API's or a model host's side | Wait briefly and try again | Yes |
@@ -50,8 +50,9 @@ This reply came from a request that allowed the model only 20 tokens:
 
 The text simply stops, mid-sentence.
 Nothing in the content says so; only `finish_reason` does.
-An agent that treats this as an answer will act on half of one, so check `finish_reason` on every reply: `stop` is a finished answer, `tool_calls` is a request for tools, and `length` means the reply needs more room.
+An agent that treats this as an answer will act on half of one, so check `finish_reason` on every reply: `stop` is a finished answer, `length` means the reply was cut off and needs more room, and `error` means the provider failed partway.
 Raise the reply limit (`max_tokens`), or ask for something shorter.
+To know whether the model asked for tools, look at whether the reply holds tool calls rather than at `finish_reason`, since some providers report `stop` even then ([Tool calling on the wire](/basics/tool-calling/) shows why).
 
 ## When a reasoning model spends the reply thinking
 
@@ -68,7 +69,15 @@ With a reasoning model, leave a generous reply limit, and treat an empty answer 
 ## When the program hangs
 
 A call to a model can take many seconds, and once in a while it doesn't come back at all.
-Give every call a deadline with [`context.WithTimeout`](/basics/context/), so a stuck request fails with an error instead of holding the whole agent.
+Give every call a deadline with [`context.WithTimeout`](/basics/context/), so a stuck request fails with an error instead of holding the whole agent:
+
+```go
+ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+defer cancel()
+reply, err := model.Generate(ctx, req)
+```
+
+`defer cancel()` releases the timer when the call returns, whether it succeeded or not.
 [Calling a model from Go](/basics/calling-a-model/) builds a client that does this and records why a call was cancelled.
 
 ## Two Go traps

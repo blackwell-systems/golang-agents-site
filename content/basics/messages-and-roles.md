@@ -51,7 +51,9 @@ An agent's first task can get by without one.
 The [bug-fixing agent](/run/ch04-first-agent/) in the early chapters sends a single `user` message, two short sentences saying the project's tests fail and asking the model to find the cause and fix it, and that's enough, because the task says everything the model needs and the tools do the rest.
 
 A system prompt earns its place once the agent has a standing job that every task shares.
-This is the one the [crash-triage agent](/run/ch07-crash-triage/) sends before every batch of crash reports:
+The crash-triage agent is the book's running example from chapter 7 on: it reads crash reports from `remind`, a small reminders web service with bugs seeded in it on purpose, and works out what went wrong in the service's code.
+You haven't met it yet, and you don't need to; the [crash-triage guide](/run/ch07-crash-triage/) shows it at work.
+This is the system prompt it sends before every batch of crash reports:
 
 ```text include=ch07/triage/prompt.md title="The crash-triage agent's system prompt"
 ```
@@ -75,7 +77,7 @@ So a rule that matters for safety, such as "never edit this file" or "never spen
 
 In the chat completions format, the API checks the list's shape and refuses a request that breaks it:
 
-- The `system` message comes first (the Messages API takes it as a separate field instead; [API differences](/ecosystem/differences/) lists the rest).
+- The `system` message comes first (Anthropic's own API, called the Messages API, takes it as a separate field instead; [API differences](/ecosystem/differences/) lists the rest).
 - Every tool call in an assistant message is answered by exactly one `tool` message, with the call's ID, before the next assistant message.
 
 The API can't check one more rule, so the program has to: messages stay in the order they happened. Reordering or dropping one, to save space, can leave a tool result with no call or a call with no result, and the API refuses that.

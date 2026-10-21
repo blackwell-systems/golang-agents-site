@@ -40,6 +40,9 @@ Your program sends one request to OpenRouter, which passes it to one of the prov
 $ export OPENROUTER_API_KEY=sk-or-...
 ```
 
+That is the form for macOS, Linux, and Git Bash.
+In Windows PowerShell, set it for the current window with `$env:OPENROUTER_API_KEY = "sk-or-..."`.
+
 Keep the key out of your code and out of git.
 A key that lands in a public repository is often found and used by someone else within minutes.
 
@@ -97,6 +100,10 @@ The chat program in the companion code makes exactly this call, and continues th
 ```console
 $ go run ./ch02
 ```
+
+Run it from the `code` directory of your clone of the companion code, as every command on this site is.
+The program reads a question at each `>` prompt and prints the reply.
+To quit, press Ctrl-D (Ctrl-Z, then Enter, on Windows) to end the input, or press Ctrl-C.
 
 With `OPENROUTER_API_KEY` set, it talks to the live model and prints the tokens and cost of each reply.
 Without the key, it replays the recorded conversation above, so you can see the output first:
