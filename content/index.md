@@ -6,7 +6,7 @@ layout: home
 
 ## The loop, in four stages
 
-An agent is a model inside a [harness](/glossary/#harness), the program around it.
+An agent is a [model](/glossary/#model) (a large language model, reached through an API) inside a [harness](/glossary/#harness), the program around it.
 On every turn, one pass through these four stages, the harness does the same four things:
 
 {{loop}}
@@ -16,6 +16,7 @@ When an agent misbehaves, the stage tells you where to look: one that never stop
 
 ## The whole loop, in code
 
+You don't need to follow this code yet; the [Start path](/start/) walks through it step by step.
 The loop talks to the model through one small interface:
 
 ```go include=ch01/agent/types.go tag=model
@@ -49,8 +50,10 @@ $ go run ./ch01
 ```
 
 The output replays a real model's fix of a failing test, turn by turn.
+You will see counts of tokens in it; a [token](/glossary/#token) is the unit of text a model reads and writes, roughly a short word or a piece of a longer one.
 Then [`go run ./ch04`](/run/ch04-first-agent/) runs the same loop against a real model's [recorded replies](/production/testing-offline/), with a real `go test` behind its `run_tests` tool.
 Both need Go {{code go-version}} or later and no API key.
+New to Go? Finish the [Tour of Go](https://go.dev/tour/) first; [Getting set up](/basics/getting-set-up/#new-to-go) lists what to brush up on.
 The repository holds {{code files}} Go files and {{code tests}} test functions, and none of them calls a model; [Examples](/run/) lists every program in the repository.
 
 <!-- paths -->

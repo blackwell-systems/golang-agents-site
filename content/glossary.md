@@ -35,6 +35,10 @@ A notice the harness emits while a run is in progress, at the moment each thing 
 What the harness does each turn, in four steps: assemble the request, send it to the model, execute any tools the model asked for, then decide whether another turn is needed.
 <span class="cite-line">[The agent loop in Go](/basics/agent-loop/)</span>
 
+### API key {#api-key}
+
+A secret string that identifies your account to a service. A program sends it with each request, and the service bills that account. Keep it out of source code; the examples read it from the `OPENROUTER_API_KEY` environment variable. See [OpenRouter](#openrouter).
+
 ### Approval {#approval}
 
 A yes from a person, which the harness records, allowing a single specific action to proceed.
@@ -419,6 +423,10 @@ The chain of function calls active at the moment a program panicked, listed from
 The harness's account of why a whole run ended: it got an answer, hit a limit, was cancelled, or failed with an error. Compare the finish reason, which explains only why a single reply ended.
 <span class="cite-line">[Why did the agent stop?](/production/stop-reasons/)</span>
 
+### Struct tag {#struct-tag}
+
+The backtick text after a field in a Go struct, such as `` `json:"finish_reason"` ``. It tells the JSON decoder which JSON name belongs to that field. The code puts an explicit tag on every field that comes from an API, because `encoding/json/v2` matches names exactly, case included. [Common first errors](/basics/common-errors/) shows what a missing tag looks like.
+
 ### Structured outputs {#structured-outputs}
 
 An API option that forces the model's reply to fit a JSON Schema, so your code can decode it directly instead of parsing free text.
@@ -480,6 +488,10 @@ What a tool returned, delivered to the model as a `tool` message tagged with the
 
 A record of one unit of work, such as a single agent run, organized as a tree of steps, each with its timing.
 
+### Transport (Go) {#transport}
+
+The `http.RoundTripper` inside an `http.Client`, the part that actually sends an HTTP request and returns the response. Swapping it lets a test replay recorded responses without touching the network.
+
 ### Tuning set and confirmation set {#tuning-set}
 
 Two separate groups of tasks. You may try a change against the tuning set while you develop it; the confirmation set judges the finished change and is never used during development.
@@ -512,6 +524,10 @@ The token counts the API returns with each reply: input tokens, output tokens, a
 Finding the stored vectors closest to a query vector, usually by [cosine similarity](#cosine-similarity). For a few thousand vectors, comparing the query with every one is fast enough; larger sets use a vector index, which finds close vectors without comparing them all.
 
 ## W {#letter-w .letter}
+
+### Wire format {#wire-format}
+
+The JSON exactly as it travels over HTTP, as opposed to the Go types a program uses to build and read it.
 
 ### Workflow {#workflow}
 

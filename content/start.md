@@ -6,6 +6,7 @@ layout: page
 
 This site is for Go developers who want to build AI agents and understand what happens inside them.
 It assumes you can write and run Go code; nothing about models or machine learning is assumed, and none of the examples needs an API key.
+New to Go? Finish the [Tour of Go](https://go.dev/tour/) first; [Getting set up](/basics/getting-set-up/#new-to-go) lists what to brush up on.
 
 Pick the path that matches why you're here; every guide on it links to the next step.
 
