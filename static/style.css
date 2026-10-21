@@ -1983,6 +1983,41 @@ nav.toc { display: none; }
 }
 .search-link:hover, .search-link[aria-current="page"] { color: var(--ivory); border-color: var(--amber-dim); }
 .search-link + .theme-picker { margin-left: 0.5rem; }
+/* The round header buttons say what they are on hover or keyboard focus:
+   a small label under the button. Screen readers get the aria-label
+   instead, so the label's text is left out of what they read. */
+.search-link { position: relative; }
+:is(.search-link, .theme-picker)[data-tip]::after {
+  content: attr(data-tip);
+  content: attr(data-tip) / "";
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  translate: -50% -0.2rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--panel-deep);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ivory);
+  font: 500 var(--fs-sm) / 1.2 var(--label);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, translate 0.15s ease;
+  z-index: 70;
+}
+/* The theme button sits at the header's right end, so its label lines
+   up with the button's right edge instead and never leaves the page. */
+.theme-picker[data-tip]::after { left: auto; right: 0; translate: 0 -0.2rem; }
+@media (hover: hover) {
+  .search-link[data-tip]:hover::after { opacity: 1; translate: -50% 0; }
+  .theme-picker[data-tip]:hover::after { opacity: 1; translate: 0 0; }
+}
+.search-link[data-tip]:focus-visible::after { opacity: 1; translate: -50% 0; }
+.theme-picker[data-tip]:has(:focus-visible)::after { opacity: 1; translate: 0 0; }
+@media (prefers-reduced-motion: reduce) {
+  :is(.search-link, .theme-picker)[data-tip]::after { transition: none; }
+}
 .site-nav a.nav-start { color: var(--ivory); font-weight: 600; }
 @media (min-width: 80rem) {
   .search-link { order: 3; margin-left: 0.75rem; }
