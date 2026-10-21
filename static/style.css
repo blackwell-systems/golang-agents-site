@@ -1267,7 +1267,7 @@ cite { font-style: italic; }
 }
 /* Each stage's lines carry a faint wash of its color, and the lit
    stage (hovered on the ring, its list, or a number) a stronger one. */
-.listing .line[data-stage] { background: color-mix(in srgb, var(--st) 5%, transparent); }
+.listing .line[data-stage] { background: color-mix(in srgb, var(--st) 7%, transparent); }
 .listing .line[data-stage].is-lit { background: color-mix(in srgb, var(--st) 20%, transparent); }
 @media (prefers-reduced-motion: no-preference) {
   .listing .line[data-stage] { transition: background-color 220ms ease-out; }
