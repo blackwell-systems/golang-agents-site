@@ -7,6 +7,7 @@ group: Tools and the model
 chapters: 2, 11, 13, 17
 date: 2026-10-19
 weight: 70
+art: choosing-a-model
 ---
 
 There are hundreds of models to choose from, and the leaderboards change every month.
