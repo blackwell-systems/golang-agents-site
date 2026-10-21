@@ -19,8 +19,8 @@ For the chat completions request itself, start with [calling a model from Go](/b
 
 ## One client, shared
 
-An `http.Client` and the `http.Transport` under it are safe for concurrent use, and the transport keeps a pool of open connections.
-Make one and share it; a new client or transport per request throws the pool away and pays for a new TCP and TLS handshake every time.
+An `http.Client` and the `http.Transport` under it are safe for concurrent use (many goroutines can call them at the same time), and the transport keeps a pool of open connections.
+Make one and share it; a new client or transport per request throws the pool away and pays for a new TCP and TLS handshake every time (the round trips that open a connection and set up encryption before any request is sent).
 
 The model client takes an `*http.Client` as a field, and uses `http.DefaultClient` when it is nil:
 
@@ -30,9 +30,15 @@ The model client takes an `*http.Client` as a field, and uses `http.DefaultClien
 Taking the client as a field, instead of building one inside, lets the caller decide what it is: a client with a proxy, one shared by every agent in a process, or one whose transport replays recorded replies in tests.
 
 The default transport is a sensible start: a 30-second dial timeout, a 10-second TLS handshake timeout, HTTP/2 where the server offers it, and idle connections kept for 90 seconds.
-One default is worth knowing for agents: over HTTP/1.1, it keeps at most two idle connections per host (`DefaultMaxIdleConnsPerHost`).
+One default matters when an agent runs many calls to one provider in parallel: the transport may keep too few idle connections.
+
+<div class="hood">
+
+Over HTTP/1.1, the default transport keeps at most two idle connections per host (`DefaultMaxIdleConnsPerHost`).
 A program running many calls to one provider in parallel reopens connections constantly unless it uses a transport with a higher `MaxIdleConnsPerHost`.
 Over HTTP/2, one connection carries many requests at once, and the limit matters less.
+
+</div>
 
 ## Deadlines go on the context
 
@@ -81,10 +87,16 @@ A server's header is input like any other, and a huge value multiplied into a `t
 
 ## Honoring the wait, within limits
 
-The retry policy uses the server's wait when there is one, and gives up instead when the wait is longer than the caller is willing to spend:
+The retry policy uses the server's wait when there is one, and gives up instead when the wait is longer than the caller is willing to spend.
+
+<div class="hood">
+
+The function that decides how long to wait before a retry:
 
 ```go include=ch12/agent/retry.go tag=wait
 ```
+
+</div>
 
 A server's wait replaces the backoff for that retry, plus a random extra of up to a second, so that many clients told to wait the same time don't all come back in the same instant.
 A wait longer than `MaxWait`, one minute by default, ends the retries with an error that names the wait, which is more useful than sleeping through it.
@@ -103,10 +115,16 @@ Wrapping or replacing it changes how requests are sent without touching the clie
 
 The companion code uses that in two ways.
 Every program runs offline by default with a transport that answers from recorded replies, which [testing offline](/production/testing-offline/) describes.
-And the retry tests use a transport that injects failures, a status, a dropped connection, a body cut short, in front of a real server:
+And the retry tests use a transport that injects failures, a status, a dropped connection, a body cut short, in front of a real server.
+
+<div class="hood">
+
+The transport that injects them:
 
 ```go include=ch12/agent/fault.go tag=fault-trip
 ```
+
+</div>
 
 When it fakes a lost connection after a real response, it drains and closes that response's body first, so the real connection isn't leaked.
 A `RoundTripper` owns the request body it is given, too: one that answers without sending a request closes the body itself.
@@ -131,5 +149,5 @@ $ go test ./ch06/openrouter -run 'TestErrorInsideA200|TestAPIErrors' -v
 ```
 
 1. In `TestTimeoutSynctest` (`ch06/openrouter/client_test.go`), give the `http.Client` a `Timeout` of one second and see which deadline ends the call, and what the error says.
-2. In a test, point the client at an `httptest` server that returns a `502` with an HTML body, and read the `*APIError` it produces.
+2. `TestAPIErrorEdges` in `ch06/openrouter/client_test.go` already points the client at an `httptest` server that returns a `502` with an HTML body; run it with `go test ./ch06/openrouter -run TestAPIErrorEdges -v`, then change the body or the status in the test and read the `*APIError` it produces.
 3. Give `RetryAfter` a date in the past, an empty header, and `999999999`, and check each result.

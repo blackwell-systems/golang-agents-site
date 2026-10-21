@@ -19,19 +19,33 @@ The rule this page follows comes from the companion code's style guide: every go
 The owner is the code that waits for it to finish, and the way to stop is almost always a context.
 The examples are from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where they are tested with the race detector.
 
+## Three words used below
+
+A [goroutine](/glossary/#goroutine) is a function running at the same time as the rest of the program; you start one by putting `go` in front of a call.
+A [channel](/glossary/#channel) passes values between goroutines: a send waits until someone receives, and `close` tells readers that no more values are coming.
+A `select` statement waits on several channel operations at once and takes whichever is ready first.
+If these are new, the Tour of Go has a [concurrency section](https://go.dev/tour/concurrency/1) that covers each in a few minutes.
+
 ## Start and wait: sync.WaitGroup.Go
 
 `sync.WaitGroup` is how an owner waits for the goroutines it started.
 Since Go 1.25 it has a `Go` method, which starts a function in a goroutine and counts it in one call, `wg.Go(func() { ... })`.
-It replaces the older three-step form, `wg.Add(1)`, `go func() { defer wg.Done(); ... }()`, and the mistakes that came with it: an `Add` placed inside the goroutine, where `Wait` can run before it, or a `Done` forgotten on one return path.
+`wg.Wait()` blocks until every function started this way has returned.
 
-A closure started in a loop can use the loop's variables directly.
+<div class="hood">
+
+`wg.Go` replaces the older three-step form, `wg.Add(1)`, `go func() { defer wg.Done(); ... }()`, and the mistakes that came with it: an `Add` placed inside the goroutine, where `Wait` can run before it, or a `Done` forgotten on one return path.
+
+A closure started in a loop can also use the loop's variables directly.
 Since Go 1.22, each iteration of a `for` loop has its own copy of its variables, so the old habit of copying them first, `name := name`, is no longer needed.
+Older code you meet will still do it.
+
+</div>
 
 ## Merging several runs into one stream
 
 Running several agents at once, one per group of crash reports, is a [fan-out](/findings/fan-out/); reading all their events as one stream is a fan-in.
-Here is the fan-in, which starts one goroutine per run and sends every event through one channel:
+`Merge` starts one goroutine per run; each sends its run's events into one shared channel, and the caller reads that channel as a single stream of events:
 
 ```go include=ch15/agent/fanin.go tag=merge-start
 ```
@@ -59,12 +73,17 @@ In a service that runs agents all day, each abandoned run leaves one behind.
 ## Proving there's no leak
 
 A leak doesn't fail anything; it just accumulates.
-The companion code tests for one with the goroutine leak profile in `runtime/pprof`, which reports goroutines blocked forever on a channel or lock that no running code can reach anymore:
+The companion code tests for one with the goroutine leak profile in `runtime/pprof`, which reports goroutines blocked forever on a channel or lock that no running code can reach anymore.
+The test runs a deliberately broken version, `leakyMerge`, beside the real one, so it checks both that the profile finds a leak when there is one and that `Merge` leaves none.
+
+<div class="hood">
+
+The test itself:
 
 ```go include=ch15/agent/shared_test.go tag=test-leak
 ```
 
-The test runs a deliberately broken version, `leakyMerge`, beside the real one, so it checks both that the profile finds a leak when there is one and that `Merge` leaves none.
+</div>
 
 The other tool is the race detector, `go test -race`, which reports two goroutines touching the same memory without synchronization while the tests run.
 The companion code's checks run every test with it.
@@ -72,15 +91,22 @@ The companion code's checks run every test with it.
 ## Requests in flight: a map behind a mutex
 
 A server that answers several requests at once needs to know which are running, to cancel one when the client asks.
-The [MCP](/build/mcp/) server keeps each request's cancel function in a map, and starts each request in its own goroutine:
+The [MCP](/build/mcp/) server keeps each request's cancel function in a map, and starts each request in its own goroutine.
+The map is shared by every request goroutine and the reading loop, so it sits behind a `sync.Mutex`, and every access locks it.
+
+<div class="hood">
+
+How the server starts a request and records it:
 
 ```go include=ch15/mcp/server.go tag=inflight
 ```
 
-The map is shared by every request goroutine and the reading loop, so it sits behind a `sync.Mutex`, and every access locks it:
+The map and its lock:
 
 ```go include=ch15/mcp/server.go lines=155..172
 ```
+
+</div>
 
 `add` refuses a request ID already in use and cancels the context it was given, so nothing leaks from a request that never starts.
 `remove` runs when the request's goroutine ends, and cancels its context too, which releases what `context.WithCancelCause` holds.

@@ -112,7 +112,11 @@ Two error types carry the details: `*jsontext.SyntacticError` for JSON that isn'
 
 Model APIs often accept a field in more than one shape.
 A message's content can be a plain string, or a list of parts, which is how a client marks a prompt-cache breakpoint, the point up to which the provider may [cache](/glossary/#prompt-caching) the request.
-v2's streaming marshaler interfaces handle that in one type: `MarshalJSONTo` writes through a `*jsontext.Encoder`, and `UnmarshalJSONFrom` reads from a `*jsontext.Decoder`:
+v2 lets one Go type handle that: it can write and read itself token by token, so it can look at the next value and decode it as whichever shape it is.
+
+<div class="hood">
+
+`MarshalJSONTo` writes through a `*jsontext.Encoder`, and `UnmarshalJSONFrom` reads from a `*jsontext.Decoder`:
 
 ```go include=ch12/openrouter/wire.go tag=content
 ```
@@ -123,35 +127,49 @@ v2's streaming marshaler interfaces handle that in one type: `MarshalJSONTo` wri
 The reader looks at the kind of the next value, `'n'` for null, `'"'` for a string, anything else for a list, and decodes it accordingly.
 The `IsZero` method matters too: `omitzero` calls it when a type has one, so a content with no text is left out of the message whatever else it holds.
 
+</div>
+
 ## Order you control
 
 A JSON object's members have no meaning in their order, but a model reads a [tool's schema](/build/tool-design/) top to bottom, so the order of its properties is worth keeping.
-A Go map can't keep it, so the agent's schema type holds the properties as a slice and writes them as an object, in order, token by token:
+A Go map can't keep it, so the agent's schema type holds the properties as a slice and writes them as an object, in order, token by token.
+
+<div class="hood">
 
 ```go include=ch12/agent/schema.go tag=props
 ```
+
+</div>
 
 ## Same input, same bytes
 
 v1 sorted map keys when it encoded a map; v2 doesn't, unless asked.
 Two things in an agent need the same input to encode to the same bytes every time: a hash, and a prompt cache, which providers match on an identical prefix of the request.
-`json.Deterministic(true)` sorts map keys, and the agent uses it where the bytes are hashed, to detect a tool whose definition changed:
+`json.Deterministic(true)` sorts map keys, and the agent uses it where the bytes are hashed, to detect a tool whose definition changed.
+
+<div class="hood">
 
 ```go include=ch10/mcptools/trust.go tag=digest
 ```
 
+</div>
+
 ## Options for a whole format: saving a run
 
 Options can be combined once and reused.
-The agent's checkpoint format joins three: leave zero fields out, write every `jsontext.Value` as a quoted string instead of as raw JSON, and read those strings back the same way:
+The agent's checkpoint format (the file a run is saved to) joins three: leave zero fields out, write every `jsontext.Value` as a quoted string instead of as raw JSON, and read those strings back the same way.
+The reason for the second is a model's tool call.
+Its arguments are meant to be JSON, and occasionally they aren't.
+A run that holds such a call still has to be saved, and raw invalid JSON can't be embedded in a JSON file, while a string holding it can.
+
+<div class="hood">
 
 ```go include=ch15/durable/checkpoint.go tag=format
 ```
 
-The reason for the second is a model's tool call.
-Its arguments are meant to be JSON, and occasionally they aren't.
-A run that holds such a call still has to be saved, and raw invalid JSON can't be embedded in a JSON file, while a string holding it can.
 `json.WithMarshalers` and `json.WithUnmarshalers` apply these functions to every `jsontext.Value` in the checkpoint, without changing the type itself or any other code that encodes it.
+
+</div>
 
 ## Smaller things worth knowing
 
@@ -178,4 +196,29 @@ $ go test ./ch06/openrouter -run 'TestGenerateSends|TestToolsOnTheWire' -v
 
 1. In `ch06/openrouter/wire.go`, change `MaxTokens`'s tag from `omitzero` to `omitempty` and run the tests again: the request the client sends no longer matches the recorded one.
 2. Remove the `json` tag from a field of `chatMessage` and see which test fails, and how.
-3. Encode a `map[string]int` twice with and without `json.Deterministic(true)` and compare the output.
+3. Encode a `map[string]int` a few times with and without `json.Deterministic(true)` and compare the output, using the small program below.
+
+For the third, make a new directory, save this as `main.go`, run `go mod init demo`, edit the new `go.mod` so it says `go 1.27`, and run `go run .`:
+
+```go
+package main
+
+import (
+	"encoding/json/v2"
+	"fmt"
+)
+
+func main() {
+	m := map[string]int{"b": 2, "a": 1, "c": 3, "d": 4}
+	for range 3 {
+		out, _ := json.Marshal(m)
+		fmt.Println(string(out))
+	}
+	for range 3 {
+		out, _ := json.Marshal(m, json.Deterministic(true))
+		fmt.Println(string(out))
+	}
+}
+```
+
+The first three lines list the keys in an order that can change from line to line (for example `{"a":1,"c":3,"d":4,"b":2}`, then `{"b":2,"a":1,"c":3,"d":4}`); the last three are always `{"a":1,"b":2,"c":3,"d":4}`.
