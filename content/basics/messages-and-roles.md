@@ -8,6 +8,7 @@ chapters: 1, 2, 7
 stage: 1
 date: 2026-10-19
 weight: 27
+art: messages-and-roles
 ---
 
 Everything you send a model is one list of messages, and everything an agent does adds to that list.
