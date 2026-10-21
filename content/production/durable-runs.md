@@ -29,7 +29,7 @@ If a restart forgot them, a run that crashed every few turns would start each li
 Restarts get a limit of their own as well, ten by default, after which the run stops with `ErrMaxResumes`; the count is saved before anything else happens, so a run that dies during every restart still reaches it.
 
 Files the agent changed are part of the state too.
-The state can keep a SHA-256 for every file the run has written; on resume, a file that no longer matches stops the run with `ErrWorkspaceChanged` rather than letting the model reason about code its conversation doesn't describe.
+The state can keep a [hash](/glossary/#hash) (SHA-256) for every file the run has written; on resume, a file that no longer matches stops the run with `ErrWorkspaceChanged` rather than letting the model reason about code its conversation doesn't describe.
 The sample triage command doesn't wire that check yet, since only the run's own process touches its workspace; the finished crash-triage agent records each write and checks the workspace on every resume.
 
 ## Save at five moments
@@ -55,29 +55,46 @@ A reply that was saved is never paid for twice; a reply that arrived and was los
 
 A [checkpoint](/glossary/#checkpoint) is only useful if, whenever the crash comes, the disk holds either the old copy or the new one, never half of one.
 Writing over the file in place breaks that.
-The usual fix has four steps, written out in the companion code:
+The short version: write a new copy beside the old one and swap it in, so the disk always holds one whole checkpoint.
+The usual fix has four steps (write a temporary file, sync it, rename it over the old one, sync the directory), written out in the companion code:
 
 ```go include=ch15/durable/checkpoint.go tag=write
 ```
 
 The temporary file goes in the same directory because a rename can't cross file systems, and the rename is what swaps old for new in one step.
+
+<div class="hood">
+
 Syncing the file first keeps the new name from pointing at data that never reached the disk; syncing the directory afterwards keeps the rename itself from vanishing in a power cut.
 On macOS, Go's `File.Sync` also asks the drive to empty its own cache.
+
+</div>
+
 On an M1 Pro, a recorded batch run made 142 saves, with medians between 8 and 12 ms across seven measurements, against model calls whose median was over two seconds.
 The temporary file is created with permissions 0600, which matters because a checkpoint contains every tool result, and tool results contain whatever the agent read.
 
-Three smaller choices are worth copying:
+Three smaller choices are worth copying, listed below for when you write your own.
+
+<div class="hood">
 
 - The loop saves with `context.WithoutCancel(ctx)`. When a shutdown cancels the run, the save that records where it stopped is the one that must happen.
 - The state is written with [`encoding/json/v2`](/basics/json-v2/) with zero fields omitted, so an unset field loads as unset instead of as an empty value that the client would send back to the provider.
 - Raw JSON values, such as a model's tool-call arguments, are stored as strings. A model can write invalid arguments, and a checkpoint that embedded them directly would refuse to save the very run that needs saving.
+
+</div>
 
 ## One process per run
 
 Two processes resuming one run would each run its unanswered calls, which brings back the duplicates through another door.
 `Open` takes an `flock` lock on the run's lock file before reading anything, and a second process gets `ErrLocked` at once.
 The kernel drops the lock when the process exits by any means, so a crash never leaves a run locked by a process that no longer exists.
-That holds on one machine's local disk; on a network file system `flock` means different things on different clients, and a service spread over several machines needs a lease in a database instead.
+That holds on one machine's local disk.
+
+<div class="hood">
+
+On a network file system `flock` means different things on different clients, and a service spread over several machines needs a lease (a claim on the run that expires, kept in a database) instead.
+
+</div>
 
 ## Resume by phase
 
@@ -96,7 +113,9 @@ It can't stop repeated work, because some moment always separates a tool acting 
 A single process can promise [at most once](/glossary/#at-most-once) (never retry, and risk losing the action) or [at least once](/glossary/#at-least-once) (retry until answered, and risk doing it twice).
 What people call exactly once is the second promise plus a receiver that recognizes a repeat.
 
-**An [idempotency key](/glossary/#idempotency-key)** is the receiver's half.
+An operation is [idempotent](/glossary/#idempotent) when doing it twice has the same effect as doing it once.
+
+**An [idempotency key](/glossary/#idempotency-key)** is the receiver's half: the receiver is the service the tool calls, and the key lets it recognize a repeat.
 The key must stay the same whenever one call is sent again, even from a new process, and must differ from every other call's key.
 A hash of the run ID and the tool-call ID has both properties, since save point 2 stored the call ID before the call ran:
 

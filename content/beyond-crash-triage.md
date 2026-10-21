@@ -85,7 +85,7 @@ Anthropic has published [an account of a research system built this way](https:/
 - Every page a sub-agent reads is untrusted, and an instruction hidden in one can travel inside its summary up to the lead, so sub-agents get tools that only read.
 
 **Where the book stops.**
-A lead that decides during the run how many helpers to start and what each should do is orchestration, which is left out here; [what this covers](/scope/) explains where the line is drawn.
+A lead that decides during the run how many helpers to start and what each should do is orchestration, which is left out here; the page on [what this site covers](/scope/) explains where the line is drawn.
 The companion code's fan-out sidesteps that choice: it starts one agent per crash group, so the number of agents is fixed before the run begins.
 Measured on a batch of crash reports, that fan-out [took as long as one agent and cost more](/findings/measured-mistakes/#fan-out), because crashes in one shared codebase are seldom independent; separate documents often are, which is why research can gain from parallel agents where crash triage didn't.
 

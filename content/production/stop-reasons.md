@@ -50,7 +50,8 @@ One turn of a hardened loop: every check, and the reason each exit reports.
 
 A caller rarely needs to know exactly which limit fired.
 It needs to know what kind of problem it has.
-So the sentinels are grouped: each specific error wraps a family error with `%w`.
+A [sentinel error](/glossary/#sentinel-error) is an error value declared once, at package level, so callers can compare against it with `errors.Is`.
+The sentinels are grouped: each specific error wraps a family error with `%w`.
 
 ```go include=ch05/agent/errors.go tag=tree
 ```
@@ -58,6 +59,7 @@ So the sentinels are grouped: each specific error wraps a family error with `%w`
 With that tree, `errors.Is(err, ErrBudget)` matches every budget stop, and `errors.Is(err, ErrMaxTurns)` matches only the turn limit.
 The checks keep working after more wrapping, because `errors.Is` walks the full chain; a caller that returns `fmt.Errorf("run agent: %w", err)` breaks nothing.
 When an error has to carry data, it is a type, and callers pull it out with [`errors.AsType`](/basics/errors/) (new in Go 1.26).
+Its form is `errors.AsType[*openrouter.APIError](err)`: it is a generic function, so the type you want goes in square brackets (see [type parameters](/glossary/#type-parameter)), and it returns that value and whether the chain held one.
 
 Tool errors are the exception: an unknown tool name, or arguments that fail to decode, never reach the caller.
 The loop turns each one into a tool message, the model sees it, and the run continues.

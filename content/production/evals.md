@@ -42,9 +42,17 @@ A task bundles crash reports, a commit of `remind`, the small Go service the age
 
 A failure on one task can mean something quite different from a failure on another, so the tasks are divided into two tiers, with a third test beside them:
 
-- **A regression floor** of 22 tasks that a working agent should almost always pass. It includes the direct crashes, eight [prompt-injection](/production/prompt-injection/) variants, a deadlock, a data race, the long case (a crash three packages away from its cause), `h1` (which asks which commit introduced a bug), and four of the misleading crashes. The floor raises an alarm on a drop, meaning a task now doing worse than its own past results by a margin that chance alone doesn't account for. Fisher's exact test decides that. If a task went from five passes in five runs to zero in five, p = 1/252, roughly 0.004.
+- **A regression floor** of 22 tasks that a working agent should almost always pass. It includes the direct crashes, eight [prompt-injection](/production/prompt-injection/) variants, a deadlock, a data race, the long case (a crash three packages away from its cause), `h1` (which asks which commit introduced a bug), and four of the misleading crashes. The floor raises an alarm on a drop, meaning a task now doing worse than its own past results by a margin that chance alone doesn't account for. A statistical check called Fisher's exact test decides that (see the panel below).
 - **A hard tier** of ten tasks where the obvious fix is the wrong one, or where the evidence lives outside the code: the remaining misleading crashes, whose bug is somewhere other than the crash site; crashes reported against older versions, whose bug is already gone from the current code; and the grouping tasks.
 - **The batch**, a test outside the 32 tasks: all 99 of the catalog's reports, from 23 causes, at once.
+
+<div class="hood">
+
+Fisher's exact test asks how likely a drop at least this large would be if the task's true pass rate had not changed.
+If a task went from five passes in five runs to zero in five, p = 1/252, roughly 0.004: out of the 252 ways to spread five passes among ten runs, only one puts all five passes in the earlier runs.
+A p this small means chance alone almost never produces the drop.
+
+</div>
 
 The word "almost" is doing work in that first bullet.
 Of the 22 floor tasks, the prototype failed 11 on at least one run.
@@ -95,6 +103,8 @@ A run can end in many ways, and the code maps each ending to a verdict:
 ```go include=ch13/evals/verdict.go tag=verdict
 ```
 
+`iota` numbers the constants in a `const` block, counting 0, 1, 2 from the line it appears on, so `Fail` is 0, `Pass` is 1, and `Unscored` is 2.
+
 An [unscored run](/glossary/#unscored-run) is one that ended because the provider or the harness broke, not the agent.
 Examples are an error that survived every retry, a tool that couldn't start, an outcome nobody can determine, or a grader check that broke on its own.
 Unscored runs are counted and reported, excluded from the pass rate, and run again.
@@ -115,9 +125,15 @@ Every way a run can end, and what it counts as.
 
 ## Report a rate with its range
 
+The short version: with about 30 tasks, the plausible range around a pass rate is roughly seven points each way, so report the range and treat smaller changes as noise.
+
+<div class="hood">
+
 For k passes out of n runs, report a 95 percent Wilson score interval.
 It never goes below 0 or above 1, and it still has some width when every run passed or every run failed.
-When the rate pools several runs per task, the range is computed by resampling tasks instead, because two runs of the same task resemble each other more than runs of two different tasks do.
+When the rate pools several runs per task, the range is computed by resampling tasks instead (drawing tasks again at random, with repeats, many times, and seeing how far the rate moves), because two runs of the same task resemble each other more than runs of two different tasks do.
+
+</div>
 
 Two more numbers go next to the rate.
 pass^k is the probability that all k runs of a task pass; pass@k is the probability that at least one passes.
@@ -143,7 +159,7 @@ source: Chapter 13
 link: /findings/measured-mistakes/#identical-runs
 more: The finding
 
-Nothing changed between the runs, yet the second scored 15 points higher: better on 5 tasks, worse on 2, tied on 13. The range around the difference, -10 to +40, held zero.
+Nothing changed between the runs, yet the second scored 15 points higher: better on 5 tasks, worse on 2, tied on 13. The range around the difference, -10 to +40, included zero, so the data could not rule out no difference at all.
 ```
 
 A change has to beat that gap before its improvement means anything.
@@ -200,5 +216,6 @@ $ go test ./catalog/ -run Grade
 ```
 
 The first command runs the tests for the statistics and the verdicts; the second runs the grader's tests.
+Every test prints `--- PASS`, and each command ends with an `ok` line (for example `ok  github.com/blackwell-systems/go-agents-book/code/catalog`); `TestCompare` in `ch13/evals` is a good one to read first, since it shows the task-by-task comparison.
 The evals themselves call a live model and cost money.
 Recorded measurements on `anthropic/claude-haiku-5.5` put a run under a cent, and the runner accepts a dollar budget and stops starting new runs once it would go past it.
