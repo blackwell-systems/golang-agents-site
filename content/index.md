@@ -258,6 +258,15 @@ On every turn, one pass through these four stages, the harness does the same fou
     g.addEventListener("click", function () { items[i].querySelector("a").click(); });
   });
   list.addEventListener("pointerleave", function () { hovered = false; rest(); });
+  // A stage's number in the loop's code answers a pointer as the ring
+  // does. The code comes after this script, so wait for the page.
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".listing .stage-badge").forEach(function (b) {
+      var i = b.dataset.n - 1;
+      b.addEventListener("pointerenter", function () { hovered = true; show(i); });
+      b.addEventListener("pointerleave", function () { hovered = false; rest(); });
+    });
+  });
   root.addEventListener("focusout", rest);
   // One lap when the section first comes into view, then rest at stage 1.
   if (!still.matches && "IntersectionObserver" in window) {

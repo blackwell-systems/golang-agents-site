@@ -338,10 +338,12 @@ var stageLine = regexp.MustCompile(`<span class="line( hl)?">`)
 
 // markStages tags the lines of code, a highlighted listing, with the
 // stage of the agent loop each belongs to, from a stages= value such as
-// "7-8:1,10-12:4": data-stage on every line in a range, and data-badge
-// on the first line of each run of one stage, where the stylesheet draws
-// the stage's number. The number is drawn, not written, so copying the
-// listing copies only the code. n is the number of lines.
+// "7-8:1,10-12:4": data-stage on every line in a range, and on the first
+// line of each run of one stage, a badge: an empty element the
+// stylesheet draws the stage's number in, with the stage's name beside
+// it on hover. The badge holds no text, so copying the listing copies
+// only the code, and the offsets the hover popovers count are unchanged.
+// n is the number of lines.
 func markStages(code, spec string, n int) (string, error) {
 	stage := make([]int, n+1) // by line, 1-based; 0 for none
 	for part := range strings.SplitSeq(spec, ",") {
@@ -369,11 +371,12 @@ func markStages(code, spec string, n int) (string, error) {
 		if line > n || stage[line] == 0 {
 			return m
 		}
-		attrs := fmt.Sprintf(` data-stage="%d"`, stage[line])
+		open := strings.TrimSuffix(m, ">") + fmt.Sprintf(` data-stage="%d">`, stage[line])
 		if stage[line-1] != stage[line] {
-			attrs += fmt.Sprintf(` data-badge="%d"`, stage[line])
+			open += fmt.Sprintf(`<span class="stage-badge" data-n="%d" data-name="%s" aria-hidden="true"></span>`,
+				stage[line], stageNames[stage[line]-1])
 		}
-		return strings.TrimSuffix(m, ">") + attrs + ">"
+		return open
 	}), nil
 }
 

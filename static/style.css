@@ -1201,8 +1201,9 @@ cite { font-style: italic; }
    2 call the model, 3 run the tools, 4 decide. The landing page's ring
    uses them, and so does a listing marked with stages= (markdown.go):
    each line of a stage gets the stage's color at its left edge, and the
-   first line of each run of a stage shows the stage's number, drawn in
-   the gutter so copying the code copies only the code. */
+   first line of each run of a stage shows the stage's number in the
+   gutter, and its name on hover, both drawn here so copying the code
+   copies only the code. */
 :root { --stage-1: #7fb2e5; --stage-2: #e9ae55; --stage-3: #93c47d; --stage-4: #e8896f; }
 :root[data-theme="light"] { --stage-1: #2f6db0; --stage-2: #9a5b0c; --stage-3: #3b7a2c; --stage-4: #b4472d; }
 :root[data-theme="tokyo-night"] { --stage-1: #7aa2f7; --stage-2: #e0af68; --stage-3: #9ece6a; --stage-4: #f7768e; }
@@ -1222,13 +1223,12 @@ cite { font-style: italic; }
 .listing .line[data-stage="2"] { --st: var(--stage-2); }
 .listing .line[data-stage="3"] { --st: var(--stage-3); }
 .listing .line[data-stage="4"] { --st: var(--stage-4); }
-.listing .line[data-badge]::before {
-  content: attr(data-badge);
-  content: attr(data-badge) / "";
+.listing .stage-badge {
   position: absolute;
   left: 0.6rem;
   top: 50%;
   translate: 0 -50%;
+  z-index: 1;
   display: grid;
   place-items: center;
   width: 1.2rem;
@@ -1238,7 +1238,32 @@ cite { font-style: italic; }
   background: var(--code-bg);
   color: var(--st);
   font: 600 0.68rem / 1 var(--label);
+  cursor: default;
   user-select: none;
+}
+.listing .stage-badge::before { content: attr(data-n); }
+/* The stage's name, beside the number on hover, over the code. */
+.listing .stage-badge::after {
+  content: attr(data-name);
+  position: absolute;
+  left: calc(100% + 0.45rem);
+  top: 50%;
+  translate: -0.2rem -50%;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--st);
+  border-radius: 999px;
+  background: var(--code-bg);
+  color: var(--st);
+  font: 600 0.72rem / 1.3 var(--label);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, translate 0.15s ease;
+}
+.listing .stage-badge:hover { background: var(--st); color: var(--code-bg); }
+.listing .stage-badge:hover::after { opacity: 1; translate: 0 -50%; }
+@media (prefers-reduced-motion: reduce) {
+  .listing .stage-badge::after { transition: none; }
 }
 .listing .line[data-stage].is-lit { background: color-mix(in srgb, var(--st) 14%, transparent); }
 @media (prefers-reduced-motion: no-preference) {
