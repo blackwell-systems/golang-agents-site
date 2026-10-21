@@ -9,6 +9,7 @@ stage: all
 date: 2026-10-19
 weight: 5
 work: true
+art: first-agent
 ---
 
 This page builds a whole agent and runs it.

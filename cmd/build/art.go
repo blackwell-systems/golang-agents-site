@@ -69,6 +69,7 @@ var arts = map[string]artwork{
 	"path-shipping":      card("On a loading dock under a work lamp, the Gopher in an amber hard hat ticks a line on its clipboard while the Ghost, a stone android, sets a sealed crate onto a cart on iron rails."),
 	"path-leading":       card("Under a hanging lamp, the Gopher on a stool moves a token along a dotted route on a map of the monument, while the Ghost, a stone android, leans in and points to the same route."),
 	"section-research":   plate("At a stone workbench by lantern light, the Gopher sets small stone blocks on one pan of a brass balance while the kneeling Ghost, a stone android, tallies the weighings on a slate."),
+	"first-agent":        plate("By lantern light, the Gopher sets a stone block into a small ring of blocks on a workbench while the Ghost, a stone android, leans in close to watch, mallet and chisel at hand."),
 	"section-examples":   plate("On a stone ledge by lantern light, the Gopher turns the crank of a working model of gears and a looping track while the leaning Ghost, a stone android, watches a little cart ride the rails."),
 	"section-ecosystem":  plate("On a round stone platform high above a city of bridges and towers, the Gopher studies a map and points down one stone causeway while the kneeling Ghost, a stone android, sets a lantern down beside it."),
 	"section-production": plate("At night beside a great barred stone door, the Ghost, a stone android, stands guard with one hand on the heavy bar while the Gopher keeps a tally of plain marks at a stone desk by lantern light."),
