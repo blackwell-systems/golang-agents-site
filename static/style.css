@@ -1047,13 +1047,15 @@ cite { font-style: italic; }
 .prose li > p:last-child { margin-bottom: 0; }
 .prose li::marker { color: var(--amber); }
 .prose > :is(.listing, table, .table-wrap, .table-scroll, .diagram, .result, .result-cards,
-  .definition, .fit, blockquote, .loop-stages, hr) {
+  .definition, .fit, blockquote, .loop-stages, hr, .hood, .go-primer),
+:is(.hood, .go-primer) > :is(.listing, table, .table-wrap, .table-scroll, .diagram) {
   margin-top: var(--block-before);
   margin-bottom: var(--block-after);
 }
 .prose > :is(h2, h3, h4) + :is(.listing, table, .table-wrap, .table-scroll, .diagram, .result,
   .result-cards, .definition, .fit, blockquote, .loop-stages) { margin-top: 0; }
-.prose > :first-child { margin-top: 0; }
+.prose > :first-child, :is(.hood, .go-primer) > :first-child { margin-top: 0; }
+:is(.hood, .go-primer) > :last-child { margin-bottom: 0; }
 .prose strong { color: var(--ivory); font-weight: 600; }
 .prose hr { border: 0; border-top: 1px solid var(--line); }
 .prose img { margin: var(--space-5) 0; }
@@ -2608,6 +2610,50 @@ nav.toc { display: none; }
   color: var(--ivory);
 }
 .definition strong { color: var(--amber); }
+
+/* Under the hood: a passage that goes deeper than a first read needs.
+   In a page, <div class="hood"> on its own line, a blank line, the
+   Markdown, a blank line, and </div>. The label says it can be skipped,
+   so a newcomer doesn't stop at it. */
+.hood {
+  padding: var(--space-4) var(--panel-px) var(--space-4);
+  border: 1px dashed var(--line);
+  border-left: var(--accent-w) solid var(--soft);
+  border-radius: var(--radius);
+}
+.hood::before {
+  content: "Under the hood \00B7  safe to skip on a first read";
+  display: block;
+  margin-bottom: var(--space-3);
+  font: 600 var(--fs-label) / 1.3 var(--label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+/* A short primer for readers new to Go, closed until opened, so it
+   costs a reader who knows Go nothing: <details class="go-primer">,
+   then <summary>, a blank line, the Markdown, a blank line, </details>. */
+.go-primer {
+  border: 1px solid var(--line);
+  border-left: var(--accent-w) solid var(--link);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 0 var(--panel-px);
+}
+.go-primer > summary {
+  margin: 0 calc(-1 * var(--panel-px));
+  padding: var(--space-3) var(--panel-px);
+  cursor: pointer;
+  font: 600 var(--fs-md) / 1.4 var(--label);
+  color: var(--ivory);
+  list-style: none;
+}
+.go-primer > summary::-webkit-details-marker { display: none; }
+.go-primer > summary::after { content: "+"; float: right; color: var(--link); font-weight: 500; }
+.go-primer[open] > summary::after { content: "\2212"; }
+.go-primer[open] { padding-bottom: var(--space-4); }
+.go-primer > summary:focus-visible { outline: 3px solid var(--ivory); outline-offset: 2px; }
 
 /* A path in phases: a row each, the phase on the left and its steps on
    the right; on a narrow screen the phase sits above its steps. */
