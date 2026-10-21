@@ -18,7 +18,8 @@ This page covers how these iterators work and the patterns an agent needs, with 
 
 ## An iterator is a function
 
-The `iter` package defines two types:
+The `iter` package defines two types (an [iterator](/glossary/#iterator) is a function that hands values to a `range` loop one at a time).
+The square brackets hold [type parameters](/glossary/#type-parameter): `iter.Seq[Event]` is a sequence whose values are `Event`s, and `V` below stands for whatever type you pick.
 
 - `iter.Seq[V]` is `func(yield func(V) bool)`: a function that calls `yield` once for each value.
 - `iter.Seq2[K, V]` is `func(yield func(K, V) bool)`: the same with two values per step, such as a value and an error.

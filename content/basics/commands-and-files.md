@@ -35,7 +35,7 @@ The companion code needs Go {{code go-version}}.
 ## Running a command from a tool
 
 `exec.CommandContext` builds a command tied to a context.
-If the context ends before the command does, `os/exec` calls the command's `Cancel` function, which `CommandContext` sets to kill the process; on Unix that is `SIGKILL`, which the process can't catch.
+If the context ends before the command does, `os/exec` calls the command's `Cancel` function, which `CommandContext` sets to kill the process; on Unix that is `SIGKILL`, a signal (a message the operating system sends to a process) that ends it at once and that the process can't catch.
 The context to pass is the one the tool was given, derived from the run's, so Ctrl-C, a shutdown, and the tool's own deadline all reach the process the same way.
 The [context page](/basics/context/#tools-that-start-processes) covers that chain; here is the runner behind the agent's `run_tests` tool:
 
@@ -66,7 +66,11 @@ So it uses plain `exec.Command` and arranges the stop itself, with `context.Afte
 ## Stopping everything it started
 
 `go test` is a parent: it runs the compiler, then a test binary, and test code can start processes of its own.
-The default `Cancel` kills only the process `exec` started.
+The default `Cancel` kills only the process `exec` started, so a test's own processes can keep running after a timeout.
+The fix, on Unix, is to start the command in its own process group and kill the whole group when the run is cancelled; the rest of this section shows how.
+
+<div class="hood">
+
 In a check with a test that sleeps for 40 seconds, killing the `go` command after four seconds left the test binary running, and `Run` waited out its two-second `WaitDelay` because the test binary still held the output pipe.
 
 ```definition
@@ -93,8 +97,10 @@ Here is where both are used, along with the output handling the next section des
 Three limits are worth stating plainly:
 
 - **It is Unix only.** `group_unix.go` has the `unix` build constraint; on other systems, `group_other.go` provides two functions that do nothing, and only the `go` command is killed. On Windows the equivalent is a Job Object, which the companion code doesn't use.
-- **A process can leave the group.** One that starts a new session with `setsid` is no longer in the group, so the kill misses it. An operating system sandbox catches that: bubblewrap, used on Linux at the next rung, puts the run in a process namespace of its own and ends it with its parent.
+- **A process can leave the group.** One that starts a new session with `setsid` is no longer in the group, so the kill misses it. An operating system sandbox (rung 3 of the [sandboxing ladder](/production/prompt-injection/#a-sandboxing-ladder-for-the-code-it-runs), which restricts what the test can touch from outside the process) catches that: bubblewrap, used on Linux at that rung, puts the run in a process namespace of its own and ends it with its parent.
 - **The plain runner doesn't do it.** `GoTest`, above, uses the default `Cancel` and a five-second `WaitDelay`. The triage tools use it too when the defenses are off, so there a test's children can outlive a timeout.
+
+</div>
 
 ## Output the model can read
 
@@ -107,15 +113,19 @@ When the two are the same writer and can be compared with `==`, `os/exec` gives 
 `cmd.CombinedOutput` does the same with a `bytes.Buffer`, with no limit, so a test that prints in a loop can fill memory.
 
 **A cap applied while reading.**
-`capped` keeps the first bytes it is given and drops the rest:
+`capped` keeps the first bytes it is given and drops the rest.
+This cap, 1 MiB by default, protects the harness's memory.
+When it is reached, the run's error says so, with `ErrOutputCapped`.
+
+<div class="hood">
 
 ```go include=ch17/safety/sandbox.go lines=151..173 highlight=13-17
 ```
 
 `Write` reports the whole write as taken even when it keeps none of it.
 A short count would end the copy from the pipe with an error, `os/exec` would close its end of the pipe, and the command would fail on its next write instead of finishing.
-This cap, 1 MiB by default, protects the harness's memory.
-When it is reached, the run's error says so, with `ErrOutputCapped`.
+
+</div>
 
 **A smaller cap for the model, with a note.**
 `run_tests` sends the model far less: its report keeps the output of failing tests, build errors, and each package's result line, drops the output of passing tests, timings, and the temporary directory's path, and then cuts the text to 8 KiB:
@@ -145,6 +155,7 @@ The hardened runner makes the same choice in fewer lines:
 ```go include=ch17/safety/sandbox.go lines=122..139
 ```
 
+It uses `errors.As` here and not `errors.AsType`, because the check sits in a `case` list beside `err == nil`, which needs a single true-or-false value; `AsType` returns two.
 It adds one case: `exec.ErrWaitDelay` is what `Run` returns when the command exited successfully but something it started kept the output open until `WaitDelay` expired.
 `killGroup` has already ended that process, so the run counts as finished.
 
@@ -257,12 +268,16 @@ The root is the second check, and the one that catches links.
 ```go include=ch17/triage/codetools.go lines=97..106 highlight=6-9
 ```
 
-The approval gate, which hashes each file a call would change so that a person's yes covers exactly what they saw, reads through a root too, and uses `root.Lstat` before opening anything:
+The approval gate, which hashes each file a call would change so that a person's yes covers exactly what they saw, reads through a root too, and checks what kind of file it is before opening anything.
+
+<div class="hood">
 
 ```go include=ch17/safety/approve.go lines=351..381 highlight=10,16,21
 ```
 
 Checking the type first means a named pipe planted in the workspace can't make the gate wait forever on a read, and `io.LimitReader` bounds the read.
+
+</div>
 
 A root allows links that stay inside it, and that leaves one gap a write tool may care about.
 A link from `store/a` to `../auth` stays inside the workspace, so `os.Root` follows it, and a write to `store/a/auth.go` changes a file in `auth/`.
@@ -309,4 +324,4 @@ The third, which runs only on Unix, covers the hardened runner: the environment,
 
 1. In `testEnv`, add `"OPENROUTER_API_KEY"` to the list of variables passed through, and run `TestRunTests` again: the "no API key" case fails with "key visible".
 2. In `TestRunner.Run`, comment out `group(cmd)` and run `TestRunnerKillsGroup` and `TestRunnerLinger`: both report that the child outlived the run.
-3. In the triage workspace that `TestCodeTools` sets up, make a symbolic link that points outside it, such as to `/etc/hosts`, and call `code_read` on the link's name: the text check lets it through, and the root refuses it.
+3. (Advanced.) In `TestCodeTools` in `ch17/triage/tools_test.go`, change the first line to `e, tools := newTestEnv(t, "m1-done-after-delete")` (the test builds its workspace in a temporary directory, and `e.Dir` is its path). Under it add `os.Symlink("/etc/hosts", filepath.Join(e.Dir, "link.go"))`, then call `code_read` on `link.go` the way the test's other calls do and print the error, then `os.Remove` the link so the later `code_search` check doesn't walk it. The text check lets the name through, and the root refuses the read: the error is `no file "link.go"; use code_list or code_search to find it`. Undo with `git restore .` in `code`.
