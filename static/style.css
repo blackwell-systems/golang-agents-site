@@ -777,6 +777,21 @@ cite { font-style: italic; }
 
 /* Author */
 .author .ornament { margin: 0 0 1.5rem; }
+/* The author's photo, a small circle beside the name. */
+.author-head { display: flex; align-items: center; gap: var(--space-5); margin-bottom: var(--space-4); }
+.author-head .title-block { margin: 0; }
+.author-head .eyebrow { margin-bottom: var(--space-1); }
+.author-head h2 { margin: 0; }
+.author-photo { flex: none; }
+.author-photo img {
+  display: block;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--amber-dim);
+}
+@media (max-width: 30rem) { .author-photo img { width: 5.5rem; height: 5.5rem; } }
 .author-work { padding-left: 1.2rem; margin: 0 0 1rem; }
 .author-work li { margin-bottom: 0.55rem; }
 .author-work li::marker { color: var(--amber); }
