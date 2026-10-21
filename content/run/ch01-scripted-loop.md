@@ -48,8 +48,8 @@ The replies are plain Go values, built with three small helpers:
 ```go include=ch01/script.go tag=script
 ```
 
-`Calls` builds a reply that requests tools, `Call` builds one tool call whose arguments are JSON, for `Calls` to wrap, and `Says` builds a reply that only contains text; a reply without tool calls counts as the answer.
-To decide which reply comes next, the scripted model counts how many of the model's own replies (messages with the [assistant role](/basics/messages-and-roles/)) the conversation already holds. A loop that lost a message or put one in the wrong place would knock the script out of step, and the tests would fail.
+`Calls` builds a reply that requests tools, `Call` builds one tool call whose arguments are JSON (the backtick strings, such as `{}` for "no arguments", are Go raw strings holding that JSON), for `Calls` to wrap, and `Says` builds a reply that only contains text; a reply without tool calls counts as the answer.
+To decide which reply comes next, the scripted model counts how many of the model's own replies (the messages with the `assistant` role, the ones the model wrote; [Messages and roles](/basics/messages-and-roles/) explains the roles) the conversation already holds. A loop that lost a message or put one in the wrong place would knock the script out of step, and the tests would fail.
 
 ## Run the tests
 
@@ -65,7 +65,7 @@ The whole suite finishes in milliseconds without touching the network, and that 
 
 ## Things to try
 
-Each of these is a one-line change; run `go run ./ch01` after it.
+Each of these is a change of a line or two; run `go run ./ch01` after it.
 
 **Misspell a tool.** In `script.go`, change the tool name in `call_3`, the `read_file` call in turn 2, to `read_files`.
 Turn 2 now prints a `tool error` whose text starts with `no tool named "read_files"` (the printer cuts long results short, so the list of real tools is cut off on screen), and the run keeps going, because the loop hands the error back to the model.
@@ -75,8 +75,20 @@ With a real model, the next reply would usually correct the name.
 The run prints three turns, then ends with `run agent: agent: max turns reached`.
 `Run` still returns the conversation so far, which is how the program prints those three turns.
 
-**Cancel before it starts.** Wrap the context in `main.go` with a deadline that has already passed, `context.WithTimeout(ctx, 0)`.
-`Run` checks `ctx` at the top of every turn, so it stops before the first model call, and the error matches `context.DeadlineExceeded` under `errors.Is`.
+**Cancel before it starts.** In `main.go`, the `run` function starts with `func run(ctx context.Context, w io.Writer) error {`.
+Add two lines directly after that one (and add `"time"` to the imports, or `go run` will report an undefined `time`):
+
+```go
+ctx, cancel := context.WithTimeout(ctx, 0) // a deadline of zero seconds
+defer cancel()
+```
+
+`WithTimeout` gives back a copy of `ctx` that is cancelled after the given time, and zero means the deadline has already passed.
+`Run` checks `ctx` at the top of every turn, so it stops before the first model call.
+The program ends with an error whose text mentions `context deadline exceeded`.
+In code, `errors.Is(err, context.DeadlineExceeded)` is how you ask whether that is the reason the error occurred, even when other errors have wrapped it.
+
+When you are done experimenting, undo your edits from the `code` directory with `git restore .` (or `git checkout -- .`).
 
 ## Key files
 
