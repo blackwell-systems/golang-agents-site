@@ -8,6 +8,7 @@ chapters: 4, 5, 10, 11, 12, 13, 14, 15
 stage: all
 date: 2026-10-18
 weight: 90
+art: launch-checklist
 ---
 
 An agent that works on your laptop while you watch is a different program from one that runs at night with a budget and a key.
