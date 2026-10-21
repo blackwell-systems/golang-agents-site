@@ -8,6 +8,7 @@ chapters: 1, 5, 9, 13
 stage: all
 date: 2026-10-20
 weight: 12
+art: patterns-by-name
 ---
 
 Most of the vocabulary for agent designs comes from a few places.
