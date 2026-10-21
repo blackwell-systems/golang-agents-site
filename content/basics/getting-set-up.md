@@ -7,6 +7,7 @@ group: Get oriented
 chapters: 1, 2
 date: 2026-10-19
 weight: 5
+art: getting-set-up
 ---
 
 Every example on this site is a Go program in one public repository, and every one of them runs on your machine without an API key.
