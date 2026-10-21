@@ -8,6 +8,7 @@ chapters: 6, 9, 11, 12
 stage: all
 date: 2026-10-19
 weight: 90
+art: go-iterators
 ---
 
 An agent produces things over time: the pieces of a streamed reply, then a tool call, then its result, then the next turn.
