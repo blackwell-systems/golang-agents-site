@@ -8,6 +8,7 @@ chapters: 4, 7, 14
 stage: 3
 date: 2026-10-20
 weight: 92
+art: commands-and-files
 ---
 
 A coding agent's most useful tools reach outside the Go process.
