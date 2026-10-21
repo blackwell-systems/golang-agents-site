@@ -1,0 +1,68 @@
+# Builds golang-agents.com and publishes it to GitHub Pages on every push
+# to main. The code excerpts and hover popovers come from the public
+# companion code, checked out at the tag the site's code links point at
+# (codeRef in cmd/build/main.go). The copy check needs the book's
+# chapters, which aren't public, so it runs on local builds only.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find the companion code's tag
+        id: ref
+        run: |
+          ref=$(sed -n 's/^[[:space:]]*codeRef[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' cmd/build/main.go)
+          test -n "$ref"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: blackwell-systems/go-agents-book-code
+          ref: ${{ steps.ref.outputs.ref }}
+          path: companion
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # The hover popovers read third-party packages from the module
+      # cache, without the network, so download every module first.
+      - name: Download the companion code's modules
+        run: |
+          find companion/code -name go.mod -not -path '*/testdata/*' | while read -r m; do
+            (cd "$(dirname "$m")" && go mod download)
+          done
+
+      - name: Build
+        run: go run ./cmd/build -code "$PWD/companion/code" -book ""
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

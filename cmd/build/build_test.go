@@ -166,36 +166,52 @@ func TestRedirects(t *testing.T) {
 	if err := writeRedirects(out); err == nil {
 		t.Error("writeRedirects with no new sections built: no error")
 	}
-	for _, m := range movedPages {
-		if err := os.MkdirAll(filepath.Join(out, filepath.FromSlash(m.To)), 0o755); err != nil {
+	page := func(url string) {
+		t.Helper()
+		dir := filepath.Join(out, filepath.FromSlash(url))
+		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(filepath.Join(out, filepath.FromSlash(m.To), "index.html"), nil, 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte("real"), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
 	for _, m := range moved {
-		if err := os.MkdirAll(filepath.Join(out, m.To), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(out, m.To, "index.html"), nil, 0o644); err != nil {
-			t.Fatal(err)
-		}
+		page("/" + m.To + "/")
 	}
+	for _, m := range movedPages {
+		page(m.To)
+	}
+	page("/basics/agent-loop/")
 	if err := writeRedirects(out); err != nil {
 		t.Fatal(err)
 	}
-	b, err := os.ReadFile(filepath.Join(out, "_redirects"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if strings.Index(string(b), "/loop/why-go/ ") > strings.Index(string(b), "/loop/* ") {
-		t.Errorf("a moved page's redirect comes after its old section's:\n%s", b)
-	}
-	for _, line := range []string{"/foundations /basics/ 301\n", "/loop/* /basics/:splat 301\n", "/providers/ /ecosystem/ 301\n", "/loop/why-go/ /ecosystem/why-go/ 301\n"} {
-		if !strings.Contains(string(b), line) {
-			t.Errorf("_redirects lacks %q:\n%s", line, b)
+	read := func(url string) string {
+		t.Helper()
+		b, err := os.ReadFile(filepath.Join(out, filepath.FromSlash(url), "index.html"))
+		if err != nil {
+			t.Fatal(err)
 		}
+		return string(b)
+	}
+	tests := []struct{ from, to string }{
+		{"/foundations/", "/basics/"},
+		{"/providers/", "/ecosystem/"},
+		{"/loop/agent-loop/", "/basics/agent-loop/"},
+		// A moved page's own redirect wins over its old section's guess.
+		{"/loop/why-go/", "/ecosystem/why-go/"},
+		{"/foundations/streaming/", "/build/streaming/"},
+	}
+	for _, tt := range tests {
+		got := read(tt.from)
+		for _, want := range []string{`content="0; url=` + tt.to + `"`, `href="` + siteURL + tt.to + `"`, `noindex`} {
+			if !strings.Contains(got, want) {
+				t.Errorf("%s: redirect page lacks %q:\n%s", tt.from, want, got)
+			}
+		}
+	}
+	if read("/basics/agent-loop/") != "real" {
+		t.Error("a redirect overwrote a real page")
 	}
 }
 

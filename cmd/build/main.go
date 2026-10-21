@@ -95,9 +95,10 @@ var sections = []section{
 }
 
 // moved maps a section's old directory to its new one. The build writes
-// a permanent redirect from every URL under the old one, so links and
-// search results that predate a rename keep working. Each entry points
-// at a section's current directory, never at another old one.
+// a redirect page at the old one and at every page under it
+// (writeRedirects), so links and search results that predate a rename
+// keep working. Each entry points at a section's current directory,
+// never at another old one.
 var moved = []struct{ From, To string }{
 	{"foundations", "basics"},
 	{"loop", "basics"},
@@ -108,8 +109,8 @@ var moved = []struct{ From, To string }{
 }
 
 // movedPages are pages that left their section for another one. Their
-// redirects come before the sections' in _redirects, since Cloudflare
-// uses the first rule that matches.
+// redirect pages are written after the sections', so they replace the
+// section's guess at the same address.
 var movedPages = []struct{ From, To string }{
 	{"/loop/why-go/", "/ecosystem/why-go/"},
 	{"/foundations/why-go/", "/ecosystem/why-go/"},

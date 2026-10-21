@@ -731,11 +731,14 @@ func (x *goIndex) refs(rel string, ex excerpt) ([]goRef, error) {
 	}
 	// Uses come second, so an embedded field's name shows the type it
 	// names rather than the field it declares.
-	for id, obj := range u.info.Defs {
-		visit(id, obj)
-	}
-	for id, obj := range u.info.Uses {
-		visit(id, obj)
+	// In source order, so each object gets the same number on every
+	// build; ranging over the maps would number them at random.
+	for _, m := range []map[*ast.Ident]types.Object{u.info.Defs, u.info.Uses} {
+		for _, id := range slices.SortedFunc(maps.Keys(m), func(a, b *ast.Ident) int {
+			return int(a.Pos() - b.Pos())
+		}) {
+			visit(id, m[id])
+		}
 	}
 	out := slices.Collect(maps.Values(byOff))
 	slices.SortFunc(out, func(a, b goRef) int { return a.off - b.off })

@@ -29,11 +29,16 @@ The icons and dividers are symbols in one sprite, `static/img/icons.svg`: line w
 
 ## Deploy
 
-```
-go run ./cmd/build && npx wrangler deploy
+Push to `main`. The workflow in `.github/workflows/pages.yml` builds the site and publishes `dist/` to GitHub Pages, which serves golang-agents.com:
+
+```console
+go run ./cmd/build          # local build: runs the copy check against the book
+git push                    # GitHub Actions builds again and publishes
 ```
 
-`wrangler.jsonc` serves `dist/` as a Worker's static assets on golang-agents.com and www.golang-agents.com, with trailing-slash URLs (`/loop/agent-loop/` is `dist/loop/agent-loop/index.html`) and `404.html` for unknown paths. `static/.assetsignore` is copied into `dist/` and keeps stray files off the site.
+The workflow checks out the public companion code at the tag `codeRef` names in `cmd/build/main.go`, downloads its modules so the hover popovers can read third-party packages, and builds with `-book ""`: the copy check needs the book's chapters, which aren't public, so it runs on local builds only. Always build locally before pushing.
+
+Pages serves `dist/` as plain files: `/basics/agent-loop/` is `dist/basics/agent-loop/index.html`, and `404.html` answers unknown paths. Old URLs from renamed sections get small redirect pages, written by the build from the `moved` and `movedPages` lists in `cmd/build/main.go`.
 
 ## Layout
 

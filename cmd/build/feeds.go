@@ -4,10 +4,10 @@ import (
 	"cmp"
 	"encoding/xml"
 	"fmt"
+	"html"
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"time"
 )
 
@@ -122,29 +122,69 @@ func writeXML(file string, v any) error {
 	return nil
 }
 
-// writeRedirects writes _redirects, which Cloudflare reads from the
-// assets directory: a permanent redirect from each moved page, then from
-// each moved section, with
-// and without its trailing slash, and from every page under it. It
-// checks that each new section exists in out.
+// writeRedirects writes a redirect page at every URL that moved, so
+// links and search results that predate a rename keep working on any
+// static host: GitHub Pages serves files and nothing else. Each page
+// sends the browser on at once, names the new URL as canonical, and
+// asks search engines not to index it. A moved section gets a page at
+// its old address and one for every page now in the new section; then
+// each moved page gets its own, replacing the section's guess. It checks
+// that every target exists in out and that no redirect lands on a real
+// page.
 func writeRedirects(out string) error {
-	var b strings.Builder
-	b.WriteString("# Written by cmd/build from the moved lists in main.go.\n")
-	for _, m := range movedPages {
-		if _, err := os.Stat(filepath.Join(out, filepath.FromSlash(m.To), "index.html")); err != nil {
-			return fmt.Errorf("redirect %s to %s: %w", m.From, m.To, err)
+	exists := func(url string) bool {
+		_, err := os.Stat(filepath.Join(out, filepath.FromSlash(url), "index.html"))
+		return err == nil
+	}
+	written := map[string]bool{}
+	write := func(from, to string) error {
+		dir := filepath.Join(out, filepath.FromSlash(from))
+		if exists(from) && !written[from] {
+			return fmt.Errorf("redirect %s to %s: a page already exists there", from, to)
 		}
-		fmt.Fprintf(&b, "%s %s 301\n%s %s 301\n", strings.TrimSuffix(m.From, "/"), m.To, m.From, m.To)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return fmt.Errorf("redirect %s: %w", from, err)
+		}
+		u := html.EscapeString(to)
+		page := `<!doctype html><html lang="en"><head><meta charset="utf-8">` +
+			`<title>Moved</title><meta name="robots" content="noindex">` +
+			`<link rel="canonical" href="` + html.EscapeString(siteURL+to) + `">` +
+			`<meta http-equiv="refresh" content="0; url=` + u + `">` +
+			`<script>location.replace("` + u + `" + location.hash)</script></head>` +
+			`<body><p>This page moved to <a href="` + u + `">` + u + `</a>.</p></body></html>` + "\n"
+		if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte(page), 0o644); err != nil {
+			return fmt.Errorf("redirect %s: %w", from, err)
+		}
+		written[from] = true
+		return nil
 	}
 	for _, m := range moved {
-		if _, err := os.Stat(filepath.Join(out, m.To, "index.html")); err != nil {
-			return fmt.Errorf("redirect /%s/ to /%s/: %w", m.From, m.To, err)
+		to := "/" + m.To + "/"
+		if !exists(to) {
+			return fmt.Errorf("redirect /%s/ to %s: no such section", m.From, to)
 		}
-		fmt.Fprintf(&b, "/%[1]s /%[2]s/ 301\n/%[1]s/ /%[2]s/ 301\n/%[1]s/* /%[2]s/:splat 301\n",
-			m.From, m.To)
+		if err := write("/"+m.From+"/", to); err != nil {
+			return err
+		}
+		entries, err := os.ReadDir(filepath.Join(out, m.To))
+		if err != nil {
+			return fmt.Errorf("redirect /%s/: %w", m.From, err)
+		}
+		for _, e := range entries {
+			if page := to + e.Name() + "/"; e.IsDir() && exists(page) {
+				if err := write("/"+m.From+"/"+e.Name()+"/", page); err != nil {
+					return err
+				}
+			}
+		}
 	}
-	if err := os.WriteFile(filepath.Join(out, "_redirects"), []byte(b.String()), 0o644); err != nil {
-		return fmt.Errorf("_redirects: %w", err)
+	for _, m := range movedPages {
+		if !exists(m.To) {
+			return fmt.Errorf("redirect %s to %s: no such page", m.From, m.To)
+		}
+		if err := write(m.From, m.To); err != nil {
+			return err
+		}
 	}
 	return nil
 }
