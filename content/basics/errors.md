@@ -62,10 +62,13 @@ Those are a type, with methods that answer the questions callers ask:
 ```
 
 `errors.AsType` finds the first error in a chain with a given type and returns it, typed: `e, ok := errors.AsType[*APIError](err)`.
+The type in square brackets (a [type parameter](/glossary/#type-parameter)) says which kind of error to look for; `AsType` returns it already converted to that type, with `ok` false if the chain has none.
 It is the generic form of `errors.As`, added in Go 1.26; it needs no variable declared in advance, and it can't be handed a pointer of the wrong shape, a common mistake with `errors.As`.
 
 The retry code goes one step further and asks about behavior, not type.
-It defines small interfaces for what an error can report about itself:
+It defines small interfaces for what an error can report about itself.
+Each interface names one method; any error that has a `Retryable` method counts, whatever its type.
+
 
 ```go include=ch12/agent/classify.go tag=reports
 ```
@@ -100,10 +103,16 @@ Here is that error being made, with the list of real tools the model needs to fi
 ```go include=ch12/agent/loop.go tag=lookup
 ```
 
-Arguments that don't decode get the same treatment, with one more detail: `encoding/json/v2` deliberately varies the wording of its error messages between runs, so the agent writes its own stable message from the error's fields, through `errors.AsType`:
+Arguments that don't decode get the same treatment: the model reads a short message saying which part of its arguments was wrong, followed by the shape of a correct call.
+
+<div class="hood">
+
+One more detail: `encoding/json/v2` deliberately varies the wording of its error messages between runs, so the agent writes its own stable message from the error's fields, through `errors.AsType`:
 
 ```go include=ch06/agent/tools.go tag=decode
 ```
+
+</div>
 
 Stable wording matters twice here: a model reads it, and [recorded runs used as test fixtures](/production/testing-offline/) would otherwise change from one run to the next.
 
@@ -123,6 +132,9 @@ The code that runs a tool sorts every result into one of three outcomes: an answ
 
 Even a fatal error produces a tool message, because every tool call in a conversation needs an answer; the run then stops with the error, wrapped with the tool's name.
 
+The second case in the listing, `ErrOutcomeUnknown`, is for a tool that may have changed something outside the run, such as sending a request, and then stopped without saying whether it did, for example by timing out.
+Running it again could do the thing twice, so the run stops instead; [Durable runs](/production/durable-runs/) shows how a resumed run settles the question.
+
 ## Panics at the tool boundary
 
 A panic is for a programmer's mistake, not for a failure the program expects.
@@ -137,18 +149,25 @@ Recovering anywhere else would hide bugs; recovering here keeps one broken tool 
 ## Several failures at once: errors.Join
 
 Sometimes two things fail and both matter: a write fails, and putting the files back fails too.
-`errors.Join` returns one error that holds both, and `errors.Is` and `errors.AsType` search every branch:
+`errors.Join` returns one error that holds both, and `errors.Is` and `errors.AsType` search every branch.
+The excerpt is the end of `apply`, a function in the companion code that writes several files into a tree and puts the originals back if any write, or the build afterward, fails:
 
 ```go include=ch12/groups/merge.go tag=apply-write
 ```
 
 [Parallel tool calls](/build/parallel-tool-calls/) are the other common case: when several calls in one reply can't run at all, the runner joins their errors, so the run reports every one instead of whichever finished first.
 
+The retry code has to look inside joined errors too, when it checks whether any error in a chain is a timeout.
+
+<div class="hood">
+
 A joined error's `Unwrap` returns a slice, `Unwrap() []error`, so code that walks a chain by hand has to follow both shapes.
 The retry code does, because it looks for any error in the chain with a `Timeout` method that returns true, which `errors.AsType` can't express, since it stops at the first error in the chain that has the method, whatever that method returns:
 
 ```go include=ch12/agent/classify.go tag=timed-out
 ```
+
+</div>
 
 ## Mistakes to avoid
 
@@ -168,5 +187,7 @@ $ go test ./ch12/agent -run 'TestClassify|TestToolPanic|TestToolFatal' -v
 ```
 
 1. In `TestClassify`, add a case for an error that wraps a `*RetryError` in another `fmt.Errorf`, and check that it still isn't retried.
-2. Write a tool that panics on purpose, run it through the loop with a [scripted model](/run/ch01-scripted-loop/), and read the tool message the model would get.
+2. Make a tool panic on purpose and read the tool message the model would get. `TestToolPanic` in `ch12/agent/final_test.go` already does it: a tool that panics with `"boom"`, run through the loop by a scripted model. Add `t.Log(got.Content)` after the line `got := res.Messages[2]` and run `go test ./ch12/agent -run TestToolPanic -v`. You should see `echo failed with an internal error (boom); try another way, or report it`.
 3. Change `toolError.Error` to return `e.kind.Error() + ": " + e.msg`, and look at what the model would read for an unknown tool.
+
+Undo your edits with `git restore .` in the `code` directory.

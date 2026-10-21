@@ -75,7 +75,7 @@ Temperature is a setting applied to the probabilities before the choice.
 Values below 1 sharpen them, so the favorite wins more often, and 0 means always taking the favorite, which is greedy decoding.
 Values above 1 even them out, and long-shot tokens get chosen more often.
 At 0.5 the toy's "sees" climbs from 0.13 to about 0.33.
-A real model applies temperature by dividing each token's score by it before the softmax, the step that turns scores into probabilities; the toy's exponent is that same operation written another way.
+A real model applies temperature by dividing each token's score by it before the softmax, the step that turns scores into probabilities; the toy gets the same effect another way, raising each word's count to the power 1/temperature, so a low temperature widens the gap between common and rare words.
 
 One recorded experiment put a small open model, `meta-llama/llama-3.1-8b-instruct`, through it: describe Go in exactly three words, ten calls at each of four temperatures.
 Temperature 0 produced one reply, ten times over.

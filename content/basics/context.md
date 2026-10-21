@@ -56,7 +56,7 @@ The rest of this page is that alternative, piece by piece.
 
 `context.Context` is an interface with four methods:
 
-- `Done()` returns a channel that is closed when the context ends, for use in a `select`.
+- `Done()` returns a channel that is closed when the context ends, for use in a `select` ([Goroutines with an owner](/basics/goroutines/) explains channels and `select`).
 - `Err()` is `nil` while the context is live, then `context.Canceled` or `context.DeadlineExceeded`.
 - `Deadline()` reports when the context will end on its own, if it has a deadline.
 - `Value(key)` returns a value stored in the context, or `nil`.
@@ -74,7 +74,7 @@ When a model call's deadline passes, the call and the HTTP request under it end;
 
 Two more rules complete the picture.
 The first cancellation wins: once a context is done, later calls to its cancel function change nothing, including its cause.
-And `context.Cause` always has an answer: the cause given when the context was cancelled, the parent's cause when cancellation came from above, and `Err()` itself when nobody gave one.
+And `context.Cause` (explained under "Say why it stopped" below) always has an answer: the cause given when the context was cancelled, the parent's cause when cancellation came from above, and `Err()` itself when nobody gave one.
 
 `context.Background()` is the root for `main`, for `init`, and for anything that starts a whole operation.
 `context.TODO()` is the same empty context under another name, a marker for code that should be passed a context and isn't yet; linters and readers can find it.
@@ -122,16 +122,24 @@ A cancelled context reports one of two errors, `context.Canceled` or `context.De
 
 `context.WithTimeoutCause` and `context.WithCancelCause` attach a cause, an error of your own, and `context.Cause` reads it back.
 Above, the call's timeout carries `ErrCallTimeout`.
-One detail makes this harder than it looks: when a request is cancelled, Go's HTTP/1 transport returns the cause, and its HTTP/2 transport returns only the kind of cancellation.
-The client joins both into the error, so callers can check either one:
+Go's HTTP transports don't all report a cancelled request the same way, so the client puts both the cause and the kind of cancellation into the error it returns, and callers can check either one with `errors.Is`.
+
+<div class="hood">
+
+The detail: when a request is cancelled, Go's HTTP/1 transport returns the cause, and its HTTP/2 transport returns only the kind of cancellation.
+The client joins both into the error:
 
 ```go include=ch06/openrouter/client.go tag=call-error
 ```
+
+</div>
 
 With both in the chain, the program can say in plain words why a run ended, checking the specific causes before the general kinds:
 
 ```go include=ch06/main.go tag=why-stopped
 ```
+
+The last check, `errors.AsType[*openrouter.APIError](err)`, has a type in square brackets: it says which kind of error to look for. `AsType` returns it already converted to that type, with `ok` false if the chain has none. The [errors page](/basics/errors/) covers it, and the [glossary](/glossary/#type-parameter) explains the brackets.
 
 "The model call timed out, worth retrying" and "cancelled" call for different responses, and only the cause tells them apart.
 
@@ -149,6 +157,8 @@ Every tool call in a conversation [needs a matching result](/basics/tool-calling
 ```go include=ch06/agent/loop.go tag=run-tools stages=all:3
 ```
 
+In `runTools`, `yield` is a function the caller passes in; the loop calls it to hand over each message as it is made, and it returns false when the caller wants no more. [Iterators in an agent](/basics/iterators/) explains the pattern.
+
 ## Waiting in your own code
 
 The standard library's blocking calls take a context and stop on their own.
@@ -160,8 +170,12 @@ The agent limits how many tool calls run at once with a buffered channel of slot
 
 A rate limiter that waits on a timer does the same, and stops the timer when it leaves early:
 
+<div class="hood">
+
 ```go include=ch09/agent/ratelimit.go tag=wait
 ```
+
+</div>
 
 Both return the cause, so a caller sees why the wait ended.
 Without the `ctx.Done()` case, a goroutine blocked on a full channel waits forever after its run is gone: a goroutine leak, which in a long-running service adds up one stopped run at a time.
@@ -219,15 +233,22 @@ Some work should finish even when the run is being cancelled: saving the checkpo
 ```go include=ch15/agent/journal.go tag=save
 ```
 
+The listing's comment mentions the resolution ladder: the three steps a resumed run uses to settle a tool call whose result was never recorded. It runs the call again if a repeat is harmless, asks the service whether the call happened, and only then asks a person. [Durable runs](/production/durable-runs/#the-resolution-ladder) covers it.
+
 Use it narrowly, for short writes that must complete, and give the operation its own timeout if it can block, since nothing else will stop it.
 
 A graceful shutdown goes one step further: in-flight work gets a grace period before it is cancelled.
+
+<div class="hood">
+
 This function builds that from the same parts: a context detached with `WithoutCancel`, and a goroutine that cancels it with the original cause, after the grace period when the cause is a shutdown and at once for anything else:
 
 ```go include=ch15/agent/shutdown.go tag=graced
 ```
 
 The goroutine has an owner: the returned `stop` function ends it, so a run that finishes early doesn't leave it waiting.
+
+</div>
 
 ## Testing timeouts without waiting
 
@@ -272,4 +293,6 @@ $ go test ./ch06/agent -run TestCancelPartwayThroughAReply -v
 
 1. In `TestTimeoutSynctest`, change the client's timeout and watch the test check the new duration, still instantly.
 2. In `ch06/openrouter/client.go`, change `WithTimeoutCause` to `WithTimeout` and drop the cause: which tests fail, and what does `whyStopped` report for a call timeout now?
-3. Write a tool that sleeps without checking its context, wrap it with a short timeout, and see when the run can finish.
+3. Run a tool that sleeps without checking its context. `TestTimeouts` in `ch12/agent/wrappers_test.go` already has one, named `deaf`, under a one-second timeout. Change its `time.Sleep(3 * time.Second)` to 5 seconds and run `go test ./ch12/agent -run TestTimeouts -v`. The test fails with `ignores its context: "done", <nil> after 5s`: the timeout fired, but the tool never looked, so the call finished only when the tool chose to (the test uses a fake clock, so it still runs instantly).
+
+Undo your edits with `git restore .` in the `code` directory.

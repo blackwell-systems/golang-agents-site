@@ -96,7 +96,7 @@ The overhead depends on the provider.
 Measured on the identical first request, `deepseek/deepseek-v4.1-flash` came to 441 tokens and `z-ai/glm-5.3-flash` to 317, while `openai/gpt-5.6-luna` needed only 126, since its provider stores tool definitions in a format more compact than the JSON you send.
 
 On a task this small the overhead hardly shows; the whole run cost $0.0008.
-Crash investigation is different, because the agent reads much more.
+Crash investigation is different, because the agent reads much more. (This is the [crash-triage agent](/glossary/#crash-triage-agent) the companion code builds: it reads crash reports, finds the bug, fixes it, and files an issue.)
 A batch of 99 crash reports cost $1.33 in a run with no context policy; with a policy that turns on prompt caching (explained below) and clears old tool results once a request passes 60,000 tokens, two runs cost $0.06 and $0.42; the second took 62 turns to the first's 30, because the same agent took a longer path through the same batch.
 
 ## Caching changes the bill, not the size
@@ -145,7 +145,7 @@ A file the agent opened many turns back and doesn't need any more is still bille
 
 ## What to do about it
 
-- **Count from the first call.** Record the usage that comes back with each reply and total it for the run; the [ch04 example](/run/ch04-first-agent/) does it by wrapping the model.
+- **Count from the first call.** Record the usage that comes back with each reply and total it for the run; the [ch04 example](/run/ch04-first-agent/) does it by wrapping the model: a small `meter` type that holds the real model, passes each call through, and adds the reply's usage to running totals.
 - **[Bound the spend](/production/stop-reasons/).** A turn limit catches a loop that won't stop, and a dollar budget checked before every call limits the cost itself.
 - **Keep tool output small.** Whatever a tool returns is resent on every call after it. The `go test` tool in the bug fix reduces 1,767 bytes of JSON events to a 158-byte report.
 - **Keep the start of the request stable.** The cache discount only applies to an identical prefix, so put instructions and tool definitions first and leave them alone during a run.
