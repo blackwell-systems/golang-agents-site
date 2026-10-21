@@ -10,6 +10,9 @@ weight: 40
 art: ch09
 ---
 
+Fan-out means splitting a batch across several agents that run at the same time.
+Here, one agent per crash cause, four at a time, took about as long as a single agent working through the whole batch, and cost 25 to 60 percent more.
+
 ```result
 figure: 25 to 60%
 unit: more cost, no faster
@@ -22,7 +25,7 @@ source: Chapter 9
 Twenty-three agents, four at a time, took about as long as one agent working through the same 99 crash reports, and cost $0.124 per run against the single agent’s $0.077 to $0.100.
 ```
 
-Splitting a batch across several agents that run at the same time, called [fan-out](/glossary/#fan-out), sounds like the obvious way to get through it sooner.
+Splitting a batch this way, called [fan-out](/glossary/#fan-out), sounds like the obvious way to get through it sooner.
 In Go it also takes little code: start a goroutine for each agent, give them one budget to share, and collect their events on a channel.
 The measurements below race that design against a single agent.
 
@@ -73,10 +76,16 @@ The tools did more work too.
 Across a batch, the group agents ran the test suite 46 to 58 times, where a single agent ran it 2 to 4 times.
 Every group agent drew from the same two test slots, a limit of two `go test` runs at a time across all agents, so four agents running together often queued for them; that queueing is one reason the speedup over one at a time stopped well short of four.
 
-The extra spending went to two things a single agent does less of.
+The extra spending went to two things a single agent does less of: saving its own copy of the opening of each request for reuse ([prompt caching](/glossary/#prompt-caching)), once per agent, and writing more output.
+The counts are below.
+
+<div class="hood">
+
 Each of the 23 agents wrote its own cached prefix, about 400,000 tokens of cache writes in all, against 170,000 to 260,000 for one agent.
 The group agents also produced more output: roughly 95,000 tokens, where one agent produced 55,000 to 62,000.
 Total input tokens, counting those the cache served, were close, 2.5 to 3.2 million in both designs: the group agents sent five times as many requests, but each was a fraction of the size.
+
+</div>
 
 ## What fan-out did buy
 
@@ -91,7 +100,8 @@ Each single-agent run came within 4 percent of the model's 100,000-token price t
 ## What it can't show
 
 Each row is two or three runs on one model, on a shared machine.
-The times overlap, so "about as long" is the fair reading; calling fan-out slower would go beyond the data.
+The times overlap, much as two [ranges](/glossary/#range) do when each is the span where a measured number probably lies: if they overlap, the data can't rank the two.
+So "about as long" is the fair reading; calling fan-out slower would go beyond the data.
 Checks passed shift by a few points between runs of one setup, so that column doesn't rank the designs.
 It is also a single batch, one that a lone agent finished in 30 to 62 turns across all its recorded runs, including those of the [context management](/build/context-management/) guide.
 

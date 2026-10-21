@@ -22,8 +22,10 @@ source: Chapter 13
 Run twice on each of 20 tasks, the same agent’s second run beat its first by 15 points: 5 tasks better, 2 worse, 13 the same. The agent, prompt, and model were identical both times. The 95 percent range, −10 to +40 points, includes zero, and so it reports no difference.
 ```
 
+The [range](/glossary/#range) is where the true difference probably lies; if it includes zero, the change may have done nothing.
+
 An agent's answers vary from run to run.
-Part of that is sampling: each token is drawn from a distribution.
+Part of that is [sampling](/glossary/#sampling): each token is chosen at random in proportion to the model's probabilities, so the same prompt can lead to different text.
 Part remains even at temperature 0, because providers batch requests and the order of the arithmetic shifts slightly with load.
 So any [eval score](/production/evals/) is one draw from what the agent might have done, and before trusting it you need to know how far it drifts when nothing has changed.
 
@@ -52,15 +54,21 @@ Under one [context policy](/build/context-management/), a 99-report batch took 6
 
 ## Pair the comparison
 
-To compare two versions, compare them task by task, and resample the tasks:
+To compare two versions, compare them task by task, and resample the tasks.
+Pairing cancels out everything the two versions have in common.
+A task that both pass contributes zero to the difference, and so does one that both fail; only the tasks where they disagree move the number.
+
+<div class="hood">
+
+The comparison, in code:
 
 ```go include=ch13/evals/stats.go tag=compare
 ```
 
-Pairing cancels out everything the two versions have in common.
-A task that both pass contributes zero to the difference, and so does one that both fail; only the tasks where they disagree move the number.
 The range comes from resampling the tasks with replacement, ten thousand times, and taking the middle 95 percent of the averages, because the tasks, not the runs, are what a small eval set has too few of.
 Below twelve tasks, a resampled range comes out too narrow, so the code reports no range at all, only the counts of tasks better, worse, and tied, and each task's results.
+
+</div>
 
 Here is what pairing can separate, from comparisons recorded on a separate sweep of 29 tasks:
 
@@ -74,8 +82,11 @@ The second just touches zero, so it can't rank the two models.
 
 ## Rates have ranges too
 
-A pass rate of k out of n is an estimate of a rate nobody can see directly.
-The companion code reports it with a Wilson score interval, which, unlike the familiar formula, stays between 0 and 1 and keeps a width when every run passed or every run failed, which small evals hit often.
+A pass rate is an estimate of a true rate nobody can see directly, so it has a range too.
+
+<div class="hood">
+
+For a pass rate of k out of n, the companion code reports the range with a Wilson score interval, which, unlike the familiar formula, stays between 0 and 1 and keeps a width when every run passed or every run failed, which small evals hit often.
 Its width falls as one over the square root of n, so halving it takes four times as many runs.
 
 An eval has two kinds of n, runs and tasks, and extra runs help with only the first.
@@ -84,10 +95,12 @@ They can't make up for a small set of tasks: a change that helps on these 20 may
 So when several runs of each task are pooled, the range has to come from resampling tasks.
 A range computed over runs counts every run as independent evidence and comes out too narrow, because two runs of the same task resemble each other more than runs of two different tasks do.
 
+</div>
+
 ## Every time, or at least once
 
 A pass rate hides a difference that matters in production.
-With two runs per task on the confirmation set, the agent passed 72 percent of runs on average; it passed 55 percent of tasks on both runs (pass^2) and 90 percent on at least one (pass@2).
+With two runs per task on the confirmation set, the agent passed 72 percent of runs on average; it passed 55 percent of tasks on both runs (called pass^2) and 90 percent on at least one of the two (called pass@2).
 A good share of what it fails on one attempt, it gets right on the next.
 
 Two agents with the same pass rate can be very different to run: one passes every task two times in three, while the other passes the same two thirds of the tasks on every run and fails the remaining third on every run.

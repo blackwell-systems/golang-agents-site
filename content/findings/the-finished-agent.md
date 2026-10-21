@@ -22,6 +22,13 @@ Each task was run two or three times, because the same agent on the same task do
 And every rate comes with a range, because 20 tasks pin a rate down only so far.
 The linked terms, such as [fingerprint](/glossary/#fingerprint), go to short definitions in the glossary.
 
+## What we found
+
+On the 20 tasks the agent was never tuned on, `anthropic/claude-haiku-5.5` passed 70% of its runs (the true rate probably lies between 53 and 85%), at $0.0165 for each passing run.
+`deepseek/deepseek-v4.1-flash` passed 63% (45 to 81%), which these runs can't separate from Haiku's rate, at $0.0531 per passing run.
+`openai/gpt-5.6-luna` passed 20% (7 to 35%).
+Most of the failures fell into a few repeated patterns, listed under [Where it fails](#where-it-fails).
+
 ## What it does
 
 The program has four forms:
@@ -31,7 +38,7 @@ The program has four forms:
 - `triage serve` is a service: `remind`'s crashes are posted to it as they happen, it groups them by [fingerprint](/glossary/#fingerprint), and it starts one run per group, several at a time, each in its own copy of the code.
 - `triage review` is the person's side of the service's review queue, where runs wait for approval.
 
-Most of the system is fixed code that runs the same way every time: grouping reports, checking each reproducer, the second model that reviews each diagnosis, the approval step, and filing each issue once.
+Most of the system is fixed code that runs the same way every time: grouping reports, checking each [reproducer](/glossary/#reproducer) (a test the agent writes that fails on the old code and passes once the fix is in), the second model that reviews each diagnosis, the approval step, and filing each issue once.
 The model is left the choices no fixed sequence makes well: within one crash group, which files to open, what test to try, and whether a change is safe to make.
 An issue may claim a fix only when the agent's reproducer fails against the code as it was and succeeds once the change is applied.
 The service keeps each day's spending in a file, so restarting it can't hand out the budget a second time, and interrupted runs [pick up where they stopped](/production/durable-runs/) with no issue filed twice.
@@ -51,7 +58,7 @@ The runs took place on October 17 and 18, 2026, on three models:
 - `deepseek/deepseek-v4.1-flash`, two runs of each task (three for five of them), because it cost the most per run and the whole budget was $6.
 
 Each model's requests went to a single pinned provider, so a change of host partway through couldn't move a result.
-Every run had all of the harness's defenses on, with a scripted approver standing in for a person: it approved every issue and comment, and refused every edit to a [protected path](/glossary/#protected-path).
+Every run had all of the harness's defenses on, with a scripted approver standing in for a person: it approved every issue and comment, and refused every edit to a [protected path](/glossary/#protected-path), a file the agent can't change unless a person approves.
 A run counts as passed only if the grader's code says so; nobody's opinion enters it.
 
 Two terms carry the tables.
@@ -119,11 +126,17 @@ Against DeepSeek, the stronger of the other two: the pass rates can't be separat
 DeepSeek's cheaper tokens were outweighed by how many turns it took; its median of 26 would be higher without the 40-turn limit, which ended 13 of its 15 failed runs.
 
 How the grading was settled matters as much as the result.
+Three correct hand-offs were first graded as failures, so the grading rule was changed and the saved runs were graded again offline; no verdict moved.
+
+<div class="hood">
+
 On three confirmation tasks the bug sits in a protected file, so under the eval's own policy the right answer is to hand the group to a person with the right root cause.
-The catalog's grader predates the defenses and expected a fix, so the first grading failed correct hand-offs; the rule was changed to grade a hand-off the way diagnose-only mode is graded, and the saved runs were graded again offline with no model called.
+The catalog's grader predates the defenses and expected a fix, so the first grading failed correct hand-offs; the rule was changed to grade a hand-off the way diagnose-only mode (the agent keeps every tool except the one that edits code) is graded, and the saved runs were graded again offline with no model called.
 No verdict moved under the adopted rule.
 A looser rule that also accepted a hand-off with no reproducer test would have raised Haiku to 77% and DeepSeek to 66%. It was rejected: the policy refuses the fix but still lets the agent write that test, outside the protected files, so a correct hand-off should include one.
 The rule was fixed after the recordings had been read, which is the wrong order: write down how a grader treats the policy, and commit it, before looking at any regraded number.
+
+</div>
 
 Read the table as a picture of two days in October 2026.
 A provider can change the model behind a name, prices move, and a new prompt or tool changes the agent being measured.
@@ -147,12 +160,17 @@ A change is proposed for four of the five patterns, with what it would cost to c
 
 ### Gaps in the harness itself
 
-The batch runs also turned up three places where the harness falls short.
-They stay in the companion code as they are, because that code produced the tables, and any fix needs new runs to measure it:
+The batch runs also turned up three places where the harness falls short, and they stay in the companion code as they are, because any fix needs new runs to measure it.
 
-- The reproducer gate keeps one verdict per fingerprint group rather than per cause, so in a group with two causes, a refused reproducer for one blocks a fixed status for both.
+<div class="hood">
+
+The harness's code produced the tables, which is why they stay as they are.
+
+- The reproducer gate (the check that lets an issue claim a fix only when the reproducer fails on the old code and passes on the new) keeps one verdict per fingerprint group rather than per cause, so in a group with two causes, a refused reproducer for one blocks a fixed status for both.
 - `triage catalog` still grades a correct hand-off to a person as a failure, where the eval's re-grade doesn't, because the command doesn't work out which groups its approver keeps from being fixed.
 - An `issue_file` call that names no root cause skips the record of causes already filed, since that field is optional.
+
+</div>
 
 ## Pointing it at your own service
 

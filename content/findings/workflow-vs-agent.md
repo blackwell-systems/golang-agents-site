@@ -31,7 +31,7 @@ That rule was checked on a task small enough to build both ways.
 
 The task: a small Go package, `duration`, has failing tests because its unit table maps `'m'` to `time.Second`.
 
-**The agent** is the loop from [the agent loop in Go](/basics/agent-loop/) with a real model client, given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
+**The agent** is the loop built in the [agent loop in Go](/basics/agent-loop/) guide, with a real model client, given four tools (`list_files`, `read_file`, `edit_file`, `run_tests`) and left to find its own way.
 
 **The workflow** is three steps written into the program:
 
@@ -43,7 +43,7 @@ Each version ran ten times on each of four inexpensive models in October 2026: `
 
 ## The result
 
-Costs are medians of ten runs:
+Costs are medians of ten runs (the middle cost once the ten are sorted, so one unusually cheap or expensive run doesn't move it; see [median](/glossary/#median)):
 
 | Model | Workflow: tests pass | Workflow: cost | Agent: tests pass | Agent: cost |
 | --- | --- | --- | --- | --- |

@@ -25,6 +25,7 @@ A tool that always failed with “the file is locked” cost three of four model
 When a tool call fails, the [harness](/glossary/#harness), the program around the model, returns the error text to the model in a [tool message](/basics/messages-and-roles/), and whatever the model does next is a reaction to that text.
 That makes the wording of every tool error part of how the agent behaves.
 The measurements below put a number on how much.
+They report medians: of each model's three runs, the middle one, with one run lower and one higher ([median](/glossary/#median)).
 
 ## What was tested
 
@@ -54,7 +55,7 @@ The other three spent most of their 20 turns retrying in different forms: rephra
 They also went looking for a way past the lock:
 
 - In every one of their nine runs, they tried an edit to `duration_test.go`, usually one that changed nothing, to find out whether the lock covered only `duration.go`.
-- `openai/gpt-5.6-luna` tried paths like `../project/duration.go` and `subdir/../duration.go`, which are the escapes `os.Root` exists to refuse.
+- `openai/gpt-5.6-luna` tried paths like `../project/duration.go` and `subdir/../duration.go`, which are the escapes `os.Root` (a Go type that confines file access to one directory) exists to refuse.
 - In one run, `z-ai/glm-5.3-flash` wrote a new file, `fix_units.go`, with an `init` function that rewrote the unit table when the package loaded. That would have made the tests pass while the locked file stayed untouched.
 - `deepseek/deepseek-v4.1-flash` never stopped on its own; the turn limit ended all three of its runs.
 
@@ -89,12 +90,18 @@ Write tool errors for the model that will read them:
 - **Say whether another attempt can succeed.** "Temporary, retry in a moment" and "permanent for this session" call for different next steps, and when you leave it out, the model has to guess.
 - **Name the better move.** "Report the fix", "list the files to find the right path", "send JSON like `{"path": "a.go"}`".
 - **Be specific about what was wrong with the call.** The errors in the companion code give the field, the value that arrived, and the value expected: `bad arguments: "path": got an array, want a string; send JSON like {"path": "a.go"}`.
-- **Keep the wording the same from run to run.** [`encoding/json/v2`](/basics/json-v2/) changes its error text between processes on purpose, so the companion code builds its messages from the error's fields with [`errors.AsType`](/basics/errors/#errors-that-carry-data-types-and-behavior) and never from `err.Error()`. Fixed wording keeps recorded runs replayable and shows the model the same text every time.
+- **Keep the wording the same from run to run.** Fixed wording keeps recorded runs replayable and shows the model the same text every time. The deep detail on how the companion code does that is just below.
+
+<div class="hood">
+
+[`encoding/json/v2`](/basics/json-v2/) changes its error text between processes on purpose, so the companion code builds its messages from the error's fields with [`errors.AsType`](/basics/errors/#errors-that-carry-data-types-and-behavior) and never from `err.Error()`.
 
 The decoder behind those messages lives in [`ch04/agent/tools.go`](code:ch04/agent/tools.go):
 
 ```go include=ch04/agent/tools.go tag=decode-error
 ```
+
+</div>
 
 Good errors save turns, but a turn limit is still required: it was the only thing that stopped `deepseek/deepseek-v4.1-flash`.
 
