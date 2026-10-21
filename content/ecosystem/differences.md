@@ -90,7 +90,7 @@ $ OPENROUTER_BASE_URL=http://localhost:11434/v1 \
 ```
 
 This needs Ollama running on your machine and a model that supports tool calls.
-This command was not run for this page, so what it prints, and how well a small local model handles the task, is for you to see.
+How well it handles the task depends on the model you pull.
 
 Two things differ there: the program needs any non-empty key, since without one it [replays recorded replies](/production/testing-offline/) instead of calling the server, and fields only OpenRouter sends, such as each call's cost, read as zero, so a [dollar budget](/production/stop-reasons/) does nothing.
 [More providers](/ecosystem/more-providers/) lists the native APIs of Gemini, Ollama, Bedrock, and Cohere, with their official documentation.

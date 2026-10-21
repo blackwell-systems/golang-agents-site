@@ -68,7 +68,7 @@ Because the answer was typed data, the mistake showed up as a failed check inste
 The names in that output are the catalog's.
 `cr_` names a [crash report](/glossary/#crash-report), and `fp_` names a [crash group](/glossary/#crash-group), the reports that share one [fingerprint](/glossary/#fingerprint).
 `N1A` and `N2A` are the grader's labels for the two groups that were already filed in the tracker: the task borrows them from two other catalog tasks, and the leading `N` marks borrowed groups.
-`issue 0` means the diagnosis named no existing issue, which is what the agent did when it answered `fixed` instead of `duplicate` (the check wants #101 and #102).
+`issue 0` is the diagnosis's `duplicate` field, which names the existing issue a group belongs to: answering `fixed` left it empty, even though the agent mentioned #101 and #102, and the check wants those two numbers there.
 
 **The cost.** 17 turns, $0.034, and every request is bigger than the one before, growing from roughly 3,800 tokens to roughly 29,600.
 [Context management](/build/context-management/) is what brings that down.

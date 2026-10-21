@@ -39,7 +39,7 @@ $ OPENROUTER_BASE_URL=http://localhost:11434/v1 \
 ```
 
 This needs Ollama running on your machine and a model that supports tool calls; the key can be any non-empty text, and its only job is to take the program out of replay mode.
-This command was not run for this page, so what it prints, and how well a small local model handles the task, is for you to see.
+How well it handles the task depends on the model you pull.
 The cost is the compatibility layer's gaps, listed below for each, and the loss of whatever the native API offers that chat completions doesn't.
 
 ## Google Gemini

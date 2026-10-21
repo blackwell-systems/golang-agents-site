@@ -172,16 +172,16 @@
     "hash": "16c7ad6ba35a559f53b1dedf808c7f34cf1e87788cfb9f7804e4c5d5fd67784c"
   },
   "og/findings/crash-sweep.jpg": {
-    "spec": "76657b234315e90f5ba2dbe9190993528792f2287e2a723d069e0bd9898feb5d",
-    "hash": "6afb0a1dfcba40ad61f15457762b7ac8df84d57604520b853ee1258233f02353"
+    "spec": "63f3e8ae503064b261059b19e2234bd6371a621183a9916fe9b85e953aeafba2",
+    "hash": "ee22b70b2ed5015c81f64a4028565bcfc4426371ea2f29c3afce1e021cc6daa3"
   },
   "og/findings/error-wording.jpg": {
     "spec": "364f51cdb94944c2066c1cb10b8893d68e498f8cfa11e24b141d34ca66508122",
     "hash": "d987330a6b5dac9401346d4076e22e9d25929b0faa1d6e769f3e9b7746760f3c"
   },
   "og/findings/fan-out.jpg": {
-    "spec": "e9fe59656bbc2b827656ee38c2aaf74aefa45c776adc103d456c643169a153fb",
-    "hash": "0c7a0302dd45a6d148ebfea2ddaaa1e04698969a44637a5b4f38f09f4e9dd1dc"
+    "spec": "97df0faef69ea473a9eeb8ddee4c086f86d0b69e10288efb89ee8fc1d5ba48ea",
+    "hash": "1e74093b4ef47d2193b9875158f750afd9ce04b93a8ab9b7bd18d9da44a2d82e"
   },
   "og/findings/identical-runs.jpg": {
     "spec": "ca40f20a4a8ee9270700a2247908b0c125c29b7499c51c077c4668844ab35511",
@@ -268,8 +268,8 @@
     "hash": "7e10111d9edb7f142a2464bd56c60aa2efa05a863f999e92682ccac6803fb9d6"
   },
   "og/run/ch07-crash-triage.jpg": {
-    "spec": "d6bfa1f11ce503b0c0a010854943d119ba7902bc8bafd0477c4cb6edc3f584d6",
-    "hash": "833d08ae7c3ad3f79a19684805a79586d41cc3a7bf6c78a161391d50080d192e"
+    "spec": "6a6680ea3627d5c8273f5a7fc2689322ff089011727dbc27ca6c81fb5205bbe0",
+    "hash": "3004293bef0e70896fd036c17b71fc0fcba0d5bcb0d330ab9a0d7d3e15c07002"
   },
   "og/run/ch10-mcp-tracker.jpg": {
     "spec": "5c3eeeddb80abfe0a8239a2ef927d4ac4dae2180210ed70ff5a06410bae2b549",

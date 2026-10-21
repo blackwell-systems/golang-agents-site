@@ -233,7 +233,7 @@ func (r *codeBlocks) catalog(body string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		g := `<span class="none">none yet</span>`
+		g := `<span class="none" aria-label="no guide">–</span>`
 		if guide != "" {
 			g = fmt.Sprintf(`<a href="%s">Guide</a>`, html.EscapeString(guide))
 		}
