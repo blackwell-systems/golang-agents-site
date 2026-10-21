@@ -198,6 +198,19 @@ On every turn, one pass through these four stages, the harness does the same fou
 .lvc-mini .lvc-node text { fill: var(--st); font-family: var(--label); font-weight: 700; font-size: 30px; text-anchor: middle; transition: fill 220ms ease-out; }
 .lvc-mini .lvc-node.is-on circle { fill: var(--st); }
 .lvc-mini .lvc-node.is-on text { fill: var(--code-bg); }
+/* The lit stage's name, in the ring's middle. */
+.lvc-mini-name {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 2.2rem;
+  color: var(--st, var(--soft));
+  font: 600 0.74rem / 1.2 var(--label);
+  text-align: center;
+  pointer-events: none;
+  transition: color 220ms ease-out;
+}
 @media (max-width: 47.99rem) { .lvc-mini-pin { display: none; } }
 @media (prefers-reduced-motion: reduce) { .lvc-mini, .lvc-mini * { transition: none; } }
 </style>
@@ -289,7 +302,7 @@ On every turn, one pass through these four stages, the harness does the same fou
   });
   list.addEventListener("pointerleave", function () { hovered = false; rest(); });
   // The loop's code comes after this script, so wait for the page.
-  var mini = null, miniNodes = [];
+  var mini = null, miniNodes = [], miniName = null;
   document.addEventListener("DOMContentLoaded", function () {
     // A stage's number in the code answers a pointer as the ring does.
     document.querySelectorAll(".listing .stage-badge").forEach(function (b) {
@@ -314,6 +327,9 @@ On every turn, one pass through these four stages, the harness does the same fou
     mini.href = "#the-loop-in-four-stages";
     mini.setAttribute("aria-label", "The loop's four stages");
     mini.appendChild(svg);
+    miniName = document.createElement("span");
+    miniName.className = "lvc-mini-name";
+    mini.appendChild(miniName);
     // A pin with no height holds it, so the code keeps its full width.
     var pin = document.createElement("div");
     pin.className = "lvc-mini-pin";
@@ -347,6 +363,11 @@ On every turn, one pass through these four stages, the harness does the same fou
   function miniLight(i) {
     if (!mini) return;
     for (var k = 0; k < miniNodes.length; k++) miniNodes[k].classList.toggle("is-on", k === i);
+    // The name, in the stage's color; an unlit ring keeps the last one.
+    if (i >= 0) {
+      miniName.textContent = items[i].querySelector(".lvc-t").textContent;
+      miniName.style.setProperty("--st", "var(--stage-" + (i + 1) + ")");
+    }
   }
   root.addEventListener("focusout", rest);
   // One lap when the section first comes into view, then rest at stage 1.
