@@ -1747,6 +1747,13 @@ cite { font-style: italic; }
   margin-bottom: var(--space-2);
 }
 .pager-next { text-align: right; }
+/* Under a reading path's cards: where the page sits on the path, and the
+   section's own neighbors, in a quieter line. */
+.pager-path, .pager-section { margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--soft); }
+.pager-section a { color: var(--soft); }
+.pager-section a:hover { color: var(--ivory); }
+.pager-section .icon { width: 0.9em; height: 0.9em; vertical-align: -0.1em; margin: 0 0.3em 0 0; transform: scaleX(-1); }
+.pager-section .pager-section-next .icon { margin: 0 0 0 0.3em; transform: none; }
 .pager-prev:only-child { grid-column: 1; }
 .pager-next:only-child { grid-column: -2; }
 

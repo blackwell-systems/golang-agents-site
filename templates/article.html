@@ -45,6 +45,28 @@
       {{- if .Page.Work}}
       <p class="work-line">Building this at work? <a href="/work-with-me/">Blackwell Systems helps teams ship agents in Go.</a></p>
       {{- end}}
+      {{- if eq (len .Places) 1}}
+      {{- /* A page on one reading path: the big cards follow the path, so a
+         reader on it isn't sent off it by the section's order, and the
+         section's own neighbors become a quieter line below. */}}
+      {{- with index .Places 0}}
+      <nav class="pager" aria-label="{{.Path.Title}}, step {{.N}} of {{len .Path.Steps}}">
+        {{- with .Prev}}
+        <a class="pager-prev" href="{{.URL}}"><span>{{icon "arrow"}}Back on the path</span>{{.Name}}</a>
+        {{- end}}
+        {{- with .Next}}
+        <a class="pager-next" href="{{.URL}}"><span>Next on the path{{icon "arrow"}}</span>{{.Name}}</a>
+        {{- end}}
+      </nav>
+      <p class="pager-path">Step {{.N}} of {{len .Path.Steps}} on the reading path <a href="{{.Path.URL}}">{{.Path.Title}}</a>{{if not .Next}}, its last step{{end}}.</p>
+      {{- end}}
+      {{- if or .Prev .Next}}
+      <p class="pager-section">In {{.Section.Title}}:
+        {{- with .Prev}} <a href="{{.URL}}">{{icon "arrow"}}{{.Name}}</a>{{end}}
+        {{- if and .Prev .Next}} <span aria-hidden="true">·</span>{{end}}
+        {{- with .Next}} <a class="pager-section-next" href="{{.URL}}">{{.Name}}{{icon "arrow"}}</a>{{end}}</p>
+      {{- end}}
+      {{- else}}
       {{- template "pathnav" .}}
       {{- if or .Prev .Next}}
       <nav class="pager" aria-label="More in this section">
@@ -55,6 +77,7 @@
         <a class="pager-next" href="{{.URL}}"><span>Next in {{$.Section.Title}}{{icon "arrow"}}</span>{{.Name}}</a>
         {{- end}}
       </nav>
+      {{- end}}
       {{- end}}
     </footer>
   </div>
