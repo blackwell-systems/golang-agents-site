@@ -8,6 +8,7 @@ chapters: 6, 9, 10, 15
 stage: all
 date: 2026-10-19
 weight: 88
+art: go-goroutines
 ---
 
 Go makes starting concurrent work cheap: `go f()` is all it takes.
