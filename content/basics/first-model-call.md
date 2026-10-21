@@ -8,6 +8,7 @@ chapters: 2
 stage: 2
 date: 2026-10-19
 weight: 25
+art: first-model-call
 ---
 
 An agent makes many calls to a model, but each one is an ordinary HTTP request: some JSON goes out, some JSON comes back.
