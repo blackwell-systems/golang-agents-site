@@ -8,6 +8,7 @@ stage: all
 beyond: true
 date: 2026-10-19
 weight: 91
+art: rag-or-agentic-search
 ---
 
 There are two common ways to give a model your documents.
