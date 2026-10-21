@@ -8,6 +8,7 @@ chapters: 2, 4, 7, 8, 10, 15
 stage: all
 date: 2026-10-19
 weight: 84
+art: go-json-v2
 ---
 
 Everything an agent says to a model API is JSON: the request, the reply, each tool's definition, and the arguments of every [tool call](/basics/tool-calling/), which a model wrote and which are sometimes wrong.
