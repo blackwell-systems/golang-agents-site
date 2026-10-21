@@ -8,6 +8,7 @@ chapters: 2, 5, 6, 9, 12
 stage: 2
 date: 2026-10-19
 weight: 86
+art: go-http
 ---
 
 A model API is an ordinary HTTPS endpoint with unusual traffic.
