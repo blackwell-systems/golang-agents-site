@@ -360,8 +360,7 @@ func jsonLD(s *Site, p *Page) (template.JS, error) {
 	return template.JS(b), nil
 }
 
-// copyStatic copies the static files into out. Dotfiles are skipped,
-// except .assetsignore, which wrangler reads from the assets directory.
+// copyStatic copies the static files into out. Dotfiles are skipped.
 func copyStatic(static, out string) error {
 	err := filepath.WalkDir(static, func(file string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -372,7 +371,7 @@ func copyStatic(static, out string) error {
 			return err
 		}
 		name := d.Name()
-		if rel != "." && strings.HasPrefix(name, ".") && name != ".assetsignore" {
+		if rel != "." && strings.HasPrefix(name, ".") {
 			if d.IsDir() {
 				return filepath.SkipDir
 			}
