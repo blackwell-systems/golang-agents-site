@@ -39,4 +39,4 @@ A fixed-scope, vendor-neutral read on where AI fits your business and where it d
 - **mcp-assert**, a testing standard for MCP servers, running in CI across 39 of WYRE's server repositories.
 - **Upstream work:** a top-10 contributor to mcp-go, with fixes merged into the official MCP SDKs for Go, Python, and PHP, and over 50 pull requests merged in all, into projects from Google, GitHub, and HashiCorp, among others.
 - **Research:** 11 published papers, including a theory of when replicated systems converge, with 4,797 results machine-checked in Coq.
-- **Production:** more than four years as the technical owner of Best Western's loyalty platform, serving tens of millions of members at thousands of hotels in over 100 countries.
+- **Production:** five years as the technical owner of Best Western's loyalty platform, serving tens of millions of members at thousands of hotels in over 100 countries.
