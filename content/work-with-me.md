@@ -33,10 +33,10 @@ A fixed-scope, vendor-neutral read on where AI fits your business and where it d
 ## Background
 
 - **The book.** [*Building AI Agents in Go*](/book/), which builds a crash-triage agent from a 30-line loop to production, with every result measured.
-- **[Bide](https://bide-ai.com)**, a Go framework for durable agents, whose side effects fire at most once across crashes and which keeps a verifiable audit trail of every run.
+- **[bide](https://bide-ai.com)**, a Go framework for durable agents, whose side effects fire at most once across crashes and which keeps a verifiable audit trail of every run.
 - **[GCF](https://gcformat.com)**, a data format that cuts the tokens LLMs spend on structured data. It ships in Google's Chrome DevTools [MCP](/build/mcp/) server and Opera's DevTools MCP, and in 28 projects outside Blackwell Systems in all, with more than 580,000 downloads.
 - **[agent-lsp](https://agent-lsp.com)**, code intelligence for agents, used by 41 repositories; NVIDIA Labs includes all 24 of its agent skills in Skill2Env, its research collection of agent skills.
 - **mcp-assert**, a testing standard for MCP servers, running in CI across 39 of WYRE's server repositories.
 - **Upstream work:** a top-10 contributor to mcp-go, with fixes merged into the official MCP SDKs for Go, Python, and PHP, and over 50 pull requests merged in all, into projects from Google, GitHub, and HashiCorp, among others.
 - **Research:** 11 published papers, including a theory of when replicated systems converge, with 4,797 results machine-checked in Coq.
-- **Production:** five years as the technical owner of Best Western's loyalty platform, serving tens of millions of members at more than 5,000 hotels in over 100 countries.
+- **Production:** more than four years as the technical owner of Best Western's loyalty platform, serving tens of millions of members at thousands of hotels in over 100 countries.
