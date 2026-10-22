@@ -850,33 +850,33 @@ cite { font-style: italic; }
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
 }
 
-/* The light theme: the light edition of the book, on white. */
+/* The light theme: the light edition of the book, on warm paper. */
 :root[data-theme="light"] {
-  --night: #fbfaf7;
-  --page: #ffffff;
-  --panel: #f6f4ef;
-  --panel-deep: #faf8f3;
-  --line: #ddd6c8;
-  --line-soft: #e8e2d6;
-  --ivory: #08192b;
-  --stone: #1b2633;
+  --night: #f7f3ea;
+  --page: #f4efe6;
+  --panel: #ebe4d7;
+  --panel-deep: #e9e2d4;
+  --line: #cfc5b1;
+  --line-soft: #ddd4c3;
+  --ivory: #142030;
+  --stone: #1f2a37;
   --soft: #56616e;
-  --amber: #965a0c;
+  --amber: #93580c;
   --amber-dim: rgba(160, 98, 15, 0.45);
   --amber-ink: #ffffff;
-  --link: #0077a3;
+  --link: #006d96;
   --accent-wash: rgba(160, 98, 15, 0.08);
   --button-hover: #87520c;
-  --outline-soft: rgba(8, 25, 43, 0.45);
-  --outline-wash: rgba(8, 25, 43, 0.04);
-  --shadow: rgba(8, 25, 43, 0.2);
-  --code-bg: #f6f4ef;
+  --outline-soft: rgba(20, 32, 48, 0.45);
+  --outline-wash: rgba(20, 32, 48, 0.05);
+  --shadow: rgba(20, 32, 48, 0.2);
+  --code-bg: #ebe4d7;
   --syn-keyword: #6d28d9;
   --syn-type: #a04e08;
   --syn-constant: #be185d;
   --syn-string: #0f7363;
   --syn-number: #b23c0a;
-  --syn-comment: #646c76;
+  --syn-comment: #5f6770;
   --syn-function: #03649a;
   --syn-key: #03649a;
   --syn-punct: #52606d;
@@ -985,31 +985,31 @@ cite { font-style: italic; }
 /* With no theme set (no JavaScript), follow the system setting. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --night: #fbfaf7;
-    --page: #ffffff;
-    --panel: #f6f4ef;
-    --panel-deep: #faf8f3;
-    --line: #ddd6c8;
-    --line-soft: #e8e2d6;
-    --ivory: #08192b;
-    --stone: #1b2633;
+    --night: #f7f3ea;
+    --page: #f4efe6;
+    --panel: #ebe4d7;
+    --panel-deep: #e9e2d4;
+    --line: #cfc5b1;
+    --line-soft: #ddd4c3;
+    --ivory: #142030;
+    --stone: #1f2a37;
     --soft: #56616e;
-    --amber: #965a0c;
+    --amber: #93580c;
     --amber-dim: rgba(160, 98, 15, 0.45);
     --amber-ink: #ffffff;
-    --link: #0077a3;
+    --link: #006d96;
     --accent-wash: rgba(160, 98, 15, 0.08);
     --button-hover: #87520c;
-    --outline-soft: rgba(8, 25, 43, 0.45);
-    --outline-wash: rgba(8, 25, 43, 0.04);
-    --shadow: rgba(8, 25, 43, 0.2);
-    --code-bg: #f6f4ef;
+    --outline-soft: rgba(20, 32, 48, 0.45);
+    --outline-wash: rgba(20, 32, 48, 0.05);
+    --shadow: rgba(20, 32, 48, 0.2);
+    --code-bg: #ebe4d7;
     --syn-keyword: #6d28d9;
     --syn-type: #a04e08;
     --syn-constant: #be185d;
     --syn-string: #0f7363;
     --syn-number: #b23c0a;
-    --syn-comment: #646c76;
+    --syn-comment: #5f6770;
     --syn-function: #03649a;
     --syn-key: #03649a;
     --syn-punct: #52606d;
@@ -1393,12 +1393,12 @@ cite { font-style: italic; }
    gutter, and its name on hover, both drawn here so copying the code
    copies only the code. */
 :root { --stage-1: #7fb2e5; --stage-2: #e9ae55; --stage-3: #93c47d; --stage-4: #e8896f; }
-:root[data-theme="light"] { --stage-1: #2f6db0; --stage-2: #9a5b0c; --stage-3: #3b7a2c; --stage-4: #b4472d; }
+:root[data-theme="light"] { --stage-1: #2d68a8; --stage-2: #94570c; --stage-3: #38732a; --stage-4: #ad442b; }
 :root[data-theme="tokyo-night"] { --stage-1: #7aa2f7; --stage-2: #e0af68; --stage-3: #9ece6a; --stage-4: #f7768e; }
 :root[data-theme="gruvbox-dark"] { --stage-1: #83a598; --stage-2: #fabd2f; --stage-3: #b8bb26; --stage-4: #fe8019; }
 :root[data-theme="catppuccin-latte"] { --stage-1: #1e66f5; --stage-2: #df8e1d; --stage-3: #40a02b; --stage-4: #fe640b; }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme]) { --stage-1: #2f6db0; --stage-2: #9a5b0c; --stage-3: #3b7a2c; --stage-4: #b4472d; }
+  :root:not([data-theme]) { --stage-1: #2d68a8; --stage-2: #94570c; --stage-3: #38732a; --stage-4: #ad442b; }
 }
 .listing.has-stages pre { --gutter-x: 2.5rem; padding-left: var(--gutter-x); }
 .listing .line[data-stage] {
