@@ -2007,6 +2007,29 @@ cite { font-style: italic; }
   /* While playing, a shorter screen that scrolls like a terminal. */
   .ht-play .ht-screen { height: 21rem; overflow: hidden; }
 }
+/* The hero's terminal stays dark in the light themes too: a terminal
+   is dark anyway, and on paper it gives the hero one strong point of
+   contrast. It takes the dark theme's colors inside its window only. */
+:root:is([data-theme="light"], [data-theme="catppuccin-latte"]) .ht-window {
+  --night: #040e19; --page: #071321; --panel: #0d1d30; --panel-deep: #0a1828;
+  --line: #1e3550; --ivory: #f3ead6; --stone: #dad4c6; --soft: #9aa4af;
+  --amber: #e9ae55; --amber-dim: rgba(233, 174, 85, 0.55); --amber-ink: #1a1206;
+  --link: #7ccde8; --code-bg: #0d1d30;
+  --syn-keyword: #bba5f0; --syn-type: #ebc170; --syn-constant: #eaa6c4; --syn-string: #8fd4b8;
+  --syn-number: #f2a57e; --syn-comment: #8494a8; --syn-function: #82cbe6; --syn-key: #82cbe6;
+  --syn-punct: #a7b0bc;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .ht-window {
+  --night: #040e19; --page: #071321; --panel: #0d1d30; --panel-deep: #0a1828;
+  --line: #1e3550; --ivory: #f3ead6; --stone: #dad4c6; --soft: #9aa4af;
+  --amber: #e9ae55; --amber-dim: rgba(233, 174, 85, 0.55); --amber-ink: #1a1206;
+  --link: #7ccde8; --code-bg: #0d1d30;
+  --syn-keyword: #bba5f0; --syn-type: #ebc170; --syn-constant: #eaa6c4; --syn-string: #8fd4b8;
+  --syn-number: #f2a57e; --syn-comment: #8494a8; --syn-function: #82cbe6; --syn-key: #82cbe6;
+  --syn-punct: #a7b0bc;
+  }
+}
 .ht-window {
   border: 1px solid var(--line);
   border-radius: 8px;
