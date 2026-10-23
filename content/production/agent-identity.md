@@ -8,6 +8,7 @@ stage: all
 level: intermediate
 date: 2026-10-23
 weight: 70
+art: agent-identity
 ---
 
 Picture a support agent that handles refunds.
