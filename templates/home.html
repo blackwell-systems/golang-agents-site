@@ -278,14 +278,6 @@
 </section>
 {{- end}}
 
-<div class="home-body">
-  <div class="wrap">
-    <div class="prose">
-{{after .Page.Body "<!-- paths -->"}}
-    </div>
-  </div>
-</div>
-
 <section class="home-sections" aria-labelledby="sections-title">
   <div class="wrap">
     {{template "rule"}}
@@ -309,6 +301,15 @@
       </li>
       {{- end}}
     </ul>
+  </div>
+</section>
+
+<section class="home-body home-faq" aria-label="Common questions">
+  <div class="wrap">
+    {{template "rule"}}
+    <div class="prose">
+{{after .Page.Body "<!-- paths -->"}}
+    </div>
   </div>
 </section>
 {{- end}}

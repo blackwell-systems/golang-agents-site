@@ -1837,7 +1837,8 @@ cite { font-style: italic; }
 .home-body .prose h2 { margin-top: var(--section-gap); }
 .home-body .prose > h2:first-child { margin-top: 0; }
 .home-body .prose > :last-child { margin-bottom: 0; }
-.home-sections { padding: var(--section-gap) 0 clamp(3.5rem, 8vw, 5.5rem); }
+.home-sections { padding: var(--section-gap) 0 0; }
+.home-faq { padding-bottom: clamp(3.5rem, 8vw, 5.5rem); }
 .home-sections h2 { font-size: var(--fs-h2); }
 .paths {
   list-style: none;
@@ -2840,7 +2841,7 @@ nav.toc { display: none; }
 
 /* Where the rules stand: between the home page's major sections, and
    across the footer's top edge, where the small rule is the border. */
-.home-start > .wrap > .rule, .home-sections > .wrap > .rule { margin-bottom: var(--section-gap); }
+.home-start > .wrap > .rule, .home-sections > .wrap > .rule, .home-faq > .wrap > .rule { margin-bottom: var(--section-gap); }
 .site-footer > .rule {
   position: absolute;
   left: 0;
