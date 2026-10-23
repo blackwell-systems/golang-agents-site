@@ -388,13 +388,25 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   var items = root.querySelectorAll(".lvc-list > li");
   var list = root.querySelector(".lvc-list");
   var still = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var angle = 0, hovered = false, leaveTimer = 0, timers = [];
-  // Move the marker to stage i (0 to 3) by the shorter way round.
-  function move(i, ms) {
+  var hands = root.querySelectorAll(".lvc-hand");
+  var angle = 0, hovered = false, leaveTimer = 0, handTimer = 0, timers = [];
+  // Name what passes along arc k (from stage k to k+1) while the marker
+  // crosses it; -1 clears the name.
+  function hand(k, ms) {
+    clearTimeout(handTimer);
+    Array.prototype.forEach.call(hands, function (h) { h.classList.toggle("is-on", +h.dataset.arc === k); });
+    if (k >= 0) handTimer = setTimeout(function () { hand(-1); }, ms + 600);
+  }
+  // Move the marker to stage i (0 to 3) by the shorter way round. With
+  // tell set, a move one stage forward names what that arc carries.
+  function move(i, ms, tell) {
     var d = ((i * 90 - angle) % 360 + 540) % 360 - 180;
     if (d === -180) d = 180;
+    var from = ((Math.round(angle / 90) % 4) + 4) % 4;
     angle += d;
-    marker.style.transitionDuration = still.matches ? "0ms" : (ms || 380 + Math.abs(d) * 1.6) + "ms";
+    ms = still.matches ? 0 : ms || 380 + Math.abs(d) * 1.6;
+    hand(tell && d === 90 ? from : -1, ms);
+    marker.style.transitionDuration = ms + "ms";
     marker.style.transform = "rotate(" + angle + "deg)";
   }
   // The code on the page (stages= listings, base.html) hears which
@@ -408,7 +420,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     if (i >= 0) root.style.setProperty("--lvc-st", "var(--stage-" + (i + 1) + ")");
     document.dispatchEvent(new CustomEvent("loop:stage", { detail: i }));
   }
-  function show(i) { stopTour(); clearTimeout(leaveTimer); light(i); move(i); }
+  function show(i) { stopTour(); clearTimeout(leaveTimer); light(i); move(i, 0, true); }
   function rest() {
     clearTimeout(leaveTimer);
     leaveTimer = setTimeout(function () {
@@ -440,7 +452,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       seen.disconnect();
       if (hovered || root.contains(document.activeElement)) return;
       [1, 2, 3, 0].forEach(function (i, n) {
-        timers.push(setTimeout(function () { light(i); move(i, 900); }, 500 + n * 1100));
+        timers.push(setTimeout(function () { light(i); move(i, 900, true); }, 500 + n * 1100));
       });
       timers.push(setTimeout(function () { light(-1); }, 500 + 4 * 1100 + 300));
     }, { threshold: 0.6 });

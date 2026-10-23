@@ -1244,6 +1244,13 @@ cite { font-style: italic; }
 .loopv-c .lvc-node.is-on circle { fill: var(--st); }
 .loopv-c .lvc-node.is-on text { fill: var(--page); }
 .loopv-c .lvc-label.is-on { fill: var(--st); }
+/* What passes from one stage to the next, named beside the arc while
+   the marker crosses it: the request, the reply, the results, the next
+   turn. In the color of the stage it leaves. */
+.loopv-c .lvc-hand { fill: var(--st); font-family: var(--label); font-weight: 500; font-size: 14px; opacity: 0; }
+.loopv-c .lvc-hand.lvc-start { text-anchor: start; }
+.loopv-c .lvc-hand.lvc-end { text-anchor: end; }
+.loopv-c .lvc-hand.is-on { opacity: 1; }
 .loopv-c .lvc-halo { fill: none; stroke: var(--lvc-st, var(--stage-1)); stroke-width: 2; transition: stroke 220ms ease-out; }
 .loopv-c .lvc-box { fill: none; stroke: none; }
 .loopv-c .lvc-marker {
@@ -1338,6 +1345,7 @@ cite { font-style: italic; }
 .loopv-c .lvc-back path { fill: none; stroke: var(--stage-1); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 @media (prefers-reduced-motion: no-preference) {
   .loopv-c .lvc-node circle, .loopv-c .lvc-node text, .loopv-c .lvc-label { transition: fill 220ms ease-out; }
+  .loopv-c .lvc-hand { transition: opacity 320ms ease-out; }
   .loopv-c .lvc-list > li, .loopv-c .lvc-num { transition: background-color 220ms ease-out, border-color 220ms ease-out, color 220ms ease-out; }
   .loopv-c .lvc-go { transition: transform 220ms var(--lvc-ease); }
 }
@@ -1354,7 +1362,7 @@ cite { font-style: italic; }
     top: -10%;
     width: 160%;
   }
-  .loopv-c .lvc-label { display: none; }
+  .loopv-c .lvc-label, .loopv-c .lvc-hand { display: none; }
   .loopv-c .lvc-sub { font-size: 14.5px; letter-spacing: 0.02em; }
   .loopv-c .lvc-center { font-size: 27px; }
   .loopv-c .lvc-list > li { padding-left: 0.6rem; padding-right: 0.75rem; column-gap: 0.85rem; }
