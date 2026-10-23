@@ -114,6 +114,35 @@ func (s *Site) Others() []*Page {
 	return out
 }
 
+// Findings is the number of published pages in the findings section,
+// not counting its own page.
+func (s *Site) Findings() int {
+	for _, sec := range s.Sections {
+		if sec.Dir == "findings" {
+			return len(sec.Pages)
+		}
+	}
+	return 0
+}
+
+// Examples is the number of rows in the examples catalog on the /run/
+// page, counted from the table the build rendered there.
+func (s *Site) Examples() int {
+	for _, p := range s.Pages {
+		if p.URL != "/run/" {
+			continue
+		}
+		body := string(p.Body)
+		_, tbl, ok := strings.Cut(body, `<table class="catalog">`)
+		if !ok {
+			return 0
+		}
+		tbl, _, _ = strings.Cut(tbl, "</table>")
+		return strings.Count(tbl, `<th scope="row">`)
+	}
+	return 0
+}
+
 // FirstLive is the first published step of path, or nil.
 func (s *Site) FirstLive(path *Path) *Page {
 	for _, st := range path.Steps {

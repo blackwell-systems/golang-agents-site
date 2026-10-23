@@ -7,13 +7,22 @@
       <div class="ornament" aria-hidden="true"><span></span></div>
     </div>
     <p class="hook">{{.Page.Description}}</p>
-    <p class="hero-measured">Every result here is measured: each number comes from recorded runs and names its task, its models, how many runs, and the date.</p>
     <p class="hero-for">For Go developers new to language models. You should be comfortable writing Go: the code uses Go 1.27, with generics and <code>encoding/json/v2</code>, and no example needs an API key.</p>
     <div class="actions">
       <a class="button primary" href="/start/">Start here</a>
       <a class="button secondary" href="/run/">Run the code</a>
     </div>
-    <p class="byline">By <a href="/work-with-me/#background">{{.Site.Author}}</a>, who builds AI agent infrastructure in Go at Blackwell Systems.</p>
+    <ul class="hero-proof" aria-label="What the site holds. Every result here is measured: each number comes from recorded runs.">
+      <li><b>{{len .Site.Guides}}</b> free guides</li>
+      <li><b>{{.Site.Examples}}</b> runnable programs</li>
+      <li><b>{{.Site.Findings}}</b> <a href="/findings/">measured findings</a></li>
+      <li>no API key needed</li>
+    </ul>
+    <p class="byline"><picture>
+        <source type="image/avif" srcset="/img/author/dayna-160.avif 160w, /img/author/dayna-320.avif 320w" sizes="28px">
+        <source type="image/webp" srcset="/img/author/dayna-160.webp 160w, /img/author/dayna-320.webp 320w" sizes="28px">
+        <img src="/img/author/dayna-160.jpg" srcset="/img/author/dayna-160.jpg 160w, /img/author/dayna-320.jpg 320w" sizes="28px" width="28" height="28" alt="" decoding="async">
+      </picture><span>By <a href="/work-with-me/#background">{{.Site.Author}}</a>, who builds AI agent infrastructure in Go at Blackwell Systems.</span></p>
     </div>
     <figure class="hero-terminal">
       <div class="ht-window" aria-hidden="true">

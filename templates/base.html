@@ -780,6 +780,66 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   });
 })();
 </script>
+<script>
+// The glossary's filter box: shows only the terms whose name or text
+// contains the query, hides a letter's group when nothing in it matches,
+// and dims that letter in the bar. The box is hidden in the HTML, so
+// without script the whole glossary reads as before. The query is kept
+// in ?q= so a filtered view can be linked.
+(function () {
+  var form = document.querySelector(".gl-filter");
+  if (!form) return;
+  var input = document.getElementById("gl-q");
+  var count = document.getElementById("gl-count");
+  var none = document.getElementById("gl-none");
+  var more = document.getElementById("gl-search");
+  var terms = Array.prototype.map.call(document.querySelectorAll(".gl-term"), function (el) {
+    return { el: el, text: el.textContent.toLowerCase().replace(/\s+/g, " ") };
+  });
+  var groups = Array.prototype.map.call(document.querySelectorAll(".gl-letter"), function (sec) {
+    var h = sec.querySelector("h2");
+    var tab = h && document.querySelector('.letters a[href="#' + h.id + '"]');
+    return { el: sec, tab: tab && tab.parentNode, terms: terms.filter(function (t) { return sec.contains(t.el); }) };
+  });
+
+  function apply(raw) {
+    var q = raw.trim().toLowerCase().replace(/\s+/g, " ");
+    var shown = 0;
+    terms.forEach(function (t) {
+      var ok = !q || t.text.indexOf(q) >= 0;
+      t.ok = ok;
+      t.el.hidden = !ok;
+      if (ok) shown++;
+    });
+    groups.forEach(function (g) {
+      var any = g.terms.some(function (t) { return t.ok; });
+      g.el.hidden = !any;
+      if (g.tab) g.tab.classList.toggle("is-empty", !any);
+    });
+    count.textContent = q ? shown + (shown === 1 ? " term" : " terms") : "";
+    none.hidden = !(q && shown === 0);
+    more.href = "/search/?q=" + encodeURIComponent(raw.trim());
+    var url = location.pathname + (q ? "?q=" + encodeURIComponent(raw.trim()) : "") + location.hash;
+    history.replaceState(null, "", url);
+  }
+
+  input.addEventListener("input", function () { apply(input.value); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && input.value) {
+      e.preventDefault();
+      input.value = "";
+      apply("");
+    }
+  });
+  form.addEventListener("submit", function (e) { e.preventDefault(); });
+  form.hidden = false;
+  var q = new URLSearchParams(location.search).get("q");
+  if (q) {
+    input.value = q;
+    apply(q);
+  }
+})();
+</script>
 </body>
 </html>
 {{end}}

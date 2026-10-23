@@ -13,7 +13,14 @@
       </div>
     </header>
     <div class="prose">
-{{.Page.Body}}
+{{before .Page.Body "<!-- filter -->"}}
+      <form class="gl-filter" role="search" hidden>
+        <label for="gl-q">Filter terms</label>
+        <input id="gl-q" type="search" name="q" autocomplete="off" spellcheck="false" placeholder="Try &ldquo;context&rdquo; or &ldquo;retry&rdquo;">
+        <p class="gl-count" id="gl-count" aria-live="polite"></p>
+        <p class="gl-none" id="gl-none" hidden>No terms match. <a id="gl-search" href="/search/">Search the whole site</a>.</p>
+      </form>
+{{after .Page.Body "<!-- filter -->"}}
     </div>
   </div>
 </article>
