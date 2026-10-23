@@ -852,6 +852,11 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   var count = document.getElementById("sf-count");
   var cards = Array.prototype.slice.call(document.querySelectorAll("li[data-stage]"));
   var groups = Array.prototype.slice.call(document.querySelectorAll("[data-group]"));
+  // Each guide keeps its step number while others are hidden: the step
+  // counter is set to the guide's place in its list before it counts.
+  cards.forEach(function (c) {
+    c.style.counterSet = "step " + (Array.prototype.indexOf.call(c.parentNode.children, c) + 1);
+  });
 
   function apply(stage) {
     var shown = 0;
