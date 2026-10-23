@@ -103,7 +103,8 @@ Most [tokenizers](/glossary/#tokenizer) are built with byte-pair encoding: begin
 The companion code implements one in Go and trains it on the toy's text.
 An English sentence comes out at about a token per word, while `ParseDuration` splits into `P`, `ar`, `se`, `D`, `uration`.
 
-The model then turns each token into an [embedding](/glossary/#embedding), a list of numbers, and the same idea works for a whole passage of text: texts with similar meaning get lists that sit near each other.
+Inside the model, each token becomes an [embedding](/glossary/#embedding), a list of numbers.
+A separate embedding model does the same for a whole passage of text, and texts with similar meaning get lists that sit near each other.
 [Cosine similarity](/glossary/#cosine-similarity) measures how near two lists are, which is how [retrieval](/build/rag/) finds the passages closest to a question.
 
 Production tokenizers handle code far better than that, but the rule survives: text unlike the tokenizer's training data costs more tokens.

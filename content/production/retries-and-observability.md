@@ -167,7 +167,7 @@ Metadata is always logged.
 A structured log line is a message plus named values, so a program can filter and search it by field instead of parsing a sentence.
 With `log/slog`, a logger writes each call as one line: the time, a level (`Debug`, `Info`, `Warn`, or `Error`), the message, and the key-value attributes you passed after it.
 A logger prints `Info` and above unless you set a lower level.
-This program, run as written, prints the two lines below it; the `Debug` call is dropped:
+These calls, run in a small program, print the two lines below them; the `Debug` call is dropped:
 
 ```go
 log := slog.New(slog.NewTextHandler(os.Stdout, nil))

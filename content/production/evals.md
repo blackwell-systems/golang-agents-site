@@ -34,7 +34,7 @@ On a set this small, a change that shifts the pass rate by fewer points than tha
 Take 21 correct runs out of 25.
 That is 84 percent, but only for those 25 runs; another 25 runs of the same agent could give 19 or 23.
 A [pass rate](/glossary/#pass-rate) from a few runs is an estimate of the agent's true rate, and the range around it says which true rates are plausible given what you saw.
-For 21 of 25, the 95 percent Wilson interval described under "Report a rate with its range" runs from about 65 to 94 percent (computed from the formula for k = 21, n = 25).
+For 21 of 25, the 95 percent Wilson interval described under [Report a rate with its range](#report-a-rate-with-its-range) runs from about 65 to 94 percent (computed from the formula for k = 21, n = 25).
 With few runs the range is wide, and more runs narrow it.
 Fisher's exact test, used later on this page, answers a different question: given the passes and failures of two groups of runs, such as before and after a change, how likely is a gap this big if both groups share the same true rate?
 A small answer means the two rates probably differ by more than chance.
