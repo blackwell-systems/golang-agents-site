@@ -1,7 +1,7 @@
 ---
 title: "Agent identity: who an AI agent acts for, and with what rights"
 short: Agent identity
-description: Every action an agent takes involves three identities, the user it acts for, the agent as software, and the run. How to give an agent narrow, short-lived credentials the model never sees, keep permission in the tools, give sub-agents less than their parent, and record who did what, with five short Go sketches.
+description: Every action an agent takes involves three identities, the user it acts for, the agent as software, and the run. How to give an agent narrow, short-lived credentials the model never sees, keep permission in the tools, give sub-agents less than their parent, and record who did what, with Go code you can run.
 card: Whose rights an agent uses, how to hand them over safely, and how to prove afterward who did what.
 group: Safety
 stage: all
@@ -30,8 +30,7 @@ An action is correct only when all three are known and each is limited on its ow
 The user's rights set the ceiling.
 The agent's role may lower it.
 The run's task lowers it further, to the few things this task needs.
-This page walks through how to do that, with five short Go sketches.
-They are written for this article and are not code from the companion repository.
+This page walks through how to do that with Go from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code)'s `identity` example, which runs without a model or an API key: `go run ./identity`.
 
 ## The confused deputy
 
@@ -78,56 +77,29 @@ The authorization server decides whether to grant the request, so the narrowing 
 
 Most teams do not need the full protocol on day one.
 The shape is what counts: a signed statement of user, agent, run, scopes, and expiry, issued by one place and checked by the service.
-Here is a sketch of that shape with a signing key held by the harness, using `crypto/ed25519` from the standard library.
+The `identity` example uses that shape, signed with `crypto/ed25519` from the standard library.
+A credential's claims name the user, the agent, the run, the scopes, and the expiry:
 
-```go
-type Claims struct {
-	ID      string    `json:"jti"`   // credential ID, for the audit log
-	User    string    `json:"sub"`   // who the agent acts for
-	Agent   string    `json:"agent"` // which software
-	Run     string    `json:"run"`   // which session or task
-	Scopes  []string  `json:"scopes"`
-	Expires time.Time `json:"exp"`
-}
-
-func Mint(key ed25519.PrivateKey, c Claims) (string, error) {
-	body, err := json.Marshal(c)
-	if err != nil {
-		return "", fmt.Errorf("encode claims: %w", err)
-	}
-	sig := ed25519.Sign(key, body)
-	enc := base64.RawURLEncoding
-	return enc.EncodeToString(body) + "." + enc.EncodeToString(sig), nil
-}
-
-func Verify(pub ed25519.PublicKey, token string, now time.Time) (Claims, error) {
-	var c Claims
-	b, s, ok := strings.Cut(token, ".")
-	if !ok {
-		return c, errors.New("malformed token")
-	}
-	enc := base64.RawURLEncoding
-	body, err1 := enc.DecodeString(b)
-	sig, err2 := enc.DecodeString(s)
-	if err := errors.Join(err1, err2); err != nil {
-		return c, fmt.Errorf("decode token: %w", err)
-	}
-	if !ed25519.Verify(pub, body, sig) {
-		return c, errors.New("bad signature")
-	}
-	if err := json.Unmarshal(body, &c); err != nil {
-		return c, fmt.Errorf("decode claims: %w", err)
-	}
-	if !now.Before(c.Expires) {
-		return c, errors.New("token expired")
-	}
-	return c, nil
-}
+```go include=identity/token.go tag=claims
 ```
 
-`Mint` runs in the harness when a run starts, with ten minutes and a short scope list.
-`Verify` runs in the service.
-A real system would use a standard token format and an authorization server, and would add an audience claim; the sketch keeps only what the argument needs.
+Only the harness holds the signing key, in an `Issuer`:
+
+```go include=identity/token.go tag=mint
+```
+
+The service holds the public key, in a `Verifier`, and checks the signature and the expiry on every call.
+Each failure is a sentinel error the caller can test with `errors.Is`:
+
+```go include=identity/token.go tag=verify
+```
+
+A real system would use a standard token format such as a JWT, issued by an authorization server, with an audience claim; the example keeps only what the argument needs.
+
+When a run starts, the harness mints a credential for exactly what the user asked for, and builds the tool with it:
+
+```go include=identity/main.go tag=start
+```
 
 ## The model never holds the secret
 
@@ -143,21 +115,11 @@ The [service page](/production/agent-as-a-service/#a-container-image-that-keeps-
 
 In Go, an `http.RoundTripper` is a natural place to attach a credential, because every request a tool makes passes through it:
 
-```go
-type attacher struct {
-	token string
-	next  http.RoundTripper
-}
-
-func (a attacher) RoundTrip(r *http.Request) (*http.Response, error) {
-	r = r.Clone(r.Context()) // never modify the caller's request
-	r.Header.Set("Authorization", "Bearer "+a.token)
-	return a.next.RoundTrip(r)
-}
+```go include=identity/transport.go tag=attach
 ```
 
-Build the tool's `http.Client` with `Transport: attacher{token, http.DefaultTransport}` once per run, with that run's token.
-The tool code, the model's arguments, and the tool's result text never contain the token.
+The tool itself names the customer and nothing else; its client was built by the harness with that run's transport.
+The model's arguments and the tool's result text never contain the token.
 Make sure error messages and debug logs do not print request headers.
 
 ## Permission lives in the tools
@@ -170,17 +132,9 @@ So the service, or the tool in front of it, checks the credential on every call.
 An action outside the credential's scopes fails.
 If the action is one a person should be able to approve, it goes to a person instead, as described in [human approval](/production/approval/).
 
-```go
-func Refund(pub ed25519.PublicKey, token, customer string, now time.Time) error {
-	c, err := Verify(pub, token, now)
-	if err != nil {
-		return fmt.Errorf("refund: %w", err)
-	}
-	if !slices.Contains(c.Scopes, "refund:"+customer) {
-		return fmt.Errorf("refund: %s may not refund %s", c.User, customer)
-	}
-	return nil // the refund itself would happen here
-}
+The example's refund service does both checks, and records the attempt whether or not it was allowed:
+
+```go include=identity/service.go tag=refund
 ```
 
 If the agent is talked into refunding customer 43 while holding only `refund:42`, the call fails with an ordinary error, which goes back to the model as a tool result like any other failure.
@@ -193,25 +147,15 @@ When an agent starts a [sub-agent](/build/sub-agents/) for part of the work, the
 The idea is called **attenuation**: each handoff can remove permissions and none can add them.
 A sub-agent that only reads orders gets `read:` scopes and no `refund:` scope, and it cannot get the refund permission back, because it has no way to ask for more than it was given.
 
-```go
-func Narrow(parent Claims, id, agent string, scopes []string, ttl time.Duration, now time.Time) (Claims, error) {
-	for _, s := range scopes {
-		if !slices.Contains(parent.Scopes, s) {
-			return Claims{}, fmt.Errorf("scope %q: parent does not hold it", s)
-		}
-	}
-	exp := now.Add(ttl)
-	if exp.After(parent.Expires) {
-		exp = parent.Expires
-	}
-	child := parent
-	child.ID, child.Agent, child.Scopes, child.Expires = id, agent, scopes, exp
-	return child, nil
-}
+```go include=identity/narrow.go tag=narrow
 ```
 
 The child keeps the same user and run, gets its own credential ID and agent name, holds only scopes the parent held, and never outlives the parent.
-The harness calls `Narrow` and then `Mint`.
+The harness calls `Narrow` and then `Mint`:
+
+```go include=identity/main.go tag=sub-agent
+```
+
 Only the harness holds the signing key, so a sub-agent cannot build a wider token for itself.
 The sub-agent's tools, in turn, check that narrower token exactly as in the previous section.
 
@@ -262,24 +206,38 @@ These details come from the [current MCP authorization specification](https://mo
 When something goes wrong, you need one record per action that answers the four questions from the opening story.
 Write it from the harness, at the moment of the call:
 
-```go
-type Record struct {
-	Time       time.Time `json:"time"`
-	User       string    `json:"user"`
-	Agent      string    `json:"agent"`
-	Run        string    `json:"run"`
-	Credential string    `json:"credential"`
-	Approver   string    `json:"approver,omitempty"`
-	Action     string    `json:"action"`
-	Allowed    bool      `json:"allowed"`
-}
+```go include=identity/audit.go tag=record
 ```
 
 `User`, `Agent`, `Run`, and `Credential` come from the verified claims, so the record names the credential used as well as the person.
-`Approver` is filled when a person approved the call.
+`Approver` is filled when a person approved the call, and `Reason` says why a call was refused.
 Record denials too, since a pattern of refused calls is often the first sign of an injection.
 Log the credential's ID and never the token itself.
 To make the log itself trustworthy, use the signed, chained log described in [human approval](/production/approval/#keep-a-log-that-shows-tampering), so edits and deletions show up.
+
+## Run it
+
+From the `code` directory of the companion repository, with no API key:
+
+```console
+$ go run ./identity
+run run-7: agent support acting for u-42, scopes refund:42 read:orders
+  refund 42: refunded customer 42
+  refund 43: refund: refused: identity: scope not held: refund:43
+narrow to refund:43: identity: scope not held: parent lacks refund:43
+sub-agent reader, scopes read:orders, expires with its parent: true
+  refund 42: refund: refused: identity: scope not held: refund:42
+audit log:
+  u-42    support run-7  cred-1 refund:42 allowed=true
+  u-42    support run-7  cred-1 refund:43 allowed=false
+  u-42    reader  run-7  cred-2 refund:42 allowed=false
+```
+
+The first refund is the user's own and goes through.
+The second names another customer and is refused by the service, whatever the model was told.
+The sub-agent can't be granted a refund scope the parent lacks, and the one it holds, `read:orders`, can't refund anything.
+Every attempt is in the audit log, refused ones included.
+`go test ./identity` checks the rest: an expired token, a token from another key, a tampered signature, and a request the transport must leave unchanged.
 
 ## Where each identity and credential lives
 
