@@ -22,12 +22,11 @@ It assumes you know the [HTTP client](/basics/http-client/) basics and have read
 Without streaming, the program sends a request and then has nothing to show until the model has written the whole reply, which can take many seconds.
 With streaming, the first words arrive almost at once and the rest follow as they are written, so a person watching sees text appear, and the program learns early when a connection has died.
 [Streaming model replies](/build/streaming/#what-streaming-buys-measured) gives the measured numbers: the first text shows up well before the unstreamed reply does, while the total time barely changes.
-Streaming changes when you see the reply, not how soon the model finishes it.
+The model takes about as long either way; streaming changes when you see the reply.
 
 ## The idea underneath: io.Reader
 
-A response body in Go is not a string or a byte slice.
-It is an `io.Reader`, an interface with one method:
+A response body in Go is an `io.Reader`, an interface with one method:
 
 ```go
 type Reader interface {
@@ -39,7 +38,7 @@ You pass `Read` a slice, and it copies some bytes into it and tells you how many
 The documentation (`go doc io.Reader`) sets out the contract, and each part matters for streams:
 
 - `Read` reads **up to** `len(p)` bytes.
-  When some data is available but not `len(p)` bytes, it returns what is available instead of waiting for more.
+  By convention, when some data is available but not `len(p)` bytes, it returns what is available instead of waiting for more.
   On a stream, then, one `Read` call may return a single token's worth of bytes.
   Never assume a `Read` fills the slice.
 - `Read` may wait.
@@ -48,7 +47,7 @@ The documentation (`go doc io.Reader`) sets out the contract, and each part matt
 - `Read` can return `n > 0` and an error together.
   The caller must **process the `n` bytes first** and only then look at `err`.
 - The end of the data is the error `io.EOF`.
-  It means "no more input", which is the normal ending, not a failure.
+  It means "no more input", the normal way for data to end.
   A reader may return the final bytes with `err == io.EOF` in the same call, or return them with a nil error and report `io.EOF` with `n == 0` on the next call.
 - A `Read` that returns `0, nil` means nothing happened, and does not mean the end.
 
@@ -76,7 +75,6 @@ The reader in the next sections uses `Bytes` safely, because it finishes with ea
 A scanner holds a whole line in memory, so it caps the line length.
 The default cap is `bufio.MaxScanTokenSize`, 64 KiB (65,536 bytes).
 A line longer than that stops the scan: `Scan` returns `false`, and `Err()` returns `bufio.ErrTooLong`.
-A test that scans a 70,000-byte line confirms it.
 The same stop happens in the middle of a stream, so the lines after the long one are never read.
 
 A model's stream can reach that length, because a tool call's arguments are sent as one string and a long argument can come through on a single `data:` line.
@@ -149,8 +147,8 @@ data: [DONE]
 ```
 
 Those chunks are shortened by hand; a real one carries more fields, as the recorded stream on [Streaming model replies](/build/streaming/#server-sent-events) shows.
-The `[DONE]` marker is **not part of SSE**.
-It is a convention of OpenAI-compatible APIs, which OpenRouter follows, so a general SSE client has no idea it means anything, and a Go reader for these APIs has to look for it.
+The `[DONE]` marker comes from OpenAI-compatible APIs, which OpenRouter follows; **the SSE standard doesn't define it**.
+A general SSE client treats it as ordinary data, so a Go reader for these APIs has to look for it.
 Each JSON chunk holds a [delta](/glossary/#delta), the piece of the reply added since the previous chunk.
 
 ## Reading a stream in Go
@@ -204,7 +202,7 @@ A stream can run for minutes, so a program needs ways to end one early, and a wa
 **Cancel the context.**
 The request was built with a [context](/basics/context/), and cancelling that context ends the request.
 The connection closes, and a `Read` that was waiting on the body returns an error.
-Checked against a local test server: after `cancel()`, the scanning loop ended and `sc.Err()` was `context canceled`.
+The scanning loop ends, and `sc.Err()` reports the cancellation (`context canceled`).
 The same chain makes a person's Ctrl-C stop a run, since the context that Ctrl-C cancels is the parent of every request.
 
 **Close the body.**
@@ -249,8 +247,7 @@ The other end of a stream is a server that sends one, as the book's agent does w
 A handler writes its response in pieces, with one write per event.
 The handler's `http.ResponseWriter` does not send each write at once, though.
 It collects small writes in a buffer and sends them when the buffer fills or the handler returns, which is efficient for an ordinary page and wrong for a stream.
-A test with a handler that wrote one event and then waited a second shows it: without a flush, the client saw nothing for that second, and the event arrived only when the handler finished.
-(In Go 1.26's source, the HTTP/1 server's response writer holds 2 KiB in front of a 4 KiB connection buffer.)
+So a handler that writes one event and then waits a second, without flushing, sends nothing during that second: the client gets the event only when the handler finishes.
 
 To send what has been written so far, the handler flushes.
 The older way is the `http.Flusher` interface, which has one method, `Flush()`, and which a handler gets by checking the writer with a type assertion (`w.(http.Flusher)`).
