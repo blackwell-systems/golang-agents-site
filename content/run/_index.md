@@ -1,7 +1,11 @@
 ---
 title: Examples
-description: Every chapter's program from the companion repository, and the examples beyond the chapters, with what each shows, its size and test count computed from the code, and the command that runs it offline from recorded model replies.
+description: Runnable Go programs from the free, open-source companion code of Building AI Agents in Go, one for each chapter plus a few extras, each with what it shows and the command that runs it offline.
 ---
+
+These programs are the companion code of the book [*Building AI Agents in Go*](/book/).
+The code is free and open source (Apache 2.0), and you don't need the book to run it: the guides on this site explain each program.
+The repository holds one directory per chapter, `ch01` to `ch17`, and each is a complete, working copy of the agent as it stands at the end of that chapter, so `ch01` is a 30-line loop and `ch17` is the finished crash-triage agent.
 
 Every example runs without an API key.
 With no `OPENROUTER_API_KEY` set, a program replays model replies recorded from a real run, while its tools, including `go test`, run for real on your machine.
@@ -18,7 +22,7 @@ New here? Run `ch01` first: it is the whole [agent loop](/basics/agent-loop/) wi
 Then run `ch04`, the same task with a real model's recorded replies and a real `go test`.
 Their pages, [ch01](/run/ch01-scripted-loop/) and [ch04](/run/ch04-first-agent/), explain each line of the output.
 
-## Every chapter's program
+## One program per chapter
 
 Each chapter's directory is a full snapshot of the agent at that point, so any row runs without the ones above it.
 The last five rows are examples beyond the chapter snapshots: the [workflow shapes](/build/workflows-vs-agents/) `ch05` names and an agent's [progress streamed to a browser](/run/stream-to-browser/), both built on `ch06`'s agent, a standalone [first agent](/build/first-agent/) that a tutorial builds from scratch, and [retrieval over a set of documents](/build/rag/) and [memory between sessions](/build/memory/), which the book doesn't cover.
