@@ -2465,15 +2465,20 @@ nav.toc { display: none; }
 }
 .art-wide { display: block; max-width: 40rem; margin-inline: auto; }
 .prose > .art-wide { margin-left: auto; margin-right: auto; }
-/* The Start page's closing section is centered on the same axis as the
-   path cards above it: the heading, the art, and the paragraph under it. */
-.prose h2#at-the-end-of-a-path { text-align: center; }
-.prose:has(.reading-path) > p:has(> .art-wide) { max-width: none; }
-.prose:has(.reading-path) > p:has(> .art-wide) + p {
-  max-width: 46rem;
-  margin-inline: auto;
-  text-align: center;
+/* The Start page's close: the art beside the text on wide screens,
+   above it on narrow ones, aligned with the rest of the page. */
+.prose > .start-close {
+  display: grid;
+  gap: var(--space-4) var(--space-6);
+  align-items: center;
+  margin: var(--block-before) 0 var(--block-after);
 }
+@media (min-width: 48rem) {
+  .prose > .start-close { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+}
+.start-close .art-wide { max-width: none; margin: 0; }
+.start-close p:has(> .art-wide) { margin: 0; }
+.start-close-text > :last-child { margin-bottom: 0; }
 .art-wide img { border-radius: 6px; border: 1px solid var(--line); }
 .path-choose .art-card { display: block; margin: -1.1rem -1.2rem 0.9rem; }
 .path-choose .art-card img { display: block; width: 100%; height: auto; margin: 0; border-radius: 3px 3px 0 0; }
