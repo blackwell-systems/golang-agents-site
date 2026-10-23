@@ -2415,6 +2415,12 @@ nav.toc { display: none; }
 .hero-proof b { color: var(--ivory); font-weight: 600; }
 .hero-proof a { color: inherit; text-decoration-color: var(--line); }
 .hero-proof a:hover { color: var(--ivory); }
+/* On a phone the four items sit in two columns, with no dividers to
+   strand at the start of a wrapped row. */
+@media (max-width: 40rem) {
+  .hero-proof { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2) var(--space-3); }
+  .hero-proof li, .hero-proof li:first-child { padding: 0; border-left: 0; }
+}
 .byline { display: flex; align-items: center; gap: var(--space-3); max-width: 40rem; font-size: var(--fs-sm); color: var(--soft); margin: 0; }
 .byline picture { flex: none; display: block; line-height: 0; }
 .byline img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
