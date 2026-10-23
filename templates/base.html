@@ -390,12 +390,13 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   var still = window.matchMedia("(prefers-reduced-motion: reduce)");
   var hands = root.querySelectorAll(".lvc-hand");
   var angle = 0, hovered = false, leaveTimer = 0, handTimer = 0, timers = [];
-  // Name what passes along arc k (from stage k to k+1) while the marker
-  // crosses it; -1 clears the name.
+  // Name what passes along arc k (from stage k to k+1): for ms plus a
+  // moment while the marker crosses it, or until cleared when ms is left
+  // out. -1 clears the name.
   function hand(k, ms) {
     clearTimeout(handTimer);
     Array.prototype.forEach.call(hands, function (h) { h.classList.toggle("is-on", +h.dataset.arc === k); });
-    if (k >= 0) handTimer = setTimeout(function () { hand(-1); }, ms + 600);
+    if (k >= 0 && ms != null) handTimer = setTimeout(function () { hand(-1); }, ms + 600);
   }
   // Move the marker to stage i (0 to 3) by the shorter way round. With
   // tell set, a move one stage forward names what that arc carries.
@@ -420,12 +421,15 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     if (i >= 0) root.style.setProperty("--lvc-st", "var(--stage-" + (i + 1) + ")");
     document.dispatchEvent(new CustomEvent("loop:stage", { detail: i }));
   }
-  function show(i) { stopTour(); clearTimeout(leaveTimer); light(i); move(i, 0, true); }
+  // Pointing at a stage names what arrives there, wherever the marker
+  // came from, and keeps the name until the pointer leaves.
+  function show(i) { stopTour(); clearTimeout(leaveTimer); light(i); move(i); hand((i + 3) % 4); }
   function rest() {
     clearTimeout(leaveTimer);
     leaveTimer = setTimeout(function () {
       if (hovered || root.contains(document.activeElement)) return;
       light(-1);
+      hand(-1);
       move(0);
     }, 220);
   }
