@@ -2907,3 +2907,35 @@ nav.toc { display: none; }
 /* Links in running text that leave the site carry a small mark: the
    source icon for the companion code, the external icon otherwise. */
 .link-icon { width: 0.8em; height: 0.8em; margin-left: 0.15em; vertical-align: -0.05em; color: currentColor; opacity: 0.75; }
+
+/* Texture. A fine grain over every page, so the flat colors read as a
+   printed surface, and a blueprint dot grid behind the home hero. Both
+   are masks over the theme's own colors, so every theme gets them. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-color: var(--ivory);
+  opacity: 0.045;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -0.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 -0.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  -webkit-mask-size: 160px 160px;
+  mask-size: 160px 160px;
+}
+.home-hero { position: relative; isolation: isolate; }
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--ivory);
+  opacity: 0.11;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/svg%3E");
+  -webkit-mask-size: 24px 24px;
+  mask-size: 24px 24px;
+}
+@media print { body::after, .home-hero::before { display: none; } }
