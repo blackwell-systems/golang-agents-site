@@ -18,6 +18,7 @@ The idea is simple and the details decide whether it protects anything.
 Where does the check sit, what does the person look at, how far does one yes reach, and what happens at 3 a.m. when nobody replies?
 What follows answers those questions for a crash-triage agent, makes a waiting run survive a restart, and moves the decisions into a review queue.
 The code is in [`ch14/safety`](code:ch14/safety) and [`ch14/agent`](code:ch14/agent).
+A person's yes is one layer; [agent identity](/production/agent-identity/) covers the credentials the agent holds and the audit record that says who acted for whom.
 
 ## Put the gate in the harness
 

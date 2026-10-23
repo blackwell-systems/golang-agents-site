@@ -21,6 +21,7 @@ In an agent with no defenses, the only thing standing between that sentence and 
 This is [prompt injection](/glossary/#prompt-injection).
 Someone other than the agent's user plants text in the agent's input, and the model acts on it as though the user had asked.
 Defenses against it are built in [`ch14/safety`](code:ch14/safety).
+Most injections work by borrowing the agent's authority, which [agent identity](/production/agent-identity/) covers: narrow credentials the model never sees.
 
 ## Why prompting alone can't fix it
 
