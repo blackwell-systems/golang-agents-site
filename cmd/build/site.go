@@ -101,6 +101,16 @@ func newSite(pages, held []*Page, paths []*Path, static string) (*Site, error) {
 	return s, nil
 }
 
+// StageItems are the loop's four stages, for the filter on the section
+// pages and /guides/.
+func (s *Site) StageItems() []StageItem {
+	var out []StageItem
+	for i, name := range stageNames {
+		out = append(out, StageItem{N: i + 1, Name: name})
+	}
+	return out
+}
+
 // Others are the published pages outside the sections, other than the
 // home page, the 404 page, and the search page: the start page, the
 // glossary, the book, and the like, for the search page's full list.
@@ -252,7 +262,7 @@ func loadTemplates(dir string) (map[string]*template.Template, error) {
 		return nil, fmt.Errorf("templates: %w", err)
 	}
 	out := map[string]*template.Template{}
-	for _, layout := range []string{"home", "section", "article", "book", "glossary", "page", "work", "search"} {
+	for _, layout := range []string{"home", "section", "article", "book", "glossary", "guides", "page", "work", "search"} {
 		t, err := template.Must(base.Clone()).ParseFiles(filepath.Join(dir, layout+".html"))
 		if err != nil {
 			return nil, fmt.Errorf("templates: %w", err)

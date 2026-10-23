@@ -41,7 +41,7 @@ type Meta struct {
 	Description string // one or two sentences for search results and lists
 	Card        string // one line for a section page's card; defaults to Description
 	Group       string // the group a section page lists it under, such as "Get oriented"
-	Layout      string // home, section, article, book, glossary, page, work, or search
+	Layout      string // home, section, article, book, glossary, guides, page, work, or search
 	Chapters    string // the book chapters the page draws on, such as "1, 4"
 	Date        string // first published, as 2006-01-02
 	Updated     string // last changed in substance, as 2006-01-02
@@ -174,7 +174,7 @@ func (p *Page) check() error {
 		return fmt.Errorf("title and description are required")
 	}
 	switch p.Layout {
-	case "home", "section", "article", "book", "glossary", "page", "work", "search":
+	case "home", "section", "article", "book", "glossary", "guides", "page", "work", "search":
 	default:
 		return fmt.Errorf("unknown layout %q", p.Layout)
 	}

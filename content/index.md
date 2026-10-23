@@ -11,7 +11,7 @@ On every turn, one pass through these four stages, the harness does the same fou
 
 {{loop}}
 
-Each page on this site works on one of these stages or on the whole loop, and says which.
+Each page on this site works on one of these stages or on the whole loop, and says which. You can [browse every guide by stage](/guides/), for example [the Decide guides](/guides/?stage=4).
 When an agent misbehaves, the stage tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.
 
 ## The whole loop, in code

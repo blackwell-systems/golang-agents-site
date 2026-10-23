@@ -1910,6 +1910,39 @@ cite { font-style: italic; }
 .glossary [hidden] { display: none !important; }
 .glossary .letters li.is-empty a { opacity: 0.35; pointer-events: none; }
 
+/* The loop-stage filter on the section pages and /guides/, shown only
+   when script runs. Each button wears its stage's color on its icon and,
+   when pressed, its border. */
+.section-page [hidden] { display: none !important; }
+.stage-browse { margin: 0 0 var(--space-3); font-size: var(--fs-sm); }
+.stage-filter { margin: 0 0 var(--space-4); }
+.stage-filter-title { margin: 0 0 var(--space-2); font-family: var(--label); font-weight: 600; color: var(--ivory); }
+.stage-filter-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.stage-filter button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--stone);
+  font-family: var(--label);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.stage-filter button:hover { border-color: var(--st, var(--amber)); color: var(--ivory); }
+.stage-filter button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.stage-filter button[aria-pressed="true"] { border-color: var(--st, var(--amber)); border-width: 2px; padding: calc(0.4rem - 1px) calc(0.8rem - 1px); color: var(--ivory); }
+.stage-filter button .icon { width: 1.2rem; height: 1.2rem; color: var(--st); }
+.stage-count { margin: var(--space-2) 0 0; font-size: var(--fs-sm); color: var(--soft); min-height: 1.5em; }
+.guides-section { margin: var(--space-6) 0 0; }
+.guides-section h2 { margin: 0 0 var(--space-3); font-size: var(--fs-group); line-height: var(--lh-title); }
+.guides-section h2 a { color: var(--ivory); text-decoration: none; }
+.guides-section h2 a:hover { color: var(--link); }
+.guides-section .cards { margin-bottom: var(--space-4); }
+
 /* The filter box above the letter bar, shown only when script runs. */
 .gl-filter { max-width: var(--measure); margin: 0 0 var(--space-4); }
 .gl-filter label { display: block; margin-bottom: 0.4rem; font-family: var(--label); font-weight: 600; color: var(--ivory); }

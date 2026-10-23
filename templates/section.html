@@ -14,14 +14,16 @@
     <div class="prose section-intro">
 {{.Page.Body}}
     </div>
+    <p class="stage-browse"><a href="/guides/">Browse every guide by stage</a></p>
+    {{template "stagefilter" .}}
     {{- if .Section.Grouped}}
     <div class="section-groups">
       {{- range $gi, $g := .Section.Groups}}
-      <div class="phase" id="{{slug $g.Name}}">
+      <div class="phase" id="{{slug $g.Name}}" data-group>
         <div class="phase-head"><p class="phase-num">Part {{add $gi 1}}</p><h2>{{$g.Name}}</h2></div>
         <ol class="path-steps">
           {{- range $g.Pages}}
-          <li><a href="{{.URL}}"><span class="step-title">{{.Name}}</span><span class="step-desc">{{.Blurb}}</span>{{with .LevelName}}<span class="card-level">{{.}}</span>{{end}}</a></li>
+          <li data-stage="{{or .Stage "none"}}"><a href="{{.URL}}"><span class="step-title">{{.Name}}</span><span class="step-desc">{{.Blurb}}</span>{{with .LevelName}}<span class="card-level">{{.}}</span>{{end}}</a></li>
           {{- end}}
         </ol>
       </div>
@@ -31,7 +33,7 @@
     {{- with .Section.Pages}}
     <ol class="cards">
       {{- range .}}
-      <li>
+      <li data-stage="{{or .Stage "none"}}">
         <a href="{{.URL}}">
           {{- with .Kind}}<span class="card-kind">{{.}}</span>{{end}}
           <span class="card-title">{{.Name}}</span>

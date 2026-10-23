@@ -46,7 +46,7 @@ Pages serves `dist/` as plain files: `/basics/agent-loop/` is `dist/basics/agent
 | --- | --- |
 | `content/` | The pages, in Markdown with front matter. `content/PLAN.md` is the content plan, not a page |
 | `content/<section>/_index.md` | A section's own page; the other files in the directory are its guides |
-| `templates/` | `base.html` (head, header, footer, and the reading-path links) and one file per layout: `home`, `section`, `article`, `book`, `glossary`, `page`, `work` (the Work with me page and its contact form), `search` |
+| `templates/` | `base.html` (head, header, footer, and the reading-path links) and one file per layout: `home`, `section`, `article`, `book`, `glossary`, `guides` (all guides, with the stage filter), `page`, `work` (the Work with me page and its contact form), `search` |
 | `static/` | Copied as is: `style.css`, `fonts/`, `img/`, `sample/`, the icons, `og/` (each page's share card), and `og-v3.jpg` (the generic share image) |
 | `cmd/build/` | The generator: goldmark for Markdown, chroma for highlighting, `html/template` for layouts |
 | `tools/og/` | Renders the share cards into `static/og/`; see its README |

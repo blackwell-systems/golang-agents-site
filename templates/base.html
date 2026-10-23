@@ -844,9 +844,62 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   }
 })();
 </script>
+<script>
+(function () {
+  var box = document.querySelector(".stage-filter");
+  if (!box) return;
+  var buttons = Array.prototype.slice.call(box.querySelectorAll("button"));
+  var count = document.getElementById("sf-count");
+  var cards = Array.prototype.slice.call(document.querySelectorAll("li[data-stage]"));
+  var groups = Array.prototype.slice.call(document.querySelectorAll("[data-group]"));
+
+  function apply(stage) {
+    var shown = 0;
+    cards.forEach(function (c) {
+      var s = c.getAttribute("data-stage");
+      c.ok = stage === "all" || s === "all" || s === stage;
+      c.hidden = !c.ok;
+      if (c.ok) shown++;
+    });
+    groups.forEach(function (g) {
+      g.hidden = !cards.some(function (c) { return c.ok && g.contains(c); });
+    });
+    buttons.forEach(function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-stage") === stage ? "true" : "false");
+    });
+    count.textContent = stage === "all" ? cards.length + " guides"
+      : "Showing " + shown + " of " + cards.length + " guides";
+    var url = location.pathname + (stage === "all" ? "" : "?stage=" + stage) + location.hash;
+    history.replaceState(null, "", url);
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { apply(b.getAttribute("data-stage")); });
+  });
+  box.hidden = false;
+  var s = new URLSearchParams(location.search).get("stage");
+  apply(/^[1-4]$/.test(s) ? s : "all");
+})();
+</script>
 </body>
 </html>
 {{end}}
+
+{{/* The loop-stage filter on the section pages and /guides/: hidden
+until the script at the end of the page shows it, so a reader without
+script sees every guide. */}}
+{{define "stagefilter" -}}
+    <div class="stage-filter" hidden>
+      <p class="stage-filter-title" id="sf-title">Show guides by loop stage</p>
+      <div class="stage-filter-row" role="group" aria-labelledby="sf-title">
+        <button type="button" data-stage="all" aria-pressed="true">All</button>
+        {{- range .Site.StageItems}}
+        <button type="button" data-stage="{{.N}}" aria-pressed="false" style="--st: var(--stage-{{.N}})">{{icon .Icon}}<span>{{.N}}. {{.Name}}</span></button>
+        {{- end}}
+      </div>
+      <p class="stage-count" id="sf-count" aria-live="polite"></p>
+    </div>
+{{- end}}
 
 {{/* The dividers: the ring between stepped stones, from the icon
 sprite, with hairlines either side. Decorative, so hidden from screen
