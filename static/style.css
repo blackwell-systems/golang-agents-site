@@ -2925,6 +2925,11 @@ nav.toc { display: none; }
   --rule-ground: var(--night);
 }
 .site-footer > .rule::before, .site-footer > .rule::after { background: var(--line); }
+/* The gopher asleep on the footer's hairline, to the right of the ring:
+   the end of the page. */
+.foot-gopher { position: absolute; left: calc(50% + 3.5rem); bottom: calc(100% - 1px); line-height: 0; pointer-events: none; }
+.foot-gopher img { display: block; width: auto; height: 40px; }
+@media (max-width: 40rem) { .foot-gopher { left: calc(50% + 2.5rem); } .foot-gopher img { height: 32px; } }
 
 /* Icons beside labels and titles. */
 .eyebrow .icon { width: 1.125rem; height: 1.125rem; margin: -0.2em 0.5rem 0 0; }
