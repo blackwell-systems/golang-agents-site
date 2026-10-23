@@ -944,6 +944,15 @@ script sees every guide. */}}
     </div>
 {{- end}}
 
+{{/* The gopher on a pager card: walking back with its lantern,
+pointing ahead, or planting its flag at the end of a path. Decorative; the card's text says where it goes. */}}
+{{define "pagergopher" -}}
+<picture class="pager-gopher" aria-hidden="true">
+  <source type="image/webp" srcset="/img/gopher/{{.}}-144.webp 1x, /img/gopher/{{.}}-288.webp 2x">
+  <img src="/img/gopher/{{.}}-144.png" srcset="/img/gopher/{{.}}-144.png 1x, /img/gopher/{{.}}-288.png 2x" alt="" width="{{if eq . "back"}}80{{else if eq . "finish"}}73{{else}}77{{end}}" height="72" loading="lazy" decoding="async">
+</picture>
+{{- end}}
+
 {{/* The dividers: the ring between stepped stones, from the icon
 sprite, with hairlines either side. Decorative, so hidden from screen
 readers. */}}

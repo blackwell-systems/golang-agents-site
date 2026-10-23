@@ -52,10 +52,22 @@
       {{- with index .Places 0}}
       <nav class="pager" aria-label="{{.Path.Title}}, step {{.N}} of {{len .Path.Steps}}">
         {{- with .Prev}}
-        <a class="pager-prev" href="{{.URL}}"><span>{{icon "arrow"}}Back on the path</span>{{.Name}}</a>
+        <a class="pager-prev" href="{{.URL}}">{{template "pagergopher" "back"}}<div class="pager-text"><span>{{icon "arrow"}}Back on the path</span>{{.Name}}</div></a>
         {{- end}}
         {{- with .Next}}
-        <a class="pager-next" href="{{.URL}}"><span>Next on the path{{icon "arrow"}}</span>{{.Name}}</a>
+        <a class="pager-next" href="{{.URL}}"><div class="pager-text"><span>Next on the path{{icon "arrow"}}</span>{{.Name}}</div>{{template "pagergopher" "next"}}</a>
+        {{- else}}
+        {{- /* The path's last step: the gopher plants its flag, and the
+           other paths are offered instead of a next page. */}}
+        {{- $path := .Path}}
+        <div class="pager-finish">
+          <div class="pager-text"><span>End of the path</span>You finished {{$path.Title}}
+            <p class="pager-finish-more">Try another path:
+              {{- $first := true}}
+              {{- range $.Site.Paths}}{{if ne .ID $path.ID}}{{if not $first}} or{{end}} <a href="{{.URL}}">{{.Title}}</a>{{$first = false}}{{end}}{{end}}.</p>
+          </div>
+          {{- template "pagergopher" "finish"}}
+        </div>
         {{- end}}
       </nav>
       <p class="pager-path">Step {{.N}} of {{len .Path.Steps}} on the reading path <a href="{{.Path.URL}}">{{.Path.Title}}</a>{{if not .Next}}, its last step{{end}}.</p>
@@ -71,10 +83,10 @@
       {{- if or .Prev .Next}}
       <nav class="pager" aria-label="More in this section">
         {{- with .Prev}}
-        <a class="pager-prev" href="{{.URL}}"><span>{{icon "arrow"}}Previous in {{$.Section.Title}}</span>{{.Name}}</a>
+        <a class="pager-prev" href="{{.URL}}">{{template "pagergopher" "back"}}<div class="pager-text"><span>{{icon "arrow"}}Previous in {{$.Section.Title}}</span>{{.Name}}</div></a>
         {{- end}}
         {{- with .Next}}
-        <a class="pager-next" href="{{.URL}}"><span>Next in {{$.Section.Title}}{{icon "arrow"}}</span>{{.Name}}</a>
+        <a class="pager-next" href="{{.URL}}"><div class="pager-text"><span>Next in {{$.Section.Title}}{{icon "arrow"}}</span>{{.Name}}</div>{{template "pagergopher" "next"}}</a>
         {{- end}}
       </nav>
       {{- end}}

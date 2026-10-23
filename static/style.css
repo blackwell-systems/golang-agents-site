@@ -1747,7 +1747,7 @@ cite { font-style: italic; }
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
   margin-top: var(--space-5);
 }
-.pager a {
+.pager > a {
   display: block;
   padding: var(--card-py) var(--card-px);
   border: 1px solid var(--line);
@@ -1759,7 +1759,7 @@ cite { font-style: italic; }
   font-weight: 600;
   text-decoration: none;
 }
-.pager a:hover { border-color: var(--amber-dim); }
+.pager > a:hover { border-color: var(--amber-dim); }
 .pager span {
   display: block;
   font-weight: 500;
@@ -1770,6 +1770,35 @@ cite { font-style: italic; }
   margin-bottom: var(--space-2);
 }
 .pager-next { text-align: right; }
+/* The gophers: one walks back at the left of the Back card, one points
+   ahead at the right of the Next card, and each takes a small step its
+   way when the card is pointed at. */
+.pager > a { display: flex; align-items: center; gap: var(--space-4); }
+.pager-next { justify-content: flex-end; }
+.pager-text { flex: 1; min-width: 0; }
+.pager-gopher { flex: none; line-height: 0; }
+.pager-gopher img { display: block; width: auto; height: 72px; transition: transform 0.2s ease; }
+.pager-prev:hover .pager-gopher img, .pager-prev:focus-visible .pager-gopher img { transform: translateX(-3px); }
+.pager-next:hover .pager-gopher img, .pager-next:focus-visible .pager-gopher img { transform: translateX(3px); }
+.pager-finish {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--card-py) var(--card-px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ivory);
+  font-family: var(--label);
+  font-weight: 600;
+  line-height: var(--lh-title);
+}
+.pager-prev + .pager-finish:last-child, .pager-finish:only-child { grid-column: -2; }
+.pager-finish-more { margin: var(--space-2) 0 0; font-weight: 400; font-size: var(--fs-sm); color: var(--soft); }
+.pager-finish-more a { color: var(--soft); }
+.pager-finish-more a:hover { color: var(--ivory); }
+@media (max-width: 40rem) { .pager-gopher img { height: 56px; } }
+@media (prefers-reduced-motion: reduce) { .pager-gopher img { transition: none; transform: none !important; } }
 /* Under a reading path's cards: where the page sits on the path, and the
    section's own neighbors, in a quieter line. */
 .pager-path, .pager-section { margin: var(--space-3) 0 0; font-size: var(--fs-sm); color: var(--soft); }
