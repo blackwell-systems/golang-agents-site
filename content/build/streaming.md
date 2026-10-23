@@ -16,6 +16,7 @@ The terminal sits blank for a few seconds, prints an entire turn, and goes blank
 From the outside a slow model, a hung connection, and a crashed program all look the same.
 With streaming, text appears while the model is producing it, and the [agent loop](/basics/agent-loop/) gets a much earlier signal when a connection has died.
 
+New to streams in Go? [Streams in Go](/basics/streams/) covers `io.Reader`, `bufio.Scanner`, and the server-sent events format first.
 Here is how a stream looks on the wire, how to consume one in Go, and the details that catch out a stream reader written too quickly.
 
 ## What streaming buys, measured

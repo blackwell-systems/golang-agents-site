@@ -14,7 +14,7 @@ art: go-iterators
 An agent produces things over time: the pieces of a streamed reply, then a tool call, then its result, then the next turn.
 Since Go 1.23, a function can hand such a sequence to an ordinary `for ... range` loop, and the caller reads it as it is made.
 The companion code uses that shape throughout: a model's stream is an `iter.Seq2[Delta, error]`, one piece of a reply per step, and a whole run is an `iter.Seq[Event]`, one thing that happened per step.
-This page covers how these iterators work and the patterns an agent needs, with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested; the [streaming guide](/build/streaming/) shows the server-sent events reader built the same way.
+This page covers how these iterators work and the patterns an agent needs, with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested; the [streaming guide](/build/streaming/) shows the server-sent events reader built the same way, and [Streams in Go](/basics/streams/) explains the `io.Reader` and `bufio.Scanner` underneath it.
 
 ## An iterator is a function
 

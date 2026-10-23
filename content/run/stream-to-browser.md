@@ -12,6 +12,7 @@ art: ch06
 
 [Server-sent events](/glossary/#server-sent-events) (SSE) keep one HTTP response open and send messages down it as they happen.
 [Reading them](/build/streaming/) from the model's API turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn (one model call and its tools), and the end of a run.
+New to streams in Go? Start with [Streams in Go](/basics/streams/), which covers flushing and the event stream format.
 This example sends those events onward, from a Go server to a web page, so a person can watch a run as it happens and stop it.
 It is the companion code's [`ssebrowser` example](code:ssebrowser), built on `net/http` alone, with tests that run under the race detector.
 

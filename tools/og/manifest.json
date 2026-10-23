@@ -1,7 +1,7 @@
 {
   "og/basics.jpg": {
-    "spec": "db8309da02a1fbec879aa9642ee98d0972765e78f12400e9f5d2a497f4eab78f",
-    "hash": "7926bdd7d7525ab08f4cf07b2f0bc3f75161ed0cb7ae9abe5ff2613c441c1223"
+    "spec": "cd6b91e26cc92b9b25ecebc61c638949f8da10327873d6f40b0b399fa13e34ae",
+    "hash": "5c3f6688abb6edb42dcde9baffefd7d326ceedbbce27359f1087a9ec3dd08859"
   },
   "og/basics/agent-loop.jpg": {
     "spec": "06e93cb39804f2909473ce016584be8358cef5fe3a96140c5f7ecdbe5c1551d0",
@@ -62,6 +62,10 @@
   "og/basics/messages-and-roles.jpg": {
     "spec": "a6b098731d0efae5c2a61c7bfc225fe28c399b76b9a0039081347dda717126c3",
     "hash": "df1e923798447a6d8ab37189c0a6a904b95a757e77d081293ec1ac247c05019d"
+  },
+  "og/basics/streams.jpg": {
+    "spec": "1078b18ea20573b8efed7b7fb209eff673a4ebaa1822c060a32e632855ab6bdf",
+    "hash": "437efd64f58e977296fe0947bdad35f54b57b62aa6b19a4cea0e02a58f00c9ac"
   },
   "og/basics/tokens-and-cost.jpg": {
     "spec": "254f0985fbdcb7adec708a5a4f38a6a919db8be5f2db1f548c46500bb703106c",
