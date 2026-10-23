@@ -2984,3 +2984,21 @@ body::after {
   mask-size: 24px 24px;
 }
 @media print { body::after, .home-hero::before { display: none; } }
+
+/* A stage filter's own block: the chosen stage's guides at the top,
+   then the heading over the guides that cover every stage. Numbers are
+   left off here, since these guides come from different lists. */
+.stage-own { margin-top: var(--space-5); }
+.stage-own-title, .stage-divider { font-size: var(--fs-group); margin: 0 0 var(--space-4); }
+.stage-divider { margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--line); }
+.stage-own .path-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+}
+.stage-own .path-steps li { margin: 0; }
+.stage-own .path-steps a::before { content: none; }
+.stage-own .cards { margin-bottom: 0; }

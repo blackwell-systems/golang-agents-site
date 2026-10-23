@@ -858,14 +858,45 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     c.style.counterSet = "step " + (Array.prototype.indexOf.call(c.parentNode.children, c) + 1);
   });
 
+  // Under a stage, that stage's own guides gather at the top of the
+  // page, and the lists below keep only the guides that cover every
+  // stage. All puts every guide back in its place.
+  var lists = [];
+  cards.forEach(function (c) {
+    if (lists.indexOf(c.parentNode) < 0) lists.push(c.parentNode);
+  });
+  var order = lists.map(function (l) {
+    return Array.prototype.filter.call(l.children, function (c) { return c.hasAttribute("data-stage"); });
+  });
+  var home = new Map();
+  lists.forEach(function (l, i) { order[i].forEach(function (c) { home.set(c, l); }); });
+  var own = box.querySelector(".stage-own");
+  var ownList = own.querySelector("ol");
+  var ownTitle = own.querySelector(".stage-own-title");
+  var ownNone = own.querySelector(".stage-own-none");
+  var divider = own.querySelector(".stage-divider");
+
   function apply(stage) {
-    var shown = 0;
+    lists.forEach(function (l, i) { order[i].forEach(function (c) { l.appendChild(c); }); });
+    var mine = 0, every = 0;
     cards.forEach(function (c) {
       var s = c.getAttribute("data-stage");
       c.ok = stage === "all" || s === "all" || s === stage;
       c.hidden = !c.ok;
-      if (c.ok) shown++;
+      if (stage === "all") return;
+      if (s === stage) {
+        if (!mine) ownList.className = home.get(c).className;
+        ownList.appendChild(c);
+        mine++;
+      } else if (s === "all") every++;
     });
+    own.hidden = stage === "all";
+    if (stage !== "all") {
+      var b = box.querySelector('button[data-stage="' + stage + '"] span');
+      ownTitle.textContent = b ? b.textContent : "";
+      ownNone.hidden = mine > 0;
+      divider.hidden = every === 0;
+    }
     groups.forEach(function (g) {
       g.hidden = !cards.some(function (c) { return c.ok && g.contains(c); });
     });
@@ -873,7 +904,8 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       b.setAttribute("aria-pressed", b.getAttribute("data-stage") === stage ? "true" : "false");
     });
     count.textContent = stage === "all" ? cards.length + " guides"
-      : "Showing " + shown + " of " + cards.length + " guides";
+      : mine + (mine === 1 ? " guide" : " guides") + " for this stage, then " +
+        every + " that cover every stage";
     var url = location.pathname + (stage === "all" ? "" : "?stage=" + stage) + location.hash;
     history.replaceState(null, "", url);
   }
@@ -903,6 +935,12 @@ script sees every guide. */}}
         {{- end}}
       </div>
       <p class="stage-count" id="sf-count" aria-live="polite"></p>
+      <div class="stage-own" hidden>
+        <h2 class="stage-own-title"></h2>
+        <ol></ol>
+        <p class="stage-own-none" hidden>No guides here work on this stage alone.</p>
+        <h2 class="stage-divider">Covers every stage</h2>
+      </div>
     </div>
 {{- end}}
 
