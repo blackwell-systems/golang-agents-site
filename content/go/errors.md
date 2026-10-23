@@ -88,6 +88,11 @@ A call retried until the policy gave up returns a `*RetryError`, which says it i
 ```go include=ch12/agent/retry.go tag=retry-error
 ```
 
+Here is the whole chain chapter 12's code returns when a test server answers every model call with a 429, under a retry policy of three attempts.
+Step through how it is built, and what each of the two searches finds:
+
+{{errchain}}
+
 ## Errors the model reads
 
 Most tool errors don't stop the run.

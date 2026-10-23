@@ -1,0 +1,16 @@
+<figure class="errc" data-errc>
+<div class="errc-play" hidden>
+<button type="button" data-scene="wrap" aria-pressed="false">1. Wrap it</button>
+<button type="button" data-scene="find" aria-pressed="false">2. Find the *APIError</button>
+<button type="button" data-scene="retry" aria-pressed="false">3. Ask: retryable?</button>
+</div>
+<div class="errc-query"><code class="errc-expr">err.Error()</code><code class="errc-msg">generate: gave up after 3 attempts: no attempts left: openrouter: 429 Too Many Requests: Rate limit exceeded</code></div>
+<ol class="errc-chain">
+<li data-link="4"><span class="errc-who">the agent loop</span><code class="errc-type">*fmt.wrapError</code><code class="errc-own">"generate: " + the error below</code></li>
+<li data-link="3"><span class="errc-who">the retry policy</span><code class="errc-type">*agent.RetryError</code><code class="errc-own">"gave up after 3 attempts: " + the error below</code><span class="errc-facts">Retryable() false</span></li>
+<li data-link="2"><span class="errc-who">the retry policy</span><code class="errc-type">*fmt.wrapError</code><code class="errc-own">"no attempts left: " + the error below</code></li>
+<li data-link="1"><span class="errc-who">the client, from the reply</span><code class="errc-type">*openrouter.APIError</code><code class="errc-own">openrouter: 429 Too Many Requests: Rate limit exceeded</code><span class="errc-facts">Status 429 · Retryable() true · RetryAfter 1s</span></li>
+</ol>
+<p class="errc-result" aria-live="polite"></p>
+<figcaption class="errc-caption" aria-live="polite">The error a run returns when every model call got a 429, with a retry policy of three attempts: four errors, each wrapping the one below with %w. errors.AsType walks them from the outside in and returns the first of the type asked for.</figcaption>
+</figure>

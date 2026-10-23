@@ -3077,3 +3077,68 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .ctxt-flow, .ctxt-node rect, .ctxt-name, .ctxt-status, .ctxt-timer { transition: none; }
 }
+
+/* The error chain on /go/errors/ (cmd/build/errchain.html): four
+   wrapped errors, built from the inside out and then searched from the
+   outside in. A link being checked gets an amber outline, a miss dims,
+   and the match fills with amber. */
+.errc { margin: var(--block-before) auto var(--block-after); max-width: 40rem; }
+.errc-play { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; margin-bottom: var(--space-3); }
+.errc-play button {
+  font: 600 var(--fs-sm)/1 var(--label);
+  color: var(--ivory);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+}
+.errc-play button:hover { border-color: var(--amber-dim); }
+.errc-play button[aria-pressed="true"] { border-color: var(--amber); color: var(--amber); }
+.errc-query { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); }
+.errc-query code { background: none; padding: 0; font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.errc-expr { color: var(--amber); font-weight: 600; }
+.errc-msg { color: var(--ivory); min-height: 1.5em; }
+.errc .errc-chain, .prose .errc .errc-chain { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6rem; }
+.errc-chain li {
+  position: relative;
+  margin: 0;
+  display: grid;
+  gap: 0.2rem;
+  padding: var(--space-3) var(--space-4);
+  background: var(--panel);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  transition: opacity 0.35s ease, transform 0.35s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+.errc-chain li + li::before {
+  content: "Unwrap()";
+  position: absolute;
+  top: -1.45rem;
+  left: 1.5rem;
+  font: 500 var(--fs-xs) var(--mono);
+  color: var(--soft);
+  padding-left: 0.9rem;
+  border-left: 1.5px solid var(--line);
+  line-height: 1.3rem;
+}
+.errc-who { font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--soft); }
+.errc-type { background: none; padding: 0; font-weight: 600; color: var(--ivory); }
+.errc-own { background: none; padding: 0; font-size: var(--fs-sm); color: var(--stone); overflow-wrap: anywhere; }
+.errc-facts { font: 500 var(--fs-xs) var(--mono); color: var(--soft); }
+.errc-chain li.is-out { background: transparent; border-style: dashed; }
+.errc-chain li.is-out > *, .errc-chain li.is-out::before { visibility: hidden; }
+.errc-chain li.is-probe { border-color: var(--amber); }
+.errc-chain li.is-miss { opacity: 0.45; }
+.errc-chain li.is-hit { background: var(--amber); border-color: var(--amber); }
+.errc-chain li.is-hit :is(.errc-who, .errc-type, .errc-own, .errc-facts) { color: var(--amber-ink); }
+.errc-result { margin: var(--space-4) 0 0; min-height: 1.5em; text-align: center; font: 600 var(--fs-sm) var(--mono); color: var(--amber); }
+.errc-caption { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--soft); text-align: center; min-height: 3.2em; }
+@media (prefers-reduced-motion: reduce) { .errc-chain li { transition: none; } }
+@media (max-width: 40rem) {
+  .errc .errc-chain, .prose .errc .errc-chain { gap: 1.25rem; }
+  .errc-chain li { padding: var(--space-2) var(--space-3); gap: 0.1rem; }
+  .errc-chain li + li::before { top: -1.15rem; line-height: 1.05rem; }
+  .errc-own, .errc-query code { font-size: var(--fs-xs); }
+  .errc-type { font-size: var(--fs-sm); }
+}

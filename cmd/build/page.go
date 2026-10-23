@@ -335,6 +335,7 @@ func convert(md goldmark.Markdown, code *codeRoot, src []byte) (template.HTML, e
 	}
 	src = bytes.ReplaceAll(src, []byte("{{loop}}"), loopRing)
 	src = bytes.ReplaceAll(src, []byte("{{ctxtree}}"), ctxTree)
+	src = bytes.ReplaceAll(src, []byte("{{errchain}}"), errChain)
 	src, err := fillArt(src)
 	if err != nil {
 		return "", err

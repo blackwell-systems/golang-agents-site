@@ -544,6 +544,112 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   }
 })();
 
+// The error chain (cmd/build/errchain.html): built from the inside out,
+// one wrap at a time, then searched from the outside in by
+// errors.AsType, once for the *APIError and once for anything with a
+// Retryable method. Played once in view, and again from its buttons.
+(function () {
+  var fig = document.querySelector("[data-errc]");
+  if (!fig) return;
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var links = {};
+  fig.querySelectorAll("[data-link]").forEach(function (li) { links[li.dataset.link] = li; });
+  var expr = fig.querySelector(".errc-expr");
+  var msg = fig.querySelector(".errc-msg");
+  var result = fig.querySelector(".errc-result");
+  var caption = fig.querySelector(".errc-caption");
+  var buttons = fig.querySelectorAll("[data-scene]");
+  var full = msg.textContent;
+  var timers = [];
+  var api = "openrouter: 429 Too Many Requests: Rate limit exceeded";
+  function clear() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    Object.keys(links).forEach(function (k) {
+      links[k].classList.remove("is-out", "is-probe", "is-miss", "is-hit");
+    });
+    result.textContent = "";
+  }
+  function probe(k) { links[k].classList.add("is-probe"); }
+  function miss(k) { links[k].classList.remove("is-probe"); links[k].classList.add("is-miss"); }
+  function hit(k) { links[k].classList.remove("is-probe"); links[k].classList.add("is-hit"); }
+  function say(s) { caption.textContent = s; }
+  // Each scene is a start, run at once, and timed steps.
+  var scenes = {
+    wrap: {
+      start: function () {
+        expr.textContent = "err.Error()";
+        msg.textContent = "";
+        ["1", "2", "3", "4"].forEach(function (k) { links[k].classList.add("is-out"); });
+        say("Each layer that returns an error adds what it was doing in front, with %w, so the error underneath stays reachable.");
+      },
+      steps: [
+        [400, function () { links["1"].classList.remove("is-out"); msg.textContent = api; say("The client turns the 429 reply into an *openrouter.APIError."); }],
+        [1900, function () { links["2"].classList.remove("is-out"); msg.textContent = "no attempts left: " + api; say("The retry policy tries twice more, gets the same answer, and wraps the last error with why it stopped."); }],
+        [3400, function () { links["3"].classList.remove("is-out"); msg.textContent = "gave up after 3 attempts: no attempts left: " + api; say("It returns a *RetryError around that, which says it is not retryable."); }],
+        [4900, function () { links["4"].classList.remove("is-out"); msg.textContent = full; say("The agent loop adds what it was doing, and the run returns the whole chain. The message reads from the outside in."); }]
+      ]
+    },
+    find: {
+      start: function () {
+        expr.textContent = "e, ok := errors.AsType[*openrouter.APIError](err)";
+        msg.textContent = full;
+        say("errors.AsType walks the chain with Unwrap, from the outside in, and returns the first error of the type asked for.");
+      },
+      steps: [
+        [500, function () { probe("4"); }], [1000, function () { miss("4"); probe("3"); }],
+        [1600, function () { miss("3"); probe("2"); }], [2200, function () { miss("2"); probe("1"); }],
+        [2800, function () {
+          hit("1");
+          result.textContent = "ok: e.Status 429, e.Retryable() true, e.RetryAfter 1s";
+          say("Found at the bottom, typed, with its fields: the status, and the wait the server asked for.");
+        }]
+      ]
+    },
+    retry: {
+      start: function () {
+        expr.textContent = "r, ok := errors.AsType[retryable](err)  // any error with a Retryable method";
+        msg.textContent = full;
+        say("The retry code asks a different question: is there any error in the chain with a Retryable method?");
+      },
+      steps: [
+        [500, function () { probe("4"); }], [1000, function () { miss("4"); probe("3"); }],
+        [1600, function () {
+          hit("3");
+          result.textContent = "ok: r is the *RetryError, r.Retryable() false: don't retry";
+          say("The walk stops at the first match, the *RetryError, which answers false. So a retry loop further out doesn't start the whole series again, though the 429 underneath says it could.");
+        }]
+      ]
+    }
+  };
+  function play(name, then) {
+    clear();
+    var sc = scenes[name];
+    buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.scene === name)); });
+    sc.start();
+    if (still.matches) {
+      sc.steps.forEach(function (st) { st[1](); });
+      return;
+    }
+    requestAnimationFrame(function () {
+      sc.steps.forEach(function (st) { timers.push(setTimeout(st[1], st[0])); });
+      if (then) timers.push(setTimeout(then, sc.steps[sc.steps.length - 1][0] + 3200));
+    });
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { play(b.dataset.scene); });
+  });
+  fig.querySelector(".errc-play").hidden = false;
+  if (!still.matches && "IntersectionObserver" in window) {
+    var seen = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      seen.disconnect();
+      play("wrap", function () { play("find", function () { play("retry"); }); });
+    }, { threshold: 0.4 });
+    seen.observe(fig.querySelector(".errc-chain"));
+  }
+})();
+
 // Listings marked with the agent loop's stages (stages=, markdown.go).
 // Pointing at a stage's number lights that stage's lines, and on the
 // home page, the big ring too, which talks to this through two events:
