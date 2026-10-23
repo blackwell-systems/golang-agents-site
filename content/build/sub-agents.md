@@ -6,6 +6,7 @@ card: Run your agent loop again inside a tool to answer one question, and when t
 group: Scale up
 chapters: 9
 stage: 1
+level: intermediate
 date: 2026-10-18
 weight: 70
 art: ch09

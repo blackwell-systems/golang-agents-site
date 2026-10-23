@@ -5,6 +5,7 @@ description: Chapter 13 ran the same agent twice on each of 20 tasks and scored 
 card: The same agent, run twice, scored 15 points apart. How to tell a real improvement from chance.
 chapters: 13
 stage: all
+level: advanced
 date: 2026-10-18
 weight: 50
 art: ch13

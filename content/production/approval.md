@@ -6,6 +6,7 @@ card: Putting a person in front of risky tool calls, with a gate the model can't
 group: Safety
 chapters: 14, 15, 17
 stage: 3
+level: advanced
 date: 2026-10-18
 work: true
 weight: 60

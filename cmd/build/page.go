@@ -48,6 +48,7 @@ type Meta struct {
 	Weight      int    // the order within its section, lowest first
 	Kind        string // a label shown above the title, such as "Example"
 	Stage       string // the loop stage the page works on: 1 to 4, or "all"
+	Level       string // a guide's skill level: beginner, intermediate, or advanced
 	BookLine    string // the closing line about the book, in Markdown
 	Work        bool   // close with a line pointing at /work-with-me/
 	Beyond      bool   // a topic the book doesn't cover; the footer says so
@@ -66,6 +67,15 @@ func (p *Page) Name() string { return cmp.Or(p.Short, p.Title) }
 
 // Blurb is the line a section page's card shows.
 func (p *Page) Blurb() string { return cmp.Or(p.Card, p.Description) }
+
+// LevelName is the guide's skill level as a label, such as
+// "Intermediate", or "" for a page with none.
+func (p *Page) LevelName() string {
+	if p.Level == "" {
+		return ""
+	}
+	return strings.ToUpper(p.Level[:1]) + p.Level[1:]
+}
 
 // Modified is the date the page last changed.
 func (p *Page) Modified() string { return cmp.Or(p.Updated, p.Date) }
@@ -181,6 +191,15 @@ func (p *Page) check() error {
 	default:
 		return fmt.Errorf("stage %q: want 1 to 4, or all", p.Stage)
 	}
+	switch p.Level {
+	case "beginner", "intermediate", "advanced":
+	case "":
+		if p.Section != "" && !p.Index() {
+			return fmt.Errorf("level is required on a guide: want beginner, intermediate, or advanced")
+		}
+	default:
+		return fmt.Errorf("level %q: want beginner, intermediate, or advanced", p.Level)
+	}
 	// A card holds about two lines at its narrowest.
 	if n := utf8.RuneCountInString(p.Card); n > 120 {
 		return fmt.Errorf("card is %d characters; keep it to 120", n)
@@ -251,6 +270,8 @@ func (m *Meta) set(key, val string) error {
 		m.Kind = val
 	case "stage":
 		m.Stage = val
+	case "level":
+		m.Level = val
 	case "book":
 		m.BookLine = val
 	case "art":

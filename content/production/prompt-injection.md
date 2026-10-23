@@ -6,6 +6,7 @@ card: A threat model, a ladder of sandboxes, and five layers of defense against 
 group: Safety
 chapters: 14
 stage: 3
+level: advanced
 date: 2026-10-18
 work: true
 weight: 50

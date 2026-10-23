@@ -6,6 +6,7 @@ card: Naming every way a run can end: typed errors, budgets, reply checks, and c
 group: Reliability
 chapters: 5
 stage: 4
+level: intermediate
 date: 2026-10-18
 work: true
 weight: 10

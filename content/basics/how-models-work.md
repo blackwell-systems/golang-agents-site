@@ -6,6 +6,7 @@ card: A toy model in Go shows why answers vary, what temperature does, and why a
 group: Tools and the model
 chapters: 3
 stage: 2
+level: beginner
 date: 2026-10-18
 weight: 60
 art: ch03

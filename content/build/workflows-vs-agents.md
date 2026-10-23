@@ -6,6 +6,7 @@ card: Five shapes of program that call a model, and how to pick the simplest one
 group: Start building
 chapters: 1, 5, 6, 13
 stage: 4
+level: beginner
 date: 2026-10-18
 weight: 10
 art: ch05

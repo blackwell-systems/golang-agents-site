@@ -6,6 +6,7 @@ card: Notes an agent saves, replaces, and recalls by meaning, measured against n
 group: Knowledge and memory
 stage: 1
 beyond: true
+level: intermediate
 date: 2026-10-19
 weight: 92
 art: memory

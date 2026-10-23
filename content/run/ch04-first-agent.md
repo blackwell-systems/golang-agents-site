@@ -5,6 +5,7 @@ description: The same 30-line loop, now driven by a real model's recorded replie
 card: The same loop on a real model's recorded replies, with go test running for real.
 chapters: 4
 stage: 3
+level: beginner
 date: 2026-10-18
 weight: 20
 art: ch04

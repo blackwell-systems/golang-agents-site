@@ -6,6 +6,7 @@ card: Five Go agent frameworks set against the parts of a harness, with one task
 group: Libraries and frameworks
 chapters: 16
 stage: all
+level: advanced
 date: 2026-10-18
 weight: 40
 art: ch16

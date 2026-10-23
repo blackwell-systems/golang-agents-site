@@ -5,6 +5,7 @@ description: The crash-triage agent the book ends with, measured on 20 held-out 
 card: The book's final agent on 20 held-out tasks and three models: pass rates, costs, and failures.
 chapters: 17, 13
 stage: all
+level: intermediate
 date: 2026-10-19
 weight: 2
 art: ch17

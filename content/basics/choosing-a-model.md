@@ -5,6 +5,7 @@ description: What an agent needs from a model, how to read a model ID, why the p
 card: Tool support, cost per finished task, reasoning models, local models, and how to compare.
 group: Tools and the model
 chapters: 2, 11, 13, 17
+level: beginner
 date: 2026-10-19
 weight: 70
 art: choosing-a-model

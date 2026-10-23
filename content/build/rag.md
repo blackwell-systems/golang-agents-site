@@ -6,6 +6,7 @@ card: Split documents into chunks, embed them, search in memory, and answer from
 group: Knowledge and memory
 stage: 1
 beyond: true
+level: intermediate
 date: 2026-10-19
 weight: 90
 art: rag

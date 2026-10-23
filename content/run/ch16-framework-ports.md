@@ -5,6 +5,7 @@ description: The same approval-gated diagnosis written on the book's agent packa
 card: One approval-gated task on the book's code, Eino, and Genkit, with every request recorded.
 chapters: 16
 stage: all
+level: advanced
 date: 2026-10-18
 weight: 50
 art: ch16

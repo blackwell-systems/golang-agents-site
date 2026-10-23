@@ -6,6 +6,7 @@ card: One agent loop on providers whose APIs disagree, with each SDK behind your
 group: Providers
 chapters: 11
 stage: 2
+level: intermediate
 date: 2026-10-18
 weight: 10
 art: ch11

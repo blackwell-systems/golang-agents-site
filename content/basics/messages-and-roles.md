@@ -6,6 +6,7 @@ card: The four roles in a conversation, the Go type that holds them, and how to 
 group: Talk to a model
 chapters: 1, 2, 7
 stage: 1
+level: beginner
 date: 2026-10-19
 weight: 27
 art: messages-and-roles

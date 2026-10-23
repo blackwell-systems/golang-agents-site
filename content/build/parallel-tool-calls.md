@@ -6,6 +6,7 @@ card: Which tool calls can safely overlap, a runner that keeps the model's order
 group: Scale up
 chapters: 9
 stage: 3
+level: intermediate
 date: 2026-10-18
 weight: 60
 art: ch09

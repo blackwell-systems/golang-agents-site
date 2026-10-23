@@ -5,6 +5,7 @@ description: Chapter 4 made a tool fail on every call and changed only the wordi
 card: Two wordings of the same tool error: one kept three models retrying, the other stopped them all.
 chapters: 4
 stage: 3
+level: intermediate
 date: 2026-10-18
 weight: 20
 art: ch04

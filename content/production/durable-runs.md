@@ -6,6 +6,7 @@ card: Surviving a crash without losing work or doing it twice: checkpoints, lock
 group: Running it
 chapters: 12, 15
 stage: all
+level: advanced
 date: 2026-10-18
 work: true
 weight: 70

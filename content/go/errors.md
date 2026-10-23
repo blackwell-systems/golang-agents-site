@@ -6,6 +6,7 @@ card: Errors for two readers: the program, which decides what to do, and the mod
 group: Control and failure
 chapters: 2, 5, 7, 9, 12
 stage: all
+level: intermediate
 date: 2026-10-19
 weight: 20
 art: go-errors

@@ -6,6 +6,7 @@ card: ReAct, chaining, routing, reflection, orchestrator-workers, and the rest, 
 group: Start building
 chapters: 1, 5, 9, 13
 stage: all
+level: intermediate
 date: 2026-10-20
 weight: 12
 art: patterns-by-name

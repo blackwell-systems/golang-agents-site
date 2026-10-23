@@ -5,6 +5,7 @@ description: Chapter 15 crashed the agent's run at every point a crash could lan
 card: The agent crashed at every point and restarted: what caused duplicates, and what removed them.
 chapters: 15
 stage: 3
+level: advanced
 date: 2026-10-18
 weight: 60
 art: ch15

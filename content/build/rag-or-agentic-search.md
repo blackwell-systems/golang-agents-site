@@ -6,6 +6,7 @@ card: One-shot RAG, search as a tool, and an agent reading files, measured on th
 group: Knowledge and memory
 stage: all
 beyond: true
+level: intermediate
 date: 2026-10-19
 weight: 91
 art: rag-or-agentic-search

@@ -5,6 +5,7 @@ description: Run a complete agent loop that fixes a failing Go test, driven by a
 card: A complete agent loop that fixes a failing test from a script. No key, no network.
 chapters: 1
 stage: all
+level: beginner
 date: 2026-10-18
 weight: 10
 art: ch01

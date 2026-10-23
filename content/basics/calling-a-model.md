@@ -6,6 +6,7 @@ card: A chat completions client in standard-library Go, with deadlines, error ch
 group: Talk to a model
 chapters: 2
 stage: 2
+level: beginner
 date: 2026-10-18
 weight: 30
 art: ch02

@@ -65,6 +65,7 @@ short: The agent loop                  # optional; for nav and lists
 description: One or two sentences for search results and lists.
 chapters: 1, 4, 5                      # the book chapters it draws on
 stage: all                             # the loop stage it works on: 1 to 4, or all
+level: beginner                        # required for guides: beginner, intermediate, or advanced
 date: 2026-10-18                       # required for guides
 updated: 2026-10-20                    # optional
 weight: 20                             # order in its section

@@ -5,6 +5,7 @@ description: A sentence added to an MCP tool's description, a tool the model had
 card: One sentence in an MCP tool's description steered four models' first move in 79 of 80 replies.
 chapters: 10
 stage: 1
+level: advanced
 date: 2026-10-18
 weight: 10
 art: ch10

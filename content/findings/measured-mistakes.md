@@ -5,6 +5,7 @@ description: Every failure on this page happened in a recorded run of the book's
 card: Twelve failures from recorded runs, each with how often it happened and what the code changed.
 chapters: 1, 4, 7, 9, 10, 12, 13, 14, 15
 stage: all
+level: intermediate
 date: 2026-10-18
 weight: 5
 art: measured-mistakes

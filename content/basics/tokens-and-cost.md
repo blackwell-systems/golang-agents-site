@@ -6,6 +6,7 @@ card: How an agent's requests grow each turn, what a run costs, and why the cont
 group: Tools and the model
 chapters: 1, 2, 4
 stage: 1
+level: beginner
 date: 2026-10-18
 weight: 50
 art: ch02

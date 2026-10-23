@@ -6,6 +6,7 @@ card: Testing an agent without a live model: scripted models, replayed HTTP, and
 group: Testing
 chapters: 1, 2, 4, 5
 stage: all
+level: intermediate
 date: 2026-10-18
 work: true
 weight: 30

@@ -5,6 +5,7 @@ description: The provider SDKs, the MCP SDK, OpenTelemetry, and the five Go agen
 card: Every SDK and framework the book's code uses, with its version, its strengths, and its costs.
 group: Libraries and frameworks
 chapters: 4, 10, 11, 12, 16
+level: intermediate
 date: 2026-10-18
 weight: 30
 art: ch16

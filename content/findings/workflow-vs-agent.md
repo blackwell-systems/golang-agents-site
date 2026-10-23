@@ -5,6 +5,7 @@ description: Chapter 1 fixed one Go bug on four models in two ways, as a three-s
 card: One Go bug fixed by a three-step workflow and by an agent, on four models: cost, speed, failures.
 chapters: 1
 stage: 4
+level: intermediate
 date: 2026-10-18
 weight: 30
 art: ch01

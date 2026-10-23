@@ -6,6 +6,7 @@ card: What changed from encoding/json, and the parts of v2 an agent leans on, ea
 group: Calling APIs
 chapters: 2, 4, 7, 8, 10, 15
 stage: all
+level: intermediate
 date: 2026-10-19
 weight: 30
 art: go-json

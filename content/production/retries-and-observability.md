@@ -6,6 +6,7 @@ card: What to retry, how to back off, and traces that show where a run's time an
 group: Reliability
 chapters: 12
 stage: 2
+level: advanced
 date: 2026-10-18
 work: true
 weight: 20

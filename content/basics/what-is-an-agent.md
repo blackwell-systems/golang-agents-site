@@ -6,6 +6,7 @@ card: What makes a program an agent, followed through one run that fixes a faili
 group: Get oriented
 chapters: 1
 stage: all
+level: beginner
 date: 2026-10-18
 weight: 10
 art: ch01

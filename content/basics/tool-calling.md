@@ -6,6 +6,7 @@ card: A tool call as raw JSON, how a Go client sends and reads one, and the rule
 group: Tools and the model
 chapters: 4, 2
 stage: 3
+level: beginner
 date: 2026-10-18
 weight: 40
 art: ch04

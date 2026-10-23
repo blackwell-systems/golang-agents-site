@@ -6,6 +6,7 @@ card: Running an agent unattended: restarts, shutdown, secrets, a work queue, bu
 group: Running it
 chapters: 12, 15, 17
 stage: all
+level: advanced
 date: 2026-10-18
 work: true
 weight: 80

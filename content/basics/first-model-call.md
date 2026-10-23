@@ -6,6 +6,7 @@ card: An API key, one request with curl, and every part of the reply, including 
 group: Talk to a model
 chapters: 2
 stage: 2
+level: beginner
 date: 2026-10-19
 weight: 25
 art: first-model-call

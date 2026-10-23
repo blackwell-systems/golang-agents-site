@@ -6,6 +6,7 @@ card: Streams and runs as iterators: yield, break, cleanup in a defer, and the m
 group: Concurrency
 chapters: 6, 9, 11, 12
 stage: all
+level: intermediate
 date: 2026-10-19
 weight: 70
 art: go-iterators

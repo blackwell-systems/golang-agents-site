@@ -6,6 +6,7 @@ card: A missing key, no credit, a bad model ID, rate limits, cut-off replies, an
 group: Talk to a model
 chapters: 2, 5, 12
 stage: 2
+level: beginner
 date: 2026-10-19
 weight: 35
 art: common-errors

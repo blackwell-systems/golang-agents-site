@@ -6,6 +6,7 @@ card: A complete agent in a few short files of standard-library Go, run offline 
 group: Start building
 chapters: 1, 2, 4
 stage: all
+level: beginner
 date: 2026-10-19
 weight: 5
 work: true

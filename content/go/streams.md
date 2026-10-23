@@ -6,6 +6,7 @@ card: Reading and writing a stream in Go: io.Reader, bufio.Scanner, server-sent 
 group: Calling APIs
 chapters: 6
 stage: 2
+level: intermediate
 date: 2026-10-23
 weight: 50
 art: go-streams

@@ -6,6 +6,7 @@ card: Get a typed, checked answer from any tool-calling model by making the answ
 group: Tools and output
 chapters: 7
 stage: 4
+level: intermediate
 date: 2026-10-18
 weight: 40
 art: ch07

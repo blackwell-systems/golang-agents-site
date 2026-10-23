@@ -6,6 +6,7 @@ card: One shared client, deadlines on the context, size limits, errors inside a 
 group: Calling APIs
 chapters: 2, 5, 6, 9, 12
 stage: 2
+level: intermediate
 date: 2026-10-19
 weight: 40
 art: go-http

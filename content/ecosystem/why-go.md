@@ -5,6 +5,7 @@ description: An agent spends most of its time waiting on a network, running work
 card: Where Go's standard tools did an agent's work in the book's code, with numbers, and what Go costs.
 group: Why Go
 chapters: 5, 9, 11, 12, 15, 16
+level: beginner
 date: 2026-10-18
 weight: 5
 art: why-go

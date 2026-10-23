@@ -1821,6 +1821,17 @@ cite { font-style: italic; }
 .cards a:hover .card-title { text-decoration: underline; text-underline-offset: 0.18em; }
 .card-desc { font-size: var(--fs-md); line-height: var(--lh-snug); margin-bottom: var(--space-3); }
 .card-cite { margin-top: auto; color: var(--soft); }
+/* A guide's skill level: plain small text under its description. */
+.card-level {
+  display: block;
+  margin-top: auto;
+  padding-top: var(--space-2);
+  font-family: var(--label);
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--soft);
+}
 
 /* The home page */
 .home-hero { padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(2.5rem, 6vw, 4rem); }

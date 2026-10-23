@@ -5,6 +5,7 @@ description: The crash-triage agent's first run on a small Go web service, repla
 card: The crash-triage agent's first run on four crash reports, replayed and graded offline.
 chapters: 7
 stage: all
+level: intermediate
 date: 2026-10-18
 weight: 30
 art: ch07

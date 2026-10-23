@@ -6,6 +6,7 @@ card: Reading a reply that arrives as it is written (server-sent events) in Go, 
 group: Tools and output
 chapters: 6
 stage: 2
+level: intermediate
 date: 2026-10-18
 weight: 30
 art: ch06

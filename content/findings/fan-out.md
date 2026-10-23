@@ -5,6 +5,7 @@ description: Chapter 9 triaged a batch of 99 crash reports two ways, with one ag
 card: One agent per cause, four at a time, against one agent for 99 reports: no faster, and it cost more.
 chapters: 9
 stage: all
+level: intermediate
 date: 2026-10-18
 weight: 40
 art: ch09

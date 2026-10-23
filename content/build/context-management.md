@@ -6,6 +6,7 @@ card: Five ways to keep a long run affordable and on task, and what each did on 
 group: Scale up
 chapters: 8
 stage: 1
+level: intermediate
 date: 2026-10-18
 weight: 50
 art: ch08

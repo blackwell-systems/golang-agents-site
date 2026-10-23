@@ -6,6 +6,7 @@ card: Run go test so it stops when told, keeps your keys, and reports what faile
 group: Programs and files
 chapters: 4, 7, 14
 stage: 3
+level: intermediate
 date: 2026-10-20
 weight: 80
 art: commands-and-files

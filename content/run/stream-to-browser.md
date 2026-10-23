@@ -5,6 +5,7 @@ description: A server written with net/http alone sends an agent's events, as th
 card: An agent's progress streamed to a web page with net/http and server-sent events.
 kind: Example
 chapters: 6
+level: intermediate
 date: 2026-10-18
 weight: 30
 art: ch06

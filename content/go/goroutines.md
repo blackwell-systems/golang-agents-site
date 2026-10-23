@@ -6,6 +6,7 @@ card: Start goroutines with an owner and a way to stop, merge their results, and
 group: Concurrency
 chapters: 6, 9, 10, 15
 stage: all
+level: intermediate
 date: 2026-10-19
 weight: 60
 art: go-goroutines

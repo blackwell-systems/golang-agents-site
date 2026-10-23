@@ -6,6 +6,7 @@ card: Twenty-three checks for an agent that runs unattended and spends money.
 group: Before launch
 chapters: 4, 5, 10, 11, 12, 13, 14, 15
 stage: all
+level: advanced
 date: 2026-10-18
 weight: 90
 art: launch-checklist

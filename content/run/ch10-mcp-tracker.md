@@ -5,6 +5,7 @@ description: The crash-triage agent reaching its issue tracker only through the 
 card: The agent filing issues through an MCP server, with the server's tool definitions pinned.
 chapters: 10
 stage: 3
+level: intermediate
 date: 2026-10-18
 weight: 40
 art: ch10

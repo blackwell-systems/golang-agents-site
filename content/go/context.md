@@ -6,6 +6,7 @@ card: Stop a run, give each call a deadline, say why it stopped, and let the wor
 group: Control and failure
 chapters: 1, 2, 5, 6, 12, 15
 stage: all
+level: intermediate
 date: 2026-10-19
 weight: 10
 art: go-context

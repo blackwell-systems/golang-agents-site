@@ -6,6 +6,7 @@ card: How Gemini, Ollama, Bedrock, and Cohere carry tools and stop reasons, for 
 group: Providers
 chapters: 2, 11
 stage: 2
+level: intermediate
 date: 2026-10-18
 weight: 20
 art: more-providers

@@ -6,6 +6,7 @@ card: What the model sees of a tool, and how to write names, schemas, results, a
 group: Tools and output
 chapters: 7, 4, 3
 stage: 3
+level: intermediate
 date: 2026-10-18
 work: true
 weight: 20

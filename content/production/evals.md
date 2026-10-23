@@ -6,6 +6,7 @@ card: How to tell whether an agent is good, and whether a change made it better.
 group: Testing
 chapters: 13
 stage: all
+level: advanced
 date: 2026-10-18
 work: true
 weight: 40

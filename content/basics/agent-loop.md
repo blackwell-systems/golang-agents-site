@@ -6,6 +6,7 @@ card: The whole agent loop in about 30 lines of Go, read stage by stage.
 group: Get oriented
 chapters: 1, 4, 5
 stage: all
+level: beginner
 date: 2026-10-18
 weight: 20
 art: ch01

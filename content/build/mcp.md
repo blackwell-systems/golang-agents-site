@@ -6,6 +6,7 @@ card: The Model Context Protocol on the wire, a Go client for it, and how far to
 group: Scale up
 chapters: 10
 stage: 3
+level: intermediate
 date: 2026-10-18
 weight: 80
 art: ch10

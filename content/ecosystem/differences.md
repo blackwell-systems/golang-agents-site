@@ -6,6 +6,7 @@ card: The same request on OpenAI-style and Anthropic APIs differs in twelve plac
 group: Providers
 chapters: 2, 4, 6, 8, 11
 stage: 2
+level: intermediate
 date: 2026-10-18
 weight: 15
 art: ch11
