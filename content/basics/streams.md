@@ -8,6 +8,7 @@ chapters: 6
 stage: 2
 date: 2026-10-23
 weight: 91
+art: go-streams
 ---
 
 A language model writes its reply one token at a time (a token is a short piece of text, often a word or part of one).
