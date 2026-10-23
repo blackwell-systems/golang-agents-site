@@ -3,11 +3,11 @@ title: "context.Context in a Go agent: cancellation, deadlines, and causes"
 short: context.Context in an agent
 description: How context.Context works and how an AI agent in Go uses it. The interface and the tree of contexts, stopping a run on Ctrl-C, waiting on ctx.Done in your own code, a deadline for each model call, saying why a run stopped with WithTimeoutCause and context.Cause, cancelling the commands tools start, an idle timer on a stream, work that must finish with WithoutCancel, testing timeouts with synctest, and the common mistakes.
 card: Stop a run, give each call a deadline, say why it stopped, and let the work that must finish still finish.
-group: Go in depth
+group: Control and failure
 chapters: 1, 2, 5, 6, 12, 15
 stage: all
 date: 2026-10-19
-weight: 80
+weight: 10
 art: go-context
 ---
 
@@ -56,7 +56,7 @@ The rest of this page is that alternative, piece by piece.
 
 `context.Context` is an interface with four methods:
 
-- `Done()` returns a channel that is closed when the context ends, for use in a `select` ([Goroutines with an owner](/basics/goroutines/) explains channels and `select`).
+- `Done()` returns a channel that is closed when the context ends, for use in a `select` ([Goroutines with an owner](/go/goroutines/) explains channels and `select`).
 - `Err()` is `nil` while the context is live, then `context.Canceled` or `context.DeadlineExceeded`.
 - `Deadline()` reports when the context will end on its own, if it has a deadline.
 - `Value(key)` returns a value stored in the context, or `nil`.
@@ -139,7 +139,7 @@ With both in the chain, the program can say in plain words why a run ended, chec
 ```go include=ch06/main.go tag=why-stopped
 ```
 
-The last check, `errors.AsType[*openrouter.APIError](err)`, has a type in square brackets: it says which kind of error to look for. `AsType` returns it already converted to that type, with `ok` false if the chain has none. The [errors page](/basics/errors/) covers it, and the [glossary](/glossary/#type-parameter) explains the brackets.
+The last check, `errors.AsType[*openrouter.APIError](err)`, has a type in square brackets: it says which kind of error to look for. `AsType` returns it already converted to that type, with `ok` false if the chain has none. The [errors page](/go/errors/) covers it, and the [glossary](/glossary/#type-parameter) explains the brackets.
 
 "The model call timed out, worth retrying" and "cancelled" call for different responses, and only the cause tells them apart.
 
@@ -157,7 +157,7 @@ Every tool call in a conversation [needs a matching result](/basics/tool-calling
 ```go include=ch06/agent/loop.go tag=run-tools stages=all:3
 ```
 
-In `runTools`, `yield` is a function the caller passes in; the loop calls it to hand over each message as it is made, and it returns false when the caller wants no more. [Iterators in an agent](/basics/iterators/) explains the pattern.
+In `runTools`, `yield` is a function the caller passes in; the loop calls it to hand over each message as it is made, and it returns false when the caller wants no more. [Iterators in an agent](/go/iterators/) explains the pattern.
 
 ## Waiting in your own code
 
@@ -179,7 +179,7 @@ A rate limiter that waits on a timer does the same, and stops the timer when it 
 
 Both return the cause, so a caller sees why the wait ended.
 Without the `ctx.Done()` case, a goroutine blocked on a full channel waits forever after its run is gone: a goroutine leak, which in a long-running service adds up one stopped run at a time.
-[Every goroutine needs an owner and a way to stop](/basics/goroutines/), and for most of them the way to stop is a context.
+[Every goroutine needs an owner and a way to stop](/go/goroutines/), and for most of them the way to stop is a context.
 
 ## Tools that start processes
 

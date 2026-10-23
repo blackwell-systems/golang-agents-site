@@ -87,6 +87,7 @@ type section struct {
 // sections are the site's sections, in the order the nav lists them.
 var sections = []section{
 	{"basics", "Basics", "", "section-basics", "section-basics"},
+	{"go", "Go in depth", "Go", "go-context", "section-go"},
 	{"build", "Build", "", "section-build", "section-build"},
 	{"production", "Production", "", "section-production", "section-production"},
 	{"ecosystem", "Go ecosystem", "Ecosystem", "section-ecosystem", "section-ecosystem"},
@@ -116,6 +117,14 @@ var movedPages = []struct{ From, To string }{
 	{"/foundations/why-go/", "/ecosystem/why-go/"},
 	{"/loop/streaming/", "/build/streaming/"},
 	{"/foundations/streaming/", "/build/streaming/"},
+	{"/basics/context/", "/go/context/"},
+	{"/basics/errors/", "/go/errors/"},
+	{"/basics/json-v2/", "/go/json-v2/"},
+	{"/basics/http-client/", "/go/http-client/"},
+	{"/basics/goroutines/", "/go/goroutines/"},
+	{"/basics/iterators/", "/go/iterators/"},
+	{"/basics/streams/", "/go/streams/"},
+	{"/basics/commands-and-files/", "/go/commands-and-files/"},
 }
 
 func build(cfg config) error {

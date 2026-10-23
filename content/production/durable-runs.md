@@ -78,7 +78,7 @@ Three smaller choices are worth copying, listed below for when you write your ow
 <div class="hood">
 
 - The loop saves with `context.WithoutCancel(ctx)`. When a shutdown cancels the run, the save that records where it stopped is the one that must happen.
-- The state is written with [`encoding/json/v2`](/basics/json-v2/) with zero fields omitted, so an unset field loads as unset instead of as an empty value that the client would send back to the provider.
+- The state is written with [`encoding/json/v2`](/go/json-v2/) with zero fields omitted, so an unset field loads as unset instead of as an empty value that the client would send back to the provider.
 - Raw JSON values, such as a model's tool-call arguments, are stored as strings. A model can write invalid arguments, and a checkpoint that embedded them directly would refuse to save the very run that needs saving.
 
 </div>

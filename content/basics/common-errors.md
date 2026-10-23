@@ -34,7 +34,7 @@ Read the status first; it tells you whether trying again can help.
 | 408, 429 | A timeout, or too many requests too fast | Wait, then try again, waiting longer each time | Yes |
 | 500, 502, 503 | A failure on the API's or a model host's side | Wait briefly and try again | Yes |
 
-OpenRouter also sends a 402 for a temporary limit on how much a key can have in flight at once, with [a header saying how long to wait](/basics/http-client/); that one is worth retrying.
+OpenRouter also sends a 402 for a temporary limit on how much a key can have in flight at once, with [a header saying how long to wait](/go/http-client/); that one is worth retrying.
 [Retries and observability](/production/retries-and-observability/) covers waiting well, and [why the agent stopped](/production/stop-reasons/) turns these statuses into Go errors your code can check.
 
 A model that can't use [tools](/basics/tool-calling/) is a separate case.
@@ -69,7 +69,7 @@ With a reasoning model, leave a generous reply limit, and treat an empty answer 
 ## When the program hangs
 
 A call to a model can take many seconds, and once in a while it doesn't come back at all.
-Give every call a deadline with [`context.WithTimeout`](/basics/context/), so a stuck request fails with an error instead of holding the whole agent:
+Give every call a deadline with [`context.WithTimeout`](/go/context/), so a stuck request fails with an error instead of holding the whole agent:
 
 ```go
 ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
@@ -83,7 +83,7 @@ reply, err := model.Generate(ctx, req)
 ## Two Go traps
 
 **A field that never fills in.**
-[`encoding/json/v2`](/basics/json-v2/) matches JSON names to struct fields exactly, case included.
+[`encoding/json/v2`](/go/json-v2/) matches JSON names to struct fields exactly, case included.
 A field declared as `FinishReason string` without a tag never matches `"finish_reason"`, and it stays empty with no error, so the check above never fires.
 Give every field you decode from an API an explicit tag, as the companion code's client does:
 

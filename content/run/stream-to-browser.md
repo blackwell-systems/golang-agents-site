@@ -12,7 +12,7 @@ art: ch06
 
 [Server-sent events](/glossary/#server-sent-events) (SSE) keep one HTTP response open and send messages down it as they happen.
 [Reading them](/build/streaming/) from the model's API turns them into the agent's own events: text as it arrives, each tool call, each result, the end of a turn (one model call and its tools), and the end of a run.
-New to streams in Go? Start with [Streams in Go](/basics/streams/), which covers flushing and the event stream format.
+New to streams in Go? Start with [Streams in Go](/go/streams/), which covers flushing and the event stream format.
 This example sends those events onward, from a Go server to a web page, so a person can watch a run as it happens and stop it.
 It is the companion code's [`ssebrowser` example](code:ssebrowser), built on `net/http` alone, with tests that run under the race detector.
 
@@ -59,7 +59,7 @@ Here is the handler:
 
 Three headers make it a stream: `text/event-stream` tells the browser what it is reading, `Cache-Control: no-cache` keeps caches out of the way, and `X-Accel-Buffering: no` asks a proxy such as nginx not to hold events back in a buffer.
 
-The run gets a [context](/basics/context/) derived from the request's.
+The run gets a [context](/go/context/) derived from the request's.
 When the browser closes the connection, because the person pressed Stop or closed the tab, the request's context ends, and the run's model call and tools stop with it.
 The deferred function cancels the run and then reads the channel until it closes, so the goroutine that drives the agent is sure to have finished before the handler returns.
 That goroutine has one owner, the handler, and one way to stop, the context.

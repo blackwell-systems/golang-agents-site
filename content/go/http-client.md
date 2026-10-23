@@ -3,11 +3,11 @@ title: "An HTTP client for LLM APIs in Go: timeouts, limits, errors, and Retry-A
 short: An HTTP client for model APIs
 description: The net/http details that a model API client in Go gets right or wrong. One shared client, why the deadline belongs on the context and not on http.Client.Timeout, reading replies with a size limit, errors inside a 200, API errors with Retry-After, connection reuse, and RoundTrippers for tests and fault injection.
 card: One shared client, deadlines on the context, size limits, errors inside a 200, and honoring Retry-After.
-group: Go in depth
+group: Calling APIs
 chapters: 2, 5, 6, 9, 12
 stage: 2
 date: 2026-10-19
-weight: 86
+weight: 40
 art: go-http
 ---
 
@@ -47,7 +47,7 @@ It covers the whole exchange, including reading the body, so it can't tell a slo
 
 The client instead puts a deadline on each call's context, two minutes by default, and a [stream](/build/streaming/) gets an idle timer that measures silence instead of total time.
 Both set a context cause (`context.WithTimeoutCause`), so the error from a timeout says which deadline ended the call.
-The [context page](/basics/context/#a-deadline-for-each-model-call) shows both.
+The [context page](/go/context/#a-deadline-for-each-model-call) shows both.
 
 ## Read with a limit
 
@@ -100,7 +100,7 @@ The function that decides how long to wait before a retry:
 
 A server's wait replaces the backoff for that retry, plus a random extra of up to a second, so that many clients told to wait the same time don't all come back in the same instant.
 A wait longer than `MaxWait`, one minute by default, ends the retries with an error that names the wait, which is more useful than sleeping through it.
-Which errors are worth retrying is decided by `Classify`, described on the [errors page](/basics/errors/#errors-that-carry-data-types-and-behavior); the backoff itself is on the [retries page](/production/retries-and-observability/#how-long-to-wait).
+Which errors are worth retrying is decided by `Classify`, described on the [errors page](/go/errors/#errors-that-carry-data-types-and-behavior); the backoff itself is on the [retries page](/production/retries-and-observability/#how-long-to-wait).
 
 ## Keep connections reusable
 

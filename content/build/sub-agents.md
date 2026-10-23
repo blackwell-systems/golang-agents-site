@@ -43,7 +43,7 @@ So the sub-agent works in the same workspace but keeps a separate record of what
 
 **A sub-agent that didn't finish is an error result, never a budget error.**
 When the sub-agent hits its turn limit, the parent receives an ordinary tool error, `the helper didn't finish (agent: budget exhausted: max turns reached) after 15 turns; ask a narrower question, or read the code yourself`, which tells it what to try next.
-Returning [`ErrBudget`](/basics/errors/#errors-callers-check-sentinels-in-families) here would be wrong.
+Returning [`ErrBudget`](/go/errors/#errors-callers-check-sentinels-in-families) here would be wrong.
 The parent's loop reads `ErrBudget` as its own turns or money being used up, so it would halt and report a budget problem that belongs to someone else.
 The sub-agent's error is formatted into the message with `%v`, which copies its text without wrapping it, so no `errors.Is` check in the parent can match it.
 The one exception is a fatal error, a missing workspace for instance: that is wrapped with `%w` and stops the parent as well.

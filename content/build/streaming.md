@@ -16,7 +16,7 @@ The terminal sits blank for a few seconds, prints an entire turn, and goes blank
 From the outside a slow model, a hung connection, and a crashed program all look the same.
 With streaming, text appears while the model is producing it, and the [agent loop](/basics/agent-loop/) gets a much earlier signal when a connection has died.
 
-New to streams in Go? [Streams in Go](/basics/streams/) covers `io.Reader`, `bufio.Scanner`, and the server-sent events format first.
+New to streams in Go? [Streams in Go](/go/streams/) covers `io.Reader`, `bufio.Scanner`, and the server-sent events format first.
 Here is how a stream looks on the wire, how to consume one in Go, and the details that catch out a stream reader written too quickly.
 
 ## What streaming buys, measured
@@ -53,7 +53,7 @@ Where a complete response has a `message`, each chunk has a `delta` instead: onl
 
 A `bufio.Scanner` plus a handful of rules is enough to parse the format.
 You use `sseData` like a slice: `for data, err := range sseData(body)` gives you one `data:` line per pass.
-The helper hands back each payload through a [range-over-func iterator](/basics/iterators/), an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
+The helper hands back each payload through a [range-over-func iterator](/go/iterators/), an `iter.Seq2` of bytes and an error, so the code that decodes chunks is an ordinary `for` loop:
 
 ```go include=ch06/openrouter/sse.go tag=sse highlight=10,24-27
 ```
@@ -105,7 +105,7 @@ It defaults to 30 seconds, which is deliberately loose.
 Across the twenty timed streams, no gap between pieces after a reply began was longer than 0.64 seconds, but one run spent 10.9 seconds before sending its first piece.
 A shorter timeout would trip on providers that hold a request in a queue before starting, and would discard replies that were on their way.
 
-The reason travels with the [context](/basics/context/), so the resulting error matches `context.Canceled` and also `ErrStreamIdle`.
+The reason travels with the [context](/go/context/), so the resulting error matches `context.Canceled` and also `ErrStreamIdle`.
 That lets a caller distinguish a stream that went idle, which is worth retrying, from a person pressing Ctrl-C.
 Cancellation can hit at any moment without corrupting the conversation: a reply still in flight is thrown away, so the history never contains a partial reply or a tool call missing its result.
 
@@ -133,7 +133,7 @@ A channel needs a goroutine to feed it, and then the code has to close the chann
 `Events` runs in the caller's goroutine, puts the error in the final event, and stops completely when the caller breaks out of its `for` loop.
 `TestBreakOutOfEvents` in `ch06/agent/stream_test.go` checks exactly that: it breaks out at the first text event, then asserts that the model's stream returned and that the context the model was given has been cancelled.
 
-A goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines; [Goroutines with an owner](/basics/goroutines/) covers both.
+A goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines; [Goroutines with an owner](/go/goroutines/) covers both.
 
 </div>
 

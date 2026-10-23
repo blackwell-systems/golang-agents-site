@@ -1,7 +1,7 @@
 {
   "og/basics.jpg": {
-    "spec": "cd6b91e26cc92b9b25ecebc61c638949f8da10327873d6f40b0b399fa13e34ae",
-    "hash": "5c3f6688abb6edb42dcde9baffefd7d326ceedbbce27359f1087a9ec3dd08859"
+    "spec": "5477afa11889d5d38b30bca2bf59c669123d78c327e73b5fd89c95afb15ffbbf",
+    "hash": "ac149f48f4e1a3409092ecdda10cf9b8a63a1f5ccd6580b12d3d061ef82a5ed3"
   },
   "og/basics/agent-loop.jpg": {
     "spec": "06e93cb39804f2909473ce016584be8358cef5fe3a96140c5f7ecdbe5c1551d0",
@@ -15,21 +15,9 @@
     "spec": "79d1c8b87e332d2e9195467b51892a3f936b7129653b6f63b2bf4c05b642dfb8",
     "hash": "ad8d6aeb3ecea97f7f91bf64e927406d2dc2dcbeec168852cb319ed0e15d9eff"
   },
-  "og/basics/commands-and-files.jpg": {
-    "spec": "946a71c6eb338100aacdf49c0d015319568724e9b99a9f9e29d7891ace870b7e",
-    "hash": "d48018cbcb2baa0074da07ae95bc3969ead91c11b3c36b93bcc879acf951ac5a"
-  },
   "og/basics/common-errors.jpg": {
     "spec": "2ee6d5a41000f1337f0db4da0789d0ab7276384fceace8fb8f3934df22b720be",
     "hash": "407d626f3082017f5935ed5af609bcd03ebe24b3748a99f23891342d796bc7ba"
-  },
-  "og/basics/context.jpg": {
-    "spec": "427edef58a41c5513ce6282969628cb25ae1d48e816d289fd646ab5c6b8eef80",
-    "hash": "df126b9e0835c7134f5e9d7671e46886ccfec3562ff85c22793b0203ebc375c2"
-  },
-  "og/basics/errors.jpg": {
-    "spec": "95f0198196849b84a80b368f9477c4b3a23b0f680df5f54e99a9a88f208909f8",
-    "hash": "a527b106b7aee09247e095a017322d0d225c88c8c70bd118f1cfd15d48e15e9b"
   },
   "og/basics/first-model-call.jpg": {
     "spec": "c60f9adf3a8451d96640ba0dacbf71c6801f3a97ed65972e7f207fe16a43daf0",
@@ -39,33 +27,13 @@
     "spec": "ad7e3fd6d06a302447a1bde555122d97f633f80d27d8a3ddd4b9b6daa30348b2",
     "hash": "14dedb6db5bdad9f5b40d2557f8786fc2fd6243e675d019ce803665b0f0e8834"
   },
-  "og/basics/goroutines.jpg": {
-    "spec": "b400eb4251619b99209f9725ce0ace8825318b5676e2af8eb974a5d3e69f17ca",
-    "hash": "8f399ffab41d4de8b474df38915c97bc814153294085b08b04a1fd6f3eb3ec5c"
-  },
   "og/basics/how-models-work.jpg": {
     "spec": "6de04c12a56255398814842d812ce0abada720eca303cd9f72c0068721c59249",
     "hash": "5da1565a6775072b6a9134251681f9ee3c3236890259b6d71a887bf0b5b8e70e"
   },
-  "og/basics/http-client.jpg": {
-    "spec": "8a65a14e9a739c53ead9d19726bbebe8153cc2d2f1abe97757edbd1054289a61",
-    "hash": "0272ca47a8372922c6ea66ef2f13f28ecf2f8667707f2ba6c487d3d63d32da07"
-  },
-  "og/basics/iterators.jpg": {
-    "spec": "643f9249d5eeaec873be2cc4be479bdcb118fce1144610b483c2bbbb77834e49",
-    "hash": "471ebdeb53a656ee916133624cd7f2965577cd69986abf9de7802385a0d9467f"
-  },
-  "og/basics/json-v2.jpg": {
-    "spec": "f521790e10cf4d468b792f97f41485907f70b436de2e89c2f542bc79922cacc7",
-    "hash": "1ccd3afd1739e4b4e216973ec6e6b894d909bc6a9712d872f7a797c77764117c"
-  },
   "og/basics/messages-and-roles.jpg": {
     "spec": "a6b098731d0efae5c2a61c7bfc225fe28c399b76b9a0039081347dda717126c3",
     "hash": "df1e923798447a6d8ab37189c0a6a904b95a757e77d081293ec1ac247c05019d"
-  },
-  "og/basics/streams.jpg": {
-    "spec": "120404733bd7f93621e47f419cf2ec7dda0835f56478695f5585d128eed9176a",
-    "hash": "b25974271739aa33c6d6b38277d51094f1c61d7b608b61a4d0fee0c257734920"
   },
   "og/basics/tokens-and-cost.jpg": {
     "spec": "254f0985fbdcb7adec708a5a4f38a6a919db8be5f2db1f548c46500bb703106c",
@@ -214,6 +182,42 @@
   "og/glossary.jpg": {
     "spec": "12ccc2990691474cabf76861bb8eeb430eebf2e942794bd680132860ddcf574c",
     "hash": "08e06aa4e58439db168611ef1b13fce2d01caf97327bdcb9964265d6739db360"
+  },
+  "og/go.jpg": {
+    "spec": "433d9c4811c10685d1cfbf0c7aca837490cac8313d6d3810e85da7bf069af1bc",
+    "hash": "f3e1f3030853a3927c6812eb9b3ffc824c3de1f82f2a854762cf1992bec27042"
+  },
+  "og/go/commands-and-files.jpg": {
+    "spec": "c869aa23bd86e9b2b4752b9042060ecd786de86168742822a0599debe81dc721",
+    "hash": "2b11ade18ba438eedb04e8f64355da71f639d804d31d46252e5b42d50980f33f"
+  },
+  "og/go/context.jpg": {
+    "spec": "e89096d4c484896783d197b55db60b036fc806cdd3b9a49020dd6dece075a37d",
+    "hash": "f1d7306cb4bae71381cc5c5ea91710b4dca16236f7e68bcf15ca8cf35528c54b"
+  },
+  "og/go/errors.jpg": {
+    "spec": "396ba5b53499c859125c060b3041e098eb583cc12387c757d9039828fe35e647",
+    "hash": "f2366f6a15ceb43013d4c29fe1ad6b22572a4a01368841c041291bd809e73a2d"
+  },
+  "og/go/goroutines.jpg": {
+    "spec": "c00b88e91aaeadbb786fa6324621713b02185edf5693d0c31d0342af8a97037e",
+    "hash": "3e648c6b9f30cfcec9aec476edc2fc797e64d55fb5ee34b9d95ef832a1340ceb"
+  },
+  "og/go/http-client.jpg": {
+    "spec": "699c809e65702c81a223262af64702f973368fcf44284a5a75c3bf33402691ab",
+    "hash": "509d83a90669bf852c650d1e3f269edf94236c949b41c58e067b3668346fedc4"
+  },
+  "og/go/iterators.jpg": {
+    "spec": "c917f81af01cf68d96f62888d75aec9e1a91c110b05e86a84f4565ceab6e8acb",
+    "hash": "e74610313564a546fc678df62a11473560c95a37ce43d8236610e18fdd7c640d"
+  },
+  "og/go/json-v2.jpg": {
+    "spec": "1394b07648fa0748642ca5bc97ca176329cef1e0cf3f15ea16c791d264f254c0",
+    "hash": "a971ad7247828c9c6cfd39d3cc0033dfab9a8920e1731ecef8adde8b0b972116"
+  },
+  "og/go/streams.jpg": {
+    "spec": "fb7a04645a454d532c5bf2e558b6cfafa61552408089b1bb42b9c1e3ad087234",
+    "hash": "82381581669cf15f6c204bccebdb3f86426d6c173ff6acf00d5526b9210b5dcb"
   },
   "og/home.jpg": {
     "spec": "1e8d61c9526f11d6b4512df593dab5362d74802f74a80138869ae3fbb9f23f7c",

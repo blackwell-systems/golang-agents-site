@@ -48,7 +48,7 @@ So the command cancels:
 ```go include=ch15/durable.go tag=shutdown
 ```
 
-The `go func()` block runs in the background as a [goroutine](/basics/goroutines/), and `select` waits for whichever of its channels receives first: a signal, or the `done` channel that `stop` closes.
+The `go func()` block runs in the background as a [goroutine](/go/goroutines/), and `select` waits for whichever of its channels receives first: a signal, or the `done` channel that `stop` closes.
 The prose below says what it does, so you can read on without tracing it.
 
 The first signal cancels the run with `ErrShutdown` as its cause.

@@ -3,18 +3,18 @@ title: "Iterators in Go agents: iter.Seq, range-over-func, and stopping early"
 short: Iterators in an agent
 description: How range-over-func iterators fit an AI agent in Go. What iter.Seq and iter.Seq2 are, how yield and break work, writing an iterator that adapts a whole reply into a stream, consuming a stream of values and errors, wrapping one as middleware with cleanup in a defer, stopping a run by breaking out of the loop, and the mistakes, from the runtime panic to an iterator ranged twice.
 card: Streams and runs as iterators: yield, break, cleanup in a defer, and the mistakes that panic.
-group: Go in depth
+group: Concurrency
 chapters: 6, 9, 11, 12
 stage: all
 date: 2026-10-19
-weight: 90
+weight: 70
 art: go-iterators
 ---
 
 An agent produces things over time: the pieces of a streamed reply, then a tool call, then its result, then the next turn.
 Since Go 1.23, a function can hand such a sequence to an ordinary `for ... range` loop, and the caller reads it as it is made.
 The companion code uses that shape throughout: a model's stream is an `iter.Seq2[Delta, error]`, one piece of a reply per step, and a whole run is an `iter.Seq[Event]`, one thing that happened per step.
-This page covers how these iterators work and the patterns an agent needs, with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested; the [streaming guide](/build/streaming/) shows the server-sent events reader built the same way, and [Streams in Go](/basics/streams/) explains the `io.Reader` and `bufio.Scanner` underneath it.
+This page covers how these iterators work and the patterns an agent needs, with code from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested; the [streaming guide](/build/streaming/) shows the server-sent events reader built the same way, and [Streams in Go](/go/streams/) explains the `io.Reader` and `bufio.Scanner` underneath it.
 
 ## An iterator is a function
 
@@ -73,13 +73,13 @@ A whole run is an iterator of events, so a caller that only wants the result rea
 ```
 
 A `return` inside the loop ends the range; the run's iterator sees its `yield` return false and stops.
-The run's iterator cancels its own [context](/basics/context/) when that happens, through a deferred `cancel`, so breaking out of the loop stops the model call in progress.
+The run's iterator cancels its own [context](/go/context/) when that happens, through a deferred `cancel`, so breaking out of the loop stops the model call in progress.
 Stopping a run is as simple as leaving the loop that reads it, and `TestBreakOutOfEvents` checks that breaking out stops the run.
 
 ## Iterators with goroutines inside
 
 An iterator can start goroutines, as long as it stops them before it returns.
-The fan-in that merges several runs' events into one iterator does exactly that, and the [goroutines page](/basics/goroutines/#merging-several-runs-into-one-stream) walks through how it releases every goroutine when the caller stops reading.
+The fan-in that merges several runs' events into one iterator does exactly that, and the [goroutines page](/go/goroutines/#merging-several-runs-into-one-stream) walks through how it releases every goroutine when the caller stops reading.
 That is the trade-off between the two ways of producing values over time: an iterator with no goroutine inside can't leak one, while a channel always needs a goroutine on the other end, and someone responsible for stopping it.
 
 ## The standard library's iterators
@@ -91,7 +91,7 @@ Go 1.23 added iterators across the standard library, and they combine with the o
 - `slices.All`, `slices.Values`, and `slices.Backward` iterate over a slice.
 - `iter.Pull` turns an iterator into a `next` function and a `stop` function, for code that has to step through two sequences at once; call `stop` when you finish early, or the iterator is never released.
 
-The agent's tool lookup uses two of them in one line, `slices.Sorted(maps.Keys(byName))`, to list the real tools in a stable order for the error the model reads; the [errors page](/basics/errors/#errors-the-model-reads) shows it.
+The agent's tool lookup uses two of them in one line, `slices.Sorted(maps.Keys(byName))`, to list the real tools in a stable order for the error the model reads; the [errors page](/go/errors/#errors-the-model-reads) shows it.
 
 ## Mistakes to avoid
 

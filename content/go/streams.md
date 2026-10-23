@@ -3,11 +3,11 @@ title: "Streaming in Go: io.Reader, bufio.Scanner, server-sent events, and http.
 short: Streams in Go
 description: How to read and write a stream in Go, for an agent that streams a model's reply. What io.Reader promises, reading lines with bufio.Scanner and its size limit, the server-sent events format and the [DONE] marker, a reader that turns a stream into an iterator, stopping a stream with the context and an idle timeout, writing a stream from a server with http.Flusher and http.ResponseController, and the mistakes.
 card: Reading and writing a stream in Go: io.Reader, bufio.Scanner, server-sent events, and flushing.
-group: Go in depth
+group: Calling APIs
 chapters: 6
 stage: 2
 date: 2026-10-23
-weight: 91
+weight: 50
 art: go-streams
 ---
 
@@ -16,7 +16,7 @@ A program can wait until the whole reply exists and receive it in one piece, or 
 The second way is called streaming.
 This page covers the Go that streaming needs, from the byte-level contract of `io.Reader` up to a server that sends its own stream, so that you can read one and write one.
 The code is from the [companion repository](https://github.com/blackwell-systems/go-agents-book-code), where it is tested.
-It assumes you know the [HTTP client](/basics/http-client/) basics and have read the page on [iterators](/basics/iterators/).
+It assumes you know the [HTTP client](/go/http-client/) basics and have read the page on [iterators](/go/iterators/).
 
 ## Why an agent streams
 
@@ -201,7 +201,7 @@ They would matter for a reader of arbitrary SSE servers, which is what a browser
 A stream can run for minutes, so a program needs ways to end one early, and a way to notice when one has stopped by itself.
 
 **Cancel the context.**
-The request was built with a [context](/basics/context/), and cancelling that context ends the request.
+The request was built with a [context](/go/context/), and cancelling that context ends the request.
 The connection closes, and a `Read` that was waiting on the body returns an error.
 The scanning loop ends, and `sc.Err()` reports the cancellation (`context canceled`).
 The same chain makes a person's Ctrl-C stop a run, since the context that Ctrl-C cancels is the parent of every request.
@@ -215,7 +215,7 @@ The usual form is one line, right after the error check:
 ```
 
 The `defer` runs however the function ends, whether the loop finished, the consumer broke out, or an error stopped it.
-The `net/http` documentation says the default transport may not reuse a connection when the body is not read to completion and closed, so a skipped `Close` also costs the reuse that [the HTTP client page](/basics/http-client/#keep-connections-reusable) describes.
+The `net/http` documentation says the default transport may not reuse a connection when the body is not read to completion and closed, so a skipped `Close` also costs the reuse that [the HTTP client page](/go/http-client/#keep-connections-reusable) describes.
 
 **Notice a stream that goes quiet.**
 A connection can stay open while the server sends nothing at all, and a `Read` on it can then wait with no end in sight.
@@ -369,5 +369,5 @@ If port 8080 is taken, add `-addr localhost:8099` to the `go run` command and us
 
 - [Streaming model replies](/build/streaming/) builds on this page: tool calls that arrive in fragments, errors in the middle of a stream, and the numbers behind the idle timeout.
 - [Streaming an agent's progress to a browser](/run/stream-to-browser/) is the full server: heartbeats, a deadline on every write, and a shutdown that ends open streams.
-- [Iterators in an agent](/basics/iterators/) explains the `iter.Seq2` shape that `sseData` returns.
-- [Context](/basics/context/) explains the cancellation that stops a stream.
+- [Iterators in an agent](/go/iterators/) explains the `iter.Seq2` shape that `sseData` returns.
+- [Context](/go/context/) explains the cancellation that stops a stream.

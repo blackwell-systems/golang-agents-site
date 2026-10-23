@@ -65,12 +65,12 @@ A single bit per tool handles the cases that matter.
 ## Running a stage
 
 Read-only calls start together, at most eight at once, and their answers go back in the model's order.
-Starting them together uses goroutines: a [goroutine](/glossary/#goroutine) is a function running at the same time as the rest of the program, and a [channel](/glossary/#channel) passes values between goroutines (see [Goroutines with an owner](/basics/goroutines/)).
+Starting them together uses goroutines: a [goroutine](/glossary/#goroutine) is a function running at the same time as the rest of the program, and a [channel](/glossary/#channel) passes values between goroutines (see [Goroutines with an owner](/go/goroutines/)).
 The details are below, and you can skip them on a first read.
 
 <div class="hood">
 
-The runner launches each call in a stage with [`sync.WaitGroup.Go`](/basics/goroutines/), added in Go 1.25, which does the counting that used to need a manual `Add(1)` and `defer Done()`, a pair that was easy to misplace.
+The runner launches each call in a stage with [`sync.WaitGroup.Go`](/go/goroutines/), added in Go 1.25, which does the counting that used to need a manual `Add(1)` and `defer Done()`, a pair that was easy to misplace.
 To bound concurrency, a buffered channel acts as a semaphore with eight slots per reply.
 Only three replies in the recorded runs asked for more than eight calls, and all three came from one model on the triage task.
 If the run is cancelled while a call is waiting for a slot, the call never starts and its answer is "cancelled".
@@ -78,7 +78,7 @@ If the run is cancelled while a call is waiting for a slot, the call never start
 Three decisions make the runner correct:
 
 - **Each goroutine writes only its own slot.** Answers go into a slice at the position the call had in the reply. Since every goroutine owns a distinct index, there is no shared write and no mutex, and the results end up in the model's order regardless of which call finished first.
-- **Answers are reported only after `Wait`.** The loop's goroutine reports them, never a tool's goroutine, because the loop's [event iterator](/basics/iterators/) has to be fed by the goroutine that is ranging over it.
+- **Answers are reported only after `Wait`.** The loop's goroutine reports them, never a tool's goroutine, because the loop's [event iterator](/go/iterators/) has to be fed by the goroutine that is ranging over it.
 - **A panic in one tool is recovered at that tool's boundary.** The panic turns into that call's answer; the other calls in the stage carry on, and one tool's failure never cancels its neighbors.
 
 </div>
@@ -133,7 +133,7 @@ The finer dependency-graph scheme described above was not built or measured eith
 
 Some failures leave the model nothing to try.
 When the workspace has disappeared, every `code_read` fails, and a model that only sees "no such file" keeps guessing new paths until it hits the turn limit.
-For this case a tool returns an error wrapping the sentinel `ErrToolFatal`, which the runner detects with `errors.Is` (see [Errors in a Go agent](/basics/errors/)).
+For this case a tool returns an error wrapping the sentinel `ErrToolFatal`, which the runner detects with `errors.Is` (see [Errors in a Go agent](/go/errors/)).
 The runner halts at the current stage, gives every call that didn't run the answer "not run" so the API still accepts the conversation, and the loop returns the error to its caller.
 
 ## Others choose differently

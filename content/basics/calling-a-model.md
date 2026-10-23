@@ -12,7 +12,7 @@ art: ch02
 ---
 
 To a Go program, a model is a web service: you POST some JSON and decode the JSON that comes back.
-[`net/http`](/basics/http-client/) and [`encoding/json/v2`](/basics/json-v2/) cover all of it.
+[`net/http`](/go/http-client/) and [`encoding/json/v2`](/go/json-v2/) cover all of it.
 The big providers do publish official Go SDKs (software development kits: libraries that wrap an API in ready-made Go types and functions; see the [glossary](/glossary/#sdk)), which bring typed options, built-in retries, and streaming helpers.
 The catch for an agent is that an SDK makes some choices on your behalf that an agent should make on purpose, such as the timeout for a call, whether a failure gets retried, and what happens to a reply that ended before it was done.
 Building the client yourself once puts each of those choices in front of you; a later project can switch to an SDK where one is useful.
@@ -86,8 +86,8 @@ The takeaway: a slow model can't hang the program, because every call has a time
 **How the deadline works.**
 The client derives the deadline from `ctx` for each call.
 That deadline belongs to one call only; it stacks with any deadline the caller already set (the sooner of the two fires); and it can carry a reason.
-[`context.WithTimeoutCause`](/basics/context/#say-why-it-stopped) attaches `ErrCallTimeout` to the cancellation, and `context.Cause` retrieves it.
-A caller can then [test the error](/basics/errors/) two ways: `errors.Is(err, context.DeadlineExceeded)` says a deadline fired, and `ErrCallTimeout` says it was this client's.
+[`context.WithTimeoutCause`](/go/context/#say-why-it-stopped) attaches `ErrCallTimeout` to the cancellation, and `context.Cause` retrieves it.
+A caller can then [test the error](/go/errors/) two ways: `errors.Is(err, context.DeadlineExceeded)` says a deadline fired, and `ErrCallTimeout` says it was this client's.
 `net/http` doesn't consistently preserve both, and which one survives depends on whether the connection is HTTP/1.1 or HTTP/2.
 So the client wraps in whatever is missing using `%w: %w`, which wraps two errors in one, and its tests verify the result over both protocol versions.
 

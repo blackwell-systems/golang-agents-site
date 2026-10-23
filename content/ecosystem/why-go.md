@@ -18,7 +18,7 @@ Below are the places where Go fits that job, most with numbers from recorded run
 
 ## One value carries the deadline and the reason
 
-Every call in the companion agent takes a [`ctx context.Context`](/basics/context/) first.
+Every call in the companion agent takes a [`ctx context.Context`](/go/context/) first.
 It carries cancellation and deadlines through the HTTP request, the stream reader, and the `go test` command a tool starts, so a Ctrl-C reaches all of them without any of them knowing about the others.
 
 A context can also carry why it was cancelled.
@@ -57,7 +57,7 @@ Goroutines make parallel work cheap to write and safe to check; whether it pays 
 
 ## The standard library covers the wire
 
-As long as it calls the API with its own client, the companion code's main module has no dependencies at all: [`net/http`](/basics/http-client/) for the API, [`encoding/json/v2`](/basics/json-v2/) for the format, `bufio` for the stream, `testing` and `httptest` for offline tests.
+As long as it calls the API with its own client, the companion code's main module has no dependencies at all: [`net/http`](/go/http-client/) for the API, [`encoding/json/v2`](/go/json-v2/) for the format, `bufio` for the stream, `testing` and `httptest` for offline tests.
 Every byte the agent sends is something you wrote and can print.
 
 A recorded check put that to the test: the same request, the last one of a recorded run, encoded with the hand-written client and with OpenRouter's Go SDK.

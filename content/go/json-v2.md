@@ -3,11 +3,11 @@ title: "encoding/json/v2 for LLM APIs in Go: what changed, and what an agent nee
 short: JSON v2 for model APIs
 description: Using Go's encoding/json/v2 and jsontext for model APIs and tool calls. Why switch, with a benchmark, what changed from encoding/json, each behavior checked in Go 1.27, wire types with omitzero and jsontext.Value, invalid UTF-8 from tools, strict tool arguments, a field with two shapes, key order, deterministic output, and options for saving a run.
 card: What changed from encoding/json, and the parts of v2 an agent leans on, each checked in Go 1.27.
-group: Go in depth
+group: Calling APIs
 chapters: 2, 4, 7, 8, 10, 15
 stage: all
 date: 2026-10-19
-weight: 84
+weight: 30
 art: go-json
 ---
 
@@ -105,7 +105,7 @@ The same reasoning applies to code that truncates tool output to a size limit: c
 ## Tool arguments: strict, with errors the model can use
 
 Tool arguments are the one place where an unknown field is a mistake rather than a newer API: a model that sends `{"file": "a.go"}` to a tool that takes `path` should be told so.
-The agent decodes arguments with `json.RejectUnknownMembers(true)`, and builds its own message from the error's fields, because v2 deliberately varies the wording of its error messages between runs; the [errors page](/basics/errors/#errors-the-model-reads) shows that code.
+The agent decodes arguments with `json.RejectUnknownMembers(true)`, and builds its own message from the error's fields, because v2 deliberately varies the wording of its error messages between runs; the [errors page](/go/errors/#errors-the-model-reads) shows that code.
 Two error types carry the details: `*jsontext.SyntacticError` for JSON that isn't valid, and `*json.SemanticError` for valid JSON that doesn't fit the Go type, with a JSON Pointer to where it went wrong.
 
 ## One field, two shapes

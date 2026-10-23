@@ -55,7 +55,7 @@ Beyond those two settings, the adapter has two more jobs.
 
 **Translate its errors.** When a call fails, the SDK returns one of fourteen error types, and none of them exposes the HTTP status as a field.
 The adapter converts each one into the `*APIError` that the hand-written client already returns.
-Callers go on using [`errors.Is(err, agent.ErrBudget)`](/basics/errors/) and `Retryable()` and never learn which client sent the request.
+Callers go on using [`errors.Is(err, agent.ErrBudget)`](/go/errors/) and `Retryable()` and never learn which client sent the request.
 Had the adapter passed the SDK's types upward, every caller would have had to import the SDK as well.
 
 **Set each field on every message type.** In this SDK, the generator makes one Go type for each role, and a message holds exactly one of them.

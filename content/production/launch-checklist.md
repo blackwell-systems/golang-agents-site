@@ -24,7 +24,7 @@ Guide: [why the agent stopped](/production/stop-reasons/).
 
 1. **A turn limit that every caller sets.** No default can know your task. In recorded runs, one model never stopped on its own; only the turn limit ended its runs ([the "locked" error](/findings/measured-mistakes/#locked)).
 2. **A dollar budget per run.** Count what each reply cost and stop before the next call would pass the cap. Two runs of the same [context policy](/build/context-management/) on the same batch cost 42 cents and 6 cents, so size the cap from many runs, not one.
-3. **Stop reasons callers can test.** [Sentinel errors](/glossary/#sentinel-error) (error values declared once, so callers can compare against them) [grouped into families](/basics/errors/#errors-callers-check-sentinels-in-families), checked with `errors.Is`, so a caller can separate running out of budget, an unusable reply, and a cancellation.
+3. **Stop reasons callers can test.** [Sentinel errors](/glossary/#sentinel-error) (error values declared once, so callers can compare against them) [grouped into families](/go/errors/#errors-callers-check-sentinels-in-families), checked with `errors.Is`, so a caller can separate running out of budget, an unusable reply, and a cancellation.
 4. **Prices kept in configuration.** A cost budget priced from an old table stops at the wrong place; load the table at startup and check it against the provider's bills.
 
 ## It survives a bad network

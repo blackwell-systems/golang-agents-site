@@ -82,7 +82,7 @@ The client turns the conversation and the tools into one HTTP request, and the r
 ```go include=firstagent/client.go tag=chat
 ```
 
-Each call gets a deadline of two minutes, so a request that never comes back can't hang the agent, and Ctrl-C reaches the HTTP request through [`ctx`](/basics/context/).
+Each call gets a deadline of two minutes, so a request that never comes back can't hang the agent, and Ctrl-C reaches the HTTP request through [`ctx`](/go/context/).
 The tool definitions go out with every request; the model has no memory of them between calls.
 
 Reading the response is where most of the care goes, because the API can report failure in several ways:

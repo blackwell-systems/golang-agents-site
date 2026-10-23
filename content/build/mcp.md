@@ -54,7 +54,7 @@ And a call that gets no answer in time is cancelled: the client sends `notificat
 ## The client: one reader, many callers
 
 A client can have several calls waiting on one connection at once, so a single goroutine reads everything the server writes and hands each response to the call it answers.
-A [goroutine](/glossary/#goroutine) is a function running at the same time as the rest of the program, and a [channel](/glossary/#channel) passes values between goroutines; [Goroutines with an owner](/basics/goroutines/) covers both.
+A [goroutine](/glossary/#goroutine) is a function running at the same time as the rest of the program, and a [channel](/glossary/#channel) passes values between goroutines; [Goroutines with an owner](/go/goroutines/) covers both.
 The mechanics are below, and you can skip them on a first read.
 
 <div class="hood">
@@ -68,7 +68,7 @@ Each call registers a buffered channel under its request ID before it sends, and
 Because each channel is buffered for exactly one message, the reading goroutine never blocks on a slow caller, and a response for a caller that has already given up goes nowhere.
 If the server's output stops, each caller still waiting gets `ErrServerGone`, along with the tail of the server's standard error, which is usually where a crashed server explains itself.
 
-Every call has a timeout, a minute by default, set with [`context.WithTimeoutCause`](/basics/context/#say-why-it-stopped) so the error says which limit fired.
+Every call has a timeout, a minute by default, set with [`context.WithTimeoutCause`](/go/context/#say-why-it-stopped) so the error says which limit fired.
 In the `TestCancel` test, a tool that waits on its context saw that context end 100 ms in, under a 100 ms timeout, and the connection kept working for the following call.
 
 </div>

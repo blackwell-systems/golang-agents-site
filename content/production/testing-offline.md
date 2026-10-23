@@ -52,7 +52,7 @@ A failing tool's result goes back flagged as an error.
 
 The scripted model sits above the HTTP client, so it never exercises the client.
 To test the client, the companion code replaces what sits below it.
-In Go, every HTTP request passes through an [`http.RoundTripper`](/basics/http-client/#roundtrippers-where-tests-and-faults-plug-in).
+In Go, every HTTP request passes through an [`http.RoundTripper`](/go/http-client/#roundtrippers-where-tests-and-faults-plug-in).
 Hand `http.Client` a round tripper that reads its responses from files, and the client behaves exactly as it would on the network:
 
 ```go include=ch02/replay/replay.go tag=transport
@@ -64,7 +64,7 @@ The program passes the name along with the request, so the transport can read it
 
 <div class="hood">
 
-The program puts the name in the request's [context](/basics/context/) instead, under a key of an unexported type so that no other package can use the same key.
+The program puts the name in the request's [context](/go/context/) instead, under a key of an unexported type so that no other package can use the same key.
 This is exactly the case context values exist for: a value scoped to one request that has to pass from the program, through the client and `http.Client`, down to the transport.
 
 The transport keeps the `RoundTripper` rules.
@@ -118,7 +118,7 @@ Inside the bubble the two-minute deadline arrives immediately, and the whole tes
 
 <div class="hood">
 
-A [goroutine](/basics/goroutines/) is durably blocked when only another goroutine in the bubble could wake it, for example by waiting on a channel or on the request's context.
+A [goroutine](/go/goroutines/) is durably blocked when only another goroutine in the bubble could wake it, for example by waiting on a channel or on the request's context.
 Once all of the bubble's goroutines are durably blocked, the fake clock moves forward.
 The test's transport never responds; it just waits on the request's context.
 Inside the bubble, the two-minute deadline arrives immediately.

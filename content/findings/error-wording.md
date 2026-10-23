@@ -94,7 +94,7 @@ Write tool errors for the model that will read them:
 
 <div class="hood">
 
-[`encoding/json/v2`](/basics/json-v2/) changes its error text between processes on purpose, so the companion code builds its messages from the error's fields with [`errors.AsType`](/basics/errors/#errors-that-carry-data-types-and-behavior) and never from `err.Error()`.
+[`encoding/json/v2`](/go/json-v2/) changes its error text between processes on purpose, so the companion code builds its messages from the error's fields with [`errors.AsType`](/go/errors/#errors-that-carry-data-types-and-behavior) and never from `err.Error()`.
 
 The decoder behind those messages lives in [`ch04/agent/tools.go`](code:ch04/agent/tools.go):
 

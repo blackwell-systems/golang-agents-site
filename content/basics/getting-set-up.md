@@ -90,18 +90,18 @@ That key belongs to [OpenRouter](/glossary/#openrouter), a service that gives yo
 
 You should be comfortable writing Go: structs and interfaces, errors, packages, and starting a goroutine.
 If some of that is shaky, the "New to Go?" box below explains the handful of ideas the examples lean on most, with a link for each.
-The code also uses some newer parts of the language and standard library, listed in the table; the guides name them where they appear, and the [Go in depth](/basics/#go-in-depth) pages cover the ones an agent leans on most.
+The code also uses some newer parts of the language and standard library, listed in the table; the guides name them where they appear, and the [Go in depth](/go/) pages cover the ones an agent leans on most.
 You can come back to the table later:
 
 | Feature | Since | Where it shows up |
 | --- | --- | --- |
 | Generics, as in `decodeArgs[T any]` | Go 1.18 | Decoding a tool's arguments into the struct that tool expects |
-| [`context.WithTimeoutCause` and `context.Cause`](/basics/context/) | Go 1.21 | A deadline that records why a call was cancelled |
+| [`context.WithTimeoutCause` and `context.Cause`](/go/context/) | Go 1.21 | A deadline that records why a call was cancelled |
 | `for range n` over an integer | Go 1.22 | The loop's turn limit |
-| [Iterators, `iter.Seq`](/basics/iterators/) | Go 1.23 | Reading a streamed reply event by event |
-| [`sync.WaitGroup.Go`](/basics/goroutines/) and `testing/synctest` | Go 1.25 | [Running tool calls side by side](/build/parallel-tool-calls/), and testing timeouts without waiting |
-| [`errors.AsType`](/basics/errors/) | Go 1.26 | Checking an error's type in one line |
-| [`encoding/json/v2`](/basics/json-v2/) | Go 1.27 (Go 1.26 with `GOEXPERIMENT=jsonv2`) | All JSON on the wire |
+| [Iterators, `iter.Seq`](/go/iterators/) | Go 1.23 | Reading a streamed reply event by event |
+| [`sync.WaitGroup.Go`](/go/goroutines/) and `testing/synctest` | Go 1.25 | [Running tool calls side by side](/build/parallel-tool-calls/), and testing timeouts without waiting |
+| [`errors.AsType`](/go/errors/) | Go 1.26 | Checking an error's type in one line |
+| [`encoding/json/v2`](/go/json-v2/) | Go 1.27 (Go 1.26 with `GOEXPERIMENT=jsonv2`) | All JSON on the wire |
 
 <details class="go-primer" id="new-to-go">
 <summary>New to Go? The Go you'll meet on this site</summary>
@@ -109,7 +109,7 @@ You can come back to the table later:
 If you have finished the [Tour of Go](https://go.dev/tour/), you have seen most of these once.
 Each is a sentence or two, with a link for more.
 
-- **`context.Context`** is a value passed into every call that can be slow. It carries a deadline and a cancel signal, so Ctrl-C stops the run wherever it is. By convention it is the first parameter, named `ctx`. See [context in Go by Example](https://gobyexample.com/context) and [context in an agent](/basics/context/).
+- **`context.Context`** is a value passed into every call that can be slow. It carries a deadline and a cancel signal, so Ctrl-C stops the run wherever it is. By convention it is the first parameter, named `ctx`. See [context in Go by Example](https://gobyexample.com/context) and [context in an agent](/go/context/).
 - **Interfaces are satisfied implicitly.** A type has no `implements` clause; any type with the interface's methods is one. That is why a scripted list of replies and a real client can both be a `Model`. See [interfaces in the Tour](https://go.dev/tour/methods/9).
 - **`%w` and `errors.Is`.** `fmt.Errorf("read file: %w", err)` adds context to an error and keeps the original inside it. `errors.Is(err, target)` then finds the original through any number of wrappings. See [errors in Go by Example](https://gobyexample.com/errors).
 - **Struct tags** are the backtick text after a field, as in `` Path string `json:"path"` ``. They tell the JSON decoder which JSON name fills that field. See [JSON and struct tags in Go by Example](https://gobyexample.com/json) and the [glossary](/glossary/#struct-tag).

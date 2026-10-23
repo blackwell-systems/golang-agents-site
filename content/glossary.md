@@ -81,7 +81,7 @@ A point that work can't pass in either direction: all the work before it must fi
 ### Channel (Go) {#channel}
 
 A typed pipe that passes values between goroutines. A send waits until a receiver takes the value (or until there is room, for a buffered channel), and closing a channel tells receivers that no more values are coming.
-<span class="cite-line">[Goroutines with an owner](/basics/goroutines/)</span>
+<span class="cite-line">[Goroutines with an owner](/go/goroutines/)</span>
 
 ### Chat template {#chat-template}
 
@@ -106,7 +106,7 @@ Shrinking the request by swapping the oldest part of the conversation for a mode
 
 ### Context (Go) {#go-context}
 
-Go's `context.Context`, passed as the first parameter of every function that does I/O or can block, carries cancellation, a deadline, and a cause down a chain of calls. Not to be confused with a model's [context window](#context-window). See [context.Context in an agent](/basics/context/).
+Go's `context.Context`, passed as the first parameter of every function that does I/O or can block, carries cancellation, a deadline, and a cause down a chain of calls. Not to be confused with a model's [context window](#context-window). See [context.Context in an agent](/go/context/).
 
 ### Context policy {#context-policy}
 
@@ -200,7 +200,7 @@ The field in each reply that says why the model stopped generating: it was done 
 ### Goroutine {#goroutine}
 
 A function running at the same time as the rest of the program, started with the `go` keyword. Goroutines are cheap, so an agent can run many at once, but each needs an owner that knows when it ends.
-<span class="cite-line">[Goroutines with an owner](/basics/goroutines/)</span>
+<span class="cite-line">[Goroutines with an owner](/go/goroutines/)</span>
 
 ### Graceful shutdown {#graceful-shutdown}
 
@@ -267,7 +267,7 @@ Where a team keeps its list of known problems, for example GitHub Issues or Jira
 ### Iterator (Go) {#iterator}
 
 A function that hands values to a `for` loop one at a time by calling `yield`, so `for v := range seq` works on it the way it works on a slice. `iter.Seq[V]` is the type of one.
-<span class="cite-line">[Iterators in an agent](/basics/iterators/)</span>
+<span class="cite-line">[Iterators in an agent](/go/iterators/)</span>
 
 ## J {#letter-j .letter}
 
@@ -430,7 +430,7 @@ A library a provider publishes for using its API from a particular language. It 
 
 ### Sentinel error {#sentinel-error}
 
-An exported error value that callers compare against with `errors.Is`, such as `io.EOF` or an agent's `ErrMaxTurns`. Sentinels can be grouped into families by wrapping one in another, so a caller can check a whole family at once. See [errors in an agent](/basics/errors/).
+An exported error value that callers compare against with `errors.Is`, such as `io.EOF` or an agent's `ErrMaxTurns`. Sentinels can be grouped into families by wrapping one in another, so a caller can check a whole family at once. See [errors in an agent](/go/errors/).
 
 ### Server-sent events {#server-sent-events}
 

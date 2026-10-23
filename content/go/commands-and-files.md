@@ -3,11 +3,11 @@ title: "Commands and files: os/exec and os.Root for an agent's tools"
 short: Commands and files
 description: How an AI agent's tools in Go run commands and touch files. exec.CommandContext and what cancelling does, WaitDelay for pipes a child holds open, killing a whole process group on Unix, combined output with a size cap, a non-zero exit as a result the model reads, an environment built from scratch so keys never reach test code, os.Root for file tools that can't leave the workspace, and what none of it protects against.
 card: Run go test so it stops when told, keeps your keys, and reports what failed; keep file tools inside one directory.
-group: Go in depth
+group: Programs and files
 chapters: 4, 7, 14
 stage: 3
 date: 2026-10-20
-weight: 92
+weight: 80
 art: commands-and-files
 ---
 
@@ -37,7 +37,7 @@ The companion code needs Go {{code go-version}}.
 `exec.CommandContext` builds a command tied to a context.
 If the context ends before the command does, `os/exec` calls the command's `Cancel` function, which `CommandContext` sets to kill the process; on Unix that is `SIGKILL`, a signal (a message the operating system sends to a process) that ends it at once and that the process can't catch.
 The context to pass is the one the tool was given, derived from the run's, so Ctrl-C, a shutdown, and the tool's own deadline all reach the process the same way.
-The [context page](/basics/context/#tools-that-start-processes) covers that chain; here is the runner behind the agent's `run_tests` tool:
+The [context page](/go/context/#tools-that-start-processes) covers that chain; here is the runner behind the agent's `run_tests` tool:
 
 ```go include=ch17/agent/gotest.go lines=56..74 highlight=6,9-10,16
 ```
@@ -160,7 +160,7 @@ It adds one case: `exec.ErrWaitDelay` is what `Run` returns when the command exi
 `killGroup` has already ended that process, so the run counts as finished.
 
 The errors these functions do return still don't stop the agent.
-A tool's error goes back to the model as the tool's result, marked as an error, unless it wraps `ErrToolFatal`; the [errors page](/basics/errors/#errors-the-model-reads) shows that split, and [why the agent stopped](/production/stop-reasons/) lists what does end a run.
+A tool's error goes back to the model as the tool's result, marked as an error, unless it wraps `ErrToolFatal`; the [errors page](/go/errors/#errors-the-model-reads) shows that split, and [why the agent stopped](/production/stop-reasons/) lists what does end a run.
 A test run that timed out is something the model can act on, by running fewer tests or fixing a hang.
 
 ## The environment it runs in

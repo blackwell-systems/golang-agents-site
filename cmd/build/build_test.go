@@ -201,6 +201,7 @@ func TestRedirects(t *testing.T) {
 		// A moved page's own redirect wins over its old section's guess.
 		{"/loop/why-go/", "/ecosystem/why-go/"},
 		{"/foundations/streaming/", "/build/streaming/"},
+		{"/basics/context/", "/go/context/"},
 	}
 	for _, tt := range tests {
 		got := read(tt.from)

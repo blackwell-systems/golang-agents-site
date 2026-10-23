@@ -3,11 +3,11 @@ title: "Goroutines with an owner: concurrency patterns for Go agents"
 short: Goroutines with an owner
 description: Concurrency in a Go agent, with every goroutine owned and stoppable. sync.WaitGroup.Go, merging several agent runs into one stream without leaking a goroutine, requests in flight with their cancel functions behind a mutex, shutting down in order, limiting how much runs at once, and finding leaks with the race detector and the goroutine leak profile.
 card: Start goroutines with an owner and a way to stop, merge their results, and prove none is left behind.
-group: Go in depth
+group: Concurrency
 chapters: 6, 9, 10, 15
 stage: all
 date: 2026-10-19
-weight: 88
+weight: 60
 art: go-goroutines
 ---
 
@@ -131,7 +131,7 @@ The deferred calls cancel the requests' contexts right after, so that happens so
 ## Limiting how much runs at once
 
 Starting a goroutine per task is fine for a handful; for hundreds of tool calls or crash reports, something has to cap how many run at once, both to stay within a provider's rate limit and to bound memory.
-The companion code uses a buffered channel as a counting semaphore, with an `Acquire` that gives up when the context ends; the [context page](/basics/context/#waiting-in-your-own-code) shows it, beside a rate limiter that spaces requests out in time.
+The companion code uses a buffered channel as a counting semaphore, with an `Acquire` that gives up when the context ends; the [context page](/go/context/#waiting-in-your-own-code) shows it, beside a rate limiter that spaces requests out in time.
 The [parallel tool calls](/build/parallel-tool-calls/) guide shows the runner that decides which of a reply's tool calls may run together, and what running them in parallel saved.
 
 ## Mistakes to avoid
