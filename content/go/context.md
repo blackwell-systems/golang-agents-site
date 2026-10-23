@@ -66,12 +66,7 @@ A context is never changed.
 Functions such as `context.WithCancel` and `context.WithTimeout` take a parent and return a new child, with a function that cancels it, so the contexts in a program form a tree with `context.Background()` at the root.
 Cancellation travels down the tree and never up:
 
-```diagram
-name: ctx-cancel
-alt: A tree of contexts. main, made with signal.NotifyContext, derives the run; the run derives a model call, a tool call, and, through a dashed link labeled values only, no cancellation, a checkpoint save made with WithoutCancel. The model call derives its HTTP request. The model call and its request are highlighted: the call's deadline passed, and the request ended with it, while the run above and the tool call beside them go on.
-
-When a model call's deadline passes, the call and the HTTP request under it end; the run above it and the tool call beside it go on. Cancelling the run would end every context under it except the save, which kept the run's values and dropped its cancellation.
-```
+{{ctxtree}}
 
 Two more rules complete the picture.
 The first cancellation wins: once a context is done, later calls to its cancel function change nothing, including its cause.

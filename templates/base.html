@@ -468,6 +468,82 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   }
 })();
 
+// The context tree (cmd/build/ctxtree.html): two scenes, a model
+// call's deadline passing and Ctrl-C at the root, played once when the
+// tree comes into view and again from its buttons. With reduced motion
+// a scene jumps to its end.
+(function () {
+  var fig = document.querySelector("[data-ctxt]");
+  if (!fig) return;
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var caption = fig.querySelector(".ctxt-caption");
+  var buttons = fig.querySelectorAll("[data-scene]");
+  var timer = fig.querySelector(".ctxt-timer");
+  var timers = [];
+  function node(n) { return fig.querySelector('[data-node="' + n + '"]'); }
+  function status(n, text) { node(n).querySelector(".ctxt-status").textContent = text; }
+  function end(n, text) { node(n).classList.add("is-ended"); status(n, text); }
+  function flow(e) { fig.querySelector('[data-edge="' + e + '"]').classList.add("is-on"); }
+  function reset() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    fig.querySelectorAll(".ctxt-node").forEach(function (g) {
+      g.classList.remove("is-ended", "is-done");
+      var s = g.querySelector(".ctxt-status");
+      s.textContent = s.dataset.live;
+    });
+    fig.querySelectorAll(".ctxt-flow").forEach(function (f) { f.classList.remove("is-on"); });
+    timer.classList.remove("is-out");
+  }
+  var scenes = {
+    deadline: {
+      caption: "A model call's deadline passes. The call and its HTTP request end; the run above them and the tool call beside them go on.",
+      steps: [
+        [150, function () { timer.classList.add("is-out"); }],
+        [2650, function () { end("call", "deadline exceeded"); flow("call-req"); }],
+        [3350, function () { end("req", "ended with it"); }]
+      ]
+    },
+    interrupt: {
+      caption: "Ctrl-C cancels main, and every context under it ends: the calls stop and the go test process is killed. The save, detached with WithoutCancel, finishes its write.",
+      steps: [
+        [300, function () { end("main", "interrupt signal received"); flow("main-run"); }],
+        [1000, function () { end("run", "canceled"); flow("run-call"); flow("run-tool"); status("save", "still writing"); }],
+        [1700, function () { end("call", "canceled"); end("tool", "canceled"); flow("call-req"); flow("tool-proc"); }],
+        [2400, function () { end("req", "canceled"); end("proc", "killed"); }],
+        [3700, function () { node("save").classList.add("is-done"); status("save", "saved"); }]
+      ]
+    }
+  };
+  function play(name, then) {
+    reset();
+    var sc = scenes[name];
+    buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.scene === name)); });
+    caption.textContent = sc.caption;
+    if (still.matches) {
+      sc.steps.forEach(function (st) { st[1](); });
+      return;
+    }
+    // Let the reset paint before the first step, so its transitions run.
+    requestAnimationFrame(function () {
+      sc.steps.forEach(function (st) { timers.push(setTimeout(st[1], st[0])); });
+      if (then) timers.push(setTimeout(then, sc.steps[sc.steps.length - 1][0] + 2600));
+    });
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { play(b.dataset.scene); });
+  });
+  fig.querySelector(".ctxt-play").hidden = false;
+  if (!still.matches && "IntersectionObserver" in window) {
+    var seen = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      seen.disconnect();
+      play("deadline", function () { play("interrupt"); });
+    }, { threshold: 0.6 });
+    seen.observe(fig.querySelector(".ctxt-svg"));
+  }
+})();
+
 // Listings marked with the agent loop's stages (stages=, markdown.go).
 // Pointing at a stage's number lights that stage's lines, and on the
 // home page, the big ring too, which talks to this through two events:

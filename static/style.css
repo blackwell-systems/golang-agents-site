@@ -3036,3 +3036,44 @@ body::after {
 .stage-own .path-steps li { margin: 0; }
 .stage-own .path-steps a::before { content: none; }
 .stage-own .cards { margin-bottom: 0; }
+
+/* The context tree on /go/context/ (cmd/build/ctxtree.html): a still
+   picture without script; with it, two scenes play once when it comes
+   into view, and the buttons replay them. An ended context fills with
+   amber, as in the book's diagram; the cancellation runs down the
+   edges as an amber line. */
+.ctxt { margin: var(--block-before) auto var(--block-after); max-width: 40rem; }
+.ctxt-play { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; margin-bottom: var(--space-3); }
+.ctxt-play button {
+  font: 600 var(--fs-sm)/1 var(--label);
+  color: var(--ivory);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+}
+.ctxt-play button:hover { border-color: var(--amber-dim); }
+.ctxt-play button[aria-pressed="true"] { border-color: var(--amber); color: var(--amber); }
+.ctxt-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.ctxt-edge { fill: none; stroke: var(--line); stroke-width: 2; }
+.ctxt-detached { stroke-dasharray: 6 5; }
+.ctxt-edge-label { font: 500 13px var(--label); fill: var(--soft); text-anchor: middle; }
+.ctxt-flow { fill: none; stroke: var(--amber); stroke-width: 3; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 0.6s ease; }
+.ctxt-flow.is-on { stroke-dashoffset: 0; }
+.ctxt-node rect:first-child { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; transition: fill 0.35s ease, stroke 0.35s ease; }
+.ctxt-save rect:first-child { stroke-dasharray: 6 5; }
+.ctxt-name { font: 600 17px var(--label); fill: var(--ivory); text-anchor: middle; transition: fill 0.35s ease; }
+.ctxt-status { font: 500 13.5px var(--mono); fill: var(--soft); text-anchor: middle; transition: fill 0.35s ease; }
+.ctxt-timer-track { fill: var(--line); }
+.ctxt-timer { fill: var(--amber); transform-box: fill-box; transform-origin: left; transition: transform 2.4s linear; }
+.ctxt-timer.is-out { transform: scaleX(0); }
+.ctxt-node.is-ended rect:first-child { fill: var(--amber); stroke: var(--amber); }
+.ctxt-node.is-ended .ctxt-name, .ctxt-node.is-ended .ctxt-status { fill: var(--amber-ink); }
+.ctxt-node.is-ended .ctxt-timer-track, .ctxt-node.is-ended .ctxt-timer { opacity: 0; }
+.ctxt-node.is-done rect:first-child { stroke: var(--ivory); stroke-dasharray: none; }
+.ctxt-node.is-done .ctxt-status { fill: var(--ivory); }
+.ctxt-caption { margin-top: var(--space-3); font-size: var(--fs-sm); color: var(--soft); text-align: center; min-height: 3.2em; }
+@media (prefers-reduced-motion: reduce) {
+  .ctxt-flow, .ctxt-node rect, .ctxt-name, .ctxt-status, .ctxt-timer { transition: none; }
+}

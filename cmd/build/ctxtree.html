@@ -1,0 +1,62 @@
+<figure class="ctxt" data-ctxt>
+  <div class="ctxt-play" hidden>
+    <button type="button" data-scene="deadline" aria-pressed="false">A deadline passes</button>
+    <button type="button" data-scene="interrupt" aria-pressed="false">Ctrl-C</button>
+  </div>
+  <svg class="ctxt-svg" viewBox="0 0 620 500" role="img" aria-labelledby="ctxt-title ctxt-desc">
+    <title id="ctxt-title">A tree of contexts, and how cancellation travels through it</title>
+    <desc id="ctxt-desc">main, made with signal.NotifyContext, derives the run. The run derives a model call with a deadline, a tool call that runs go test in its own process, and, through a dashed link carrying values only, a checkpoint save made with WithoutCancel. The model call derives its HTTP request. When the model call's deadline passes, the call and its request end and everything else goes on. When Ctrl-C cancels main, every context under it ends and the process is killed, except the save, which finishes.</desc>
+    <g class="ctxt-edges">
+      <path class="ctxt-edge" d="M310 66 V122"/>
+      <path class="ctxt-edge" d="M310 178 L103 250"/>
+      <path class="ctxt-edge" d="M310 178 V250"/>
+      <path class="ctxt-edge ctxt-detached" d="M310 178 L517 250"/>
+      <path class="ctxt-edge" d="M103 322 V390"/>
+      <path class="ctxt-edge" d="M310 306 V390"/>
+      <path class="ctxt-flow" data-edge="main-run" d="M310 66 V122" pathLength="1"/>
+      <path class="ctxt-flow" data-edge="run-call" d="M310 178 L103 250" pathLength="1"/>
+      <path class="ctxt-flow" data-edge="run-tool" d="M310 178 V250" pathLength="1"/>
+      <path class="ctxt-flow" data-edge="call-req" d="M103 322 V390" pathLength="1"/>
+      <path class="ctxt-flow" data-edge="tool-proc" d="M310 306 V390" pathLength="1"/>
+      <text class="ctxt-edge-label" x="452" y="200">values only</text>
+    </g>
+    <g class="ctxt-node" data-node="main" transform="translate(190 10)">
+      <rect width="240" height="56" rx="8"/>
+      <text class="ctxt-name" x="120" y="24">main</text>
+      <text class="ctxt-status" x="120" y="45" data-live="signal.NotifyContext">signal.NotifyContext</text>
+    </g>
+    <g class="ctxt-node" data-node="run" transform="translate(217 122)">
+      <rect width="186" height="56" rx="8"/>
+      <text class="ctxt-name" x="93" y="24">the run</text>
+      <text class="ctxt-status" x="93" y="45" data-live="WithCancelCause">WithCancelCause</text>
+    </g>
+    <g class="ctxt-node" data-node="call" transform="translate(10 250)">
+      <rect width="186" height="72" rx="8"/>
+      <text class="ctxt-name" x="93" y="24">a model call</text>
+      <text class="ctxt-status" x="93" y="45" data-live="WithTimeoutCause">WithTimeoutCause</text>
+      <rect class="ctxt-timer-track" x="18" y="56" width="150" height="5" rx="2.5"/>
+      <rect class="ctxt-timer" x="18" y="56" width="150" height="5" rx="2.5"/>
+    </g>
+    <g class="ctxt-node" data-node="tool" transform="translate(217 250)">
+      <rect width="186" height="56" rx="8"/>
+      <text class="ctxt-name" x="93" y="24">a tool call</text>
+      <text class="ctxt-status" x="93" y="45" data-live="runs go test">runs go test</text>
+    </g>
+    <g class="ctxt-node ctxt-save" data-node="save" transform="translate(424 250)">
+      <rect width="186" height="56" rx="8"/>
+      <text class="ctxt-name" x="93" y="24">checkpoint save</text>
+      <text class="ctxt-status" x="93" y="45" data-live="WithoutCancel">WithoutCancel</text>
+    </g>
+    <g class="ctxt-node" data-node="req" transform="translate(10 390)">
+      <rect width="186" height="56" rx="8"/>
+      <text class="ctxt-name" x="93" y="24">its HTTP request</text>
+      <text class="ctxt-status" x="93" y="45" data-live="waiting for a reply">waiting for a reply</text>
+    </g>
+    <g class="ctxt-node" data-node="proc" transform="translate(217 390)">
+      <rect width="186" height="56" rx="8"/>
+      <text class="ctxt-name" x="93" y="24">the go test process</text>
+      <text class="ctxt-status" x="93" y="45" data-live="exec.CommandContext">exec.CommandContext</text>
+    </g>
+  </svg>
+  <figcaption class="ctxt-caption" aria-live="polite">When a model call's deadline passes, the call and the HTTP request under it end; the run above it and the tool call beside it go on. Cancelling the run, or pressing Ctrl-C, ends every context under it except the save, which kept the run's values and dropped its cancellation.</figcaption>
+</figure>
