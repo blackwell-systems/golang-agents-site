@@ -65,6 +65,17 @@ Every directory has tests, and none of them calls a model:
 $ go test ./ch01/...
 ```
 
+<div class="hood">
+
+A Go module is a directory tree with a `go.mod` file at its root; the file names the module, the Go version it needs, and the outside packages (dependencies) it uses.
+A directory inside that tree with its own `go.mod` is a separate, nested module: the outer module's commands such as `./...` stop at its edge, and its dependencies are recorded in its own `go.mod` and stay out of the outer one.
+The companion code uses this so that an example needing a large dependency doesn't add it to everything else.
+Four directories are nested modules: `remind`, `ch10/sdk` (the MCP server on the official SDK), `ch12/otel` (OpenTelemetry export), and `ch16` (the framework ports).
+To run one, move into it first, for example `cd remind && go test ./...`, or `cd ch16` and then `go run ./cmd/harness`.
+The repository has no `go.work` file, so there is nothing to set up beyond that.
+
+</div>
+
 ## Offline or live
 
 A program decides whether to run offline or live from one environment variable: whether `OPENROUTER_API_KEY` is set.

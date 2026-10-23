@@ -161,6 +161,30 @@ Instead the run stops with `ErrOutcomeUnknown`, which names the call.
 
 **Logs** go through `log/slog`, and each line has the same fields: the agent's name, taken from the context; the model, or the tool and its call ID; and the trace ID.
 Metadata is always logged.
+
+<div class="hood">
+
+A structured log line is a message plus named values, so a program can filter and search it by field instead of parsing a sentence.
+With `log/slog`, a logger writes each call as one line: the time, a level (`Debug`, `Info`, `Warn`, or `Error`), the message, and the key-value attributes you passed after it.
+A logger prints `Info` and above unless you set a lower level.
+This program, run as written, prints the two lines below it; the `Debug` call is dropped:
+
+```go
+log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+log.Info("tool call", "tool", "read_file", "call", "call_7",
+	"took", 3*time.Millisecond)
+log.Error("tool call", "tool", "run_tests", "err", "exit status 1")
+log.Debug("not shown")
+```
+
+```text
+time=2026-10-23T02:45:59.911-07:00 level=INFO msg="tool call" tool=read_file call=call_7 took=3ms
+time=2026-10-23T02:45:59.911-07:00 level=ERROR msg="tool call" tool=run_tests err="exit status 1"
+```
+
+The agent's logging wrapper, `LoggedTools` in [`ch12/agent/log.go`](code:ch12/agent/log.go), passes the agent, tool, and call attributes this way.
+
+</div>
 Content is logged only when you turn it on; it is truncated and then run through the same redaction hook every tool result already passes through.
 
 **Traces** show a run as a tree of [spans](/glossary/#span), where a span is one timed step, such as a model call or a tool call, with its children inside it.

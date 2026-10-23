@@ -221,6 +221,8 @@ The methods mirror the `os` functions.
 Go 1.24 has `Open`, `OpenFile`, `Create`, `Stat`, `Lstat`, `Mkdir`, `Remove`, `OpenRoot` for a subdirectory, `FS`, `Name`, and `Close`.
 Go 1.25 added `ReadFile`, `WriteFile`, `MkdirAll`, `RemoveAll`, `Rename`, `Link`, `Symlink`, `Readlink`, `Chmod`, `Chown`, `Lchown`, and `Chtimes`.
 `os.OpenInRoot(dir, name)` opens one file in one call.
+A root can also hand its files to code that expects an `fs.FS`, the standard library's interface for a read-only tree of files, through `root.FS()`; `os.DirFS(dir)` gives one too, but its documentation warns that a symbolic link inside the directory can still lead outside, so use `root.FS()` when the names come from a model.
+[The first agent](/build/first-agent/#the-tools) reads its files through an `fs.FS` built this way.
 A `Root` is safe to use from several goroutines.
 
 A test program on macOS opened a workspace directory, `ws`, as a root, put `secret.txt` beside it, and tried these names:

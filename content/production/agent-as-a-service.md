@@ -21,6 +21,8 @@ This page lists the decisions in the order you meet them, with code from [`ch15`
 ## A binary that finds its own work
 
 The agent has no C dependencies, so `CGO_ENABLED=0 go build -o triage ./ch15` produces a single static binary.
+A static binary does not depend on the system's C library or any other shared library, so it runs on a machine with nothing installed.
+`CGO_ENABLED=0` turns off cgo, the part of the `go` command that lets Go code call C, so the build cannot pull in C code.
 Its runs live in one state directory, named with `-state` or the `TRIAGE_STATE` variable, so a service manager sets it once.
 
 Platforms restart containers by running the same command again, so the same command has to continue rather than begin anew.
@@ -66,12 +68,12 @@ Five seconds sits well inside both platforms' limits, and since the wrapper is a
 ## A container image that keeps the key out of reach
 
 The agent runs `go test` and creates each workspace as a git checkout at the crash's commit, so the image needs the Go toolchain and git.
-The image is 1.34 GB, almost all toolchain, runs as a user without root (uid 10001), and mounts the state directory as a volume.
+The image is 1.34 GB, almost all toolchain, runs as a user without root (uid 10001, the number that identifies the user a process runs as), and mounts the state directory as a volume.
 
 Give it the API key as a read-only mounted file named by `OPENROUTER_API_KEY_FILE`, readable by that user alone; the command refuses a key file that its group or others can read.
 A key passed with `-e` is worse in two ways.
-Anyone allowed to run Docker commands can read it with `docker inspect`.
-And although the command removes the variable from its own environment at startup, the kernel still holds the environment the first process started with, and any process of the same user can read it from `/proc/1/environ`.
+Anyone allowed to run Docker commands can read it with `docker inspect`, the command that prints a container's settings, environment included.
+And although the command removes the variable from its own environment at startup, the kernel still holds the environment the first process started with, and any process of the same user can read it from `/proc/1/environ`, the file Linux keeps for the environment of process 1, which in a container is the first process started.
 This was tried with a made-up key, and another process in the container read the key back.
 Test code runs as that same user inside the image, which also means the tests are at rung 2 of the [sandbox ladder](/production/prompt-injection/) at best.
 Stronger isolation for the tests means a separate sandbox beside the agent's container.

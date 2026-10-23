@@ -29,6 +29,18 @@ That figure describes those particular 29 crashes.
 A fresh sample of 29 similar crashes would give a somewhat different result, and the plausible range for this sample runs from 76 to 90 percent, roughly seven points each way.
 On a set this small, a change that shifts the pass rate by fewer points than that is invisible.
 
+<div class="hood">
+
+Take 21 correct runs out of 25.
+That is 84 percent, but only for those 25 runs; another 25 runs of the same agent could give 19 or 23.
+A [pass rate](/glossary/#pass-rate) from a few runs is an estimate of the agent's true rate, and the range around it says which true rates are plausible given what you saw.
+For 21 of 25, the 95 percent Wilson interval described under "Report a rate with its range" runs from about 65 to 94 percent (computed from the formula for k = 21, n = 25).
+With few runs the range is wide, and more runs narrow it.
+Fisher's exact test, used later on this page, answers a different question: given the passes and failures of two groups of runs, such as before and after a change, how likely is a gap this big if both groups share the same true rate?
+A small answer means the two rates probably differ by more than chance.
+
+</div>
+
 A single rate also lumps together failures of very different kinds.
 During earlier prompt work on the same agent, the most useful change left the root-cause score where it was, 21 correct out of 25 runs both before and after; what improved were the checks surrounding the diagnosis.
 

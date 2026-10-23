@@ -65,7 +65,7 @@ A single bit per tool handles the cases that matter.
 ## Running a stage
 
 Read-only calls start together, at most eight at once, and their answers go back in the model's order.
-Starting them together uses goroutines: a goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines (see the [Tour of Go](https://go.dev/tour/concurrency/1) and the glossary entries for [goroutine](/glossary/#goroutine) and [channel](/glossary/#channel)).
+Starting them together uses goroutines: a [goroutine](/glossary/#goroutine) is a function running at the same time as the rest of the program, and a [channel](/glossary/#channel) passes values between goroutines (see [Goroutines with an owner](/basics/goroutines/)).
 The details are below, and you can skip them on a first read.
 
 <div class="hood">

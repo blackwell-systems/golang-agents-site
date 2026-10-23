@@ -103,6 +103,9 @@ Most [tokenizers](/glossary/#tokenizer) are built with byte-pair encoding: begin
 The companion code implements one in Go and trains it on the toy's text.
 An English sentence comes out at about a token per word, while `ParseDuration` splits into `P`, `ar`, `se`, `D`, `uration`.
 
+The model then turns each token into an [embedding](/glossary/#embedding), a list of numbers, and the same idea works for a whole passage of text: texts with similar meaning get lists that sit near each other.
+[Cosine similarity](/glossary/#cosine-similarity) measures how near two lists are, which is how [retrieval](/build/rag/) finds the passages closest to a question.
+
 Production tokenizers handle code far better than that, but the rule survives: text unlike the tokenizer's training data costs more tokens.
 In October 2026, recorded runs measured the same two texts on five models.
 A 1,008-byte Go file came to between 336 and 502 tokens, and a page of English to between 450 and 598.

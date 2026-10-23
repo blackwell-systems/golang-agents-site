@@ -54,7 +54,7 @@ And a call that gets no answer in time is cancelled: the client sends `notificat
 ## The client: one reader, many callers
 
 A client can have several calls waiting on one connection at once, so a single goroutine reads everything the server writes and hands each response to the call it answers.
-A goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines (the [Tour of Go](https://go.dev/tour/concurrency/1) introduces both; see also the glossary entries for [goroutine](/glossary/#goroutine) and [channel](/glossary/#channel)).
+A [goroutine](/glossary/#goroutine) is a function running at the same time as the rest of the program, and a [channel](/glossary/#channel) passes values between goroutines; [Goroutines with an owner](/basics/goroutines/) covers both.
 The mechanics are below, and you can skip them on a first read.
 
 <div class="hood">

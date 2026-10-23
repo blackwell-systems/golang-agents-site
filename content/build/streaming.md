@@ -133,7 +133,7 @@ A channel needs a goroutine to feed it, and then the code has to close the chann
 `Events` runs in the caller's goroutine, puts the error in the final event, and stops completely when the caller breaks out of its `for` loop.
 `TestBreakOutOfEvents` in `ch06/agent/stream_test.go` checks exactly that: it breaks out at the first text event, then asserts that the model's stream returned and that the context the model was given has been cancelled.
 
-A goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines; the [Tour of Go](https://go.dev/tour/concurrency/1) introduces both.
+A goroutine is a function running at the same time as the rest of the program, and a channel passes values between goroutines; [Goroutines with an owner](/basics/goroutines/) covers both.
 
 </div>
 

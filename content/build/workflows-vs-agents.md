@@ -55,7 +55,7 @@ It adds one short call in front of every input, and an input it misfiles gets th
 The input also reaches the classifier's prompt, so a crafted input, a [prompt injection](/production/prompt-injection/), can choose its own kind: no handler should have a permission that the worst possible input must never get.
 
 **Parallel calls with a vote** ask several voters the same question at once and return the first answer a quorum of them gives.
-The code runs each call in its own goroutine, a function running at the same time as the rest of the program, and collects the answers through a channel, which passes values between goroutines ([Tour of Go](https://go.dev/tour/concurrency/1); glossary: [goroutine](/glossary/#goroutine), [channel](/glossary/#channel)):
+The code runs each call in its own [goroutine](/glossary/#goroutine), a function running at the same time as the rest of the program, and collects the answers through a [channel](/glossary/#channel), which passes values between goroutines ([Goroutines with an owner](/basics/goroutines/)):
 
 ```go include=shapes/vote.go tag=vote highlight=17-20
 ```
