@@ -4,14 +4,14 @@ description: Learn how AI agents work at the level of every request, reply, and 
 layout: home
 ---
 
-## The loop, in four stages
+## The agent compass
 
 An agent is a [model](/glossary/#model) (a large language model, reached through an API) inside a [harness](/glossary/#harness), the program around it.
-On every turn, one pass through these four stages, the harness does the same four things:
+On every turn the harness passes through the same four stages.
+Drawn as a ring, they make the **agent compass**, the model this whole site is built on:
 
 {{loop}}
 
-This ring is the **agent compass**, the model this whole site is built on.
 However large an agent grows, every turn it takes passes through these four stages, so the compass is the map for understanding an agent and for reading this site: each guide works on one stage or on the whole loop, and shows its place on the compass under its title.
 You can [browse every guide by stage](/guides/), for example [the Decide guides](/guides/?stage=4).
 When an agent misbehaves, the compass tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.

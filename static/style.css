@@ -1225,6 +1225,10 @@ cite { font-style: italic; }
   gap: 1.25rem;
 }
 .loopv-c * { box-sizing: border-box; }
+/* The ring's name, over it in a guide; the home page names it in its
+   section title instead. */
+.loopv-c .lvc-title { grid-column: 1 / -1; margin: 0; font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--amber); }
+.home-body .loopv-c .lvc-title { display: none; }
 /* The ring */
 .loopv-c .lvc-ring { position: relative; justify-self: center; width: 100%; }
 .loopv-c .lvc-ring svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -1377,7 +1381,8 @@ cite { font-style: italic; }
     row-gap: 0.4rem;
     align-items: center;
   }
-  .loopv-c .lvc-ring { grid-row: 1 / span 2; align-self: center; }
+  .loopv-c .lvc-ring { grid-row: 2 / span 2; align-self: center; }
+  .home-body .loopv-c .lvc-ring { grid-row: 1 / span 2; }
   .loopv-c .lvc-list { align-self: end; }
   .loopv-c figcaption { align-self: start; }
 }
@@ -3339,3 +3344,46 @@ body::after {
   .loopv-c.is-folded :is(.lvc-node, .lvc-label, .lvc-center, .lvc-sub, .lvc-marker, .lvc-list > li, figcaption) { opacity: 1; }
   .loopv-c.is-unfolding * { animation: none !important; }
 }
+
+/* The conversation strip under the ring (loopring.html): one chip per
+   message of the recorded run, colored by who wrote it. During the
+   replay, a call lights every chip, since the whole conversation is
+   sent, and new messages arrive at the end. Without script it shows the
+   conversation after the last call. */
+.loopv-c .lvc-convo { grid-column: 1 / -1; margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--line-soft); }
+.loopv-c .lvc-convo-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.9rem; margin: 0 0 0.6rem; }
+/* The tokens each call sent, as a bar that grows call by call. */
+.loopv-c .lvc-meter { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 var(--space-3); }
+.lvc-meter-bar { flex: 0 1 18rem; height: 6px; border-radius: 3px; background: var(--line-soft); overflow: hidden; }
+.lvc-meter-bar i { display: block; height: 100%; width: 100%; border-radius: 3px; background: var(--stage-2); transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.lvc-meter-n { font: 500 var(--fs-xs) var(--mono); color: var(--stage-2); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .lvc-meter-bar i { transition: none; } }
+/* On a phone the ring and the strip don't fit on one screen, so each
+   message shrinks to its role and the strip stays a few lines tall. */
+@media (max-width: 40rem) {
+  .lvc-convo-msgs li > span { display: none; }
+  .lvc-convo-msgs b { margin-right: 0; }
+}
+.lvc-convo-title { font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--amber); }
+.lvc-convo-meta { font: 500 var(--fs-sm) var(--label); color: var(--soft); }
+.loopv-c .lvc-convo-msgs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; min-height: 2.2rem; }
+.loopv-c .lvc-convo-msgs > li {
+  margin: 0;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--role);
+  border-radius: 4px;
+  background: var(--panel);
+  font: 500 var(--fs-xs) var(--mono);
+  color: var(--stone);
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.lvc-convo-msgs b { font-weight: 700; color: var(--role); margin-right: 0.25rem; }
+.lvc-convo-msgs .is-user { --role: var(--stage-1); }
+.lvc-convo-msgs .is-assistant { --role: var(--stage-2); }
+.lvc-convo-msgs .is-tool { --role: var(--stage-3); }
+.lvc-convo-msgs li.is-sent { border-color: var(--stage-2); border-left-color: var(--role); background: var(--accent-wash, var(--panel)); color: var(--ivory); }
+.lvc-convo-msgs li.is-new { animation: lvc-slide 0.4s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .lvc-convo-msgs li { transition: none; } .lvc-convo-msgs li.is-new { animation: none; } }
+.loopv-c.is-folded .lvc-convo { opacity: 0; }
+.loopv-c.is-unfolding .lvc-convo { animation: lvc-fade 0.5s ease-out 2.7s both; }

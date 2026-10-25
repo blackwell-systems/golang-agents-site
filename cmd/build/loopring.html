@@ -1,4 +1,5 @@
 <figure class="loopv-c" id="loop-ring">
+  <p class="lvc-title">The agent compass</p>
   <div class="lvc-ring">
     <svg viewBox="-10 20 480 365" aria-hidden="true" focusable="false">
       <defs><marker id="lvc-arrow-1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-1)"/></marker><marker id="lvc-arrow-2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-2)"/></marker><marker id="lvc-arrow-3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-3)"/></marker><marker id="lvc-arrow-4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-4)"/></marker></defs>
@@ -30,5 +31,22 @@
     <li style="--st: var(--stage-3)"><span class="lvc-num" aria-hidden="true">3</span><a class="lvc-name" href="/basics/tool-calling/"><span class="lvc-t">Run the tools</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Carry out the calls the model asked for, and add each result to the conversation.</p></li>
     <li style="--st: var(--stage-4)"><span class="lvc-num" aria-hidden="true">4</span><a class="lvc-name" href="/production/stop-reasons/"><span class="lvc-t">Decide</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Stop with an answer, stop at a limit, or go around again.</p></li>
   </ol>
+  <div class="lvc-convo" aria-label="The conversation the agent sends on each call, from a recorded run">
+    <p class="lvc-convo-head"><span class="lvc-convo-title">The conversation</span><span class="lvc-convo-meta">After 4 calls: every call sent all of it, from 583 tokens to 2,164</span></p>
+    <p class="lvc-meter" aria-hidden="true"><span class="lvc-meter-bar"><i style="width: 100%"></i></span><span class="lvc-meter-n">2,164 tokens on call 4</span></p>
+    <ol class="lvc-convo-msgs">
+      <li class="is-user"><b>user</b> <span>The tests fail. Find out why and fix it.</span></li>
+      <li class="is-assistant"><b>assistant</b> <span>calls run_tests, list_files</span></li>
+      <li class="is-tool"><b>tool</b> <span>run_tests: FAIL</span></li>
+      <li class="is-tool"><b>tool</b> <span>list_files: 2 files</span></li>
+      <li class="is-assistant"><b>assistant</b> <span>calls read_file twice</span></li>
+      <li class="is-tool"><b>tool</b> <span>duration.go, 44 lines</span></li>
+      <li class="is-tool"><b>tool</b> <span>duration_test.go, 36 lines</span></li>
+      <li class="is-assistant"><b>assistant</b> <span>calls edit_file, run_tests</span></li>
+      <li class="is-tool"><b>tool</b> <span>edit_file: done</span></li>
+      <li class="is-tool"><b>tool</b> <span>run_tests: PASS</span></li>
+      <li class="is-assistant"><b>assistant</b> <span>the answer</span></li>
+    </ol>
+  </div>
   <figcaption><svg class="lvc-back" viewBox="0 0 36 36" aria-hidden="true" focusable="false"><path d="M25.5 11.5A10 10 0 1 0 28 18"/><path d="M27.5 6.5l-1.5 5.5-5.5-1"/></svg><span>Then back to stage 1, with everything that just happened in the conversation.</span></figcaption>
 </figure>
