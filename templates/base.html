@@ -536,7 +536,8 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   var final = convo ? convo.innerHTML : "";
   var meta0 = meta ? meta.textContent : "";
   // The meter under the strip's title: the tokens each call sent, as a
-  // share of the last call's, so the bar grows call by call.
+  // share of the last call's, so the bar grows call by call, and the
+  // running total, since every call pays for the whole conversation again.
   var bar = root.querySelector(".lvc-meter-bar i");
   var barN = root.querySelector(".lvc-meter-n");
   var barN0 = barN ? barN.textContent : "";
@@ -544,7 +545,12 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   function meter(k) {
     if (!bar) return;
     bar.style.width = k < 0 ? "0%" : (100 * turns[k].n / most).toFixed(1) + "%";
-    barN.textContent = k < 0 ? "0 tokens sent" : turns[k].tokens + " tokens on call " + (k + 1);
+    var sum = 0;
+    for (var j = 0; j <= k; j++) sum += turns[j].n;
+    // Each half keeps its words together; a narrow screen breaks at the dot.
+    function keep(s) { return s.replace(/ /g, " "); }
+    barN.textContent = k < 0 ? "0 tokens sent" :
+      keep(turns[k].tokens + " tokens on call " + (k + 1)) + " · " + keep(sum.toLocaleString("en-US") + " sent so far");
   }
   function chip(role, text) {
     var li = document.createElement("li");
@@ -597,7 +603,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     });
     at(3200, function () {
       say(turns.length + " turns", "answered: the tests pass");
-      if (convo) meta.textContent = meta0;
+      if (convo) { meta.textContent = meta0; if (barN) barN.textContent = barN0; }
     });
     at(0, function () { light(-1); move(0); say(rest0[0], rest0[1]); });
   }
