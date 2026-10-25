@@ -585,7 +585,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
           meter(k);
           meta.textContent = "Call " + (k + 1) + " sends all " + tn.sent + (tn.sent === 1 ? " message, " : " messages, ") + tn.tokens + " tokens";
           timers.push(setTimeout(function () {
-            sendAll(false); chip("assistant", tn.reply); meta.textContent = "The model's reply is appended";
+            sendAll(false); chip("model", tn.reply); meta.textContent = "The model's reply is appended";
           }, 1600));
         }
       });

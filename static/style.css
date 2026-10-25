@@ -3380,7 +3380,7 @@ body::after {
 }
 .lvc-convo-msgs b { font-weight: 700; color: var(--role); margin-right: 0.25rem; }
 .lvc-convo-msgs .is-user { --role: var(--stage-1); }
-.lvc-convo-msgs .is-assistant { --role: var(--stage-2); }
+.lvc-convo-msgs .is-model { --role: var(--stage-2); }
 .lvc-convo-msgs .is-tool { --role: var(--stage-3); }
 .lvc-convo-msgs li.is-sent { border-color: var(--stage-2); border-left-color: var(--role); background: var(--accent-wash, var(--panel)); color: var(--ivory); }
 .lvc-convo-msgs li.is-new { animation: lvc-slide 0.4s ease-out both; }
