@@ -508,16 +508,32 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     if (e.detail >= 0) { hovered = true; show(e.detail); } else { hovered = false; rest(); }
   });
   root.addEventListener("focusout", rest);
-  // One lap when the section first comes into view, then rest at stage 1.
+  // When the ring first comes into view it unfolds in loop order: the
+  // track draws, then each stage appears and the arc from it draws out
+  // to the next, its arrowhead showing as it arrives (style.css times
+  // each part). Then it makes one lap and rests at stage 1. With reduced
+  // motion, or without script, it is simply there.
   if (!still.matches && "IntersectionObserver" in window) {
+    var arcs = root.querySelectorAll(".lvc-arc");
+    var unfold = 3100;
+    root.classList.add("is-folded");
     var seen = new IntersectionObserver(function (entries) {
       if (!entries[0].isIntersecting) return;
       seen.disconnect();
+      root.classList.remove("is-folded");
+      root.classList.add("is-unfolding");
+      [900, 1450, 2000, 2550].forEach(function (t, k) {
+        timers.push(setTimeout(function () { arcs[k].classList.add("is-drawn"); }, t));
+      });
+      setTimeout(function () {
+        root.classList.remove("is-unfolding");
+        Array.prototype.forEach.call(arcs, function (a) { a.classList.remove("is-drawn"); });
+      }, unfold + 200);
       if (hovered || root.contains(document.activeElement)) return;
       [1, 2, 3, 0].forEach(function (i, n) {
-        timers.push(setTimeout(function () { light(i); move(i, 900, true); }, 500 + n * 1100));
+        timers.push(setTimeout(function () { light(i); move(i, 900, true); }, unfold + 500 + n * 1100));
       });
-      timers.push(setTimeout(function () { light(-1); }, 500 + 4 * 1100 + 300));
+      timers.push(setTimeout(function () { light(-1); }, unfold + 500 + 4 * 1100 + 300));
     }, { threshold: 0.6 });
     seen.observe(root.querySelector(".lvc-ring"));
   }

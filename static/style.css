@@ -3296,3 +3296,46 @@ body::after {
 .sf-kicker { font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--soft); }
 .sf-kicker a { color: inherit; }
 .sf-kicker a:hover { color: var(--amber); }
+
+/* The ring unfolding (base.html adds is-folded, then is-unfolding when
+   it comes into view): the track draws, then stage by stage the node
+   pops in, its label and list row appear, and the arc to the next stage
+   draws out, its arrowhead held back until the arc arrives. */
+@keyframes lvc-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes lvc-pop { from { opacity: 0; transform: scale(0.2); } to { opacity: 1; transform: none; } }
+@keyframes lvc-fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@keyframes lvc-slide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+.loopv-c:is(.is-folded, .is-unfolding) :is(.lvc-track, .lvc-arc) { stroke-dasharray: 1 1; vector-effect: none; } /* non-scaling strokes ignore pathLength in dashes */
+.loopv-c.is-folded :is(.lvc-track, .lvc-arc) { stroke-dashoffset: 1; }
+.loopv-c:is(.is-folded, .is-unfolding) .lvc-arc:not(.is-drawn) { marker-end: none; }
+.loopv-c.is-folded :is(.lvc-node, .lvc-label, .lvc-center, .lvc-sub, .lvc-marker, .lvc-list > li, figcaption) { opacity: 0; }
+.loopv-c .lvc-node { transform-box: fill-box; transform-origin: center; }
+.loopv-c.is-unfolding .lvc-track { animation: lvc-draw 0.9s ease-out both; }
+.loopv-c.is-unfolding .lvc-arc { animation: lvc-draw 0.5s ease-in-out both; }
+.loopv-c.is-unfolding .lvc-arc:nth-of-type(1) { animation-delay: 0.4s; }
+.loopv-c.is-unfolding .lvc-arc:nth-of-type(2) { animation-delay: 0.95s; }
+.loopv-c.is-unfolding .lvc-arc:nth-of-type(3) { animation-delay: 1.5s; }
+.loopv-c.is-unfolding .lvc-arc:nth-of-type(4) { animation-delay: 2.05s; }
+.loopv-c.is-unfolding .lvc-node { animation: lvc-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.loopv-c.is-unfolding .lvc-node:nth-of-type(2) { animation-delay: 0.25s; }
+.loopv-c.is-unfolding .lvc-node:nth-of-type(3) { animation-delay: 0.85s; }
+.loopv-c.is-unfolding .lvc-node:nth-of-type(4) { animation-delay: 1.4s; }
+.loopv-c.is-unfolding .lvc-node:nth-of-type(5) { animation-delay: 1.95s; }
+.loopv-c.is-unfolding .lvc-label { animation: lvc-fade 0.4s ease-out both; }
+.loopv-c.is-unfolding .lvc-label[data-i="0"] { animation-delay: 0.4s; }
+.loopv-c.is-unfolding .lvc-label[data-i="1"] { animation-delay: 1s; }
+.loopv-c.is-unfolding .lvc-label[data-i="2"] { animation-delay: 1.55s; }
+.loopv-c.is-unfolding .lvc-label[data-i="3"] { animation-delay: 2.1s; }
+.loopv-c.is-unfolding .lvc-list > li { animation: lvc-slide 0.45s ease-out both; }
+.loopv-c.is-unfolding .lvc-list > li:nth-child(1) { animation-delay: 0.3s; }
+.loopv-c.is-unfolding .lvc-list > li:nth-child(2) { animation-delay: 0.9s; }
+.loopv-c.is-unfolding .lvc-list > li:nth-child(3) { animation-delay: 1.45s; }
+.loopv-c.is-unfolding .lvc-list > li:nth-child(4) { animation-delay: 2s; }
+.loopv-c.is-unfolding :is(.lvc-center, .lvc-sub) { animation: lvc-fade 0.6s ease-out 2.45s both; }
+.loopv-c.is-unfolding figcaption { animation: lvc-fade 0.5s ease-out 2.65s both; }
+@keyframes lvc-appear { from { opacity: 0; } to { opacity: 1; } }
+.loopv-c.is-unfolding .lvc-marker { animation: lvc-appear 0.4s ease-out 2.8s both; }
+@media (prefers-reduced-motion: reduce) {
+  .loopv-c.is-folded :is(.lvc-node, .lvc-label, .lvc-center, .lvc-sub, .lvc-marker, .lvc-list > li, figcaption) { opacity: 1; }
+  .loopv-c.is-unfolding * { animation: none !important; }
+}
