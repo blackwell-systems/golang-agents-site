@@ -91,13 +91,37 @@
       <option value="catppuccin-latte">Catppuccin Latte</option>
       </select>
     </label>
-    <nav class="site-nav" aria-label="Sections">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-panel" aria-label="Menu" hidden><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path class="menu-lines" d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="menu-x" d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <nav class="site-nav" id="site-nav" aria-label="Sections">
       <ul>
         {{- range .Nav}}
         <li><a href="{{.URL}}"{{if .Current}} aria-current="page"{{end}}{{if eq .URL "/book/"}} class="nav-book"{{else if eq .URL "/start/"}} class="nav-start"{{end}}>{{.Title}}</a></li>
         {{- end}}
       </ul>
     </nav>
+  </div>
+  <div class="menu-panel" id="menu-panel" hidden>
+    <div class="wrap menu-inner">
+      <div class="menu-main">
+        <a class="menu-search" href="/search/"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Search the site</span></a>
+        <a class="menu-start" href="/start/"{{if eq .Page.URL "/start/"}} aria-current="page"{{end}}><span class="menu-start-title">Start here</span><span class="menu-start-desc">{{len .Site.Paths}} reading paths, picked by why you’re here</span>{{icon "arrow"}}</a>
+        <p class="menu-label">Sections</p>
+        <ul class="menu-sections">
+          {{- range .Site.Sections}}
+          <li><a href="/{{.Dir}}/"{{if eq .Dir $.Page.Section}} aria-current="page"{{end}}>{{icon .Icon}}<span class="menu-sec-title">{{.Title}}</span><span class="menu-sec-count">{{len .Pages}}</span></a></li>
+          {{- end}}
+        </ul>
+      </div>
+      <div class="menu-side">
+        <p class="menu-label">Reference</p>
+        <ul class="menu-ref">
+          <li><a href="/guides/"{{if eq .Page.URL "/guides/"}} aria-current="page"{{end}}>All guides, by loop stage</a></li>
+          <li><a href="/glossary/"{{if eq .Page.URL "/glossary/"}} aria-current="page"{{end}}>Glossary</a></li>
+          <li><a href="/work-with-me/"{{if eq .Page.URL "/work-with-me/"}} aria-current="page"{{end}}>Work with me</a></li>
+        </ul>
+        <a class="menu-book" href="/book/"><picture><source type="image/avif" srcset="/img/cover-360.avif"><source type="image/webp" srcset="/img/cover-360.webp"><img src="/img/cover-720.jpg" alt="" width="72" height="108" loading="lazy" decoding="async"></picture><span class="menu-book-text"><span class="menu-book-eyebrow">The book</span><span class="menu-book-title">Building AI Agents in Go</span><span class="menu-book-cta">About the book {{icon "arrow"}}</span></span></a>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -375,6 +399,37 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     pre.parentNode.insertBefore(box, pre);
     box.appendChild(pre);
     box.appendChild(b);
+  });
+})();
+// The menu on narrow screens: without JavaScript the sections stay a
+// row that scrolls sideways; with it, a button opens a panel under the
+// header and the page behind it stops scrolling. Escape, a click
+// outside, a link, or a wider window closes it.
+(function () {
+  var header = document.querySelector(".site-header");
+  var button = header && header.querySelector(".menu-toggle");
+  var panel = document.getElementById("menu-panel");
+  if (!button || !panel) return;
+  header.classList.add("has-menu");
+  button.hidden = false;
+  function open() { return !panel.hidden; }
+  function set(on) {
+    panel.hidden = !on;
+    header.classList.toggle("menu-open", on);
+    document.documentElement.classList.toggle("menu-locked", on);
+    button.setAttribute("aria-expanded", String(on));
+    button.setAttribute("aria-label", on ? "Close menu" : "Menu");
+  }
+  button.addEventListener("click", function () { set(!open()); });
+  panel.addEventListener("click", function (e) { if (e.target.closest("a")) set(false); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && open()) { set(false); button.focus(); }
+  });
+  document.addEventListener("click", function (e) {
+    if (open() && !header.contains(e.target)) set(false);
+  });
+  window.matchMedia("(min-width: 80rem)").addEventListener("change", function (e) {
+    if (e.matches) set(false);
   });
 })();
 // The agent loop's ring (loopring.html, placed by a loop token in a

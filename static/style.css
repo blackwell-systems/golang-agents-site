@@ -3142,3 +3142,137 @@ body::after {
   .errc-own, .errc-query code { font-size: var(--fs-xs); }
   .errc-type { font-size: var(--fs-sm); }
 }
+
+/* The narrow-screen menu (base.html): a round button like search and
+   theme, and a panel under the header: search, Start here, the
+   sections with their icons and guide counts, reference links, and the
+   book. Only with JavaScript (has-menu); without it the scrolling row
+   stays. */
+.menu-toggle { display: none; }
+.menu-panel[hidden] { display: none; }
+@media (max-width: 79.99rem) {
+  .site-header.has-menu .site-nav { display: none; }
+  .site-header.has-menu .menu-toggle {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    order: 4;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-left: 0.5rem;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: none;
+    color: var(--stone);
+    cursor: pointer;
+  }
+  .site-header.has-menu .menu-toggle:hover,
+  .site-header.has-menu .menu-toggle[aria-expanded="true"] { color: var(--ivory); border-color: var(--amber-dim); }
+  .menu-toggle .menu-x { display: none; }
+  .menu-toggle[aria-expanded="true"] .menu-lines { display: none; }
+  .menu-toggle[aria-expanded="true"] .menu-x { display: inline; }
+  html.menu-locked { overflow: hidden; }
+}
+.menu-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: calc(100dvh - 3.75rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--night);
+  border-bottom: 1px solid var(--line);
+  animation: menu-in 180ms ease-out;
+}
+@keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .menu-panel { animation: none; } }
+.menu-inner { display: grid; gap: var(--space-5); padding-block: var(--space-4) var(--space-5); }
+@media (min-width: 48rem) { .menu-inner { grid-template-columns: 3fr 2fr; gap: var(--space-7); } }
+.menu-search {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
+  color: var(--soft);
+  font: 500 var(--fs-sm) var(--label);
+  text-decoration: none;
+}
+.menu-search:hover { border-color: var(--amber-dim); color: var(--ivory); }
+.menu-start {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--amber);
+  border-radius: var(--radius);
+  background: var(--panel);
+  text-decoration: none;
+}
+.menu-start:hover { border-color: var(--amber-dim); border-top-color: var(--amber); }
+.menu-start-title { font: 600 1.05rem var(--label); color: var(--ivory); }
+.menu-start-desc { grid-column: 1; font-size: var(--fs-sm); color: var(--soft); }
+.menu-start .icon { grid-column: 2; grid-row: 1 / span 2; width: 1.1rem; height: 1.1rem; color: var(--amber); }
+.menu-label {
+  margin: var(--space-5) 0 var(--space-2);
+  font: 600 var(--fs-label) var(--label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.menu-side > .menu-label:first-child { margin-top: 0; }
+@media (max-width: 47.99rem) { .menu-side > .menu-label:first-child { margin-top: 0; } }
+.menu-sections, .menu-ref { list-style: none; margin: 0; padding: 0; }
+.menu-sections a {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.5rem 0.65rem 0.6rem;
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--stone);
+  font: 500 1rem var(--label);
+  text-decoration: none;
+}
+.menu-sections .icon { width: 1.15rem; height: 1.15rem; color: var(--soft); }
+.menu-sections a:hover { color: var(--ivory); }
+.menu-sections a:hover .icon { color: var(--amber); }
+.menu-sections a[aria-current="page"] { border-left-color: var(--amber); color: var(--ivory); }
+.menu-sections a[aria-current="page"] .icon { color: var(--amber); }
+.menu-sec-count { font: 500 var(--fs-xs) var(--mono); color: var(--soft); }
+.menu-ref a {
+  display: block;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--stone);
+  font: 500 1rem var(--label);
+  text-decoration: none;
+}
+.menu-ref a:hover, .menu-ref a[aria-current="page"] { color: var(--ivory); }
+.menu-book {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  text-decoration: none;
+}
+.menu-book:hover { border-color: var(--amber-dim); }
+.menu-book picture { flex: none; line-height: 0; }
+.menu-book img { width: 54px; height: auto; border-radius: 3px; }
+.menu-book-text { display: grid; gap: 0.15rem; }
+.menu-book-eyebrow { font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--soft); }
+.menu-book-title { font: 600 1rem var(--label); color: var(--ivory); }
+.menu-book-cta { font: 600 var(--fs-sm) var(--label); color: var(--amber); }
+.menu-book-cta .icon { width: 0.9em; height: 0.9em; vertical-align: -0.1em; }
