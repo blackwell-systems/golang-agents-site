@@ -1,6 +1,6 @@
 ---
 title: What this guide and the book leave out, and why
-short: Scope
+short: What this covers
 description: The ground this site and Building AI Agents in Go cover, the topics the site covers beyond the book, such as retrieval and memory between sessions, the topics both leave out on purpose, such as multi-agent planning, and why, so you can tell before reading whether they answer your question.
 layout: page
 ---
