@@ -44,7 +44,7 @@ done
 
 # The cards: the site's own 3:2 art, from art/ in this repository,
 # including the 404 page's.
-for name in path-learning path-shipping path-leading path-complete not-found; do
+for name in path-learning path-shipping path-leading path-go path-complete not-found; do
 	in=$site/art/$name.png
 	[ -f "$in" ] || { echo "art: no $in" >&2; exit 1; }
 	for w in 480 960; do
@@ -61,7 +61,7 @@ done
 # sizes. Their names and alt text are in cmd/build/art.go.
 for in in "$site"/art/*.png; do
 	name=$(basename "$in" .png)
-	case $name in path-* | not-found) continue ;; esac
+	case $name in path-* | not-found | gopher-*) continue ;; esac
 	for w in 480 720 1080; do
 		png=$tmp/$name-$w.png
 		magick "$in" -alpha off -colorspace sRGB -filter Lanczos -resize "${w}x" -strip "$png"

@@ -99,6 +99,7 @@ var arts = map[string]artwork{
 	"section-production":    plate("At night beside a great barred stone door, the Ghost, a stone android, stands guard with one hand on the heavy bar while the Gopher keeps a tally of plain marks at a stone desk by lantern light."),
 	"section-build":         plate("On a wooden scaffold high on the monument, the kneeling Ghost, a stone android, holds a great curved stone segment of a ring steady while the Gopher, on the top plank, taps it into place with a mallet beside a hanging lantern."),
 	"section-basics":        plate("At the foot of the monument's great stairs, the kneeling Ghost, a stone android, holds a lantern low while the Gopher, a clipboard under one arm, steps onto the first stair and looks up the long climb toward the lit rings."),
+	"path-go":               card("In a workshop alcove at the foot of the monument, the Gopher turns a wrench over in the lantern light above an open toolbox, while the kneeling Ghost, a stone android, holds out the next tool on its palm."),
 	"path-complete":         card("On a terrace at the top of the stairs, the kneeling Ghost, a stone android, holds the Gopher on its open palm, the Gopher's clipboard fully ticked, beside a lantern, with lit towers and stairs far below."),
 	"gopher": {
 		Alt:    "The Gopher, the site's mascot, with its clipboard.",

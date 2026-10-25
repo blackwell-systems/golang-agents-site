@@ -68,14 +68,15 @@ Guides: [prompt injection and sandboxing](/production/prompt-injection/), and [h
 18. **Tools sandboxed, and keys out of their reach.** Run test code with no network and no access outside its workspace, and read keys from files, not the environment: recorded measurements showed that test code could read the harness's starting environment, key included.
 19. **Defenses that don't depend on the model**, strongest first: no tool for an action the agent shouldn't take, protected paths that remember each denial by the file it targets, however the path is spelled, an [egress check](/production/prompt-injection/) on every text that leaves the machine, and untrusted text marked as data. An agent [tried three other spellings](/findings/measured-mistakes/#denial) of a file it had been refused, with no attacker involved. If it uses MCP, pin each server's tool definitions; [one sentence in a description](/findings/measured-mistakes/#poisoned) steered 79 of 80 first moves ([the full finding](/findings/tool-description-poisoning/)).
 20. **A person's approval before side effects**, bound to a hash of the exact change they saw, with no answer counted as a denial.
+21. **Credentials scoped to the user and the run.** The agent acts with a short-lived credential for one user and one task, attached by the harness so the model never holds it, checked by the service on every call, and narrowed again for each sub-agent; the audit log names the user, the agent, the run, and the credential ([agent identity](/production/agent-identity/)).
 
 ## It survives its own crash
 
 Guides: [durable runs](/production/durable-runs/), and [an agent as a service](/production/agent-as-a-service/) for shutdown and deployment.
 
-21. **A checkpoint after each reply and each tool result**, written so a crash leaves a whole file, with a lock so only one process runs a run.
-22. **An [idempotency key](/glossary/#idempotency-key) on every call that changes something**, made from the run ID and the call ID, and an [attempt marker](/glossary/#attempt-marker) written before each such call. [Saving once per turn duplicated work at 8 of 18 crash points](/findings/measured-mistakes/#save-per-turn); keys and markers together left none.
-23. **A shutdown that cancels instead of waiting.** On SIGTERM, cancel the run with a cause and save, inside the platform's grace period: Kubernetes allows 30 seconds by default, and one model call in recorded runs took 27.5 seconds.
+22. **A checkpoint after each reply and each tool result**, written so a crash leaves a whole file, with a lock so only one process runs a run.
+23. **An [idempotency key](/glossary/#idempotency-key) on every call that changes something**, made from the run ID and the call ID, and an [attempt marker](/glossary/#attempt-marker) written before each such call. [Saving once per turn duplicated work at 8 of 18 crash points](/findings/measured-mistakes/#save-per-turn); keys and markers together left none.
+24. **A shutdown that cancels instead of waiting.** On SIGTERM, cancel the run with a cause and save, inside the platform's grace period: Kubernetes allows 30 seconds by default, and one model call in recorded runs took 27.5 seconds.
 
 None of these needs a framework.
 Each is a small piece of Go, with its tests written alongside it.
