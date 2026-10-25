@@ -3276,3 +3276,6 @@ body::after {
 .menu-book-title { font: 600 1rem var(--label); color: var(--ivory); }
 .menu-book-cta { font: 600 var(--fs-sm) var(--label); color: var(--amber); }
 .menu-book-cta .icon { width: 0.9em; height: 0.9em; vertical-align: -0.1em; }
+
+/* The ring scrolls a section page to its filter; keep it clear of the sticky header. */
+.stage-filter { scroll-margin-top: calc(var(--header-h, 3.75rem) + 1rem); }

@@ -501,7 +501,17 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   Array.prototype.forEach.call(nodes, function (g, i) {
     g.addEventListener("pointerenter", function () { hovered = true; show(i); });
     g.addEventListener("pointerleave", function () { hovered = false; rest(); });
-    g.addEventListener("click", function () { items[i].querySelector("a").click(); });
+    // On a page with a stage filter (a section page), the ring's nodes
+    // filter its guides instead of opening a stage's guide.
+    g.addEventListener("click", function () {
+      var filter = document.querySelector(".stage-filter");
+      if (filter && !filter.hidden) {
+        document.dispatchEvent(new CustomEvent("loop:filter", { detail: i }));
+        filter.scrollIntoView({ behavior: still.matches ? "auto" : "smooth", block: "start" });
+        return;
+      }
+      items[i].querySelector("a").click();
+    });
   });
   list.addEventListener("pointerleave", function () { hovered = false; rest(); });
   document.addEventListener("loop:pick", function (e) {
@@ -1154,6 +1164,8 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   buttons.forEach(function (b) {
     b.addEventListener("click", function () { apply(b.getAttribute("data-stage")); });
   });
+  // The loop ring, where a page has one, filters by the stage clicked.
+  document.addEventListener("loop:filter", function (e) { apply(String(e.detail + 1)); });
   box.hidden = false;
   var s = new URLSearchParams(location.search).get("stage");
   apply(/^[1-4]$/.test(s) ? s : "all");
