@@ -3378,6 +3378,7 @@ body::after {
   color: var(--role);
   cursor: default;
 }
+.lvc-msg.is-tools { --role: var(--soft); }
 .lvc-msg.is-user { --role: var(--stage-1); }
 .lvc-msg.is-model { --role: var(--stage-2); }
 .lvc-msg.is-tool { --role: var(--stage-3); }

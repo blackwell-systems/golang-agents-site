@@ -552,7 +552,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     function at(ms, fn) { timers.push(setTimeout(fn, t)); t += ms; }
     if (calls.length) {
       reveal(-1);
-      meta.textContent = "Each call sends the whole conversation again";
+      meta.textContent = "Every call sends the tool list and the whole conversation again";
       sum(-1);
     }
     turns.forEach(function (tn, k) {
@@ -566,8 +566,8 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
         reveal(k);
         sum(k);
         var fresh = k ? tn.sent - turns[k - 1].sent : tn.sent;
-        meta.textContent = k ? "Call " + (k + 1) + " sends all " + tn.sent + " messages: the " + turns[k - 1].sent +
-          " call " + k + " sent, plus " + fresh + " new" : "Call 1 sends the one message there is";
+        meta.textContent = k ? "Call " + (k + 1) + " sends the tool list and all " + tn.sent + " messages: the " + turns[k - 1].sent +
+          " call " + k + " sent, plus " + fresh + " new" : "Call 1 sends the tool list and the one message there is";
       });
       at(1300, function () { say(turn, tn.tools || "no tool calls"); light(2); move(2, 800, true); });
       at(1150, function () { say(turn, k < turns.length - 1 ? "go around again" : "an answer: stop"); light(3); move(3, 800, true); });
