@@ -518,6 +518,25 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     if (e.detail >= 0) { hovered = true; show(e.detail); } else { hovered = false; rest(); }
   });
   root.addEventListener("focusout", rest);
+  // On a section page (one with a stage filter), the compass names the
+  // section in its middle and says what clicking a stage does; stages
+  // none of the section's guides work on are dimmed.
+  if (document.querySelector(".stage-filter")) {
+    var used = [false, false, false, false];
+    document.querySelectorAll("li[data-stage]").forEach(function (li) {
+      var st = li.getAttribute("data-stage");
+      if (/^[1-4]$/.test(st)) used[st - 1] = true;
+    });
+    var title = document.querySelector("h1");
+    var center = root.querySelector(".lvc-center");
+    var sub = root.querySelector(".lvc-sub");
+    if (title && center) center.textContent = title.textContent.trim();
+    if (sub) sub.textContent = "pick a stage to filter";
+    root.classList.add("is-section");
+    Array.prototype.forEach.call(nodes, function (g, k) {
+      if (!used[k]) g.classList.add("is-empty");
+    });
+  }
   // One lap when the section first comes into view, then rest at stage 1.
   if (!still.matches && "IntersectionObserver" in window) {
     var seen = new IntersectionObserver(function (entries) {

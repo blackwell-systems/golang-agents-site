@@ -3283,3 +3283,7 @@ body::after {
 
 /* The ring scrolls a section page to its filter; keep it clear of the sticky header. */
 .stage-filter { scroll-margin-top: calc(var(--header-h, 3.75rem) + 1rem); }
+
+/* The compass on a section page: a stage none of the section's guides
+   work on is dimmed. */
+.loopv-c.is-section .lvc-node.is-empty { opacity: 0.35; }
