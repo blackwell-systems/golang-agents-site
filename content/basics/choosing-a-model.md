@@ -6,6 +6,7 @@ card: Tool support, cost per finished task, reasoning models, local models, and 
 group: Tools and the model
 chapters: 2, 11, 13, 17
 level: beginner
+stage: 2
 date: 2026-10-19
 weight: 70
 art: choosing-a-model

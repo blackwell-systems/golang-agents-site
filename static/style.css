@@ -3284,6 +3284,15 @@ body::after {
 /* The ring scrolls a section page to its filter; keep it clear of the sticky header. */
 .stage-filter { scroll-margin-top: calc(var(--header-h, 3.75rem) + 1rem); }
 
-/* The compass on a section page: a stage none of the section's guides
-   work on is dimmed. */
-.loopv-c.is-section .lvc-node.is-empty { opacity: 0.35; }
+
+/* The stage filter's compass (base.html, section pages and All guides):
+   the guide header's compass, a little larger, showing the stage picked
+   (all four under All); its nodes filter too. */
+.sf-head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+.sf-compass { width: 3.5rem; height: 3.5rem; }
+.sf-compass .compass-node { cursor: pointer; }
+.sf-compass .compass-node.is-picked .compass-halo { opacity: 0.9; }
+.sf-head-text p { margin: 0; }
+.sf-kicker { font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--soft); }
+.sf-kicker a { color: inherit; }
+.sf-kicker a:hover { color: var(--amber); }

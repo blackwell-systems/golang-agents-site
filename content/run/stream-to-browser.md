@@ -6,6 +6,7 @@ card: An agent's progress streamed to a web page with net/http and server-sent e
 kind: Example
 chapters: 6
 level: intermediate
+stage: all
 date: 2026-10-18
 weight: 30
 art: ch06

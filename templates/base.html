@@ -501,42 +501,13 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   Array.prototype.forEach.call(nodes, function (g, i) {
     g.addEventListener("pointerenter", function () { hovered = true; show(i); });
     g.addEventListener("pointerleave", function () { hovered = false; rest(); });
-    // On a page with a stage filter (a section page), the ring's nodes
-    // filter its guides instead of opening a stage's guide.
-    g.addEventListener("click", function () {
-      var filter = document.querySelector(".stage-filter");
-      if (filter && !filter.hidden) {
-        document.dispatchEvent(new CustomEvent("loop:filter", { detail: i }));
-        filter.scrollIntoView({ behavior: still.matches ? "auto" : "smooth", block: "start" });
-        return;
-      }
-      items[i].querySelector("a").click();
-    });
+    g.addEventListener("click", function () { items[i].querySelector("a").click(); });
   });
   list.addEventListener("pointerleave", function () { hovered = false; rest(); });
   document.addEventListener("loop:pick", function (e) {
     if (e.detail >= 0) { hovered = true; show(e.detail); } else { hovered = false; rest(); }
   });
   root.addEventListener("focusout", rest);
-  // On a section page (one with a stage filter), the compass names the
-  // section in its middle and says what clicking a stage does; stages
-  // none of the section's guides work on are dimmed.
-  if (document.querySelector(".stage-filter")) {
-    var used = [false, false, false, false];
-    document.querySelectorAll("li[data-stage]").forEach(function (li) {
-      var st = li.getAttribute("data-stage");
-      if (/^[1-4]$/.test(st)) used[st - 1] = true;
-    });
-    var title = document.querySelector("h1");
-    var center = root.querySelector(".lvc-center");
-    var sub = root.querySelector(".lvc-sub");
-    if (title && center) center.textContent = title.textContent.trim();
-    if (sub) sub.textContent = "pick a stage to filter";
-    root.classList.add("is-section");
-    Array.prototype.forEach.call(nodes, function (g, k) {
-      if (!used[k]) g.classList.add("is-empty");
-    });
-  }
   // One lap when the section first comes into view, then rest at stage 1.
   if (!still.matches && "IntersectionObserver" in window) {
     var seen = new IntersectionObserver(function (entries) {
@@ -1173,6 +1144,13 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     buttons.forEach(function (b) {
       b.setAttribute("aria-pressed", b.getAttribute("data-stage") === stage ? "true" : "false");
     });
+    box.querySelectorAll(".sf-compass .compass-node").forEach(function (n) {
+      n.classList.toggle("is-on", stage === "all" || n.getAttribute("data-stage") === stage);
+      n.classList.toggle("is-picked", n.getAttribute("data-stage") === stage);
+    });
+    box.querySelectorAll(".sf-compass .compass-arc").forEach(function (a) {
+      a.classList.toggle("is-on", stage === "all" || a.getAttribute("data-into") === stage);
+    });
     count.textContent = stage === "all" ? cards.length + " guides"
       : mine + (mine === 1 ? " guide" : " guides") + " for this stage, then " +
         every + " that cover every stage";
@@ -1183,8 +1161,10 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   buttons.forEach(function (b) {
     b.addEventListener("click", function () { apply(b.getAttribute("data-stage")); });
   });
-  // The loop ring, where a page has one, filters by the stage clicked.
-  document.addEventListener("loop:filter", function (e) { apply(String(e.detail + 1)); });
+  // The small compass beside the buttons filters too.
+  box.querySelectorAll(".sf-compass .compass-node").forEach(function (n) {
+    n.addEventListener("click", function () { apply(n.getAttribute("data-stage")); });
+  });
   box.hidden = false;
   var s = new URLSearchParams(location.search).get("stage");
   apply(/^[1-4]$/.test(s) ? s : "all");
@@ -1199,7 +1179,23 @@ until the script at the end of the page shows it, so a reader without
 script sees every guide. */}}
 {{define "stagefilter" -}}
     <div class="stage-filter" hidden>
-      <p class="stage-filter-title" id="sf-title">Show guides by loop stage</p>
+      <div class="sf-head">
+        <svg class="compass sf-compass" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <circle class="compass-track" cx="24" cy="24" r="17"/>
+          <path class="compass-arc" data-into="2" style="--st: var(--stage-2)" d="M24 7A17 17 0 0 1 41 24" pathLength="1"/>
+          <path class="compass-arc" data-into="3" style="--st: var(--stage-3)" d="M41 24A17 17 0 0 1 24 41" pathLength="1"/>
+          <path class="compass-arc" data-into="4" style="--st: var(--stage-4)" d="M24 41A17 17 0 0 1 7 24" pathLength="1"/>
+          <path class="compass-arc" data-into="1" style="--st: var(--stage-1)" d="M7 24A17 17 0 0 1 24 7" pathLength="1"/>
+          <g class="compass-node" data-stage="1" style="--st: var(--stage-1)"><circle class="compass-halo" cx="24" cy="7" r="6.5"/><circle cx="24" cy="7" r="3.6"/></g>
+          <g class="compass-node" data-stage="2" style="--st: var(--stage-2)"><circle class="compass-halo" cx="41" cy="24" r="6.5"/><circle cx="41" cy="24" r="3.6"/></g>
+          <g class="compass-node" data-stage="3" style="--st: var(--stage-3)"><circle class="compass-halo" cx="24" cy="41" r="6.5"/><circle cx="24" cy="41" r="3.6"/></g>
+          <g class="compass-node" data-stage="4" style="--st: var(--stage-4)"><circle class="compass-halo" cx="7" cy="24" r="6.5"/><circle cx="7" cy="24" r="3.6"/></g>
+        </svg>
+        <div class="sf-head-text">
+          <p class="stage-filter-title" id="sf-title">Show guides by loop stage</p>
+          <p class="sf-kicker">On the <a href="/#loop-ring">agent compass</a></p>
+        </div>
+      </div>
       <div class="stage-filter-row" role="group" aria-labelledby="sf-title">
         <button type="button" data-stage="all" aria-pressed="true">All</button>
         {{- range .Site.StageItems}}

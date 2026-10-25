@@ -6,6 +6,7 @@ card: Where Go's standard tools did an agent's work in the book's code, with num
 group: Why Go
 chapters: 5, 9, 11, 12, 15, 16
 level: beginner
+stage: all
 date: 2026-10-18
 weight: 5
 art: why-go

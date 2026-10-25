@@ -6,6 +6,7 @@ card: Every SDK and framework the book's code uses, with its version, its streng
 group: Libraries and frameworks
 chapters: 4, 10, 11, 12, 16
 level: intermediate
+stage: all
 date: 2026-10-18
 weight: 30
 art: ch16
