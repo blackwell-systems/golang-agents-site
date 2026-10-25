@@ -10,7 +10,7 @@ New to Go? Finish the [Tour of Go](https://go.dev/tour/) first; [Getting set up]
 
 Pick the path that matches why you're here; every guide on it links to the next step.
 
-<ul class="path-choose"><li><a href="#newcomer">{{art path-learning card}}<span class="choose-title">Learning how agents work</span><span class="choose-desc">You write Go and have never built an agent.</span></a></li><li><a href="#builder">{{art path-shipping card}}<span class="choose-title">Shipping an agent at work</span><span class="choose-desc">You know the loop and have a deadline.</span></a></li><li><a href="#lead">{{art path-leading card}}<span class="choose-title">Leading a team</span><span class="choose-desc">You decide whether a team spends its time here.</span></a></li><li><a href="#go">{{art path-go card}}<span class="choose-title">Strengthening the Go</span><span class="choose-desc">You know Go from the Tour and want the parts agents lean on.</span></a></li></ul>
+<ul class="path-choose"><li><a href="#newcomer">{{art path-learning card}}<span class="choose-title">Learning how agents work</span><span class="choose-desc">You write Go and have never built an agent.</span></a></li><li><a href="#builder">{{art path-shipping card}}<span class="choose-title">Shipping an agent at work</span><span class="choose-desc">You know the loop and have a deadline.</span></a></li><li><a href="#lead">{{art path-leading card}}<span class="choose-title">Leading a team</span><span class="choose-desc">You decide whether a team spends its time here.</span></a></li><li><a href="#go">{{art path-go card}}<span class="choose-title">The Go underneath</span><span class="choose-desc">You know Go from the Tour and want the parts agents lean on.</span></a></li></ul>
 
 ```path
 id: newcomer
@@ -41,7 +41,7 @@ step: /production/testing-offline/
 phase: See where it leads | A finished agent, measured on real tasks.
 step: /findings/the-finished-agent/
 
-For a Go developer who has never built an agent: set up, make a first model call, build an agent from scratch, then learn what it costs, how to design its tools, and how to test it. If a guide's Go is unfamiliar, the Strengthening the Go path covers the parts it uses.
+For a Go developer who has never built an agent: set up, make a first model call, build an agent from scratch, then learn what it costs, how to design its tools, and how to test it. If a guide's Go is unfamiliar, the Go underneath path covers the parts it uses.
 ```
 
 ```path
@@ -99,7 +99,7 @@ For whoever decides whether a team spends its time here: what the work costs, wh
 
 ```path
 id: go
-title: Strengthening the Go
+title: The Go underneath
 phase: Control and failure | How a run is stopped, and how every failure is named and routed.
 step: /go/context/
 step: /go/errors/
