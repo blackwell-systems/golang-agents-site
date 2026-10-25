@@ -3345,46 +3345,61 @@ body::after {
   .loopv-c.is-unfolding * { animation: none !important; }
 }
 
-/* The conversation strip under the ring (loopring.html): one chip per
-   message of the recorded run, colored by who wrote it. During the
-   replay, a call lights every chip, since the whole conversation is
-   sent, and new messages arrive at the end. Without script it shows the
-   conversation after the last call. */
-.loopv-c .lvc-convo { grid-column: 1 / -1; margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--line-soft); }
-.loopv-c .lvc-convo-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.9rem; margin: 0 0 0.6rem; }
-/* The tokens each call sent, as a bar that grows call by call. */
-.loopv-c .lvc-meter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; margin: 0 0 var(--space-3); }
-.lvc-meter-bar { flex: 1 1 8rem; max-width: 18rem; height: 6px; border-radius: 3px; background: var(--line-soft); overflow: hidden; }
-.lvc-meter-bar i { display: block; height: 100%; width: 100%; border-radius: 3px; background: var(--stage-2); transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
-.lvc-meter-n { font: 500 var(--fs-xs) var(--mono); color: var(--stage-2); min-width: 0; }
-.loopv-c .lvc-convo { min-width: 0; }
-@media (prefers-reduced-motion: reduce) { .lvc-meter-bar i { transition: none; } }
-/* On a phone the ring and the strip don't fit on one screen, so each
-   message shrinks to its role and the strip stays a few lines tall. */
-@media (max-width: 40rem) {
-  .lvc-convo-msgs li > span { display: none; }
-  .lvc-convo-msgs b { margin-right: 0; }
-}
+/* The strip under the ring (loopring.html): one row per call of the
+   recorded run, holding every message that call sent, colored by who
+   wrote it. Each row repeats the one above, so the rows grow like
+   stairs; the messages added since the last call are filled in. During
+   the replay a row appears as its call is made (hidden rows keep their
+   space). It comes after the caption, which belongs to the list. */
+.loopv-c .lvc-convo { order: 1; grid-column: 1 / -1; min-width: 0; margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--line-soft); }
+/* The rows, their title and their note make one block, centered under
+   the ring and the list; the note wraps to the rows' width. */
+.lvc-convo-in { width: fit-content; max-width: 100%; margin: 0 auto; }
 .lvc-convo-title { font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--amber); }
-.lvc-convo-meta { font: 500 var(--fs-sm) var(--label); color: var(--soft); }
-.loopv-c .lvc-convo-msgs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; min-height: 2.2rem; }
-.loopv-c .lvc-convo-msgs > li {
-  margin: 0;
-  padding: 0.3rem 0.6rem;
+.lvc-tok { font: 500 var(--fs-xs) var(--mono); color: var(--stage-2); }
+/* The rows share one grid, so the token counts line up just past the
+   longest row. */
+.loopv-c .lvc-calls { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 3.75rem minmax(0, max-content) max-content; justify-content: start; align-items: center; gap: 0.45rem 1rem; }
+.loopv-c .lvc-calls > li { margin: 0; display: contents; }
+/* The first row is the title, with the token column's heading. */
+.lvc-head .lvc-convo-title { grid-column: 1 / 3; margin-bottom: 0.35rem; }
+.lvc-tok-h { margin-bottom: 0.35rem; font: 500 var(--fs-xs) var(--mono); color: var(--soft); text-align: right; }
+.lvc-sum .lvc-tok { padding-top: 0.35rem; border-top: 1px solid var(--line); font-weight: 700; }
+.lvc-call.is-waiting > * { visibility: hidden; }
+.lvc-call.is-new .lvc-msg.is-fresh { animation: lvc-slide 0.45s ease-out both; }
+.lvc-turn { font: 500 var(--fs-xs) var(--mono); color: var(--soft); white-space: nowrap; }
+.lvc-tok { text-align: right; }
+.lvc-msgs { display: flex; flex-wrap: wrap; gap: 0.3rem; min-width: 0; }
+.lvc-msg {
+  padding: 0.2rem 0.5rem;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--role);
   border-radius: 4px;
-  background: var(--panel);
-  font: 500 var(--fs-xs) var(--mono);
-  color: var(--stone);
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  font: 600 var(--fs-xs) var(--mono);
+  color: var(--role);
+  cursor: default;
 }
-.lvc-convo-msgs b { font-weight: 700; color: var(--role); margin-right: 0.25rem; }
-.lvc-convo-msgs .is-user { --role: var(--stage-1); }
-.lvc-convo-msgs .is-model { --role: var(--stage-2); }
-.lvc-convo-msgs .is-tool { --role: var(--stage-3); }
-.lvc-convo-msgs li.is-sent { border-color: var(--stage-2); border-left-color: var(--role); background: var(--accent-wash, var(--panel)); color: var(--ivory); }
-.lvc-convo-msgs li.is-new { animation: lvc-slide 0.4s ease-out both; }
-@media (prefers-reduced-motion: reduce) { .lvc-convo-msgs li { transition: none; } .lvc-convo-msgs li.is-new { animation: none; } }
+.lvc-msg.is-user { --role: var(--stage-1); }
+.lvc-msg.is-model { --role: var(--stage-2); }
+.lvc-msg.is-tool { --role: var(--stage-3); }
+.lvc-msg.is-fresh { border-color: var(--role); background: color-mix(in srgb, var(--role) 16%, transparent); }
+/* Messages sent again stay in the row, softened, so what each call adds
+   stands out; pointing at one brings it back. */
+.lvc-calls .lvc-msg:not(.is-fresh) { opacity: 0.5; filter: saturate(0.55); transition: opacity 0.2s ease, filter 0.2s ease; }
+.lvc-calls .lvc-msg:not(.is-fresh):hover { opacity: 1; filter: none; }
+.loopv-c .lvc-convo-meta { width: 0; min-width: 100%; margin: var(--space-3) 0 0; font: 500 var(--fs-sm) var(--label); color: var(--soft); }
+.loopv-c .lvc-legend { display: none; }
+@media (prefers-reduced-motion: reduce) { .lvc-call.is-new .lvc-msg.is-fresh { animation: none; } }
+/* On a phone a call's ten messages don't fit as words, so each becomes a
+   small block in its role's color, with a legend. */
+@media (max-width: 40rem) {
+  .loopv-c .lvc-calls { grid-template-columns: max-content minmax(0, max-content) max-content; column-gap: 0.75rem; }
+  .lvc-calls .lvc-msg { width: 0.85rem; height: 1.1rem; padding: 0; font-size: 0; border-color: color-mix(in srgb, var(--role) 55%, transparent); }
+  .lvc-calls .lvc-msg.is-fresh { background: var(--role); }
+  .lvc-msgs { gap: 0.2rem; }
+  .lvc-convo-in { width: auto; }
+  .lvc-head .lvc-convo-title { grid-column: 1 / -1; width: 0; min-width: 100%; margin-bottom: 0; }
+  .lvc-tok-h { grid-column: 3; }
+  .loopv-c .lvc-legend { display: flex; gap: 0.9rem; margin: var(--space-3) 0 0; }
+}
 .loopv-c.is-folded .lvc-convo { opacity: 0; }
 .loopv-c.is-unfolding .lvc-convo { animation: lvc-fade 0.5s ease-out 2.7s both; }

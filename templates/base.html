@@ -518,92 +518,63 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   var rest0 = [center.textContent, sub.textContent];
   function say(c, s) { center.textContent = c; sub.textContent = s; }
   // The run, from ch04's recording: each call's tool calls, how many
-  // messages it sent and their tokens, and what was appended after.
+  // messages it sent, and their tokens.
   var turns = [
-    { tools: "run_tests, list_files", sent: 1, tokens: "583", n: 583,
-      reply: "calls run_tests, list_files", results: ["run_tests: FAIL", "list_files: 2 files"] },
-    { tools: "read_file, read_file", sent: 4, tokens: "834", n: 834,
-      reply: "calls read_file twice", results: ["duration.go, 44 lines", "duration_test.go, 36 lines"] },
-    { tools: "edit_file, run_tests", sent: 7, tokens: "1,846", n: 1846,
-      reply: "calls edit_file, run_tests", results: ["edit_file: done", "run_tests: PASS"] },
-    { tools: "", sent: 10, tokens: "2,164", n: 2164, reply: "the answer", results: [] }
+    { tools: "run_tests, list_files", sent: 1, n: 583 },
+    { tools: "read_file, read_file", sent: 4, n: 834 },
+    { tools: "edit_file, run_tests", sent: 7, n: 1846 },
+    { tools: "", sent: 10, n: 2164 }
   ];
-  // The conversation strip under the ring: the run's messages, one chip
-  // each. Every call lights all of them, since the whole conversation is
-  // sent; the reply and the tool results are then appended.
-  var convo = root.querySelector(".lvc-convo-msgs");
+  // The strip under the ring: one row per call, each holding every
+  // message that call sent, so each row repeats the one above plus what
+  // was added since. The replay reveals a row as its call is made; the
+  // rows keep their space while hidden, so nothing below moves.
+  var calls = root.querySelectorAll(".lvc-call");
   var meta = root.querySelector(".lvc-convo-meta");
-  var final = convo ? convo.innerHTML : "";
+  var total = root.querySelector(".lvc-sum .lvc-tok");
+  var totalLabel = root.querySelector(".lvc-sum .lvc-turn");
   var meta0 = meta ? meta.textContent : "";
-  // The meter under the strip's title: the tokens each call sent, as a
-  // share of the last call's, so the bar grows call by call, and the
-  // running total, since every call pays for the whole conversation again.
-  var bar = root.querySelector(".lvc-meter-bar i");
-  var barN = root.querySelector(".lvc-meter-n");
-  var barN0 = barN ? barN.textContent : "";
-  var most = turns[turns.length - 1].n;
-  function meter(k) {
-    if (!bar) return;
-    bar.style.width = k < 0 ? "0%" : (100 * turns[k].n / most).toFixed(1) + "%";
-    var sum = 0;
-    for (var j = 0; j <= k; j++) sum += turns[j].n;
-    // Each half keeps its words together; a narrow screen breaks at the dot.
-    function keep(s) { return s.replace(/ /g, " "); }
-    barN.textContent = k < 0 ? "0 tokens sent" :
-      keep(turns[k].tokens + " tokens on call " + (k + 1)) + " · " + keep(sum.toLocaleString("en-US") + " sent so far");
+  // The last row adds the calls up: "so far" while the run plays.
+  function sum(k, done) {
+    var n = 0;
+    for (var j = 0; j <= k; j++) n += turns[j].n;
+    total.textContent = n.toLocaleString("en-US");
+    totalLabel.textContent = done ? "in all" : "so far";
   }
-  function chip(role, text) {
-    var li = document.createElement("li");
-    li.className = "is-" + role + " is-new";
-    li.innerHTML = "<b>" + role + "</b> ";
-    var span = document.createElement("span");
-    span.textContent = text;
-    li.appendChild(span);
-    convo.appendChild(li);
-  }
-  function sendAll(on) {
-    Array.prototype.forEach.call(convo.children, function (li) {
-      li.classList.remove("is-new");
-      li.classList.toggle("is-sent", on);
+  function reveal(k) {
+    Array.prototype.forEach.call(calls, function (c, j) {
+      c.classList.toggle("is-waiting", j > k);
+      c.classList.toggle("is-new", j === k);
     });
   }
   function play(start) {
     var t = start;
     function at(ms, fn) { timers.push(setTimeout(fn, t)); t += ms; }
-    if (convo) {
-      convo.innerHTML = "";
-      chip("user", "The tests fail. Find out why and fix it.");
-      if (meta) meta.textContent = "Every call sends all of it";
-      meter(-1);
+    if (calls.length) {
+      reveal(-1);
+      meta.textContent = "Each call sends the whole conversation again";
+      sum(-1);
     }
     turns.forEach(function (tn, k) {
       var turn = "turn " + (k + 1);
-      at(1000, function () {
-        say(turn, "building the request"); light(0); move(0, 800, true);
-        if (convo) { sendAll(false); meta.textContent = "Building call " + (k + 1) + " from the whole conversation"; }
-      });
-      // The call holds longest: every message lights as sent, and the
-      // meter grows, before the reply is appended.
+      at(1000, function () { say(turn, "building the request"); light(0); move(0, 800, true); });
+      // The call holds longest: its row appears, the messages added since
+      // the last call filled in.
       at(2200, function () {
         say(turn, "calling the model"); light(1); move(1, 800, true);
-        if (convo) {
-          sendAll(true);
-          meter(k);
-          meta.textContent = "Call " + (k + 1) + " sends all " + tn.sent + (tn.sent === 1 ? " message, " : " messages, ") + tn.tokens + " tokens";
-          timers.push(setTimeout(function () {
-            sendAll(false); chip("model", tn.reply); meta.textContent = "The model's reply is appended";
-          }, 1600));
-        }
+        if (!calls.length) return;
+        reveal(k);
+        sum(k);
+        var fresh = k ? tn.sent - turns[k - 1].sent : tn.sent;
+        meta.textContent = k ? "Call " + (k + 1) + " sends all " + tn.sent + " messages: the " + turns[k - 1].sent +
+          " call " + k + " sent, plus " + fresh + " new" : "Call 1 sends the one message there is";
       });
-      at(1300, function () {
-        say(turn, tn.tools || "no tool calls"); light(2); move(2, 800, true);
-        if (convo && tn.results.length) { tn.results.forEach(function (r) { chip("tool", r); }); meta.textContent = "Each tool result is appended"; }
-      });
+      at(1300, function () { say(turn, tn.tools || "no tool calls"); light(2); move(2, 800, true); });
       at(1150, function () { say(turn, k < turns.length - 1 ? "go around again" : "an answer: stop"); light(3); move(3, 800, true); });
     });
     at(3200, function () {
       say(turns.length + " turns", "answered: the tests pass");
-      if (convo) { meta.textContent = meta0; if (barN) barN.textContent = barN0; }
+      if (calls.length) { meta.textContent = meta0; sum(turns.length - 1, true); reveal(turns.length - 1); }
     });
     at(0, function () { light(-1); move(0); say(rest0[0], rest0[1]); });
   }
@@ -611,7 +582,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   stopTour = function () {
     if (timers.length) {
       say(rest0[0], rest0[1]);
-      if (convo) { convo.innerHTML = final; meta.textContent = meta0; meter(turns.length - 1); if (barN) barN.textContent = barN0; }
+      if (calls.length) { meta.textContent = meta0; sum(turns.length - 1, true); reveal(turns.length - 1); }
     }
     stop0();
   };

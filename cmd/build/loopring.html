@@ -31,22 +31,19 @@
     <li style="--st: var(--stage-3)"><span class="lvc-num" aria-hidden="true">3</span><a class="lvc-name" href="/basics/tool-calling/"><span class="lvc-t">Run the tools</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Carry out the calls the model asked for, and add each result to the conversation.</p></li>
     <li style="--st: var(--stage-4)"><span class="lvc-num" aria-hidden="true">4</span><a class="lvc-name" href="/production/stop-reasons/"><span class="lvc-t">Decide</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Stop with an answer, stop at a limit, or go around again.</p></li>
   </ol>
-  <div class="lvc-convo" aria-label="The conversation the agent sends on each call, from a recorded run">
-    <p class="lvc-convo-head"><span class="lvc-convo-title">The conversation</span><span class="lvc-convo-meta">After 4 calls: every call sent all of it, from 583 tokens to 2,164</span></p>
-    <p class="lvc-meter" aria-hidden="true"><span class="lvc-meter-bar"><i style="width: 100%"></i></span><span class="lvc-meter-n">2,164&nbsp;tokens&nbsp;on&nbsp;call&nbsp;4&nbsp;· 5,427&nbsp;sent&nbsp;over&nbsp;4&nbsp;calls</span></p>
-    <ol class="lvc-convo-msgs">
-      <li class="is-user"><b>user</b> <span>The tests fail. Find out why and fix it.</span></li>
-      <li class="is-model"><b>model</b> <span>calls run_tests, list_files</span></li>
-      <li class="is-tool"><b>tool</b> <span>run_tests: FAIL</span></li>
-      <li class="is-tool"><b>tool</b> <span>list_files: 2 files</span></li>
-      <li class="is-model"><b>model</b> <span>calls read_file twice</span></li>
-      <li class="is-tool"><b>tool</b> <span>duration.go, 44 lines</span></li>
-      <li class="is-tool"><b>tool</b> <span>duration_test.go, 36 lines</span></li>
-      <li class="is-model"><b>model</b> <span>calls edit_file, run_tests</span></li>
-      <li class="is-tool"><b>tool</b> <span>edit_file: done</span></li>
-      <li class="is-tool"><b>tool</b> <span>run_tests: PASS</span></li>
-      <li class="is-model"><b>model</b> <span>the answer</span></li>
+  <div class="lvc-convo" aria-label="What each call to the model sent, from a recorded run">
+    <div class="lvc-convo-in">
+    <ol class="lvc-calls">
+      <li class="lvc-head"><span class="lvc-convo-title">What each call sends</span><span class="lvc-tok-h">tokens</span></li>
+      <li class="lvc-call"><span class="lvc-turn">call 1</span><span class="lvc-msgs"><span class="lvc-msg is-user is-fresh" title="The tests fail. Find out why and fix it.">user</span></span><span class="lvc-tok">583</span></li>
+      <li class="lvc-call"><span class="lvc-turn">call 2</span><span class="lvc-msgs"><span class="lvc-msg is-user" title="The tests fail. Find out why and fix it.">user</span><span class="lvc-msg is-model is-fresh" title="calls run_tests, list_files">model</span><span class="lvc-msg is-tool is-fresh" title="run_tests: FAIL">tool</span><span class="lvc-msg is-tool is-fresh" title="list_files: 2 files">tool</span></span><span class="lvc-tok">834</span></li>
+      <li class="lvc-call"><span class="lvc-turn">call 3</span><span class="lvc-msgs"><span class="lvc-msg is-user" title="The tests fail. Find out why and fix it.">user</span><span class="lvc-msg is-model" title="calls run_tests, list_files">model</span><span class="lvc-msg is-tool" title="run_tests: FAIL">tool</span><span class="lvc-msg is-tool" title="list_files: 2 files">tool</span><span class="lvc-msg is-model is-fresh" title="calls read_file twice">model</span><span class="lvc-msg is-tool is-fresh" title="duration.go, 44 lines">tool</span><span class="lvc-msg is-tool is-fresh" title="duration_test.go, 36 lines">tool</span></span><span class="lvc-tok">1,846</span></li>
+      <li class="lvc-call"><span class="lvc-turn">call 4</span><span class="lvc-msgs"><span class="lvc-msg is-user" title="The tests fail. Find out why and fix it.">user</span><span class="lvc-msg is-model" title="calls run_tests, list_files">model</span><span class="lvc-msg is-tool" title="run_tests: FAIL">tool</span><span class="lvc-msg is-tool" title="list_files: 2 files">tool</span><span class="lvc-msg is-model" title="calls read_file twice">model</span><span class="lvc-msg is-tool" title="duration.go, 44 lines">tool</span><span class="lvc-msg is-tool" title="duration_test.go, 36 lines">tool</span><span class="lvc-msg is-model is-fresh" title="calls edit_file, run_tests">model</span><span class="lvc-msg is-tool is-fresh" title="edit_file: done">tool</span><span class="lvc-msg is-tool is-fresh" title="run_tests: PASS">tool</span></span><span class="lvc-tok">2,164</span></li>
+      <li class="lvc-sum"><span class="lvc-turn">in all</span><span></span><span class="lvc-tok">5,427</span></li>
     </ol>
+    <p class="lvc-legend" aria-hidden="true"><span class="lvc-msg is-user is-fresh">user</span><span class="lvc-msg is-model is-fresh">model</span><span class="lvc-msg is-tool is-fresh">tool</span></p>
+    <p class="lvc-convo-meta">Each call sends the whole conversation again: everything the call before it sent, plus the messages added since (filled in).</p>
+    </div>
   </div>
   <figcaption><svg class="lvc-back" viewBox="0 0 36 36" aria-hidden="true" focusable="false"><path d="M25.5 11.5A10 10 0 1 0 28 18"/><path d="M27.5 6.5l-1.5 5.5-5.5-1"/></svg><span>Then back to stage 1, with everything that just happened in the conversation.</span></figcaption>
 </figure>
