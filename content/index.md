@@ -11,8 +11,10 @@ On every turn, one pass through these four stages, the harness does the same fou
 
 {{loop}}
 
-Each page on this site works on one of these stages or on the whole loop, and says which. You can [browse every guide by stage](/guides/), for example [the Decide guides](/guides/?stage=4).
-When an agent misbehaves, the stage tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.
+This ring is the **agent compass**, the model this whole site is built on.
+However large an agent grows, every turn it takes passes through these four stages, so the compass is the map for understanding an agent and for reading this site: each guide works on one stage or on the whole loop, and shows its place on the compass under its title.
+You can [browse every guide by stage](/guides/), for example [the Decide guides](/guides/?stage=4).
+When an agent misbehaves, the compass tells you where to look: one that never stops has a Decide problem, and one that forgets what it read has a Build-the-request problem.
 
 ## The whole loop, in code
 

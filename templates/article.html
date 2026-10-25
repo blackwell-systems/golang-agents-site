@@ -13,9 +13,31 @@
       <p class="lede">{{.Page.Blurb}}</p>
       <p class="meta">Updated <time datetime="{{.Page.Modified}}">{{date .Page.Modified}}</time>{{with .Page.LevelName}}<span aria-hidden="true"> · </span>{{.}}{{end}}</p>
       {{- with .Page.Stages}}
-      <a class="stage-badge" href="/#the-loop-in-four-stages">
-        <span class="stage-pips">{{range .}}<span class="stage-pip{{if .On}} is-on{{end}}">{{icon .Icon}}</span>{{end}}</span>
-        <span class="stage-text">{{if eq $.Page.Stage "all"}}The whole loop{{else}}{{range .}}{{if .On}}Stage {{.N}}: {{.Name}}{{end}}{{end}}{{end}}</span>
+      {{- /* The page's place on the agent compass: the home page's ring in
+         small, with this page's stage lit and the arc into it drawn in;
+         a page on the whole loop lights all four. A single stage links to
+         every guide for that stage; the whole loop, to the compass. */}}
+      {{- $all := eq $.Page.Stage "all"}}
+      <a class="stage-badge{{if $all}} is-all{{end}}" href="{{if $all}}/#loop-ring{{else}}/guides/?stage={{$.Page.Stage}}{{end}}">
+        <svg class="compass" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <circle class="compass-track" cx="24" cy="24" r="17"/>
+          <path class="compass-arc{{if (index . 1).On}} is-on{{end}}" style="--st: var(--stage-2)" d="M24 7A17 17 0 0 1 41 24" pathLength="1"/>
+          <path class="compass-arc{{if (index . 2).On}} is-on{{end}}" style="--st: var(--stage-3)" d="M41 24A17 17 0 0 1 24 41" pathLength="1"/>
+          <path class="compass-arc{{if (index . 3).On}} is-on{{end}}" style="--st: var(--stage-4)" d="M24 41A17 17 0 0 1 7 24" pathLength="1"/>
+          <path class="compass-arc{{if (index . 0).On}} is-on{{end}}" style="--st: var(--stage-1)" d="M7 24A17 17 0 0 1 24 7" pathLength="1"/>
+          {{- range .}}
+          <g class="compass-node{{if .On}} is-on{{end}}" style="--st: var(--stage-{{.N}})">
+            {{- if eq .N 1}}<circle class="compass-halo" cx="24" cy="7" r="6.5"/><circle cx="24" cy="7" r="3.6"/>
+            {{- else if eq .N 2}}<circle class="compass-halo" cx="41" cy="24" r="6.5"/><circle cx="41" cy="24" r="3.6"/>
+            {{- else if eq .N 3}}<circle class="compass-halo" cx="24" cy="41" r="6.5"/><circle cx="24" cy="41" r="3.6"/>
+            {{- else}}<circle class="compass-halo" cx="7" cy="24" r="6.5"/><circle cx="7" cy="24" r="3.6"/>{{end}}
+          </g>
+          {{- end}}
+        </svg>
+        <span class="stage-text">
+          <span class="stage-kicker">On the agent compass</span>
+          <span class="stage-name">{{if $all}}The whole loop, all four stages{{else}}{{range .}}{{if .On}}Stage {{.N}} of 4 · {{.Name}}{{end}}{{end}}{{end}}</span>
+        </span>
       </a>
       {{- end}}
       </div>

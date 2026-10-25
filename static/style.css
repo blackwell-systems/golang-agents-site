@@ -2959,29 +2959,33 @@ nav.toc { display: none; }
 .copy { display: inline-flex; align-items: center; gap: 0.3rem; }
 .copy .icon { width: 0.95rem; height: 0.95rem; color: currentColor; --icon-accent: currentColor; }
 
-/* A guide's loop stage, under its title: the four stage icons with the
-   page's own lit, and its name; it links to the loop on the home page. */
+/* A guide's place on the agent compass, under its title: the home
+   page's ring in small, with the page's stage lit in its color, a ring
+   around it, and the arc into it drawn in once when the page opens. A
+   page on the whole loop lights all four. */
 .stage-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-top: var(--space-2, 0.5rem);
+  gap: 0.75rem;
+  margin-top: var(--space-3, 0.75rem);
   font-family: var(--label);
-  font-size: var(--fs-sm, 0.875rem);
-  color: var(--soft);
   text-decoration: none;
 }
-.stage-pips { display: inline-flex; gap: 0.3rem; }
-/* Each pip in its stage's color, as on the home page's ring: the page's
-   stage full, the others faint; a page on the whole loop shows all four. */
-.stage-pip:nth-child(1) { --st: var(--stage-1); }
-.stage-pip:nth-child(2) { --st: var(--stage-2); }
-.stage-pip:nth-child(3) { --st: var(--stage-3); }
-.stage-pip:nth-child(4) { --st: var(--stage-4); }
-.stage-pip .icon { width: 1.2rem; height: 1.2rem; color: var(--st); opacity: 0.35; }
-.stage-pip.is-on .icon { opacity: 1; }
-.stage-badge:hover .stage-text, .stage-badge:focus-visible .stage-text { color: var(--amber); }
-.stage-badge:hover .stage-pip:not(.is-on) .icon { opacity: 0.85; }
+.compass { flex: none; width: 3rem; height: 3rem; overflow: visible; }
+.compass-track { fill: none; stroke: var(--line); stroke-width: 2; }
+.compass-arc { fill: none; stroke: var(--st); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.compass-arc.is-on { stroke-dashoffset: 0; animation: compass-draw 0.8s ease-out 0.2s backwards; }
+@keyframes compass-draw { from { stroke-dashoffset: 1; } }
+.compass-node circle:last-child { fill: var(--night); stroke: var(--st); stroke-width: 1.5; opacity: 0.45; }
+.compass-node.is-on circle:last-child { fill: var(--st); opacity: 1; }
+.compass-halo { fill: none; stroke: var(--st); stroke-width: 1.25; opacity: 0; }
+.stage-badge:not(.is-all) .compass-node.is-on .compass-halo { opacity: 0.9; }
+.stage-text { display: grid; gap: 0.1rem; }
+.stage-kicker { font-size: var(--fs-label); font-weight: 600; letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--soft); }
+.stage-name { font-size: var(--fs-sm, 0.875rem); font-weight: 600; color: var(--ivory); }
+.stage-badge:hover .stage-name, .stage-badge:focus-visible .stage-name { color: var(--amber); }
+.stage-badge:hover .compass-node:not(.is-on) circle:last-child { opacity: 0.8; }
+@media (prefers-reduced-motion: reduce) { .compass-arc.is-on { animation: none; } }
 
 /* Links in running text that leave the site carry a small mark: the
    source icon for the companion code, the external icon otherwise. */
