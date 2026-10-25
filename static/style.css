@@ -3365,8 +3365,8 @@ body::after {
 .lvc-head .lvc-convo-title { grid-column: 1 / 3; margin-bottom: 0.35rem; }
 .lvc-tok-h { margin-bottom: 0.35rem; font: 500 var(--fs-xs) var(--mono); color: var(--soft); text-align: right; }
 .lvc-sum .lvc-tok { padding-top: 0.35rem; border-top: 1px solid var(--line); font-weight: 700; }
-.lvc-call.is-waiting > * { visibility: hidden; }
-.lvc-call.is-new .lvc-msg.is-fresh { animation: lvc-slide 0.45s ease-out both; }
+.lvc-calls .is-wait { visibility: hidden; }
+.lvc-calls .lvc-msg.is-pushed { animation: lvc-slide 0.4s ease-out both; }
 .lvc-turn { font: 500 var(--fs-xs) var(--mono); color: var(--soft); white-space: nowrap; }
 .lvc-tok { text-align: right; }
 .lvc-msgs { display: flex; flex-wrap: wrap; gap: 0.3rem; min-width: 0; }
@@ -3389,7 +3389,7 @@ body::after {
 .lvc-calls .lvc-msg:not(.is-fresh):hover { opacity: 1; filter: none; }
 .loopv-c .lvc-convo-meta { width: 0; min-width: 100%; margin: var(--space-3) 0 0; font: 500 var(--fs-sm) var(--label); color: var(--soft); }
 .loopv-c .lvc-legend { display: none; }
-@media (prefers-reduced-motion: reduce) { .lvc-call.is-new .lvc-msg.is-fresh { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .lvc-calls .lvc-msg.is-pushed { animation: none; } }
 /* On a phone a call's ten messages don't fit as words, so each becomes a
    small block in its role's color, with a legend. */
 @media (max-width: 40rem) {

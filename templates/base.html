@@ -527,8 +527,11 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   ];
   // The strip under the ring: one row per call, each holding every
   // message that call sent, so each row repeats the one above plus what
-  // was added since. The replay reveals a row as its call is made; the
-  // rows keep their space while hidden, so nothing below moves.
+  // was added since. In the replay each box arrives at the stage that
+  // makes it: a call's row starts as soon as the call before it is sent,
+  // with everything that call sent; the reply joins at Call the model and
+  // the results at Run the tools; the count appears when the row is sent.
+  // Waiting boxes keep their space, so nothing below moves.
   var calls = root.querySelectorAll(".lvc-call");
   var meta = root.querySelector(".lvc-convo-meta");
   var total = root.querySelector(".lvc-sum .lvc-tok");
@@ -538,43 +541,83 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   function sum(k, done) {
     var n = 0;
     for (var j = 0; j <= k; j++) n += turns[j].n;
-    total.textContent = n.toLocaleString("en-US");
+    total.textContent = k < 0 ? "0" : n.toLocaleString("en-US");
     totalLabel.textContent = done ? "in all" : "so far";
   }
-  function reveal(k) {
-    Array.prototype.forEach.call(calls, function (c, j) {
-      c.classList.toggle("is-waiting", j > k);
-      c.classList.toggle("is-new", j === k);
-    });
+  function each(list, fn) { Array.prototype.forEach.call(list, fn); }
+  function hideAll() {
+    each(calls, function (c) { each(c.children, function (el) { el.classList.add("is-wait"); }); each(c.querySelectorAll(".lvc-msg"), function (m) { m.classList.add("is-wait"); m.classList.remove("is-pushed"); }); });
+  }
+  function showAll() {
+    each(root.querySelectorAll(".lvc-calls .is-wait"), function (el) { el.classList.remove("is-wait"); });
+    each(root.querySelectorAll(".lvc-calls .is-pushed"), function (el) { el.classList.remove("is-pushed"); });
+  }
+  // Start row k: its label, and everything the call before it sent.
+  function startRow(k) {
+    var c = calls[k];
+    c.querySelector(".lvc-turn").classList.remove("is-wait");
+    c.querySelector(".lvc-msgs").classList.remove("is-wait");
+    each(c.querySelectorAll(".lvc-msg:not(.is-fresh)"), function (m) { m.classList.remove("is-wait"); });
+  }
+  // Push the next waiting new box onto row k.
+  function push(k) {
+    var m = calls[k].querySelector(".lvc-msg.is-wait");
+    if (!m) return;
+    m.classList.remove("is-wait");
+    m.classList.add("is-pushed");
+  }
+  // Row k is sent: its count and its sentence appear.
+  function sent(k) {
+    each(calls[k].children, function (el) { el.classList.remove("is-wait"); });
+    sum(k);
   }
   function play(start) {
     var t = start;
     function at(ms, fn) { timers.push(setTimeout(fn, t)); t += ms; }
-    if (calls.length) {
-      reveal(-1);
-      meta.textContent = "Every call sends the tool list and the whole conversation again";
+    function later(ms, fn) { timers.push(setTimeout(fn, ms)); }
+    var strip = calls.length > 0;
+    if (strip) {
+      hideAll();
       sum(-1);
+      meta.textContent = "Every call sends the tool list and the whole conversation again";
     }
     turns.forEach(function (tn, k) {
       var turn = "turn " + (k + 1);
-      at(1000, function () { say(turn, "building the request"); light(0); move(0, 800, true); });
-      // The call holds longest: its row appears, the messages added since
-      // the last call filled in.
-      at(2200, function () {
-        say(turn, "calling the model"); light(1); move(1, 800, true);
-        if (!calls.length) return;
-        reveal(k);
-        sum(k);
-        var fresh = k ? tn.sent - turns[k - 1].sent : tn.sent;
-        meta.textContent = k ? "Call " + (k + 1) + " sends the tool list and all " + tn.sent + " messages: the " + turns[k - 1].sent +
-          " call " + k + " sent, plus " + fresh + " new" : "Call 1 sends the tool list and the one message there is";
+      var last = k === turns.length - 1;
+      at(1300, function () {
+        say(turn, "building the request"); light(0); move(0, 800, true);
+        if (!strip) return;
+        if (k === 0) {
+          startRow(0); push(0);
+          later(350, function () { push(0); });
+          meta.textContent = "Call 1's request: the tool list and the task";
+        } else {
+          meta.textContent = "Call " + (k + 1) + "'s request: the tool list and all " + tn.sent + " messages so far";
+        }
       });
-      at(1300, function () { say(turn, tn.tools || "no tool calls"); light(2); move(2, 800, true); });
-      at(1150, function () { say(turn, k < turns.length - 1 ? "go around again" : "an answer: stop"); light(3); move(3, 800, true); });
+      at(2400, function () {
+        say(turn, "calling the model"); light(1); move(1, 800, true);
+        if (!strip) return;
+        sent(k);
+        meta.textContent = "Call " + (k + 1) + " sends it: " + tn.n.toLocaleString("en-US") + " tokens";
+        later(1000, function () {
+          if (last) { meta.textContent = "Its reply is the answer, so nothing more is sent"; return; }
+          startRow(k + 1); push(k + 1);
+          meta.textContent = "The reply starts the next request, after everything just sent";
+        });
+      });
+      at(1500, function () {
+        say(turn, tn.tools || "no tool calls"); light(2); move(2, 800, true);
+        if (!strip || last) return;
+        push(k + 1);
+        later(400, function () { push(k + 1); });
+        meta.textContent = "Each tool result joins it";
+      });
+      at(1150, function () { say(turn, last ? "an answer: stop" : "go around again"); light(3); move(3, 800, true); });
     });
     at(3200, function () {
       say(turns.length + " turns", "answered: the tests pass");
-      if (calls.length) { meta.textContent = meta0; sum(turns.length - 1, true); reveal(turns.length - 1); }
+      if (strip) { meta.textContent = meta0; sum(turns.length - 1, true); showAll(); }
     });
     at(0, function () { light(-1); move(0); say(rest0[0], rest0[1]); });
   }
@@ -582,7 +625,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   stopTour = function () {
     if (timers.length) {
       say(rest0[0], rest0[1]);
-      if (calls.length) { meta.textContent = meta0; sum(turns.length - 1, true); reveal(turns.length - 1); }
+      if (calls.length) { meta.textContent = meta0; sum(turns.length - 1, true); showAll(); }
     }
     stop0();
   };
