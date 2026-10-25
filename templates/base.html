@@ -635,6 +635,16 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   // to the next, its arrowhead showing as it arrives (style.css times
   // each part). Then it makes one lap and rests at stage 1. With reduced
   // motion, or without script, it is simply there.
+  // The replay button under the ring plays the run again from turn 1.
+  var again = root.querySelector(".lvc-replay");
+  if (again && !still.matches) {
+    again.hidden = false;
+    again.addEventListener("click", function () {
+      stopTour();
+      hovered = false;
+      play(300);
+    });
+  }
   if (!still.matches && "IntersectionObserver" in window) {
     var arcs = root.querySelectorAll(".lvc-arc");
     var unfold = 3100;

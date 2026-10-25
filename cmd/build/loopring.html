@@ -1,5 +1,6 @@
 <figure class="loopv-c" id="loop-ring">
   <p class="lvc-title">The agent compass</p>
+  <div class="lvc-stage">
   <div class="lvc-ring">
     <svg viewBox="-10 20 480 365" aria-hidden="true" focusable="false">
       <defs><marker id="lvc-arrow-1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-1)"/></marker><marker id="lvc-arrow-2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-2)"/></marker><marker id="lvc-arrow-3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-3)"/></marker><marker id="lvc-arrow-4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill: var(--stage-4)"/></marker></defs>
@@ -24,6 +25,8 @@
       <text x="200" y="196" class="lvc-center">one turn</text>
       <text x="200" y="220" class="lvc-sub">until an answer or a limit</text>
     </svg>
+  </div>
+  <button type="button" class="lvc-replay" hidden><span aria-hidden="true">↻</span> Replay the run</button>
   </div>
   <ol class="lvc-list">
     <li style="--st: var(--stage-1)"><span class="lvc-num" aria-hidden="true">1</span><a class="lvc-name" href="/build/context-management/"><span class="lvc-t">Build the request</span><span class="lvc-go" aria-hidden="true">→</span></a><p class="lvc-desc">Decide what the model sees: instructions, the conversation so far, tool results, and the tools it may call.</p></li>

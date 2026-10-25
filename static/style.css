@@ -1230,7 +1230,9 @@ cite { font-style: italic; }
 .loopv-c .lvc-title { grid-column: 1 / -1; margin: 0; font: 600 var(--fs-label) var(--label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--amber); }
 .home-body .loopv-c .lvc-title { display: none; }
 /* The ring */
-.loopv-c .lvc-ring { position: relative; justify-self: center; width: 100%; }
+/* The ring with its replay button under it, as one grid item. */
+.loopv-c .lvc-stage { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; min-width: 0; }
+.loopv-c .lvc-ring { position: relative; width: 100%; }
 .loopv-c .lvc-ring svg { display: block; width: 100%; height: auto; overflow: visible; }
 .loopv-c .lvc-track { fill: none; stroke: var(--line); stroke-width: 1.5; }
 .loopv-c .lvc-arc { fill: none; stroke: var(--st, var(--amber)); stroke-width: 2; }
@@ -1381,8 +1383,11 @@ cite { font-style: italic; }
     row-gap: 0.4rem;
     align-items: center;
   }
-  .loopv-c .lvc-ring { grid-row: 2 / span 2; align-self: center; }
-  .home-body .loopv-c .lvc-ring { grid-row: 1 / span 2; }
+  .loopv-c .lvc-stage { grid-row: 2 / span 2; align-self: center; }
+  .home-body .loopv-c .lvc-stage { grid-row: 1 / span 2; }
+  /* The circle sits left of the drawing's middle (cx 200 in a viewBox
+     from -10 to 470), so the button centers on it, under Run the tools. */
+  .loopv-c .lvc-replay { align-self: flex-start; margin-left: 43.75%; transform: translateX(-50%); }
   .loopv-c .lvc-list { align-self: end; }
   .loopv-c figcaption { align-self: start; }
 }
@@ -3063,6 +3068,19 @@ body::after {
   cursor: pointer;
 }
 .ctxt-play button:hover { border-color: var(--amber-dim); }
+/* The compass's replay button, under the ring (loopring.html). */
+.loopv-c .lvc-replay {
+  font: 600 var(--fs-sm)/1 var(--label);
+  color: var(--soft);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+}
+.loopv-c .lvc-replay:hover { color: var(--ivory); border-color: var(--amber-dim); }
+.loopv-c .lvc-replay:focus-visible { outline: 3px solid var(--ivory); outline-offset: 2px; }
+.loopv-c.is-folded .lvc-replay { visibility: hidden; }
 .ctxt-play button[aria-pressed="true"] { border-color: var(--amber); color: var(--amber); }
 .ctxt-svg { display: block; width: 100%; height: auto; overflow: visible; }
 .ctxt-edge { fill: none; stroke: var(--line); stroke-width: 2; }
