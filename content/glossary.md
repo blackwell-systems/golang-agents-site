@@ -62,6 +62,10 @@ A note the harness writes right before a call that could change the outside worl
 
 The part of a model that lets each position in the text look back over itself and all earlier positions, score them by relevance, and mix in information in proportion to those scores.
 
+### Attenuation {#attenuation}
+
+Handing a narrower credential to someone who acts for you, such as a sub-agent: each handoff can remove permissions and none can add them back. [Agent identity](/production/agent-identity/#sub-agents-get-less-never-more) shows it in Go.
+
 ### Audit log {#audit-log}
 
 A record that is only ever appended to, saying who made each decision and when, so anyone can verify the decision afterward.
@@ -103,6 +107,10 @@ A guard placed in front of a dependency. After a string of consecutive failures 
 ### Compaction {#compaction}
 
 Shrinking the request by swapping the oldest part of the conversation for a model-written summary of it.
+
+### Confused deputy {#confused-deputy}
+
+A program that holds authority and is tricked into using it for someone who shouldn't have it. A prompt injection is mostly this attack: the agent holds the user's authority and acts on text an attacker planted. See [agent identity](/production/agent-identity/#the-confused-deputy).
 
 ### Context (Go) {#go-context}
 
@@ -150,6 +158,10 @@ A random boundary string, new each time the program runs, wrapped around any tex
 ### Deduplication {#deduplication}
 
 Using an ID that the sender attached to a message to spot a repeat of something already handled, so a message delivered twice acts as if it arrived once.
+
+### Delegated credential {#delegated-credential}
+
+A token that lets a program act for one user, limited to named permissions (scopes) and a short life, in place of the user's password or a key shared by everyone. See [agent identity](/production/agent-identity/#acting-on-someones-behalf).
 
 ### Delta {#delta}
 
@@ -494,6 +506,10 @@ A brief inventory of what in a system is worth protecting, where untrusted input
 
 The unit of text a model reads and writes. A token can be a whole common word, a fragment of a longer word, or a punctuation mark; in English a token is about four characters on average.
 
+### Token exchange {#token-exchange}
+
+Swapping a token that proves who a user is for a new one with a narrower audience, fewer scopes, and a short life, as defined by OAuth 2.0 Token Exchange (RFC 8693). See [agent identity](/production/agent-identity/#acting-on-someones-behalf).
+
 ### Tokenizer {#tokenizer}
 
 The program that converts text into tokens and tokens back into text. It has a fixed vocabulary, usually between 100,000 and 250,000 tokens, each assigned a number, and the model works entirely in those numbers.
@@ -571,6 +587,10 @@ The JSON exactly as it travels over HTTP, as opposed to the Go types a program u
 
 A program that calls a model at points its code decides ahead of time. In an agent, by contrast, the model picks the next step.
 <span class="cite-line">[Workflow or agent? The shapes, in Go](/build/workflows-vs-agents/)</span>
+
+### Workload identity {#workload-identity}
+
+An identity the platform gives a running program, so it can prove what it is without a stored password; cloud IAM roles and SPIFFE work this way. See [agent identity](/production/agent-identity/#the-agents-own-identity).
 
 ### Workspace {#workspace}
 
