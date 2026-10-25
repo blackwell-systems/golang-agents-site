@@ -635,15 +635,20 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   // to the next, its arrowhead showing as it arrives (style.css times
   // each part). Then it makes one lap and rests at stage 1. With reduced
   // motion, or without script, it is simply there.
-  // The replay button under the ring plays the run again from turn 1.
+  // The replay button under the ring plays the run again from turn 1,
+  // and so does a listing's Replay button, through loop:replay.
   var again = root.querySelector(".lvc-replay");
+  function replay() {
+    if (typeof seen !== "undefined" && seen) seen.disconnect();
+    root.classList.remove("is-folded");
+    stopTour();
+    hovered = false;
+    play(300);
+  }
   if (again && !still.matches) {
     again.hidden = false;
-    again.addEventListener("click", function () {
-      stopTour();
-      hovered = false;
-      play(300);
-    });
+    again.addEventListener("click", replay);
+    document.addEventListener("loop:replay", replay);
   }
   if (!still.matches && "IntersectionObserver" in window) {
     var arcs = root.querySelectorAll(".lvc-arc");
@@ -914,6 +919,18 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     var stages = {};
     fig.querySelectorAll(".line[data-stage]").forEach(function (l) { stages[l.dataset.stage] = true; });
     if (Object.keys(stages).length < 2) return;
+    // Where the big ring is on the page, the listing can replay the run
+    // too: the ring plays it, and these lines light stage by stage.
+    var cap = fig.querySelector("figcaption");
+    if (ring && cap && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      var rb = document.createElement("button");
+      rb.type = "button";
+      rb.className = "listing-replay";
+      rb.innerHTML = '<span aria-hidden="true">\u21bb</span><span class="listing-replay-t" aria-hidden="true"> Replay</span>';
+      rb.setAttribute("aria-label", "Replay the recorded run on the agent compass");
+      rb.addEventListener("click", function () { document.dispatchEvent(new CustomEvent("loop:replay")); });
+      cap.appendChild(rb);
+    }
     var svg = el("svg", { viewBox: "46 46 308 308", "aria-hidden": "true", focusable: "false" });
     svg.appendChild(el("circle", { cx: 200, cy: 200, r: 120, "class": "lvc-track" }));
     arcs.forEach(function (d, k) { svg.appendChild(el("path", { d: d, "class": "lvc-arc", style: "--st: var(--stage-" + (k + 1) + ")" })); });

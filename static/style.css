@@ -1187,6 +1187,27 @@ cite { font-style: italic; }
   cursor: pointer;
 }
 .copy:hover { color: var(--ivory); border-color: var(--amber-dim); }
+/* A listing that follows the compass can replay the run (base.html). */
+.listing-replay {
+  flex: none;
+  margin-left: auto;
+  margin-right: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel-deep);
+  color: var(--soft);
+  font: 500 0.78rem var(--label);
+  cursor: pointer;
+}
+.listing-hint + .listing-replay { margin-left: 0; }
+.listing-replay:hover { color: var(--ivory); border-color: var(--amber-dim); }
+/* On a phone the title bar has room for the file name, the icon and Copy. */
+@media (max-width: 40rem) {
+  .listing-replay-t { display: none; }
+  .listing figcaption:has(.listing-replay) .listing-hint { display: none; }
+  .listing figcaption:has(.listing-replay) .listing-replay { margin-left: auto; }
+}
 
 .listing code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit; }
 .chroma .line { display: block; }
