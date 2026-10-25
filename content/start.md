@@ -66,10 +66,12 @@ phase: Make it safe | Sandboxes, injection defenses, a person's approval, and cr
 step: /production/prompt-injection/
 step: /production/approval/
 step: /production/agent-identity/
-phase: Run it for real | Runs that survive a crash, a service, and the libraries to pick.
+phase: Run it for real | Runs that survive a crash, a service, and the provider client, libraries, and framework to pick.
 step: /production/durable-runs/
 step: /production/agent-as-a-service/
+step: /ecosystem/providers-and-sdks/
 step: /ecosystem/libraries/
+step: /ecosystem/go-agent-frameworks/
 phase: See the result | The finished agent, measured.
 step: /findings/the-finished-agent/
 
@@ -82,14 +84,17 @@ title: Leading a team
 phase: The case | What the work costs, and when an agent is the right tool.
 step: /for-leads/
 step: /build/workflows-vs-agents/
+step: /findings/workflow-vs-agent/
 phase: The risks | What goes wrong, whose authority an agent acts with, and what a launch needs.
 step: /findings/measured-mistakes/
+step: /findings/tool-description-poisoning/
 step: /production/agent-identity/
 step: /production/launch-checklist/
 phase: The results | What the finished agent achieved, how it was measured, and where else it applies.
 step: /findings/the-finished-agent/
 step: /beyond-crash-triage/
 step: /production/evals/
+step: /findings/identical-runs/
 phase: The fit | What's left out, and why Go.
 step: /scope/
 step: /ecosystem/why-go/
@@ -116,7 +121,7 @@ step: /go/commands-and-files/
 For a Go developer who knows the language from the Tour and wants the parts an agent depends on: cancellation, errors, JSON, HTTP, streams, concurrency, and files, each shown in tested agent code.
 ```
 
-## At the end of a path
+## Going further
 
 <div class="start-close">
 
@@ -124,10 +129,16 @@ For a Go developer who knows the language from the Tour and wants the parts an a
 
 <div class="start-close-text">
 
-When you reach the last step of a path, the [Research](/findings/) section holds every measured result behind the guides, each with its method.
+The paths are the shortest routes through the site.
+When you finish one, these guides go further, grouped by subject:
 
-Some guides go past what the paths and the book cover: [RAG in Go](/build/rag/), [RAG or agentic search?](/build/rag-or-agentic-search/), and [memory between sessions](/build/memory/), on knowledge an agent carries; [agent identity](/production/agent-identity/), on whose authority it acts with; and the [Go in depth](/go/) section, on the standard library underneath.
-[All guides](/guides/) lists everything, filtered by the stage of the loop you're working on.
+- **More tools, more agents:** [Patterns by name](/build/patterns-by-name/), [parallel tool calls](/build/parallel-tool-calls/), [sub-agents](/build/sub-agents/), and [MCP in Go](/build/mcp/), with [an agent that files issues over MCP](/run/ch10-mcp-tracker/) to run.
+- **Knowledge and memory:** [RAG in Go](/build/rag/), [RAG or agentic search?](/build/rag-or-agentic-search/), and [memory between sessions](/build/memory/).
+- **Providers and frameworks:** [how two provider APIs differ](/ecosystem/differences/), [more providers](/ecosystem/more-providers/), and [one task built three ways](/run/ch16-framework-ports/): by hand, with Eino, and with Genkit.
+- **More to run:** [four crash reports, triaged](/run/ch07-crash-triage/), and [an agent's progress streamed to a browser](/run/stream-to-browser/).
+- **The measurements:** [Research](/findings/) holds every measured result behind the guides, each with its method, including [910 crashes with no duplicates](/findings/crash-sweep/), [how a tool error's wording changed the turns](/findings/error-wording/), and [fan-out, measured](/findings/fan-out/).
+
+[All guides](/guides/) lists every page, filtered by the stage of the loop you're working on.
 
 </div>
 
