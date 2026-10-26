@@ -105,6 +105,8 @@ For whoever decides whether a team spends its time here: what the work costs, wh
 ```path
 id: go
 title: The Go underneath
+phase: How the parts fit | Small interfaces, wrappers around them, and tools typed by their arguments: the shapes the rest of the code is built from.
+step: /go/interfaces-and-generics/
 phase: Control and failure | How a run is stopped, and how every failure is named and routed.
 step: /go/context/
 step: /go/errors/
@@ -118,7 +120,7 @@ step: /go/iterators/
 phase: Touching the machine | Running commands and reading files without letting a model escape its workspace.
 step: /go/commands-and-files/
 
-For a Go developer who knows the language from the Tour and wants the parts an agent depends on: cancellation, errors, JSON, HTTP, streams, concurrency, and files, each shown in tested agent code.
+For a Go developer who knows the language from the Tour and wants the parts an agent depends on: interfaces and generics, cancellation, errors, JSON, HTTP, streams, concurrency, and files, each shown in tested agent code.
 ```
 
 ## Going further

@@ -184,8 +184,8 @@
     "hash": "08e06aa4e58439db168611ef1b13fce2d01caf97327bdcb9964265d6739db360"
   },
   "og/go.jpg": {
-    "spec": "433d9c4811c10685d1cfbf0c7aca837490cac8313d6d3810e85da7bf069af1bc",
-    "hash": "f3e1f3030853a3927c6812eb9b3ffc824c3de1f82f2a854762cf1992bec27042"
+    "spec": "53c6859058a3a2fd28519bb471c9742cd07a5ebaedf0d47b4a85722c7c0663e3",
+    "hash": "ac2bfccfb2fe4e018fa7b280d6e52f365dbee68c32b4a4d7969500e977d0552a"
   },
   "og/go/commands-and-files.jpg": {
     "spec": "c869aa23bd86e9b2b4752b9042060ecd786de86168742822a0599debe81dc721",
@@ -206,6 +206,10 @@
   "og/go/http-client.jpg": {
     "spec": "699c809e65702c81a223262af64702f973368fcf44284a5a75c3bf33402691ab",
     "hash": "509d83a90669bf852c650d1e3f269edf94236c949b41c58e067b3668346fedc4"
+  },
+  "og/go/interfaces-and-generics.jpg": {
+    "spec": "0c0448110529cd965afc18fb3c3d422328cba285d34b049a003c7355f6e57872",
+    "hash": "22ad69866730e8ac2f117aa37a34aee5f7dc696d42360a4f8bde47aef007d87f"
   },
   "og/go/iterators.jpg": {
     "spec": "c917f81af01cf68d96f62888d75aec9e1a91c110b05e86a84f4565ceab6e8acb",

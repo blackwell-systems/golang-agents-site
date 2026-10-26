@@ -1,6 +1,6 @@
 ---
 title: Go in depth
-description: The Go an AI agent leans on, one page each, from context.Context and error handling to JSON v2, the HTTP client, streams, goroutines, iterators, and running commands, each tied to the agent code it comes from.
+description: The Go an AI agent leans on, one page each, from interfaces and generics, context.Context, and error handling to JSON v2, the HTTP client, streams, goroutines, iterators, and running commands, each tied to the agent code it comes from.
 ---
 
 An agent is a Go program before it is anything else, and a few parts of the language and standard library carry most of the weight: a context that stops a run, errors that a model reads, a client that talks to an API, streams, goroutines, and iterators.
