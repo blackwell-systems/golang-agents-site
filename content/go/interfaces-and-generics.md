@@ -9,6 +9,7 @@ stage: all
 level: intermediate
 date: 2026-10-26
 weight: 5
+art: go-interfaces
 ---
 
 An agent's code is a few small parts that other code plugs into: a model it calls, tools it runs, and a policy that decides what each request holds.
