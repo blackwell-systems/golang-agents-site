@@ -312,4 +312,27 @@
     </div>
   </div>
 </section>
+
+<section class="home-book" aria-labelledby="book-title">
+  <div class="wrap">
+    {{template "rule"}}
+    <div class="home-book-grid">
+      <a class="home-book-cover" href="/book/" tabindex="-1" aria-hidden="true"><picture>
+        <source type="image/avif" srcset="/img/cover-360.avif 360w, /img/cover-540.avif 540w" sizes="11rem">
+        <source type="image/webp" srcset="/img/cover-360.webp 360w, /img/cover-540.webp 540w" sizes="11rem">
+        <img src="/img/cover-720.jpg" width="720" height="888" alt="" loading="lazy" decoding="async">
+      </picture></a>
+      <div class="home-book-text">
+        <h2 id="book-title">The book</h2>
+        <p><cite>Building AI Agents in Go</cite> builds the agent this site describes, one chapter at a time, from the first request to production: 17 chapters and 776 pages, standard library first, every example runnable offline.</p>
+        <p class="home-book-get">The PDF in five reading themes, the EPUB, and the companion code, for one permanent price with every update of this edition free.</p>
+        <div class="actions">
+          <a class="button primary buy-link" href="{{.Site.Store}}">Buy the book, $29</a>
+          <a class="button secondary" href="/sample/building-ai-agents-in-go-sample-light.pdf">Read a free sample (PDF)</a>
+        </div>
+        <p class="home-book-more"><a href="/book/">More about the book</a></p>
+      </div>
+    </div>
+  </div>
+</section>
 {{- end}}

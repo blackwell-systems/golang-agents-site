@@ -201,7 +201,7 @@ cite { font-style: italic; }
   padding: 0 var(--gutter);
 }
 /* The reading column: a wrap that holds only things to read. */
-:is(.guide, .section-page, .home-body, .home-start, .home-sections, .section) > .wrap {
+:is(.guide, .section-page, .home-body, .home-start, .home-sections, .home-book, .section) > .wrap {
   max-width: calc(var(--read) + 2 * var(--gutter));
 }
 
@@ -1909,7 +1909,6 @@ cite { font-style: italic; }
 .home-body .prose > h2:first-child { margin-top: 0; }
 .home-body .prose > :last-child { margin-bottom: 0; }
 .home-sections { padding: var(--section-gap) 0 0; }
-.home-faq { padding-bottom: clamp(3.5rem, 8vw, 5.5rem); }
 .home-sections h2 { font-size: var(--fs-h2); }
 .paths {
   list-style: none;
@@ -2945,7 +2944,28 @@ nav.toc { display: none; }
 
 /* Where the rules stand: between the home page's major sections, and
    across the footer's top edge, where the small rule is the border. */
-.home-start > .wrap > .rule, .home-sections > .wrap > .rule, .home-faq > .wrap > .rule { margin-bottom: var(--section-gap); }
+.home-start > .wrap > .rule, .home-sections > .wrap > .rule, .home-book > .wrap > .rule, .home-faq > .wrap > .rule { margin-bottom: var(--section-gap); }
+/* The book, near the end of the home page: the cover beside a few lines
+   and the buy button. */
+.home-book { padding: var(--section-gap) 0 clamp(3.5rem, 8vw, 5.5rem); }
+.home-book-grid { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 2.75rem); align-items: center; }
+.home-book-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px var(--amber-dim);
+}
+.home-book h2 { font-size: var(--fs-h2); margin: 0 0 var(--space-3); }
+.home-book-text p { margin: 0 0 var(--space-3); color: var(--stone); }
+.home-book-text cite { font-style: italic; color: var(--ivory); }
+.home-book-get { font-size: var(--fs-sm); color: var(--soft); }
+.home-book-text .actions { margin: var(--space-4) 0 var(--space-3); }
+.home-book-more { font-size: var(--fs-sm); }
+@media (max-width: 37.5rem) {
+  .home-book-grid { grid-template-columns: 1fr; justify-items: start; }
+  .home-book-cover { width: 8.5rem; }
+}
 .site-footer > .rule {
   position: absolute;
   left: 0;
