@@ -3454,7 +3454,20 @@ body::after {
    stands out; pointing at one brings it back. */
 .lvc-calls .lvc-msg:not(.is-fresh) { opacity: 0.5; filter: saturate(0.55); transition: opacity 0.2s ease, filter 0.2s ease; }
 .lvc-calls .lvc-msg:not(.is-fresh):hover { opacity: 1; filter: none; }
-.loopv-c .lvc-convo-meta { width: 0; min-width: 100%; margin: var(--space-3) 0 0; font: 500 var(--fs-sm) var(--label); color: var(--soft); }
+/* The note's two sample boxes: a message sent again, softened, and a
+   new one, filled in, as the rows show them. */
+.lvc-key {
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--soft);
+  white-space: nowrap;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.lvc-key:not(.is-fresh) { opacity: 0.75; }
+.lvc-key.is-fresh { border-color: var(--stage-2); background: color-mix(in srgb, var(--stage-2) 16%, transparent); color: var(--ivory); }
+.loopv-c .lvc-convo-meta { width: 0; min-width: 100%; margin: var(--space-3) 0 0; font: 500 var(--fs-sm) var(--label); color: var(--soft); line-height: 2; }
 .loopv-c .lvc-legend { display: none; }
 @media (prefers-reduced-motion: reduce) { .lvc-calls .lvc-msg.is-pushed { animation: none; } }
 /* On a phone a call's ten messages don't fit as words, so each becomes a

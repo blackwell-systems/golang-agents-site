@@ -538,7 +538,9 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   var meta = root.querySelector(".lvc-convo-meta");
   var total = root.querySelector(".lvc-sum .lvc-tok");
   var totalLabel = root.querySelector(".lvc-sum .lvc-turn");
-  var meta0 = meta ? meta.textContent : "";
+  // The note's resting text holds two sample boxes, so it is kept and
+  // put back as markup.
+  var meta0 = meta ? meta.innerHTML : "";
   // The last row adds the calls up: "so far" while the run plays.
   function sum(k, done) {
     var n = 0;
@@ -619,7 +621,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     });
     at(3200, function () {
       say(turns.length + " turns", "answered: the tests pass");
-      if (strip) { meta.textContent = meta0; sum(turns.length - 1, true); showAll(); }
+      if (strip) { meta.innerHTML = meta0; sum(turns.length - 1, true); showAll(); }
     });
     at(0, function () { light(-1); move(0); say(rest0[0], rest0[1]); });
   }
@@ -627,7 +629,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   stopTour = function () {
     if (timers.length) {
       say(rest0[0], rest0[1]);
-      if (calls.length) { meta.textContent = meta0; sum(turns.length - 1, true); showAll(); }
+      if (calls.length) { meta.innerHTML = meta0; sum(turns.length - 1, true); showAll(); }
     }
     stop0();
   };
