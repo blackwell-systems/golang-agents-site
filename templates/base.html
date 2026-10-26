@@ -477,7 +477,9 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       labels[k].classList.toggle("is-on", k === i);
       items[k].classList.toggle("is-on", k === i);
     }
+    // At rest the halo takes stage 1's color, where the marker rests.
     if (i >= 0) root.style.setProperty("--lvc-st", "var(--stage-" + (i + 1) + ")");
+    else root.style.removeProperty("--lvc-st");
     document.dispatchEvent(new CustomEvent("loop:stage", { detail: i }));
   }
   // Pointing at a stage names what arrives there, wherever the marker
