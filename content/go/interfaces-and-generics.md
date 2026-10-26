@@ -27,6 +27,8 @@ That is the whole interface:
 ```
 
 A type satisfies `Model` by having a `Generate` method with that signature, and nothing else.
+This is how every interface in Go works, and it is called implicit satisfaction: a type never declares which interfaces it implements, as a class does with `implements` in Java or C#, and the compiler checks the methods wherever the type is used as the interface.
+So a type can satisfy an interface written after it, in a package it has never heard of.
 In chapter 12's code, four types produce replies that way, and the wrappers later on this page satisfy it too:
 
 - `*agent.Fake`, which replays a script of replies, for tests and for runs with no API key;
