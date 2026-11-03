@@ -1764,14 +1764,28 @@ cite { font-style: italic; }
 /* The end of a guide */
 /* As wide as the text column above it (.prose). */
 .guide-foot { margin-top: var(--space-8); }
-/* The one mention of the book on a guide: a quiet line under the text. */
-.book-line {
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--line);
-  font-size: var(--fs-sm);
-  color: var(--soft);
+/* The book, at the end of every guide: the cover beside what the book
+   does with this guide's topic, and the buy and sample buttons. */
+.book-card {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
 }
-.book-line p { margin: 0; }
+.book-card-cover img { display: block; width: 100%; height: auto; border-radius: 2px; box-shadow: 0 0 0 1px var(--amber-dim); }
+.book-card-text p { margin: 0 0 var(--space-2); color: var(--stone); font-size: var(--fs-md); line-height: var(--lh-snug); }
+.book-card-text cite { font-style: italic; }
+.book-card-text .book-card-facts { font-size: var(--fs-sm); color: var(--soft); }
+.book-card-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.book-card-actions .button { min-height: 2.5rem; padding: 0.5rem 1.1rem; font-size: 0.95rem; }
+@media (max-width: 30rem) {
+  .book-card { grid-template-columns: 4rem minmax(0, 1fr); gap: var(--space-3); padding: var(--space-3); }
+  .book-card-actions .button { flex: 1 1 100%; }
+}
 .pager {
   display: grid;
   gap: var(--space-3);

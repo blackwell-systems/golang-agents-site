@@ -58,12 +58,24 @@
     {{- end}}
     </div>
     <footer class="guide-foot">
-      <div class="book-line">
-        {{- if .Page.BookHTML}}{{.Page.BookHTML}}{{else if .Page.Beyond}}
-        <p>This topic goes beyond <a href="/book/"><cite>Building AI Agents in Go</cite></a>, which doesn't cover it; the code here is in the same companion repository.</p>{{else}}
-        <p><a href="/book/"><cite>Building AI Agents in Go</cite></a> covers this step by step, with tests{{with .Page.Chapters}}, in {{chapters .}}{{end}}.</p>
-        {{- end}}
-      </div>
+      <aside class="book-card" aria-label="The book">
+        <a class="book-card-cover" href="/book/" tabindex="-1" aria-hidden="true"><picture>
+          <source type="image/avif" srcset="/img/cover-360.avif 360w" sizes="5.5rem">
+          <source type="image/webp" srcset="/img/cover-360.webp 360w" sizes="5.5rem">
+          <img src="/img/cover-720.jpg" width="720" height="888" alt="" loading="lazy" decoding="async">
+        </picture></a>
+        <div class="book-card-text">
+          {{- if .Page.BookHTML}}{{.Page.BookHTML}}{{else if .Page.Beyond}}
+          <p>This topic goes beyond <a href="/book/"><cite>Building AI Agents in Go</cite></a>, which doesn't cover it; the code here is in the same companion repository, and the book builds the agent it extends.</p>{{else}}
+          <p><a href="/book/"><cite>Building AI Agents in Go</cite></a> covers this step by step, with tests{{with .Page.Chapters}}, in {{chapters .}}{{end}}, and builds the whole agent around it.</p>
+          {{- end}}
+          <p class="book-card-facts">17 chapters, 786 pages, standard library first: the PDF in five reading themes, the EPUB, and the companion code.</p>
+          <div class="book-card-actions">
+            <a class="button primary buy-link" href="{{.Site.Store}}">Buy the book, $29</a>
+            <a class="button secondary" href="/sample/building-ai-agents-in-go-sample-light.pdf">Free sample</a>
+          </div>
+        </div>
+      </aside>
       {{- if .Page.Work}}
       <p class="work-line">Building this at work? <a href="/work-with-me/">Blackwell Systems helps teams ship agents in Go.</a></p>
       {{- end}}
