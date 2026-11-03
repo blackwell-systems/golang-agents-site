@@ -197,6 +197,7 @@ For HTTP-based transports, its authorization specification builds on OAuth 2.1 (
 The specification requires clients to send a `resource` parameter naming the server the token is for (RFC 8707), and requires servers to accept only tokens issued for them.
 Clients must not send an MCP server any token other than one issued by that server's authorization server, and servers must not accept or pass along tokens meant for other services.
 Those rules block one common confused-deputy path, where a server forwards a token it received to a different service.
+[MCP authorization](/production/mcp-authorization/) builds both sides in Go, with tests for the attacks those rules stop.
 
 For a local server started over stdio, the specification says implementations should not follow that flow and should instead take credentials from the environment.
 That puts the secret in the server process's environment, which is why the previous sections about where keys live apply to it as well.

@@ -2741,6 +2741,9 @@ nav.toc { display: none; }
    screen, at its own proportions. */
 .diagram { margin: var(--block-before) 0 var(--block-after); }
 .diagram img { display: block; width: auto; max-width: 100%; height: auto; max-height: 80vh; margin: 0 auto; }
+/* A long sequence diagram scrolls with the page instead of shrinking
+   to the screen's height, at a width that keeps its labels readable. */
+.diagram-tall img { max-height: none; max-width: min(100%, 42rem); }
 .diagram img.diagram-theme { display: none; }
 .diagram img.diagram-dark { display: block; }
 :root[data-theme] .diagram img.diagram-dark { display: none; }

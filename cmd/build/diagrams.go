@@ -26,15 +26,20 @@ var (
 //	```diagram
 //	name: growing
 //	alt: What the diagram shows, for a screen reader.
+//	tall: yes
 //	```
 //	The caption, in Markdown.
+//
+// tall, optional, is for a long sequence diagram: it may run past the
+// screen's height, at a width that keeps its labels readable, instead
+// of shrinking to fit.
 //
 // Every theme's version goes in the page and CSS shows the one that
 // matches the theme, so the theme menu switches them without a reload.
 // Each image gets its width and height from the SVG, so nothing shifts
 // as it loads, and hidden images aren't downloaded.
 func (r *codeBlocks) diagram(body string) (string, error) {
-	f, caption, err := fields(body, "name", "alt")
+	f, caption, err := fields(body, "name", "alt", "tall")
 	if err != nil {
 		return "", err
 	}
@@ -50,8 +55,14 @@ func (r *codeBlocks) diagram(body string) (string, error) {
 	if bookWord.MatchString(alt + " " + caption) {
 		return "", fmt.Errorf("diagram %s: the caption or alt text mentions the book or a chapter", name)
 	}
+	class := "diagram"
+	if t := f["tall"]; len(t) == 1 && t[0] == "yes" {
+		class += " diagram-tall"
+	} else if len(t) > 0 {
+		return "", fmt.Errorf("diagram %s: tall is yes or absent", name)
+	}
 	var b strings.Builder
-	b.WriteString(`<figure class="diagram">`)
+	fmt.Fprintf(&b, `<figure class="%s">`, class)
 	for _, theme := range themes {
 		file := name + "-" + theme + ".svg"
 		svg, err := os.ReadFile(filepath.Join(diagramDir, file))
