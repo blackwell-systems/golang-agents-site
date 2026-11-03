@@ -72,6 +72,10 @@ A record that is only ever appended to, saying who made each decision and when, 
 
 ## B {#letter-b .letter}
 
+### Backend for frontend {#backend-for-frontend}
+
+A web app's server acting as its OAuth client, so every token stays on the server and the browser holds only a session cookie. RFC 10017 describes it for browser-based apps. See [OAuth and OpenID Connect](/production/oauth-and-oidc/#keep-the-tokens-on-the-server).
+
 ### Backoff {#backoff}
 
 Increasing the wait before each retry, commonly doubling it, so a client that keeps failing puts less load on the server over time instead of more.
@@ -256,6 +260,10 @@ A company that actually runs a model behind OpenRouter. OpenRouter routes each r
 
 ## I {#letter-i .letter}
 
+### ID token {#id-token}
+
+A signed token from an OpenID Connect provider that says who signed in, issued for the app that asked, whose client ID is its audience. It is not an access token and is never sent to an API. See [OAuth and OpenID Connect](/production/oauth-and-oidc/#what-the-id-token-is-for).
+
 ### Idempotency key {#idempotency-key}
 
 A unique name the sender attaches to a request and the receiver stores. When a request arrives with a key the receiver has seen before, it returns the earlier result and doesn't act again.
@@ -359,6 +367,10 @@ How a language model writes: it gives every possible next token a probability, o
 
 ## O {#letter-o .letter}
 
+### OpenID Connect {#openid-connect}
+
+A sign-in layer on OAuth 2.0: the app asks for the `openid` scope and gets an ID token saying who the user is, alongside the access token. See [OAuth and OpenID Connect](/production/oauth-and-oidc/).
+
 ### OpenRouter {#openrouter}
 
 A service that puts many model providers behind a single API, so one key and one bill cover all of them. You pick a model by ID, and OpenRouter sends the request to a provider that runs it.
@@ -373,6 +385,10 @@ A program written as nodes, such as a model call, a tool call, or a branch, join
 
 More than one tool call in a single reply. The harness can run them concurrently; the model only asks for them and never executes anything itself.
 <span class="cite-line">[Running an agent's tool calls in parallel with goroutines](/build/parallel-tool-calls/)</span>
+
+### PKCE {#pkce}
+
+Proof Key for Code Exchange (RFC 7636): the client sends the hash of a random secret with its authorization request and the secret itself when redeeming the code, so a code stolen in between is useless. See [OAuth and OpenID Connect](/production/oauth-and-oidc/#start-the-sign-in).
 
 ### Pass rate {#pass-rate}
 
@@ -404,6 +420,10 @@ Retrieval-augmented generation: search a set of documents for the passages close
 ### Range {#range}
 
 The interval of plausible values for a measured number, allowing for how far chance could have moved it. These guides use the central 95 percent of results the measurement would give if repeated on a new sample of the same kind.
+
+### Refresh token {#refresh-token}
+
+A long-lived credential an OAuth client exchanges for new access tokens while the user is away. With rotation, each works once and a reused one revokes its whole family. See [OAuth and OpenID Connect](/production/oauth-and-oidc/#refresh-once).
 
 ### Rate limit {#rate-limit}
 

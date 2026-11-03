@@ -232,8 +232,8 @@
     "hash": "603ea98b8ffad81a6527ac39eb2556c3455af4f6f6d9a8ad60266aa78818f834"
   },
   "og/production.jpg": {
-    "spec": "f09577426d7f4e6e63a5117a8afc20a38b40b7640ab9f483c137a5360d894674",
-    "hash": "deac5b667670496dd5a955cac78b5b388383cf674dcc5f83350c3ac45e263f61"
+    "spec": "9551f12a4b72cf810fc69f71732296f9434a48373807ea96b0f4fba0463db42c",
+    "hash": "16c6c7a9aa94990fa122b81038e6d1ad3107572eecff823e5bf04f47c4a195a6"
   },
   "og/production/agent-as-a-service.jpg": {
     "spec": "3659cb71744e332468364613aaf66e0c54ac56a3b53a98ffdc8b557d4286ca83",
@@ -266,6 +266,10 @@
   "og/production/mcp-authorization.jpg": {
     "spec": "a779e3a5231081fe997c29a370ba95c70d1005539d4ef57c0125a3d0394b7fda",
     "hash": "03f2ec210bd3831a8e990817c87df27a908a9ab3624154be481a13cc93fad710"
+  },
+  "og/production/oauth-and-oidc.jpg": {
+    "spec": "533b86e31b842d9a46028787b020e15779c0f2abd986db4083ef47733243352d",
+    "hash": "ebe5db5d553faa9c5686974f6767e0a7b05d3b0ebf7e58318fe693a8f2dd63b1"
   },
   "og/production/prompt-injection.jpg": {
     "spec": "cd47bf61e7e1dab9743d013551f40bc6b3807c8cc0d5ba32c78a9b058b0acf82",

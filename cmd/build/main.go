@@ -72,7 +72,7 @@ const (
 	author   = "Dayna Blackwell"
 	ogImage  = "/og-v3.jpg"
 	repoURL  = "https://github.com/blackwell-systems/go-agents-book-code"
-	codeRef  = "v1.7" // the tag (or branch) code links point at: v1.7 added the MCP gateway
+	codeRef  = "v1.8" // the tag (or branch) code links point at: v1.8 added the agent service (agentweb)
 	storeURL = "https://blackwellsystems.gumroad.com/l/go-agents"
 )
 
