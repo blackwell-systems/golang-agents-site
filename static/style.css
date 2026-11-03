@@ -1767,6 +1767,7 @@ cite { font-style: italic; }
 /* The book, at the end of every guide: the cover beside what the book
    does with this guide's topic, and the buy and sample buttons. */
 .book-card {
+  margin-top: var(--space-5);
   display: grid;
   grid-template-columns: 5.5rem minmax(0, 1fr);
   gap: var(--space-4);
