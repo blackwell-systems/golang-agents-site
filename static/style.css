@@ -2988,6 +2988,31 @@ nav.toc { display: none; }
    the end of the page. */
 .foot-gopher { position: absolute; left: calc(50% + 3.5rem); bottom: calc(100% - 1px); line-height: 0; pointer-events: none; }
 .foot-gopher img { display: block; width: auto; height: 40px; }
+/* Asleep: the gopher breathes, and a z drifts up from its head each
+   breath, one after another. Still with reduced motion. */
+.foot-gopher picture { display: block; }
+.foot-gopher img { transform-origin: 50% 100%; animation: gopher-breathe 3.6s ease-in-out infinite; }
+.foot-gopher .zzz { position: absolute; left: 66%; top: -2px; }
+.foot-gopher .zzz i {
+  position: absolute; left: 0; top: 0; opacity: 0;
+  font: 600 11px/1 var(--label); font-style: normal; color: var(--soft);
+  animation: gopher-z 3.6s ease-out infinite;
+}
+.foot-gopher .zzz i:nth-child(2) { animation-delay: 1.2s; font-size: 12.5px; }
+.foot-gopher .zzz i:nth-child(3) { animation-delay: 2.4s; font-size: 14px; }
+@keyframes gopher-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.012, 1.035); }
+}
+@keyframes gopher-z {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.6); }
+  20% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(16px, -28px) scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .foot-gopher img { animation: none; }
+  .foot-gopher .zzz { display: none; }
+}
 @media (max-width: 40rem) { .foot-gopher { left: calc(50% + 2.5rem); } .foot-gopher img { height: 32px; } }
 
 /* Icons beside labels and titles. */

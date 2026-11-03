@@ -131,10 +131,13 @@
 
 <footer class="site-footer">
   {{template "rule-small"}}
-  <picture class="foot-gopher" aria-hidden="true">
-    <source type="image/webp" srcset="/img/gopher/sleep-80.webp 1x, /img/gopher/sleep-160.webp 2x">
-    <img src="/img/gopher/sleep-80.png" srcset="/img/gopher/sleep-80.png 1x, /img/gopher/sleep-160.png 2x" alt="" width="94" height="40" loading="lazy" decoding="async">
-  </picture>
+  <span class="foot-gopher" aria-hidden="true">
+    <picture>
+      <source type="image/webp" srcset="/img/gopher/sleep-80.webp 1x, /img/gopher/sleep-160.webp 2x">
+      <img src="/img/gopher/sleep-80.png" srcset="/img/gopher/sleep-80.png 1x, /img/gopher/sleep-160.png 2x" alt="" width="94" height="40" loading="lazy" decoding="async">
+    </picture>
+    <span class="zzz"><i>z</i><i>z</i><i>z</i></span>
+  </span>
   <div class="wrap footer-grid">
     <div>
       <p class="footer-title">{{.Site.Name}}</p>
