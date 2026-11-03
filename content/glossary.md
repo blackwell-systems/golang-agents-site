@@ -318,6 +318,10 @@ The Model Context Protocol: an open standard that lets one program expose tools 
 <span class="cite-line">[MCP in Go: a client and a server, both sides](/build/mcp/)</span>
 <span class="cite-line">[One sentence in a tool description decided 79 of 80 first moves](/findings/tool-description-poisoning/)</span>
 
+### MCP gateway {#mcp-gateway}
+
+One MCP server that agents connect to, in front of the MCP servers that do the work. It decides every tool call against a policy, publishes only tools an operator approved, gets each server behind it a token of its own instead of passing the agent's on, keeps the audit log, and can cut off a user, an agent, or a tool in one place. See [agent gateways](/production/agent-gateways/).
+
 ### Median {#median}
 
 The middle value once results are sorted: half the runs came out lower and half higher. It is used instead of the average when one unusual run would pull the average far off.

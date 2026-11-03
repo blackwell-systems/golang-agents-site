@@ -232,12 +232,16 @@
     "hash": "603ea98b8ffad81a6527ac39eb2556c3455af4f6f6d9a8ad60266aa78818f834"
   },
   "og/production.jpg": {
-    "spec": "a5377fc7e52feff003c73836313b4ee54f493fd9d7f682587b85bdc87a4f40a5",
-    "hash": "0192253b27da4d45cbc3f1349afa4a40246bc04f6aa435ae48f83bee0ea9cc80"
+    "spec": "f09577426d7f4e6e63a5117a8afc20a38b40b7640ab9f483c137a5360d894674",
+    "hash": "deac5b667670496dd5a955cac78b5b388383cf674dcc5f83350c3ac45e263f61"
   },
   "og/production/agent-as-a-service.jpg": {
     "spec": "3659cb71744e332468364613aaf66e0c54ac56a3b53a98ffdc8b557d4286ca83",
     "hash": "f58ff1e3046e5764f3c026c2726f588e6b64ed99a58d83ecc2cb8a4c9a2cf21d"
+  },
+  "og/production/agent-gateways.jpg": {
+    "spec": "e255e630afb841751e9a4155943601a29aee504f3e15f0c9be16377ac52dc8b9",
+    "hash": "8acb5c727bbd526961dc74b2d70e063dc873e93d0ea19fb4e64fa6cd8902a383"
   },
   "og/production/agent-identity.jpg": {
     "spec": "0bf568f2b9065574756d1e65ecd62a6913e67e5f462a0dbb56208d2af7916a79",

@@ -62,13 +62,14 @@ The rest of the page goes through the parts that make each step work.
 A protected MCP server publishes [Protected Resource Metadata](https://www.rfc-editor.org/rfc/rfc9728.html) (RFC 9728): a small JSON document naming the server and the authorization servers it trusts.
 The specification requires it, and requires clients to use it to find the authorization server.
 
-```go include=mcpauth/server.go tag=server
+```go include=mcpauth/resource/server.go tag=server
 ```
 
+The server is stateless, as MCP is from the 2026-07-28 revision: there is no session to tie a token to, so every request carries its token and is checked on its own.
 The metadata lives at a well-known address built by inserting `/.well-known/oauth-protected-resource` between the host and the server's path, so the server at `/mcp` publishes it at `/.well-known/oauth-protected-resource/mcp`, and every 401 and 403 names that address in `resource_metadata`.
 The handler, the SDK's `ProtectedResourceMetadataHandler`, serves whatever it is given without checking it, so the values come from one function:
 
-```go include=mcpauth/server.go tag=prm
+```go include=mcpauth/resource/server.go tag=prm
 ```
 
 Its `resource` must be the URL clients call, byte for byte.
@@ -87,14 +88,14 @@ It checks the scopes and expiry you return, but deciding whether the token is ge
 The tokens here are JWT access tokens as [RFC 9068](https://www.rfc-editor.org/rfc/rfc9068.html) profiles them, signed with ES256 by the authorization server.
 The verifier holds what it must check against:
 
-```go include=mcpauth/verify.go tag=verifier
+```go include=mcpauth/resource/verify.go tag=verifier
 ```
 
 `Resource` is the server's own canonical URI, the audience a token must name.
 `Issuer` is the authorization server's issuer identifier, the one value an `iss` claim may have.
 The signature is checked with [go-jose](https://github.com/go-jose/go-jose), a maintained JOSE library; the claim checks around it are written out, because those are the rules this specification adds and the ones a library won't apply unless you ask:
 
-```go include=mcpauth/verify.go tag=verify
+```go include=mcpauth/resource/verify.go tag=verify
 ```
 
 In order:
@@ -105,14 +106,14 @@ In order:
 4. **The key comes from the key ID**, fetched from the authorization server's key set; the next section covers rotation.
 5. **Expiry and subject are required.** go-jose checks `exp` only when it is present, and RFC 9068 requires it, so a token with no expiry, which would be valid forever, is refused here.
 6. **Issuer and audience must match**, with a small leeway for clock skew between servers. The audience check is the one rule from the start of the page.
-7. **The user becomes `TokenInfo.UserID`.** The SDK uses it to tie an MCP session to the user who opened it, so a token from another user can't take over a session whose ID it has learned.
+7. **The user becomes `TokenInfo.UserID`**, which tool handlers read: `issue_file` records who filed the issue. A token a gateway obtained for the user also names who acted for them, in its `act` claim, and the verifier passes that on as `actors` (see [Agent gateways](/production/agent-gateways/)).
 
 Every refusal wraps `auth.ErrInvalidToken`, which the SDK answers with 401, and its message names the reason without echoing the token.
 A failure that isn't the token's fault, such as the key set being unreachable, is returned unwrapped and becomes a 500, so a client doesn't throw away a good token because a server had trouble.
 
 `TestVerifyRefuses` sends each of those tokens and checks the reason it was refused:
 
-```go include=mcpauth/verify_test.go tag=refuse-test
+```go include=mcpauth/resource/verify_test.go tag=refuse-test
 ```
 
 ### Keys that rotate
@@ -120,7 +121,7 @@ A failure that isn't the token's fault, such as the key set being unreachable, i
 An authorization server rotates its signing key from time to time, publishing the new one in its key set under a new key ID.
 The verifier caches the key set and fetches it again when it sees a key ID it doesn't know:
 
-```go include=mcpauth/verify.go tag=key
+```go include=mcpauth/resource/verify.go tag=key
 ```
 
 The fast path, a known key, takes a read lock only, so verifications don't queue behind each other.
@@ -143,10 +144,10 @@ For an MCP server whose tools change things, short-lived JWTs plus a way to revo
 An MCP server has one endpoint, so with the SDK alone every tool needs the same grant: a client that only wants to search must still ask for permission to file issues.
 Per-tool scopes need a check that knows which tool a request calls, so it goes inside the SDK's middleware, after the token is verified:
 
-```go include=mcpauth/server.go tag=scopes
+```go include=mcpauth/servers/tracker.go tag=scopes
 ```
 
-```go include=mcpauth/scopes.go tag=tool-scopes
+```go include=mcpauth/resource/scopes.go tag=tool-scopes
 ```
 
 The middleware reads the JSON-RPC request, and for a `tools/call` it checks the token's scopes against the tool's.
@@ -230,7 +231,7 @@ The second server trusts the same authorization server, and the token's signatur
 Its audience is the first server, so the second refuses it: `401 invalid token: issued for another resource`.
 
 The specification makes this a rule for servers as well as a check: an MCP server must not accept tokens meant for others, and must not pass on the token it received.
-An MCP server that calls an upstream API, a ticketing system behind an issue tool, say, is a client of that API, and it uses a token issued for that API, obtained through its own grant or by [token exchange](/glossary/#token-exchange), as [Agent identity](/production/agent-identity/) describes.
+An MCP server that calls an upstream API, a ticketing system behind an issue tool, say, is a client of that API, and it uses a token issued for that API, obtained through its own grant or by [token exchange](/glossary/#token-exchange), as [Agent identity](/production/agent-identity/) describes, and as an [MCP gateway](/production/agent-gateways/) does for every server behind it.
 
 ## Why this way and not another
 
@@ -276,9 +277,9 @@ $ go run .
 $ go test -race ./...
 ```
 
-1. In `verify.go`, delete the check on `typ` and run `go test -run TestVerifyRefuses`. The "an ID token" case fails: the verifier now accepts a token issued for login.
-2. In `server.go`, remove the line that wraps the handler in `ToolScopes`, and run `go test -run TestDemo`. Step 3 no longer steps up, because the read-only token can now file an issue.
-3. Set `minRefetch` to zero and run `go test -run TestKeyRotation`: every made-up key ID now costs a request to the authorization server.
+1. In `resource/verify.go`, delete the check on `typ` and run `go test ./resource -run TestVerifyRefuses`. The "an ID token" case fails: the verifier now accepts a token issued for login.
+2. In `resource/server.go`, remove the line that wraps the handler in `ToolScopes`, and run `go test -run TestDemo`. Step 3 no longer steps up, because the read-only token can now file an issue.
+3. In `resource/verify.go`, set `minRefetch` to zero and run `go test ./resource -run TestKeyRotation`: every made-up key ID now costs a request to the authorization server.
 
 Undo your edits with `git restore .` in the `code` directory.
 The specification is still changing; the version this page follows is [2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization).
