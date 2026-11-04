@@ -1186,8 +1186,21 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       show(at + 1);
       label();
     });
+    // Restart goes back to the first line and plays from there (with
+    // reduced motion, it shows the first line and waits for Step).
+    var again = document.createElement("button");
+    again.type = "button";
+    again.className = "listing-replay";
+    again.innerHTML = '<span aria-hidden="true">↺</span><span class="listing-replay-t"> Restart</span>';
+    again.setAttribute("aria-label", "Restart the run from the first line");
+    again.addEventListener("click", function () {
+      stop();
+      at = -1;
+      if (still) { show(0); label(); } else tick();
+    });
     label();
-    if (!still) { cap.appendChild(go); cap.appendChild(pace); }
+    if (!still) { cap.appendChild(go); cap.appendChild(again); cap.appendChild(pace); }
+    else cap.appendChild(again);
     cap.appendChild(one);
   }
 })();
