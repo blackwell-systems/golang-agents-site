@@ -151,6 +151,8 @@ Per-tool scopes need a check that knows which tool a request calls, so it goes i
 ```
 
 The middleware reads the JSON-RPC request, and for a `tools/call` it checks the token's scopes against the tool's.
+A body it can't read as exactly one JSON-RPC message gets 400, never a pass: the SDK's own decoder accepts some bodies a stricter parser refuses, such as a batch (an array of messages, accepted before protocol version 2025-06-18) or an object that names a key twice (the SDK keeps the last), and reads them as a tool call.
+Before companion code v1.9 the check passed such bodies on, and a token that could only read issues filed them that way; `TestToolScopesReadsEveryBody` in `servers/tracker_test.go` sends each body and checks that nothing is filed.
 A tool missing from the map is refused, so a tool added later without a scope can't be called by everyone by default.
 
 The second thing it adds is the response.
