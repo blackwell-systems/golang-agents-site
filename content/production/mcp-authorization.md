@@ -10,6 +10,7 @@ date: 2026-11-03
 weight: 75
 beyond: true
 art: mcp-authorization
+next: true
 ---
 
 An MCP server started over stdio runs on the user's machine and takes its credentials from the environment.

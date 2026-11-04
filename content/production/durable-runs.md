@@ -11,6 +11,7 @@ date: 2026-10-18
 work: true
 weight: 70
 art: ch15
+next: true
 ---
 Picture the triage agent partway through a long batch.
 It has filed one issue and is writing a test for the next crash group when a deploy restarts the machine.

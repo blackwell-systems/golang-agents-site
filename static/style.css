@@ -1876,6 +1876,7 @@ cite { font-style: italic; }
 .book-card-text p { margin: 0 0 var(--space-2); color: var(--stone); font-size: var(--fs-md); line-height: var(--lh-snug); }
 .book-card-text cite { font-style: italic; }
 .book-card-text .book-card-facts { font-size: var(--fs-sm); color: var(--soft); }
+.book-card-text .book-card-next { font-size: var(--fs-sm); }
 .book-card-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
 .book-card-actions .button { min-height: 2.5rem; padding: 0.5rem 1.1rem; font-size: 0.95rem; }
 @media (max-width: 30rem) {
@@ -3083,6 +3084,7 @@ nav.toc { display: none; }
 .home-book-get { font-size: var(--fs-sm); color: var(--soft); }
 .home-book-text .actions { margin: var(--space-4) 0 var(--space-3); }
 .home-book-more { font-size: var(--fs-sm); }
+.home-book-next { font-size: var(--fs-sm); color: var(--soft); }
 @media (max-width: 37.5rem) {
   .home-book-grid { grid-template-columns: 1fr; justify-items: start; }
   .home-book-cover { width: 8.5rem; }
@@ -3506,6 +3508,7 @@ body::after {
 .menu-book-title { font: 600 1rem var(--label); color: var(--ivory); }
 .menu-book-cta { font: 600 var(--fs-sm) var(--label); color: var(--amber); }
 .menu-book-cta .icon { width: 0.9em; height: 0.9em; vertical-align: -0.1em; }
+.menu-book-next { font-size: var(--fs-sm); color: var(--soft); }
 
 /* The ring scrolls a section page to its filter; keep it clear of the sticky header. */
 .stage-filter { scroll-margin-top: calc(var(--header-h, 3.75rem) + 1rem); }
@@ -3638,3 +3641,8 @@ body::after {
 }
 .loopv-c.is-folded .lvc-convo { opacity: 0; }
 .loopv-c.is-unfolding .lvc-convo { animation: lvc-fade 0.5s ease-out 2.7s both; }
+
+/* The book page's "Coming next": the second book's four parts. */
+.next-parts { list-style: none; padding: 0; margin: var(--space-4) 0 0; display: grid; gap: var(--space-3); }
+.next-parts li { padding-left: var(--space-3); border-left: 2px solid var(--amber-dim); }
+.next-parts .part-label { display: block; }

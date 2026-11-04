@@ -9,6 +9,7 @@ level: intermediate
 date: 2026-10-23
 weight: 70
 art: agent-identity
+next: true
 ---
 
 Picture a support agent that handles refunds.

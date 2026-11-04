@@ -11,6 +11,7 @@ date: 2026-10-18
 work: true
 weight: 40
 art: ch13
+next: true
 ---
 
 A test answers a yes-or-no question about your code: given this reply, does the harness do the right thing?

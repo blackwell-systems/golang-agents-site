@@ -52,6 +52,7 @@ type Meta struct {
 	BookLine    string // the closing line about the book, in Markdown
 	Work        bool   // close with a line pointing at /work-with-me/
 	Beyond      bool   // a topic the book doesn't cover; the footer says so
+	Next        bool   // a topic the second book covers in depth; the footer says so
 	Draft       bool   // kept out of the build: no page, sitemap, feed, or nav entry
 	Art         string // an illustration from cmd/build/art.go, such as "ch04"
 }
@@ -288,6 +289,12 @@ func (m *Meta) set(key, val string) error {
 			return fmt.Errorf("beyond %q: %w", val, err)
 		}
 		m.Beyond = b
+	case "next":
+		b, err := strconv.ParseBool(val)
+		if err != nil {
+			return fmt.Errorf("next %q: %w", val, err)
+		}
+		m.Next = b
 	case "work":
 		b, err := strconv.ParseBool(val)
 		if err != nil {

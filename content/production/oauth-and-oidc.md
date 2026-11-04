@@ -10,6 +10,7 @@ date: 2026-11-03
 weight: 72
 beyond: true
 art: oauth-and-oidc
+next: true
 ---
 
 An agent that people use from a browser has three jobs that OAuth and OpenID Connect split between them.

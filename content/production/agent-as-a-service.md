@@ -11,6 +11,7 @@ date: 2026-10-18
 work: true
 weight: 80
 art: ch17
+next: true
 ---
 
 While you watch an agent, you are part of its harness.

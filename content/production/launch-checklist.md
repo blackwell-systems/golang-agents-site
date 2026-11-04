@@ -10,6 +10,7 @@ level: advanced
 date: 2026-10-18
 weight: 90
 art: launch-checklist
+next: true
 ---
 
 An agent that works on your laptop while you watch is a different program from one that runs at night with a budget and a key.

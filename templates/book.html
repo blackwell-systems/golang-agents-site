@@ -279,11 +279,28 @@
         <p>Retrieval and vector stores, memory kept across unrelated runs, multi-agent planning, user interfaces, and fine-tuning, each on purpose. <a href="/scope/">What this guide and the book leave out</a> gives the reason for each.</p>
       </details>
       <details>
+        <summary>Is there a second book?</summary>
+        <p>Yes, in progress: <cite>Running Go Agents in Production</cite>, about running agents for a company once one agent works. It has no release date yet; <a href="#next">Coming next</a> lists what it covers.</p>
+      </details>
+      <details>
         <summary>Will the book be updated?</summary>
         <p>Each edition gets a yearly refresh of the text, the code, the recorded runs, and chapter 17’s table of results across models, with errata in the repository between editions.</p>
         <p>Buyers get every update of this edition free, and updates arrive by email through the store.</p>
       </details>
     </div>
+  </div>
+</section>
+<section class="section alt" id="next" aria-labelledby="next-title">
+  <div class="wrap narrow">
+    <p class="eyebrow">Coming next</p>
+    <h2 id="next-title">The second book, in progress</h2>
+    <p><cite>Running Go Agents in Production</cite> picks up where this book ends, with agents a company runs: many people, teams, and agents on one platform, every call saying who it acts for, and rules, not the model, deciding what an agent may do. It is in progress and has no release date yet.</p>
+    <ol class="next-parts">
+      <li><span class="part-label">Part 1</span> <strong>Who is acting.</strong> People, teams, agents, and runs carried by every call and checked by every service.</li>
+      <li><span class="part-label">Part 2</span> <strong>Governing what agents do.</strong> A gateway, approved tools, checks a model can add but never remove, human approval, audit, and a kill switch.</li>
+      <li><span class="part-label">Part 3</span> <strong>Running many agents.</strong> Agents calling agents, tenant isolation, scaling out, cost and quotas, and state.</li>
+      <li><span class="part-label">Part 4</span> <strong>Changing it safely.</strong> Model changes as a release gate, observability, incidents, and data retention.</li>
+    </ol>
   </div>
 </section>
 {{- end}}

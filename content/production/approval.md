@@ -11,6 +11,7 @@ date: 2026-10-18
 work: true
 weight: 60
 art: ch14
+next: true
 ---
 
 Some calls an agent makes deserve a second pair of eyes: an issue that people will read, an edit to authorization code, a refund.

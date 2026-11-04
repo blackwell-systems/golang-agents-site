@@ -10,6 +10,7 @@ date: 2026-11-03
 weight: 77
 beyond: true
 art: agent-gateways
+next: true
 ---
 
 One agent with one MCP server can leave every decision to that server.
