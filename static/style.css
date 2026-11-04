@@ -3123,7 +3123,23 @@ body::after {
   -webkit-mask-size: 24px 24px;
   mask-size: 24px 24px;
 }
-@media print { body::after, .home-hero::before { display: none; } }
+/* The footer carries the hero's dot grid, so the page ends the way the
+   home page begins. */
+.site-footer { isolation: isolate; }
+.site-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--ivory);
+  opacity: 0.06;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/svg%3E");
+  -webkit-mask-size: 24px 24px;
+  mask-size: 24px 24px;
+}
+@media print { body::after, .home-hero::before, .site-footer::before { display: none; } }
 
 /* A stage filter's own block: the chosen stage's guides at the top,
    then the heading over the guides that cover every stage. Numbers are
