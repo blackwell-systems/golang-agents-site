@@ -1144,11 +1144,35 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       timer = null;
       label();
     }
+    // Play speed: the button cycles through these, and the choice is
+    // remembered for this browser. A change takes effect on the current step.
+    var speeds = [0.5, 1, 2, 4], speed = 1;
+    try {
+      var saved = parseFloat(localStorage.getItem("walk-speed"));
+      if (speeds.indexOf(saved) >= 0) speed = saved;
+    } catch (e) { /* storage unavailable: use 1× */ }
+    var pace = document.createElement("button");
+    pace.type = "button";
+    pace.className = "listing-replay listing-speed";
+    function paceLabel() {
+      pace.textContent = (speed === 0.5 ? "½" : speed) + "×";
+      pace.setAttribute("aria-label", "Play speed " + speed + " times; change it");
+    }
+    function wait() {
+      var line = steps[at].line;
+      return (line === L.gen ? 1300 : line === L.run ? 1000 : 700) / speed;
+    }
+    pace.addEventListener("click", function () {
+      speed = speeds[(speeds.indexOf(speed) + 1) % speeds.length];
+      try { localStorage.setItem("walk-speed", String(speed)); } catch (e) { /* not kept */ }
+      paceLabel();
+      if (timer !== null) { clearTimeout(timer); timer = setTimeout(tick, wait()); }
+    });
+    paceLabel();
     function tick() {
       if (at >= steps.length - 1) { walking = false; stop(); return; }
       show(at + 1);
-      var line = steps[at].line;
-      timer = setTimeout(tick, line === L.gen ? 1300 : line === L.run ? 1000 : 700);
+      timer = setTimeout(tick, wait());
       label();
     }
     go.addEventListener("click", function () {
@@ -1163,7 +1187,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       label();
     });
     label();
-    if (!still) cap.appendChild(go);
+    if (!still) { cap.appendChild(go); cap.appendChild(pace); }
     cap.appendChild(one);
   }
 })();

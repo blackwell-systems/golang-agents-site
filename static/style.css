@@ -1203,6 +1203,7 @@ cite { font-style: italic; }
 .listing-hint + .listing-replay { margin-left: 0; }
 .listing-replay + .listing-replay { margin-left: 0; }
 .listing-replay:hover { color: var(--ivory); border-color: var(--amber-dim); }
+.listing-speed { min-width: 2.6rem; font-variant-numeric: tabular-nums; }
 /* On a phone the title bar has room for the file name, the icon and Copy. */
 @media (max-width: 40rem) {
   .listing-replay-t { display: none; }
