@@ -1201,6 +1201,7 @@ cite { font-style: italic; }
   cursor: pointer;
 }
 .listing-hint + .listing-replay { margin-left: 0; }
+.listing-replay + .listing-replay { margin-left: 0; }
 .listing-replay:hover { color: var(--ivory); border-color: var(--amber-dim); }
 /* On a phone the title bar has room for the file name, the icon and Copy. */
 @media (max-width: 40rem) {
@@ -1499,6 +1500,43 @@ cite { font-style: italic; }
 @media (prefers-reduced-motion: no-preference) {
   .listing .line[data-stage] { transition: background-color 220ms ease-out; }
 }
+
+/* The home page's loop listing can run the recorded run (base.html): a
+   cursor on the line being executed, and a strip above the code naming
+   the turn, the stage, and what just happened. */
+.listing .line.is-exec { background: color-mix(in srgb, var(--st, var(--amber)) 32%, transparent); }
+.listing .line.is-exec:not([data-stage]) {
+  margin: 0 calc(-1 * var(--pad-x)) 0 calc(-1 * var(--gutter-x, var(--pad-x)));
+  padding: 0 var(--pad-x) 0 var(--gutter-x, var(--pad-x));
+}
+.listing-walk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  align-items: baseline;
+  padding: 0.45rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-deep);
+  font: 500 0.8rem / 1.4 var(--label);
+  color: var(--soft);
+}
+.listing-walk[hidden] { display: none; }
+.listing-walk .lw-turn { color: var(--ivory); font-weight: 600; }
+.listing-walk .lw-stage { color: var(--st, var(--amber)); font-weight: 600; }
+/* What the model said and asked for, or a call and its result, from
+   the hero terminal's replay of the same run. */
+.listing-walk-detail {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--code-bg);
+  font: 0.82rem / 1.55 var(--mono);
+  color: var(--ivory);
+  /* As tall as the longest step (a call, two diff lines, a result), so
+     the code below doesn't jump while the run plays. */
+  min-height: calc(4 * 1.55em + 1rem);
+}
+.listing-walk-detail[hidden] { display: none; }
+.lvc-call.is-now { background: color-mix(in srgb, var(--amber) 14%, transparent); border-radius: 4px; }
 
 /* The small ring in a listing with more than one stage (base.html): it
    stays at the top right of the code while the code scrolls by, and

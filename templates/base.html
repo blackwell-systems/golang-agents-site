@@ -883,7 +883,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   if (!listings.length) return;
   var names = ["Build the request", "Call the model", "Run the tools", "Decide"];
   var lines = document.querySelectorAll(".listing .line[data-stage]");
-  var minis = [], pointing = false;
+  var minis = [], pointing = false, walking = false;
   function lightLines(i) {
     lines.forEach(function (l) { l.classList.toggle("is-lit", l.dataset.stage === String(i + 1)); });
   }
@@ -898,7 +898,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     lightLines(i);
     minis.forEach(function (m) { lightMini(m, i); });
   }
-  document.addEventListener("loop:stage", function (e) { light(e.detail); });
+  document.addEventListener("loop:stage", function (e) { if (!walking) light(e.detail); });
   document.querySelectorAll(".listing .stage-badge").forEach(function (b) {
     var i = b.dataset.n - 1;
     b.addEventListener("pointerenter", function () {
@@ -929,7 +929,9 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     // Where the big ring is on the page, the listing can replay the run
     // too: the ring plays it, and these lines light stage by stage.
     var cap = fig.querySelector("figcaption");
-    if (ring && cap && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var walks = ring && cap && document.querySelector(".lvc-calls .lvc-call") &&
+      fig.textContent.indexOf("m.Generate(ctx, req)") >= 0;
+    if (ring && cap && !walks && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       var rb = document.createElement("button");
       rb.type = "button";
       rb.className = "listing-replay";
@@ -966,6 +968,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     body.insertBefore(pin, body.firstChild);
     var m = { a: a, nodes: nodes, name: name, lines: fig.querySelectorAll(".line[data-stage]") };
     minis.push(m);
+    if (walks) walker(fig, cap, m);
     // On the home page it appears once the big ring is out of view.
     if (!ring || !("IntersectionObserver" in window)) a.classList.add("is-shown");
   });
@@ -980,7 +983,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   var queued = false;
   function follow() {
     queued = false;
-    if (pointing) return;
+    if (pointing || walking) return;
     minis.forEach(function (m) {
       var r = m.a.getBoundingClientRect(), y = r.top + r.height / 2;
       for (var k = 0; k < m.lines.length; k++) {
@@ -992,6 +995,177 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   window.addEventListener("scroll", function () {
     if (!queued) { queued = true; requestAnimationFrame(follow); }
   }, { passive: true });
+
+  // The loop listing on the home page can run: a cursor walks its lines
+  // in the order the recorded run in the ledger above executed them,
+  // turn by turn, while the small ring lights each line's stage and the
+  // ledger lights the call being made. Every number comes from the
+  // ledger, which comes from the run. With reduced motion it steps only
+  // when asked.
+  function walker(fig, cap, m) {
+    var rows = Array.prototype.slice.call(document.querySelectorAll(".lvc-calls .lvc-call"));
+    var lines = Array.prototype.slice.call(fig.querySelectorAll(".line"));
+    function find(text) {
+      for (var i = 0; i < lines.length; i++) {
+        if (lines[i].textContent.indexOf(text) >= 0) return lines[i];
+      }
+      return null;
+    }
+    var L = {
+      index: find("index(tools)"), clone: find("slices.Clone"),
+      loop: find("for range lim.MaxTurns"), ctx: find("ctx.Err()"),
+      req: find("req := Request"), gen: find("m.Generate(ctx, req)"),
+      grow: find("append(msgs, reply.Message)"), none: find("ToolCalls) == 0"),
+      done: find("return Result{Messages: msgs}, nil"),
+      each: find("range reply.Message.ToolCalls"), run: find("runTool(")
+    };
+    for (var k in L) if (!L[k]) return;
+    var checked = lines[lines.indexOf(L.gen) + 1];
+    function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+    var turns = rows.map(function (row, t) {
+      var next = rows[t + 1];
+      var asked = next && next.querySelector(".lvc-msg.is-model.is-fresh");
+      return {
+        sent: row.querySelectorAll(".lvc-msg:not(.is-tools)").length,
+        tokens: row.querySelector(".lvc-tok").textContent,
+        asked: asked ? asked.title : "",
+        results: next ? Array.prototype.map.call(
+          next.querySelectorAll(".lvc-msg.is-tool.is-fresh"), function (c) { return c.title; }) : []
+      };
+    });
+    // The hero terminal above replays the same run with its content:
+    // each turn's words, tool calls with their arguments, and results.
+    // A turn's calls there are the reply to that turn's model call here.
+    var heroTurns = Array.prototype.slice.call(document.querySelectorAll(".hero-terminal .ht-turn"));
+    function content(t) {
+      var said = [], calls = [];
+      if (!heroTurns[t]) return { said: said, calls: calls };
+      Array.prototype.forEach.call(heroTurns[t].querySelectorAll(".ht-rows > div"), function (d) {
+        if (d.classList.contains("ht-say")) said.push(d);
+        else if (d.classList.contains("ht-call")) calls.push({ call: d, then: [] });
+        else if (calls.length) calls[calls.length - 1].then.push(d);
+      });
+      return { said: said, calls: calls };
+    }
+    var steps = [];
+    function step(line, text, turn, show) {
+      steps.push({ line: line, text: text, turn: turn, show: show });
+    }
+    step(L.index, "index splits the four tools into definitions and a lookup by name", 0);
+    step(L.clone, "the conversation starts with 1 message, the user's", 0);
+    turns.forEach(function (tu, t) {
+      var n = t + 1;
+      var got = content(t);
+      var reply = got.said.concat(got.calls.map(function (c) { return c.call; }));
+      step(L.loop, n === 1 ? "into the loop, which allows lim.MaxTurns turns"
+        : "back to the top, with everything that happened in the conversation", n, []);
+      step(L.ctx, "ctx isn't done, so carry on", n);
+      step(L.req, "the request: the tool list and " + plural(tu.sent, "message"), n);
+      step(L.gen, "call " + n + " sends " + tu.tokens + " tokens, and the model replies", n, reply);
+      step(checked, "the call succeeded", n);
+      step(L.grow, "the reply joins the conversation: " + plural(tu.sent + 1, "message"), n);
+      if (tu.results.length) {
+        step(L.none, "the reply " + tu.asked + ", so go on", n);
+        step(L.each, "run each of its " + plural(tu.results.length, "call"), n);
+        tu.results.forEach(function (r, j) {
+          var c = got.calls[j];
+          step(L.run, r + "; " + plural(tu.sent + 2 + j, "message") + " now", n,
+            c ? [c.call].concat(c.then) : undefined);
+        });
+      } else {
+        step(L.none, "the reply calls no tools: it is the answer", n);
+        step(L.done, "return the conversation, " + plural(tu.sent + 1, "message") + ", and stop", n);
+      }
+    });
+
+    var strip = document.createElement("div");
+    strip.className = "listing-walk";
+    strip.hidden = true;
+    strip.innerHTML = '<span class="lw-turn"></span><span class="lw-stage"></span><span class="lw-text"></span>';
+    cap.insertAdjacentElement("afterend", strip);
+    var detail = document.createElement("div");
+    detail.className = "listing-walk-detail";
+    detail.hidden = true;
+    strip.insertAdjacentElement("afterend", detail);
+    var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var go = document.createElement("button");
+    go.type = "button";
+    go.className = "listing-replay";
+    var one = document.createElement("button");
+    one.type = "button";
+    one.className = "listing-replay";
+    one.textContent = "Step";
+    one.setAttribute("aria-label", "Step through the recorded run one line at a time");
+    var at = -1, timer = null;
+    function label() {
+      var playing = timer !== null;
+      go.innerHTML = playing ? '<span aria-hidden="true">\u275a\u275a</span><span class="listing-replay-t"> Pause</span>'
+        : '<span aria-hidden="true">' + (at === steps.length - 1 ? "\u21bb" : "\u25b6") +
+          '</span><span class="listing-replay-t"> ' + (at === steps.length - 1 ? "Run again" : "Run it") + "</span>";
+      go.setAttribute("aria-label", playing ? "Pause the run" : "Run the recorded run through this code");
+    }
+    function show(i) {
+      at = i;
+      walking = true;
+      lines.forEach(function (l) { l.classList.remove("is-exec", "is-lit"); });
+      var st = steps[i];
+      st.line.classList.add("is-exec");
+      var stage = st.line.dataset.stage;
+      if (stage) lightMini(m, stage - 1);
+      m.a.classList.add("is-shown");
+      rows.forEach(function (r, t) { r.classList.toggle("is-now", t === st.turn - 1); });
+      strip.hidden = false;
+      strip.querySelector(".lw-turn").textContent = st.turn ? "turn " + st.turn + " of " + turns.length : "before turn 1";
+      var sEl = strip.querySelector(".lw-stage");
+      if (stage) {
+        sEl.textContent = stage + ". " + names[stage - 1];
+        sEl.style.setProperty("--st", "var(--stage-" + stage + ")");
+      } else {
+        sEl.textContent = "the loop";
+        sEl.style.removeProperty("--st");
+      }
+      strip.querySelector(".lw-text").textContent = st.text;
+      // A step that names content shows it; one that doesn't keeps what
+      // the turn last showed, and the top of a turn clears it.
+      var keep = st.show;
+      for (var b = i; keep === undefined && b >= 0 && steps[b].turn === st.turn; b--) keep = steps[b].show;
+      detail.textContent = "";
+      (keep || []).forEach(function (d) {
+        var c = d.cloneNode(true);
+        c.classList.remove("ht-step", "ht-on");
+        detail.appendChild(c);
+      });
+      detail.hidden = false;
+      var r = st.line.getBoundingClientRect();
+      if (r.top < 80 || r.bottom > window.innerHeight - 20) st.line.scrollIntoView({ block: "center" });
+    }
+    function stop() {
+      clearTimeout(timer);
+      timer = null;
+      label();
+    }
+    function tick() {
+      if (at >= steps.length - 1) { walking = false; stop(); return; }
+      show(at + 1);
+      var line = steps[at].line;
+      timer = setTimeout(tick, line === L.gen ? 1300 : line === L.run ? 1000 : 700);
+      label();
+    }
+    go.addEventListener("click", function () {
+      if (timer !== null) { stop(); return; }
+      if (at >= steps.length - 1) at = -1;
+      tick();
+    });
+    one.addEventListener("click", function () {
+      stop();
+      if (at >= steps.length - 1) at = -1;
+      show(at + 1);
+      label();
+    });
+    label();
+    if (!still) cap.appendChild(go);
+    cap.appendChild(one);
+  }
 })();
 
 // Every name in a Go listing, and inline code in the prose that names
