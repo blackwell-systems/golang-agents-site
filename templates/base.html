@@ -1011,17 +1011,23 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       }
       return null;
     }
+    function after(line) { return lines[lines.indexOf(line) + 1]; }
     var L = {
       index: find("index(tools)"), clone: find("slices.Clone"),
       loop: find("for range lim.MaxTurns"), ctx: find("ctx.Err()"),
+      runErr: find('fmt.Errorf("run: %w", err)'),
       req: find("req := Request"), gen: find("m.Generate(ctx, req)"),
+      genErr: find('fmt.Errorf("generate: %w", err)'),
       grow: find("append(msgs, reply.Message)"), none: find("ToolCalls) == 0"),
       done: find("return Result{Messages: msgs}, nil"),
       each: find("range reply.Message.ToolCalls"), run: find("runTool(")
     };
     for (var k in L) if (!L[k]) return;
-    var checked = lines[lines.indexOf(L.gen) + 1];
+    var checked = after(L.gen), genReturn = after(L.genErr);
     function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+    function chip(el) {
+      return { role: el.classList.contains("is-user") ? "user" : el.classList.contains("is-model") ? "model" : "tool", title: el.title };
+    }
     var turns = rows.map(function (row, t) {
       var next = rows[t + 1];
       var asked = next && next.querySelector(".lvc-msg.is-model.is-fresh");
@@ -1033,6 +1039,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
           next.querySelectorAll(".lvc-msg.is-tool.is-fresh"), function (c) { return c.title; }) : []
       };
     });
+    function num(s) { return parseInt(s.replace(/,/g, ""), 10) || 0; }
     // The hero terminal above replays the same run with its content:
     // each turn's words, tool calls with their arguments, and results.
     // A turn's calls there are the reply to that turn's model call here.
@@ -1047,62 +1054,202 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       });
       return { said: said, calls: calls };
     }
-    var steps = [];
-    function step(line, text, turn, show) {
-      steps.push({ line: line, text: text, turn: turn, show: show });
+    function fnName(c) { var f = c.call.querySelector(".ht-fn"); return f ? f.textContent : ""; }
+
+    // The run, step by step, with what the program holds at each step:
+    // msgs (from the ledger's chips), the reply's tool calls and the call
+    // being run (from the hero terminal), ctx, and the tokens sent so far.
+    var base = [];
+    var st8 = { msgs: [], calls: null, call: "", ctx: "nil", sent: 0 };
+    function snap() { return { msgs: st8.msgs.slice(), calls: st8.calls, call: st8.call, ctx: st8.ctx, sent: st8.sent }; }
+    function step(list, line, text, turn, show, extra) {
+      var s = { line: line, text: text, turn: turn, show: show, vars: snap() };
+      if (extra) for (var e in extra) s[e] = extra[e];
+      list.push(s);
     }
-    step(L.index, "index splits the four tools into definitions and a lookup by name", 0);
-    step(L.clone, "the conversation starts with 1 message, the user's", 0);
+    step(base, L.index, "index splits the four tools into definitions and a lookup by name", 0);
+    if (rows[0]) Array.prototype.forEach.call(rows[0].querySelectorAll(".lvc-msg:not(.is-tools)"), function (c) { st8.msgs.push(chip(c)); });
+    step(base, L.clone, "the conversation starts with " + plural(st8.msgs.length, "message") + ", the user's", 0);
     turns.forEach(function (tu, t) {
       var n = t + 1;
       var got = content(t);
       var reply = got.said.concat(got.calls.map(function (c) { return c.call; }));
-      step(L.loop, n === 1 ? "into the loop, which allows lim.MaxTurns turns"
+      st8.calls = null; st8.call = "";
+      step(base, L.loop, n === 1 ? "into the loop, which allows lim.MaxTurns turns"
         : "back to the top, with everything that happened in the conversation", n, []);
-      step(L.ctx, "ctx isn't done, so carry on", n);
-      step(L.req, "the request: the tool list and " + plural(tu.sent, "message"), n);
-      step(L.gen, "call " + n + " sends " + tu.tokens + " tokens, and the model replies", n, reply);
-      step(checked, "the call succeeded", n);
-      step(L.grow, "the reply joins the conversation: " + plural(tu.sent + 1, "message"), n);
+      step(base, L.ctx, "ctx isn't done, so carry on", n);
+      step(base, L.req, "the request: the tool list and " + plural(tu.sent, "message"), n);
+      st8.sent += num(tu.tokens);
+      step(base, L.gen, "call " + n + " sends " + tu.tokens + " tokens, and the model replies", n, reply, { gen: true });
+      st8.calls = got.calls.map(fnName);
+      step(base, checked, "the call succeeded", n);
+      st8.msgs.push({ role: "model", title: tu.asked || "the answer" });
+      step(base, L.grow, "the reply joins the conversation: " + plural(tu.sent + 1, "message"), n);
       if (tu.results.length) {
-        step(L.none, "the reply " + tu.asked + ", so go on", n);
-        step(L.each, "run each of its " + plural(tu.results.length, "call"), n);
+        step(base, L.none, "the reply " + tu.asked + ", so go on", n);
+        step(base, L.each, "run each of its " + plural(tu.results.length, "call"), n);
         tu.results.forEach(function (r, j) {
           var c = got.calls[j];
-          step(L.run, r + "; " + plural(tu.sent + 2 + j, "message") + " now", n,
-            c ? [c.call].concat(c.then) : undefined);
+          st8.call = c ? fnName(c) : "";
+          st8.msgs.push({ role: "tool", title: r });
+          step(base, L.run, r + "; " + plural(tu.sent + 2 + j, "message") + " now", n,
+            c ? [c.call].concat(c.then) : undefined, { call: j });
         });
+        st8.call = "";
       } else {
-        step(L.none, "the reply calls no tools: it is the answer", n);
-        step(L.done, "return the conversation, " + plural(tu.sent + 1, "message") + ", and stop", n);
+        step(base, L.none, "the reply calls no tools: it is the answer", n, undefined, { final: true });
+        step(base, L.done, "return the conversation, " + plural(tu.sent + 1, "message") + ", and stop", n, undefined, { final: true });
       }
     });
+
+    // Cancelling (Ctrl-C) at step i: ctx is done from then on, and the run
+    // goes the way the code takes it. ctx is only checked at the top of a
+    // turn; a call in flight returns ctx's error; tools still run, with ctx
+    // done, and the next turn's check ends the run. An answer already in is
+    // returned as it is.
+    function cancelFrom(i) {
+      var cur = base[i], tail = [], v = cur.vars;
+      var n = cur.turn || 1;
+      function ret(msg) {
+        var d = document.createElement("div");
+        d.className = "lw-ret";
+        d.textContent = "Run returns err: " + msg;
+        return [d];
+      }
+      function add(line, text, turn, extraVars, shown) {
+        var s = { line: line, text: text, turn: turn, show: shown || [], cancelled: true,
+          vars: { msgs: v.msgs.slice(), calls: v.calls, call: v.call, ctx: "context.Canceled", sent: v.sent } };
+        if (extraVars) for (var e in extraVars) s.vars[e] = extraVars[e];
+        tail.push(s);
+      }
+      function endAtTop(turn) {
+        add(L.loop, "back to the top, with ctx cancelled", turn, { calls: null, call: "" });
+        add(L.ctx, "ctx.Err() is context.Canceled now", turn, { calls: null, call: "" });
+        add(L.runErr, "Run returns the conversation so far and run: context canceled", turn, { calls: null, call: "" }, ret("run: context canceled"));
+      }
+      var line = cur.line;
+      if (line === L.index || line === L.clone) { endAtTop(1); return tail; }
+      if (line === L.loop) {
+        add(L.ctx, "ctx.Err() is context.Canceled now", n);
+        add(L.runErr, "Run returns the conversation so far and run: context canceled", n, null, ret("run: context canceled"));
+        return tail;
+      }
+      if (line === L.ctx || line === L.req || line === L.gen) {
+        if (line !== L.gen) add(L.gen, "the call is in flight when ctx is cancelled", n);
+        add(checked, "m.Generate returns ctx's error", n, { calls: null });
+        add(L.genErr, "wrap it: generate: context canceled", n, { calls: null });
+        add(genReturn, "Run returns the conversation so far, " + plural(v.msgs.length, "message") + ", and the error", n, { calls: null }, ret("generate: context canceled"));
+        return tail;
+      }
+      // The reply is already in.
+      var rest = [];
+      for (var j = i + 1; j < base.length && base[j].turn === cur.turn; j++) rest.push(base[j]);
+      if (cur.final || rest.some(function (s) { return s.final; })) {
+        // Too late to matter: the answer is in, and Run returns it.
+        rest.forEach(function (s, k) {
+          var c = { line: s.line, turn: s.turn, show: s.show, final: s.final, cancelled: true,
+            text: (k === 0 ? "ctx is cancelled, but the answer is already in: " : "") + s.text,
+            vars: { msgs: s.vars.msgs, calls: s.vars.calls, call: s.vars.call, ctx: "context.Canceled", sent: s.vars.sent } };
+          tail.push(c);
+        });
+        return tail;
+      }
+      rest.forEach(function (s) {
+        var c = { line: s.line, turn: s.turn, show: s.show, cancelled: true, text: s.text,
+          vars: { msgs: s.vars.msgs, calls: s.vars.calls, call: s.vars.call, ctx: "context.Canceled", sent: s.vars.sent } };
+        if (s.line === L.run) {
+          c.text = "runTool runs " + (s.vars.call || "the call") + " with ctx done: a tool that watches ctx stops early and answers with an error";
+          c.show = [];
+          c.vars.msgs = s.vars.msgs.slice(0, -1).concat([{ role: "tool", title: "an error, if the tool stopped" }]);
+          v = c.vars;
+        }
+        tail.push(c);
+      });
+      v = tail.length ? tail[tail.length - 1].vars : v;
+      endAtTop(n + 1);
+      return tail;
+    }
+
+    var steps = base, cancelled = false;
 
     var strip = document.createElement("div");
     strip.className = "listing-walk";
     strip.hidden = true;
     strip.innerHTML = '<span class="lw-turn"></span><span class="lw-stage"></span><span class="lw-text"></span>';
     cap.insertAdjacentElement("afterend", strip);
+    // A timeline of every step, colored by stage and grouped by turn:
+    // click or drag to jump; arrow keys step when it has focus.
+    var bar = document.createElement("div");
+    bar.className = "lw-timeline";
+    bar.setAttribute("role", "slider");
+    bar.setAttribute("aria-label", "Step of the run");
+    bar.tabIndex = 0;
+    strip.insertAdjacentElement("afterend", bar);
+    function drawBar() {
+      bar.textContent = "";
+      steps.forEach(function (s, i) {
+        var tick = document.createElement("span");
+        tick.className = "lw-tick";
+        if (i > 0 && s.turn !== steps[i - 1].turn) tick.classList.add("is-turn");
+        if (s.cancelled) tick.classList.add("is-cancel");
+        var stage = s.line.dataset.stage;
+        if (stage) tick.style.setProperty("--st", "var(--stage-" + stage + ")");
+        tick.dataset.i = i;
+        bar.appendChild(tick);
+      });
+      bar.setAttribute("aria-valuemin", 1);
+      bar.setAttribute("aria-valuemax", steps.length);
+    }
+    var vars = document.createElement("div");
+    vars.className = "lw-vars";
+    vars.hidden = true;
+    bar.insertAdjacentElement("afterend", vars);
     var detail = document.createElement("div");
     detail.className = "listing-walk-detail";
     detail.hidden = true;
-    strip.insertAdjacentElement("afterend", detail);
+    vars.insertAdjacentElement("afterend", detail);
     var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var go = document.createElement("button");
-    go.type = "button";
-    go.className = "listing-replay";
-    var one = document.createElement("button");
-    one.type = "button";
-    one.className = "listing-replay";
-    one.textContent = "Step";
-    one.setAttribute("aria-label", "Step through the recorded run one line at a time");
+    function button(cls, html, aria) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "listing-replay" + (cls ? " " + cls : "");
+      if (html) b.innerHTML = html;
+      if (aria) b.setAttribute("aria-label", aria);
+      return b;
+    }
+    var go = button("");
+    var back = button("listing-back", '<span aria-hidden="true">←</span>', "Step back one line");
+    var one = button("", "Step", "Step through the recorded run one line at a time");
+    var stopIt = button("listing-cancel", '<span aria-hidden="true">✕</span><span class="listing-replay-t"> Cancel</span>',
+      "Cancel the run, as Ctrl-C would: ctx is done from here on");
     var at = -1, timer = null;
     function label() {
-      var playing = timer !== null;
-      go.innerHTML = playing ? '<span aria-hidden="true">\u275a\u275a</span><span class="listing-replay-t"> Pause</span>'
-        : '<span aria-hidden="true">' + (at === steps.length - 1 ? "\u21bb" : "\u25b6") +
-          '</span><span class="listing-replay-t"> ' + (at === steps.length - 1 ? "Run again" : "Run it") + "</span>";
+      var playing = timer !== null, end = at === steps.length - 1;
+      go.innerHTML = playing ? '<span aria-hidden="true">❚❚</span><span class="listing-replay-t"> Pause</span>'
+        : '<span aria-hidden="true">' + (end ? "↻" : "▶") +
+          '</span><span class="listing-replay-t"> ' + (end ? "Run again" : "Run it") + "</span>";
       go.setAttribute("aria-label", playing ? "Pause the run" : "Run the recorded run through this code");
+      back.disabled = at <= 0;
+      stopIt.hidden = at < 0 || end || cancelled;
+    }
+    function chips(list) {
+      return list.map(function (c) {
+        return '<span class="lvc-msg is-fresh is-' + c.role + '" title="' + c.title.replace(/"/g, "&quot;") + '">' + c.role + "</span>";
+      }).join("");
+    }
+    function showVars(v) {
+      var rowsHTML = [
+        ['msgs', '<span class="lw-len">len ' + v.msgs.length + '</span>' + chips(v.msgs)],
+        ['reply.Message.ToolCalls', v.calls === null ? '<span class="lw-none">no reply yet this turn</span>'
+          : v.calls.length ? v.calls.join(", ") : '<span class="lw-none">none: the answer</span>'],
+        ['call.Name', v.call || '<span class="lw-none">—</span>'],
+        ['ctx.Err()', v.ctx === "nil" ? "nil" : '<span class="lw-err">' + v.ctx + "</span>"],
+        ['tokens sent', v.sent ? v.sent.toLocaleString("en-US") + " so far" : '<span class="lw-none">none yet</span>']
+      ];
+      vars.innerHTML = rowsHTML.map(function (r) {
+        return '<div class="lw-var"><span class="lw-name">' + r[0] + '</span><span class="lw-val">' + r[1] + "</span></div>";
+      }).join("");
+      vars.hidden = false;
     }
     function show(i) {
       at = i;
@@ -1115,16 +1262,25 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       m.a.classList.add("is-shown");
       rows.forEach(function (r, t) { r.classList.toggle("is-now", t === st.turn - 1); });
       strip.hidden = false;
-      strip.querySelector(".lw-turn").textContent = st.turn ? "turn " + st.turn + " of " + turns.length : "before turn 1";
+      strip.classList.toggle("is-cancelled", !!st.cancelled);
+      strip.querySelector(".lw-turn").textContent = st.turn ? "turn " + st.turn + (cancelled ? "" : " of " + turns.length) : "before turn 1";
       var sEl = strip.querySelector(".lw-stage");
       if (stage) {
         sEl.textContent = stage + ". " + names[stage - 1];
         sEl.style.setProperty("--st", "var(--stage-" + stage + ")");
       } else {
-        sEl.textContent = "the loop";
-        sEl.style.removeProperty("--st");
+        sEl.textContent = st.cancelled ? "cancelled" : "the loop";
+        if (st.cancelled) sEl.style.setProperty("--st", "var(--stage-4)");
+        else sEl.style.removeProperty("--st");
       }
       strip.querySelector(".lw-text").textContent = st.text;
+      Array.prototype.forEach.call(bar.children, function (t, k) {
+        t.classList.toggle("is-now", k === i);
+        t.classList.toggle("is-past", k < i);
+      });
+      bar.setAttribute("aria-valuenow", i + 1);
+      bar.setAttribute("aria-valuetext", "step " + (i + 1) + " of " + steps.length + ": " + st.text);
+      showVars(st.vars);
       // A step that names content shows it; one that doesn't keeps what
       // the turn last showed, and the top of a turn clears it.
       var keep = st.show;
@@ -1138,6 +1294,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       detail.hidden = false;
       var r = st.line.getBoundingClientRect();
       if (r.top < 80 || r.bottom > window.innerHeight - 20) st.line.scrollIntoView({ block: "center" });
+      label();
     }
     function stop() {
       clearTimeout(timer);
@@ -1175,33 +1332,76 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
       timer = setTimeout(tick, wait());
       label();
     }
+    function reset() {
+      steps = base;
+      cancelled = false;
+      drawBar();
+    }
     go.addEventListener("click", function () {
       if (timer !== null) { stop(); return; }
-      if (at >= steps.length - 1) at = -1;
+      if (at >= steps.length - 1) { reset(); at = -1; }
       tick();
     });
     one.addEventListener("click", function () {
       stop();
-      if (at >= steps.length - 1) at = -1;
+      if (at >= steps.length - 1) { reset(); at = -1; }
       show(at + 1);
+    });
+    back.addEventListener("click", function () {
+      stop();
+      if (at > 0) show(at - 1);
+    });
+    stopIt.addEventListener("click", function () {
+      if (at < 0 || cancelled) return;
+      var playing = timer !== null;
+      stop();
+      steps = steps.slice(0, at + 1).concat(cancelFrom(at));
+      cancelled = true;
+      drawBar();
+      show(at + 1);
+      if (playing && !still) timer = setTimeout(tick, wait());
       label();
+    });
+    function jump(e) {
+      var t = e.target.closest ? e.target.closest(".lw-tick") : null;
+      if (!t) {
+        var r = bar.getBoundingClientRect();
+        var k = Math.floor((e.clientX - r.left) / r.width * steps.length);
+        t = bar.children[Math.max(0, Math.min(steps.length - 1, k))];
+      }
+      if (t) { stop(); show(+t.dataset.i); }
+    }
+    var dragging = false;
+    bar.addEventListener("pointerdown", function (e) { dragging = true; bar.setPointerCapture(e.pointerId); jump(e); });
+    bar.addEventListener("pointermove", function (e) { if (dragging) jump(e); });
+    bar.addEventListener("pointerup", function () { dragging = false; });
+    bar.addEventListener("pointercancel", function () { dragging = false; });
+    bar.addEventListener("keydown", function (e) {
+      var to = e.key === "ArrowRight" || e.key === "ArrowDown" ? at + 1
+        : e.key === "ArrowLeft" || e.key === "ArrowUp" ? at - 1
+        : e.key === "Home" ? 0 : e.key === "End" ? steps.length - 1 : null;
+      if (to === null) return;
+      e.preventDefault();
+      stop();
+      show(Math.max(0, Math.min(steps.length - 1, to)));
     });
     // Restart goes back to the first line and plays from there (with
     // reduced motion, it shows the first line and waits for Step).
-    var again = document.createElement("button");
-    again.type = "button";
-    again.className = "listing-replay";
-    again.innerHTML = '<span aria-hidden="true">↺</span><span class="listing-replay-t"> Restart</span>';
-    again.setAttribute("aria-label", "Restart the run from the first line");
+    var again = button("", '<span aria-hidden="true">↺</span><span class="listing-replay-t"> Restart</span>',
+      "Restart the run from the first line");
     again.addEventListener("click", function () {
       stop();
+      reset();
       at = -1;
-      if (still) { show(0); label(); } else tick();
+      if (still) show(0); else tick();
     });
+    drawBar();
     label();
     if (!still) { cap.appendChild(go); cap.appendChild(again); cap.appendChild(pace); }
     else cap.appendChild(again);
+    cap.appendChild(back);
     cap.appendChild(one);
+    cap.appendChild(stopIt);
   }
 })();
 

@@ -1537,6 +1537,62 @@ cite { font-style: italic; }
   min-height: calc(4 * 1.55em + 1rem);
 }
 .listing-walk-detail[hidden] { display: none; }
+/* Every step of the run as a tick, colored by stage, with a gap between
+   turns; the current one stands taller. Click or drag to jump. */
+.lw-timeline {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  height: 1.1rem;
+  padding: 0.25rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-deep);
+  cursor: pointer;
+  touch-action: none;
+}
+.lw-timeline:focus-visible { outline: 2px solid var(--amber); outline-offset: -2px; }
+.lw-tick {
+  flex: 1;
+  height: 0.45rem;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--st, var(--soft)) 35%, transparent);
+}
+.lw-tick.is-turn { margin-left: 5px; }
+.lw-tick.is-past { background: color-mix(in srgb, var(--st, var(--soft)) 70%, transparent); }
+.lw-tick.is-now { height: 0.85rem; background: var(--st, var(--amber)); }
+.lw-tick.is-cancel { --st: var(--stage-4); }
+/* What the program holds at the current line, like a debugger's locals. */
+.lw-vars {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.45rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-deep);
+  font: 0.78rem / 1.5 var(--mono);
+  color: var(--ivory);
+  min-height: calc(5 * 1.5em + 1.3rem);
+}
+.lw-vars[hidden] { display: none; }
+.lw-var { display: grid; grid-template-columns: 13.5rem 1fr; gap: 0.6rem; align-items: start; }
+.lw-name { color: var(--soft); }
+.lw-val { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; min-width: 0; }
+.lw-val .lvc-msg { font-size: 0.68rem; padding: 0 0.35rem; }
+.lw-len { color: var(--soft); margin-right: 0.3rem; }
+.lw-none { color: var(--soft); }
+.lw-err { color: var(--stage-4); }
+.listing-walk-detail .lw-ret { color: var(--stage-4); }
+.listing-back:disabled { opacity: 0.4; cursor: default; }
+.listing-cancel { color: var(--stage-4); }
+.listing-cancel[hidden] { display: none; }
+@media (max-width: 40rem) {
+  /* The walkable listing's controls take their own row under the file
+     name, which stays on one line. */
+  .listing figcaption:has(.listing-speed) { flex-wrap: wrap; row-gap: 0.45rem; }
+  .listing figcaption:has(.listing-speed) > a { flex: 1 0 100%; white-space: nowrap; }
+  .listing figcaption:has(.listing-speed) .listing-replay { margin-left: 0; margin-right: 0.3rem; }
+  .lw-var { grid-template-columns: 1fr; gap: 0; }
+  .lw-vars { min-height: calc(10 * 1.5em + 1rem); }
+}
 .lvc-call.is-now { background: color-mix(in srgb, var(--amber) 14%, transparent); border-radius: 4px; }
 
 /* The small ring in a listing with more than one stage (base.html): it
