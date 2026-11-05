@@ -36,7 +36,7 @@ var books = []*Book{
 		CoverPrefix: "cover2",
 		CoverAlt:    "The cover of Running Go Agents in Production: a small blue gopher with a clipboard stands at a lit control desk with a lever and green gauges, while a stone android kneels beside it with an open hand, under a vaulted hall of cables and screens.",
 		Hook:        "Every call an agent makes asks five questions. This book builds the platform that answers them.",
-		Line:        "Run agents for a company: every call says who it acts for, rules decide what an agent may do, and cost and state stay bounded as it grows. In progress.",
+		Line:        "Run agents for a company: every call says who it acts for, rules decide what an agent may do, and cost and state stay bounded as the platform grows.",
 		Ledes: []string{
 			"Run Go agents for a company: many people, teams, and agents on one platform, every call saying who it acts for, and rules, not the model, deciding what an agent may do.",
 			"It picks up where the first book ends, with an agent that works, and builds what it takes to run agents for other people.",

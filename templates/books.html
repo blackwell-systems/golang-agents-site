@@ -14,18 +14,16 @@
           <source type="image/webp" srcset="/img/{{$b.CoverPrefix}}-360.webp 360w, /img/{{$b.CoverPrefix}}-540.webp 540w" sizes="(min-width: 600px) 270px, 60vw">
           <img src="/img/{{$b.CoverPrefix}}-720.jpg" width="720" height="888" loading="{{if eq $i 0}}eager{{else}}lazy{{end}}" decoding="async" alt="">
         </picture></a>
-        <div class="books-text">
           <p class="part-label">Book {{add $i 1}}{{if not $b.Released}} · {{$b.Status}}{{end}}</p>
           <h2><a href="{{$b.URL}}">{{$b.Title}}</a></h2>
           <p class="books-sub">{{$b.Subtitle}}</p>
           <p>{{$b.Line}}</p>
           <p class="books-links">
-            <a class="button {{if $b.Released}}primary{{else}}secondary{{end}}" href="{{$b.URL}}">About the book {{icon "arrow"}}</a>
+            <a class="button primary" href="{{$b.URL}}">About the book</a>
             {{- if $b.Released}}
             <a class="button secondary" href="/sample/building-ai-agents-in-go-sample-light.pdf">Free sample (PDF)</a>
             {{- end}}
           </p>
-        </div>
       </li>
       {{- end}}
     </ol>

@@ -3646,14 +3646,21 @@ body::after {
 .toc-capstone { margin: var(--space-4) 0 0; }
 .toc-capstone .part-label { margin-right: var(--space-2); }
 .books-head { max-width: 40rem; margin-bottom: var(--space-6); }
-.books-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
-.books-item { display: grid; gap: var(--space-4); align-content: start; }
-.books-cover { justify-self: start; width: min(270px, 60vw); line-height: 0; }
+.books-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-6); }
+.books-item { display: grid; gap: var(--space-3); align-content: start; }
+.books-cover { justify-self: start; width: min(270px, 60vw); line-height: 0; margin-bottom: var(--space-2); }
 .books-cover img { width: 100%; height: auto; border-radius: 3px; box-shadow: 0 0 0 1px var(--amber-dim), 0 16px 32px -16px var(--shadow); }
-.books-text h2 { margin: 0.25rem 0 0.25rem; font-size: clamp(1.5rem, 3.4vw, 1.9rem); }
-.books-text h2 a { color: inherit; text-decoration: none; }
-.books-text h2 a:hover { color: var(--amber); }
-.books-sub { margin: 0 0 var(--space-3); color: var(--soft); }
-.books-links { display: flex; flex-wrap: wrap; gap: 0.85rem; margin: var(--space-4) 0 0; }
+/* Side by side, the two books share rows: cover, label, title, subtitle, description, buttons. */
+@media (min-width: 56rem) {
+  .books-list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-6); row-gap: 0; }
+  .books-item { grid-row: span 6; grid-template-rows: subgrid; row-gap: var(--space-3); }
+  .books-links { align-self: end; }
+}
+.books-item h2 { margin: 0; font-size: clamp(1.5rem, 3.4vw, 1.9rem); }
+.books-item h2 a { color: inherit; text-decoration: none; }
+.books-item h2 a:hover { color: var(--amber); }
+.books-item > * { margin-top: 0; margin-bottom: 0; }
+.books-sub { color: var(--soft); }
+.books-links { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: var(--space-2); }
 .books-links .icon { width: 0.9em; height: 0.9em; margin-left: 0.4em; }
 .books-head h1 { margin-bottom: var(--space-3); }
