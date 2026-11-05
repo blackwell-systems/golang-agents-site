@@ -1,6 +1,6 @@
 # Content plan
 
-The information architecture of golang-agents.com: every planned page, with its URL, its title, the search question it answers, the chapters of *Building AI Agents in Go* it draws on, and the public code it links to (paths under `code/` in [go-agents-book-code](https://github.com/blackwell-systems/go-agents-book-code)).
+The information architecture of golang-agents.com: every planned page, with its URL, its title, the search question it answers, the chapters of *Building AI Agents in Go* it draws on (a page that draws on the second book names the book too), and the public code it links to (paths under `code/` in [go-agents-book-code](https://github.com/blackwell-systems/go-agents-book-code)).
 
 The build skips this file; it is not a page.
 
@@ -19,6 +19,8 @@ The build skips this file; it is not a page.
 | --- | --- | --- |
 | `/` | AI Agents in Go (home) | published |
 | `/book/` | Building AI Agents in Go (the book) | published |
+| `/books/` | The books (both covers, a line each) | published |
+| `/books/running-go-agents-in-production/` | Running Go Agents in Production (in progress: contents, no store link) | published |
 | `/glossary/` | Glossary | published |
 | `/404.html` | Page not found | published |
 | `/loop/`, `/design/`, `/production/`, `/run/`, `/providers/`, `/findings/` | Section pages, listing their guides | published |

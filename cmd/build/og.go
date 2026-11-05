@@ -89,7 +89,7 @@ func shareCards(pages []*Page) map[*Page]*shareCard {
 		}
 		switch {
 		case p.Layout == "book":
-			c.Art = "img/cover-720.jpg"
+			c.Art = "img/" + bookByID(p.BookID).CoverPrefix + "-720.jpg"
 		case art != "":
 			a := arts[art]
 			c.Art = fmt.Sprintf("img/art/%s-%d.%s", art, a.Widths[len(a.Widths)-1], a.Ext)

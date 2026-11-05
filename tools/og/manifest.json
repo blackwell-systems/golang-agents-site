@@ -55,6 +55,14 @@
     "spec": "62b70a84368f41d3dd1db8b487baa683513425dd70dc657074c634d08e51c611",
     "hash": "51128ef6fbf76c7b4e01b559aff33b7b0796c7c7d65dab150dafece980f6120d"
   },
+  "og/books.jpg": {
+    "spec": "07b6e0d56872fe5e279b1b835e38ac86032c1d7aa1988c246d9ea5b592f710b9",
+    "hash": "af9fd98d0d878e32127cb786945a5b6234f9cf1f5a5567c0a4228f19f567141a"
+  },
+  "og/books/running-go-agents-in-production.jpg": {
+    "spec": "9ec59fa75039f3cb833ec7c1118577e8702ffacae969e1bcc89dd6bb96de2cad",
+    "hash": "c5fa58ba2913024c0a5a5a98ff0212d3f7e740ade9ba6132976fba7fedf81cfb"
+  },
   "og/build.jpg": {
     "spec": "a8733d344baa8af9bb7941a38de823ba911feb2948c25676ccff4c267cc7f5ef",
     "hash": "acf12acc06b342d1c8a7d911be79536272318fe792793c4674475ee3e1b435e7"

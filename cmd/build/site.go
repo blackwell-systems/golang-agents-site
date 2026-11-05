@@ -181,6 +181,8 @@ type view struct {
 	Prev, Next *Page       // neighbors within the page's section, for guides
 	Places     []PathPlace // where the page stands on the reading paths
 	Nav        []navItem
+	Book       *Book // the book a book page is about
+	Books      []*Book
 	JSONLD     template.JS
 }
 
@@ -262,7 +264,7 @@ func loadTemplates(dir string) (map[string]*template.Template, error) {
 		return nil, fmt.Errorf("templates: %w", err)
 	}
 	out := map[string]*template.Template{}
-	for _, layout := range []string{"home", "section", "article", "book", "glossary", "guides", "page", "work", "search"} {
+	for _, layout := range []string{"home", "section", "article", "book", "books", "glossary", "guides", "page", "work", "search"} {
 		t, err := template.Must(base.Clone()).ParseFiles(filepath.Join(dir, layout+".html"))
 		if err != nil {
 			return nil, fmt.Errorf("templates: %w", err)
@@ -274,7 +276,10 @@ func loadTemplates(dir string) (map[string]*template.Template, error) {
 
 // writePage renders p into its file under out.
 func writePage(out string, tmpl map[string]*template.Template, s *Site, p *Page) error {
-	v := view{Site: s, Page: p, Section: s.section(p), Places: places(s.Paths, p)}
+	v := view{Site: s, Page: p, Section: s.section(p), Places: places(s.Paths, p), Books: books}
+	if p.Layout == "book" {
+		v.Book = bookByID(p.BookID)
+	}
 	if len(s.Paths) > 0 {
 		v.Nav = append(v.Nav, navItem{"Start here", "/start/", p.URL == "/start/"})
 	}
@@ -283,7 +288,7 @@ func writePage(out string, tmpl map[string]*template.Template, s *Site, p *Page)
 	}
 	v.Nav = append(v.Nav,
 		navItem{"Glossary", "/glossary/", p.URL == "/glossary/"},
-		navItem{"The book", "/book/", p.URL == "/book/"},
+		navItem{"Books", "/books/", p.Layout == "books" || p.Layout == "book"},
 		navItem{"Work with me", "/work-with-me/", p.URL == "/work-with-me/"})
 	// Previous and Next stay inside the page's section; the reading
 	// paths have their own links, so the two never point two ways.
@@ -327,6 +332,18 @@ func jsonLD(s *Site, p *Page) (template.JS, error) {
 	person := map[string]any{"@type": "Person", "name": s.Author}
 	var d map[string]any
 	switch {
+	case p.Layout == "book" && p.BookID != "":
+		b := bookByID(p.BookID)
+		d = map[string]any{
+			"@type":               "Book",
+			"name":                b.Title,
+			"alternativeHeadline": b.Subtitle,
+			"author":              person,
+			"inLanguage":          "en",
+			"url":                 p.Abs(),
+			"image":               s.URL + "/img/" + b.CoverPrefix + "-720.jpg",
+			"creativeWorkStatus":  "In progress",
+		}
 	case p.Layout == "book":
 		d = map[string]any{
 			"@type":               "Book",

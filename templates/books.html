@@ -1,0 +1,32 @@
+{{define "main" -}}
+<section class="section books-page" aria-labelledby="books-title">
+  <div class="wrap">
+    <header class="books-head">
+      <p class="eyebrow">Books by Dayna Blackwell</p>
+      <h1 id="books-title">Two books on AI agents in Go</h1>
+      <p class="lede">The first builds one agent, from the first request to a service you can leave running. The second picks up there and runs agents for a company.</p>
+    </header>
+    <ol class="books-list">
+      {{- range $i, $b := .Books}}
+      <li class="books-item">
+        <a class="books-cover" href="{{$b.URL}}" tabindex="-1" aria-hidden="true"><picture>
+          <source type="image/avif" srcset="/img/{{$b.CoverPrefix}}-360.avif 360w, /img/{{$b.CoverPrefix}}-540.avif 540w" sizes="(min-width: 600px) 270px, 60vw">
+          <source type="image/webp" srcset="/img/{{$b.CoverPrefix}}-360.webp 360w, /img/{{$b.CoverPrefix}}-540.webp 540w" sizes="(min-width: 600px) 270px, 60vw">
+          <img src="/img/{{$b.CoverPrefix}}-720.jpg" width="720" height="888" loading="{{if eq $i 0}}eager{{else}}lazy{{end}}" decoding="async" alt="">
+        </picture></a>
+          <p class="part-label">Book {{add $i 1}}{{if not $b.Released}} · {{$b.Status}}{{end}}</p>
+          <h2><a href="{{$b.URL}}">{{$b.Title}}</a></h2>
+          <p class="books-sub">{{$b.Subtitle}}</p>
+          <p>{{$b.Line}}</p>
+          <p class="books-links">
+            <a class="button primary" href="{{$b.URL}}">About the book</a>
+            {{- if $b.Released}}
+            <a class="button secondary" href="/sample/building-ai-agents-in-go-sample-light.pdf">Free sample (PDF)</a>
+            {{- end}}
+          </p>
+      </li>
+      {{- end}}
+    </ol>
+  </div>
+</section>
+{{- end}}
