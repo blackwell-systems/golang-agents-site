@@ -3675,3 +3675,12 @@ body::after {
 .books-links { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: var(--space-2); }
 .books-links .icon { width: 0.9em; height: 0.9em; margin-left: 0.4em; }
 .books-head h1 { margin-bottom: var(--space-3); }
+
+/* Book 2 beside book 1: a small cover and a line, on the home page and
+   at the end of guides whose topic it covers. */
+.book-two { display: flex; gap: var(--space-3, 0.9rem); align-items: center; margin-top: var(--space-4, 1.2rem); padding-top: var(--space-3, 0.9rem); border-top: 1px solid var(--line); }
+.book-two-cover { flex: none; line-height: 0; }
+.book-two-cover img { width: 4rem; height: auto; border: 1px solid var(--line); box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
+.book-two p { margin: 0; font-size: var(--fs-sm); color: var(--soft); }
+.book-two p a cite { color: var(--ivory); }
+.book-two-label { display: block; font: 600 var(--fs-label, 0.72rem)/1.4 var(--label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.2rem; }
