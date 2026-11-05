@@ -81,7 +81,7 @@ The [launch checklist](/production/launch-checklist/) collects these into items 
 
 When a company runs many agents for many people, the engineer who owns them needs more than the loop.
 The first book covers how an agent works and how to tell whether a change helped.
-The second, *Running Go Agents in Production* ([in progress](/book/#next)), covers the rest of the platform: who each call acts for, a gateway that decides every call by rules people write, approved tools, checks a model can add but never remove, human approval, audit and a kill switch, agents calling agents, tenants, scaling out, cost, and changing models safely.
+The second, *Running Go Agents in Production* ([in progress](/books/running-go-agents-in-production/)), covers the rest of the platform: who each call acts for, a gateway that decides every call by rules people write, approved tools, checks a model can add but never remove, human approval, audit and a kill switch, agents calling agents, tenants, scaling out, cost, and changing models safely.
 
 Together they cover the decisions a senior or staff engineer is asked to own when a company runs agents, and the books argue each one instead of listing it: where a check has to sit so the model can't talk its way past it, what revoking a credential can't undo, why a new safety check runs alongside the system before it may block anything, until a held-out evaluation clears its target.
 Each design comes with the tests and measurements behind it, including the ones where the obvious choice lost, so an engineer learns to defend a decision with evidence, which is what a design review asks of whoever owns the system.
