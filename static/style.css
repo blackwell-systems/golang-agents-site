@@ -3081,7 +3081,18 @@ nav.toc { display: none; }
 .site-footer > .rule::before, .site-footer > .rule::after { background: var(--line); }
 /* The gopher asleep on the footer's hairline, to the right of the ring:
    the end of the page. */
-.foot-gopher { position: absolute; left: calc(50% + 3.5rem); bottom: calc(100% - 1px); line-height: 0; pointer-events: none; }
+.foot-gopher { position: absolute; left: calc(50% + 3.5rem); bottom: calc(100% - 1px); line-height: 0; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
+.foot-gopher:focus-visible { outline-offset: 4px; border-radius: 6px; }
+/* Clicked: it stirs, a small hop, and the z's stop until it settles. */
+.foot-gopher.stir img { animation: gopher-hop 0.7s ease-out 1; }
+.foot-gopher.stir .zzz { display: none; }
+@keyframes gopher-hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  25% { transform: translateY(-9px) scale(0.97, 1.05); }
+  55% { transform: translateY(0) scale(1.04, 0.95); }
+  75% { transform: translateY(-3px) scale(1, 1.01); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
 .foot-gopher img { display: block; width: auto; height: 40px; }
 /* Asleep: the gopher breathes, and a z drifts up from its head each
    breath, one after another. Still with reduced motion. */
