@@ -4,11 +4,12 @@
     <div class="hero-text">
       <p class="eyebrow">A book by Dayna Blackwell</p>
       <div class="title-block">
-        <h1 id="title">Building AI<br>Agents in Go</h1>
-        <p class="subtitle">From the agent loop to production</p>
+        <h1 id="title">{{if .Book.ID}}{{.Book.Title}}{{else}}Building AI<br>Agents in Go{{end}}</h1>
+        <p class="subtitle">{{.Book.Subtitle}}</p>
         <div class="ornament" aria-hidden="true"><span></span></div>
       </div>
-      <p class="hook">An agent is a model in a loop. This book has you build the loop.</p>
+      <p class="hook">{{.Book.Hook}}</p>
+{{- if .Book.Released}}
       <p class="lede"><strong>Learn how AI agents work by building one in Go, from the first request to production, using the standard library.</strong></p>
       <p class="lede">For Go developers new to language models. If you are comfortable writing Go, that is enough: no machine learning, no math, no framework required.</p>
       <div class="actions">
@@ -20,20 +21,30 @@
         <li>Go 1.27, standard library first</li>
         <li>Every example runs offline</li>
       </ul>
+{{- else}}
+      {{- range .Book.Ledes}}
+      <p class="lede">{{.}}</p>
+      {{- end}}
+      <div class="actions">
+        <p class="book-status" role="status"><span class="book-status-dot" aria-hidden="true"></span>{{.Book.Status}}</p>
+        <a class="button secondary" href="/book/">The first book</a>
+      </div>
+{{- end}}
     </div>
     <div class="hero-cover">
       <picture>
         <source type="image/avif" sizes="(min-width: 960px) 420px, (min-width: 600px) 300px, 240px"
-          srcset="/img/cover-360.avif 360w, /img/cover-540.avif 540w, /img/cover-720.avif 720w, /img/cover-1080.avif 1080w">
+          srcset="/img/{{.Book.CoverPrefix}}-360.avif 360w, /img/{{.Book.CoverPrefix}}-540.avif 540w, /img/{{.Book.CoverPrefix}}-720.avif 720w, /img/{{.Book.CoverPrefix}}-1080.avif 1080w">
         <source type="image/webp" sizes="(min-width: 960px) 420px, (min-width: 600px) 300px, 240px"
-          srcset="/img/cover-360.webp 360w, /img/cover-540.webp 540w, /img/cover-720.webp 720w, /img/cover-1080.webp 1080w">
-        <img src="/img/cover-720.jpg" width="720" height="888" fetchpriority="high" decoding="async"
-          alt="The cover of the book: a small blue gopher holding a clipboard stands in a pool of amber light on a stone plaza at night, while a towering stone android kneels and reaches toward it with an open hand.">
+          srcset="/img/{{.Book.CoverPrefix}}-360.webp 360w, /img/{{.Book.CoverPrefix}}-540.webp 540w, /img/{{.Book.CoverPrefix}}-720.webp 720w, /img/{{.Book.CoverPrefix}}-1080.webp 1080w">
+        <img src="/img/{{.Book.CoverPrefix}}-720.jpg" width="720" height="888" fetchpriority="high" decoding="async"
+          alt="{{.Book.CoverAlt}}">
       </picture>
     </div>
   </div>
 </section>
 
+{{if .Book.Released -}}
 <section class="section" id="book" aria-labelledby="book-title">
   <div class="wrap narrow">
     <p class="eyebrow">The book</p>
@@ -294,7 +305,7 @@
   <div class="wrap narrow">
     <p class="eyebrow">Coming next</p>
     <h2 id="next-title">The second book, in progress</h2>
-    <p><cite>Running Go Agents in Production</cite> picks up where this book ends, with agents a company runs: many people, teams, and agents on one platform, every call saying who it acts for, and rules, not the model, deciding what an agent may do. It is in progress and has no release date yet.</p>
+    <p><cite>Running Go Agents in Production</cite> picks up where this book ends, with agents a company runs: many people, teams, and agents on one platform, every call saying who it acts for, and rules, not the model, deciding what an agent may do. It is in progress and has no release date yet. <a href="/books/running-go-agents-in-production/">More about the second book</a>.</p>
     <ol class="next-parts">
       <li><span class="part-label">Part 1</span> <strong>Who is acting.</strong> People, teams, agents, and runs carried by every call and checked by every service.</li>
       <li><span class="part-label">Part 2</span> <strong>Governing what agents do.</strong> A gateway, approved tools, checks a model can add but never remove, human approval, audit, and a kill switch.</li>
@@ -303,4 +314,100 @@
     </ol>
   </div>
 </section>
+{{else -}}
+<section class="section" id="builds" aria-labelledby="builds-title">
+  <div class="wrap narrow">
+    <p class="eyebrow">The project</p>
+    <h2 id="builds-title">What it builds</h2>
+    <p>The first book ends with one agent shipped. This one builds the platform around it: a service people sign in to, a credential on every call that names the person, the team, the agent, and the run, and a gateway that every agent call passes through before it reaches a service.</p>
+    <p>On that platform you add more agents, agents that call other agents, and tenants that can’t see each other, then limit what each one can reach and spend. Last, you change it safely: a model or a prompt changes only after a release gate says it may, and one trace follows a call through every part.</p>
+  </div>
+  <div class="wrap">
+    <figure class="diagram diagram-tall">
+      <img class="diagram-theme diagram-dark" src="/img/diagrams/call-path-dark.svg" alt="One call that leaves an agent passes five questions in order, each with the part of the platform that answers it: who is acting (the credential), is it allowed (the gateway), what does it cost (quotas and the ledger), does it happen once (the service), and what happened (the record). A kill switch can cut the route anywhere." width="900" height="1028" loading="lazy" decoding="async">
+      <img class="diagram-theme diagram-light" src="/img/diagrams/call-path-light.svg" alt="One call that leaves an agent passes five questions in order, each with the part of the platform that answers it: who is acting (the credential), is it allowed (the gateway), what does it cost (quotas and the ledger), does it happen once (the service), and what happened (the record). A kill switch can cut the route anywhere." width="900" height="1028" loading="lazy" decoding="async">
+      <img class="diagram-theme diagram-tokyo-night" src="/img/diagrams/call-path-tokyo-night.svg" alt="One call that leaves an agent passes five questions in order, each with the part of the platform that answers it: who is acting (the credential), is it allowed (the gateway), what does it cost (quotas and the ledger), does it happen once (the service), and what happened (the record). A kill switch can cut the route anywhere." width="900" height="1028" loading="lazy" decoding="async">
+      <img class="diagram-theme diagram-gruvbox-dark" src="/img/diagrams/call-path-gruvbox-dark.svg" alt="One call that leaves an agent passes five questions in order, each with the part of the platform that answers it: who is acting (the credential), is it allowed (the gateway), what does it cost (quotas and the ledger), does it happen once (the service), and what happened (the record). A kill switch can cut the route anywhere." width="900" height="1028" loading="lazy" decoding="async">
+      <img class="diagram-theme diagram-catppuccin-latte" src="/img/diagrams/call-path-catppuccin-latte.svg" alt="One call that leaves an agent passes five questions in order, each with the part of the platform that answers it: who is acting (the credential), is it allowed (the gateway), what does it cost (quotas and the ledger), does it happen once (the service), and what happened (the record). A kill switch can cut the route anywhere." width="900" height="1028" loading="lazy" decoding="async">
+      <figcaption>Five questions asked of every call an agent makes. The book is organized around them.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section alt" id="contents" aria-labelledby="contents-title">
+  <div class="wrap narrow">
+    <p class="eyebrow">Table of contents</p>
+    <h2 id="contents-title">Four parts, one platform</h2>
+    <p>The titles so far. The book is in progress, and chapters can change before it is out.</p>
+  </div>
+  <div class="wrap toc">
+    <section class="toc-part" aria-labelledby="toc-p0">
+      <div class="toc-head">
+        <p class="part-label">Opening</p>
+        <h3 id="toc-p0">Where the first book left off</h3>
+      </div>
+    </section>
+    <section class="toc-part" aria-labelledby="toc-p1">
+      <div class="toc-head">
+        <p class="part-label">Part 1</p>
+        <h3 id="toc-p1">Who is acting</h3>
+      </div>
+      <ol class="toc-list" start="1">
+        <li><h4>Who is acting, for whom, in which tenant</h4></li>
+        <li><h4>Signing people in</h4></li>
+        <li><h4>Acting for people at other services</h4></li>
+        <li><h4>MCP servers as resource servers</h4></li>
+      </ol>
+    </section>
+    <section class="toc-part" aria-labelledby="toc-p2">
+      <div class="toc-head">
+        <p class="part-label">Part 2</p>
+        <h3 id="toc-p2">Governing what agents do</h3>
+      </div>
+      <ol class="toc-list" start="5">
+        <li><h4>The gateway</h4></li>
+        <li><h4>The tool supply chain</h4></li>
+        <li><h4>Keeping the model out of the decision</h4></li>
+        <li><h4>Human approval at scale</h4></li>
+        <li><h4>Audit and the kill switch</h4></li>
+      </ol>
+    </section>
+    <section class="toc-part" aria-labelledby="toc-p3">
+      <div class="toc-head">
+        <p class="part-label">Part 3</p>
+        <h3 id="toc-p3">Running many agents</h3>
+      </div>
+      <ol class="toc-list" start="10">
+        <li><h4>Agents calling agents</h4></li>
+        <li><h4>Tenant isolation</h4></li>
+        <li><h4>Scaling out</h4></li>
+        <li><h4>Cost, quotas, and the model gateway</h4></li>
+        <li><h4>State and migrations</h4></li>
+      </ol>
+    </section>
+    <section class="toc-part" aria-labelledby="toc-p4">
+      <div class="toc-head">
+        <p class="part-label">Part 4</p>
+        <h3 id="toc-p4">Changing it safely</h3>
+      </div>
+      <ol class="toc-list" start="15">
+        <li><h4>Evals and model changes as a release gate</h4></li>
+        <li><h4>Observability for an organization</h4></li>
+        <li><h4>Incidents</h4></li>
+        <li><h4>Data: retention, privacy, and deletion</h4></li>
+      </ol>
+      <p class="toc-capstone"><span class="part-label">Capstone</span> <strong>The production readiness review</strong></p>
+    </section>
+  </div>
+</section>
+
+<section class="section" id="status" aria-labelledby="status-title">
+  <div class="wrap narrow">
+    <p class="eyebrow">Status</p>
+    <h2 id="status-title">In progress</h2>
+    <p>The book is being written and has no release date or store page yet. It follows <a href="/book/"><cite>Building AI Agents in Go</cite></a>, which you can buy now and which covers everything this book builds on.</p>
+    <p>The <a href="/production/">Production section</a> of this site already covers some of its topics, such as <a href="/production/agent-identity/">agent identity</a>, <a href="/production/agent-gateways/">agent gateways</a>, and <a href="/production/approval/">approval</a>.</p>
+  </div>
+</section>
+{{end -}}
 {{- end}}

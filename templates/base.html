@@ -119,7 +119,10 @@
           <li><a href="/glossary/"{{if eq .Page.URL "/glossary/"}} aria-current="page"{{end}}>Glossary</a></li>
           <li><a href="/work-with-me/"{{if eq .Page.URL "/work-with-me/"}} aria-current="page"{{end}}>Work with me</a></li>
         </ul>
-        <a class="menu-book" href="/book/"><picture><source type="image/avif" srcset="/img/cover-360.avif"><source type="image/webp" srcset="/img/cover-360.webp"><img src="/img/cover-720.jpg" alt="" width="72" height="108" loading="lazy" decoding="async"></picture><span class="menu-book-text"><span class="menu-book-eyebrow">The book</span><span class="menu-book-title">Building AI Agents in Go</span><span class="menu-book-cta">About the book {{icon "arrow"}}</span><span class="menu-book-next">Next: Running Go Agents in Production</span></span></a>
+        <div class="menu-books">
+          <a class="menu-book" href="/book/"><picture><source type="image/avif" srcset="/img/cover-360.avif"><source type="image/webp" srcset="/img/cover-360.webp"><img src="/img/cover-720.jpg" alt="" width="72" height="108" loading="lazy" decoding="async"></picture><span class="menu-book-text"><span class="menu-book-eyebrow">Book 1</span><span class="menu-book-title">Building AI Agents in Go</span><span class="menu-book-cta">About the book {{icon "arrow"}}</span></span></a>
+          <a class="menu-book" href="/books/running-go-agents-in-production/"><picture><source type="image/avif" srcset="/img/cover2-360.avif"><source type="image/webp" srcset="/img/cover2-360.webp"><img src="/img/cover2-720.jpg" alt="" width="72" height="108" loading="lazy" decoding="async"></picture><span class="menu-book-text"><span class="menu-book-eyebrow">Book 2 · In progress</span><span class="menu-book-title">Running Go Agents in Production</span><span class="menu-book-cta">About the book {{icon "arrow"}}</span></span></a>
+        </div>
       </div>
     </div>
   </div>

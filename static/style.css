@@ -681,6 +681,9 @@ cite { font-style: italic; }
 }
 .toc-list[start="7"] { counter-reset: chapter 6; }
 .toc-list[start="11"] { counter-reset: chapter 10; }
+.toc-list[start="5"] { counter-reset: chapter 4; }
+.toc-list[start="10"] { counter-reset: chapter 9; }
+.toc-list[start="15"] { counter-reset: chapter 14; }
 .toc-list li {
   counter-increment: chapter;
   display: grid;
@@ -3486,6 +3489,8 @@ body::after {
 .menu-book-cta { font: 600 var(--fs-sm) var(--label); color: var(--amber); }
 .menu-book-cta .icon { width: 0.9em; height: 0.9em; vertical-align: -0.1em; }
 .menu-book-next { font-size: var(--fs-sm); color: var(--soft); }
+.menu-books { margin-top: var(--space-5); display: grid; gap: var(--space-3); }
+.menu-books .menu-book { margin-top: 0; }
 
 /* The ring scrolls a section page to its filter; keep it clear of the sticky header. */
 .stage-filter { scroll-margin-top: calc(var(--header-h, 3.75rem) + 1rem); }
@@ -3623,3 +3628,32 @@ body::after {
 .next-parts { list-style: none; padding: 0; margin: var(--space-4) 0 0; display: grid; gap: var(--space-3); }
 .next-parts li { padding-left: var(--space-3); border-left: 2px solid var(--amber-dim); }
 .next-parts .part-label { display: block; }
+
+/* A book's status in place of its buy button, the contents of an unreleased book, and the books page. */
+.book-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  margin: 0;
+  padding: 0.7rem 1.4rem;
+  border: 1px solid var(--amber-dim);
+  border-radius: 4px;
+  font: 600 1rem var(--label);
+  color: var(--amber);
+}
+.book-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex: none; }
+.toc-capstone { margin: var(--space-4) 0 0; }
+.toc-capstone .part-label { margin-right: var(--space-2); }
+.books-head { max-width: 40rem; margin-bottom: var(--space-6); }
+.books-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+.books-item { display: grid; gap: var(--space-4); align-content: start; }
+.books-cover { justify-self: start; width: min(270px, 60vw); line-height: 0; }
+.books-cover img { width: 100%; height: auto; border-radius: 3px; box-shadow: 0 0 0 1px var(--amber-dim), 0 16px 32px -16px var(--shadow); }
+.books-text h2 { margin: 0.25rem 0 0.25rem; font-size: clamp(1.5rem, 3.4vw, 1.9rem); }
+.books-text h2 a { color: inherit; text-decoration: none; }
+.books-text h2 a:hover { color: var(--amber); }
+.books-sub { margin: 0 0 var(--space-3); color: var(--soft); }
+.books-links { display: flex; flex-wrap: wrap; gap: 0.85rem; margin: var(--space-4) 0 0; }
+.books-links .icon { width: 0.9em; height: 0.9em; margin-left: 0.4em; }
+.books-head h1 { margin-bottom: var(--space-3); }

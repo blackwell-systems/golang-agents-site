@@ -53,6 +53,11 @@ A lead model that decides during the run how many agents to start, what to ask e
 It has failure modes of its own: deciding between agents that disagree, keeping the total cost bounded, and testing a system in which every part varies.
 The crash-triage setup stops before orchestration on purpose, the table of shapes in [workflow or agent](/build/workflows-vs-agents/) names it as the last step up, and the [framework comparison](/ecosystem/go-agent-frameworks/) notes the Go frameworks that offer graphs and multi-agent patterns, if you need them now.
 
+**Covered by the second book: agents that call agents.**
+*Running Go Agents in Production*, in progress, has a chapter on delegation: one agent handing work to another, with the credential narrowed at each hop and the budget shared out, so a chain of agents never has more authority or money than the call that started it.
+That is the platform side of several agents, who may call whom and with what.
+Planning across agents, the lead model that decides how to split a task and merge the results, stays out of both books and this site.
+
 **When it's worth measuring yourself.**
 The [research-assistant case study](/beyond-crash-triage/#a-research-assistant) describes the shape where orchestration tends to pay: a question whose answer is spread across many separate sources, where each part can be read in its own context.
 Anthropic's [report on its multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system), which the case study cites, found such a system used about 15 times the tokens of a chat and cut research time by as much as 90 percent on complex questions.

@@ -55,6 +55,7 @@ type Meta struct {
 	Next        bool   // a topic the second book covers in depth; the footer says so
 	Draft       bool   // kept out of the build: no page, sitemap, feed, or nav entry
 	Art         string // an illustration from cmd/build/art.go, such as "ch04"
+	BookID      string // on a book layout page, which book it is in books; empty is the first
 }
 
 // Index reports whether p is a section's own page.
@@ -154,7 +155,8 @@ func loadPage(file, rel string) (*Page, error) {
 	default:
 		p.URL = "/" + dir + name + "/"
 	}
-	if first, _, ok := strings.Cut(rel, "/"); ok {
+	// content/books/ holds the book pages: a directory, but not a section.
+	if first, _, ok := strings.Cut(rel, "/"); ok && first != "books" {
 		p.Section = first
 		if !slices.ContainsFunc(sections, func(s section) bool { return s.Dir == first }) {
 			return nil, fmt.Errorf("directory %s is not a section", first)
@@ -174,8 +176,11 @@ func (p *Page) check() error {
 	if p.Title == "" || p.Description == "" {
 		return fmt.Errorf("title and description are required")
 	}
+	if p.BookID != "" && (p.Layout != "book" || !slices.ContainsFunc(books, func(b *Book) bool { return b.ID == p.BookID })) {
+		return fmt.Errorf("bookid %q: want the id of a book in books.go, on a book layout page", p.BookID)
+	}
 	switch p.Layout {
-	case "home", "section", "article", "book", "glossary", "guides", "page", "work", "search":
+	case "home", "section", "article", "book", "books", "glossary", "guides", "page", "work", "search":
 	default:
 		return fmt.Errorf("unknown layout %q", p.Layout)
 	}
@@ -277,6 +282,8 @@ func (m *Meta) set(key, val string) error {
 		m.BookLine = val
 	case "art":
 		m.Art = val
+	case "bookid":
+		m.BookID = val
 	case "draft":
 		b, err := strconv.ParseBool(val)
 		if err != nil {
