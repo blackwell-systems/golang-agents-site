@@ -3688,3 +3688,7 @@ body::after {
 .book-two p { margin: 0; font-size: var(--fs-sm); color: var(--soft); }
 .book-two p a cite { color: var(--ivory); }
 .book-two-label { display: block; font: 600 var(--fs-label, 0.72rem)/1.4 var(--label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.2rem; }
+
+/* On the home page the cover is larger, so book 2 keeps the card's proportion. */
+.home-book-grid .book-two-cover img { width: 6.5rem; }
+@media (max-width: 37.5rem) { .home-book-grid .book-two-cover img { width: 4rem; } }
