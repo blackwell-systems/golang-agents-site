@@ -452,7 +452,7 @@ cite { font-style: italic; }
   margin: 1.75rem 0;
 }
 @media (max-width: 29.99rem) {
-  .actions .button { flex: 1 1 100%; }
+  .actions .button, .actions .book-status { flex: 1 1 100%; justify-content: center; }
 }
 .facts {
   display: flex;
@@ -3655,6 +3655,10 @@ body::after {
   color: var(--amber);
 }
 .book-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex: none; }
+.book-progress { margin: var(--space-3) 0 var(--space-4); max-width: 28rem; }
+.book-progress-label { margin: 0 0 0.5rem; font: 600 var(--fs-label, 0.72rem)/1.4 var(--label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); }
+.book-progress-bar { height: 6px; border-radius: 3px; background: var(--amber-dim); overflow: hidden; }
+.book-progress-bar span { display: block; height: 100%; background: var(--amber); border-radius: 3px; }
 .toc-capstone { margin: var(--space-4) 0 0; }
 .toc-capstone .part-label { margin-right: var(--space-2); }
 .books-head { max-width: 40rem; margin-bottom: var(--space-6); }

@@ -13,6 +13,7 @@ type Book struct {
 	Line        string // one line for the books page
 	Ledes       []string
 	Status      string // empty once the book is out; shown in place of the buy button
+	Progress    int    // while in progress: the author's estimate of how much is done, in percent
 }
 
 // Released reports whether the book can be bought.
@@ -41,7 +42,8 @@ var books = []*Book{
 			"Run Go agents for a company: many people, teams, and agents on one platform, every call saying who it acts for, and rules, not the model, deciding what an agent may do.",
 			"It picks up where the first book ends, with an agent that works, and builds what it takes to run agents for other people.",
 		},
-		Status: "In progress",
+		Status:   "In progress",
+		Progress: 50,
 	},
 }
 
