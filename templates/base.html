@@ -11,8 +11,7 @@
 <meta name="robots" content="noindex">
 {{- end}}
 <link rel="canonical" href="{{.Page.Abs}}">
-<meta name="theme-color" content="#040E19" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#040E19">
 <meta name="color-scheme" content="dark light">
 <meta property="og:type" content="{{if .Page.Guide}}article{{else}}website{{end}}">
 <meta property="og:site_name" content="{{.Site.Name}}">
@@ -57,15 +56,16 @@
 <link rel="stylesheet" href="{{.Site.CSS}}">
 <script>
 // The theme: the reader's choice from the theme menu, remembered per
-// browser, and otherwise light or dark to match the system. Set before
-// the page draws, so it never flashes the wrong colors.
+// browser, and otherwise dark. "System" follows the system's light or
+// dark. Set before the page draws, so it never flashes the wrong colors.
 (function () {
   var themes = ["light", "dark", "tokyo-night", "gruvbox-dark", "catppuccin-latte"];
   var t = null;
   try { t = localStorage.getItem("theme"); } catch (e) {}
-  if (themes.indexOf(t) < 0) {
+  if (t === "system") {
     t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   }
+  if (themes.indexOf(t) < 0) t = "dark";
   document.documentElement.dataset.theme = t;
 })();
 </script>
@@ -185,7 +185,7 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
   w.appendChild(t);
 });
 
-// The theme menu. Without JavaScript the page follows the system setting.
+// The theme menu. Without JavaScript the page is dark.
 (function () {
   var picker = document.querySelector(".theme-picker");
   var menu = picker && picker.querySelector(".theme-select");
@@ -196,24 +196,21 @@ document.querySelectorAll(".prose > table").forEach(function (t) {
     try { return localStorage.getItem("theme"); } catch (e) { return null; }
   }
   function system() { return light && light.matches ? "light" : "dark"; }
-  menu.value = chosen() || "system";
-  if (!menu.value) menu.value = "system";
+  menu.value = chosen() || "dark";
+  if (!menu.value) menu.value = "dark";
   picker.hidden = false;
   // The label shown on hover names the current theme.
   function tip() { picker.dataset.tip = "Theme: " + menu.options[menu.selectedIndex].text; }
   tip();
   menu.addEventListener("change", function () {
-    try {
-      if (menu.value === "system") localStorage.removeItem("theme");
-      else localStorage.setItem("theme", menu.value);
-    } catch (e) {}
+    try { localStorage.setItem("theme", menu.value); } catch (e) {}
     root.dataset.theme = menu.value === "system" ? system() : menu.value;
     tip();
   });
-  // Follow the system's changes until the reader picks a theme.
+  // Follow the system's changes while the reader has picked "System".
   if (light) {
     light.addEventListener("change", function () {
-      if (!chosen()) root.dataset.theme = system();
+      if (menu.value === "system") root.dataset.theme = system();
     });
   }
 })();
